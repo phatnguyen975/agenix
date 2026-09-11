@@ -60,8 +60,8 @@ Two output shapes exist, at two different points in the session:
 ```markdown
 ## Grilling Summary — <subject>
 
-**Mode:** normal | comprehensive
-**Rounds:** <N>
+> **Mode:** normal | comprehensive
+> **Rounds:** <N>
 
 ### Resolved Decisions
 
