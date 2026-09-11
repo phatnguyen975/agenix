@@ -5,7 +5,7 @@ description: Interview the user through structured, round-based questioning to r
 
 # Grilling
 
-A structured interview primitive for resolving ambiguity before it turns into rework. It is deliberately narrow in scope: it knows how to ask good questions in an efficient order and how to refuse vague answers — it does not know or care what plan it's interviewing about, what tool invoked it, or where its output should end up. That separation is what makes it reusable across projects, agents, and workflows without modification.
+A structured interview primitive for resolving ambiguity before it turns into rework. It asks good questions in an efficient order and refuses to accept vague answers — it does not know or care what plan it's interviewing about, what tool invoked it, or where its output should end up.
 
 ## Overview
 
