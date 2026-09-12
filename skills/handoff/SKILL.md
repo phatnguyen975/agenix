@@ -1,14 +1,12 @@
 ---
 name: handoff
-description: Compact the live thread of the current session — what's in flight, why, and the exact next action — into a single HANDOFF.md snapshot at the project root, so a fresh session, a different agent, or a different tool can resume immediately without re-reading the whole conversation. Use only when a human explicitly asks for this — phrases like "hand off", "wrap up this session", "create a handoff", "prepare a handoff for the next session", or a direct invocation of this skill by name. This skill must NEVER be invoked on your own initiative — not when a context limit feels close, not at what looks like a natural stopping point, not for any reason absent an explicit human request in the current turn.
+description: Compact the live thread of the current session — what's in flight, why, and the exact next action — into a single HANDOFF.md snapshot at the project root, so a fresh session, a different agent, or a different tool can resume immediately without re-reading the whole conversation. Use on phrases like "hand off", "wrap up this session", "create a handoff", "prepare a handoff for the next session", or a direct invocation of this skill by name.
 disable-model-invocation: true
 ---
 
 # Handoff
 
 A session-boundary primitive: it takes everything relevant about the work currently in flight and compacts it into one snapshot file that a fresh session can read and immediately act on. It doesn't know what project it's running in, what other skills or tools exist around it, or what happens to the file after it's written beyond being kept out of git.
-
-**This skill is human-invoked only.** Unlike a skill that watches for ambiguity and steps in on its own, handoff only exists because a human decided, in this specific turn, that a session boundary is happening right now. Never invoke it yourself.
 
 ## Overview
 
@@ -18,24 +16,21 @@ The failure mode this prevents isn't "forgetting things" — it's the opposite: 
 
 ## When to Use
 
-Only when a human explicitly triggers it — direct invocation, or phrasing like "hand off", "wrap this session up", "create a handoff", "prepare this for the next session", "I'm switching tools, hand off first". Typical situations behind that request:
+Trigger phrases: direct invocation, or wording like "hand off", "wrap this session up", "create a handoff", "prepare this for the next session", "I'm switching tools, hand off first". Typical situations:
 
 - Switching to a different agent or tool partway through a task.
 - Ending a session for now with work still in progress, to be picked up later.
 - Handing the in-flight work to a colleague.
 - Forking off a side task while the human continues the main thread elsewhere.
-- The human judges the conversation is getting long and wants continuity preserved deliberately — this is their call to make, not something to infer and act on unprompted.
+- The conversation is getting long and continuity should be preserved deliberately before it's lost.
 
 ## When NOT to Use
 
-- **Never self-invoke, under any circumstance.** Not because context feels long, not because a phase looks complete, not because it seems helpful. If the human didn't ask for it in this turn, don't do it.
 - **Nothing is actually in flight.** If the session ended cleanly with no open thread (a finished, merged piece of work, nothing dangling), there's nothing to compact — say so instead of producing an empty-feeling file.
 - **The human wants a full history or audit trail, not a snapshot.** This skill deliberately drops anything already recorded elsewhere; it is not a substitute for a project's own running decisions or requirements record, if it keeps one. Point to that instead.
 - **The human wants the whole conversation preserved verbatim.** That's a transcript export, not a handoff — a handoff is a compaction by design, not a copy.
 
 ## Input & Invocation
-
-Invocation is direct and human-only — there's no self-invocation path to describe.
 
 ```
 handoff
@@ -91,26 +86,24 @@ For a fully filled-in example, see `references/example-handoff.md`.
 
 ## Core Principles
 
-1. **Human-invoked only, no exceptions.** This is the one rule with zero flexibility in this skill.
-2. **Compaction over completeness.** If it's already written down somewhere durable, reference it — don't copy it. A handoff that duplicates a spec has failed at its one job.
-3. **Snapshot, not log.** Every run overwrites fully. There is only ever one current handoff; nothing accumulates.
-4. **Scope-filtered, not exhaustive.** The declared next-session focus decides what gets real detail versus a one-line reference.
-5. **Redact before writing, every time.** Not conditional on whether the repo is shared, private, or temporary.
-6. **This skill doesn't know where it's being used.** Never name a specific project, plugin, workflow, or tool inside the file's content — the file should read the same regardless of what surrounds it. Refer to any project-specific ongoing record (a decisions log, a requirements doc) generically, by what it is, not by an assumed filename.
+1. **Compaction over completeness.** If it's already written down somewhere durable, reference it — don't copy it. A handoff that duplicates a spec has failed at its one job.
+2. **Snapshot, not log.** Every run overwrites fully. There is only ever one current handoff; nothing accumulates.
+3. **Scope-filtered, not exhaustive.** The declared next-session focus decides what gets real detail versus a one-line reference.
+4. **Redact before writing, every time.** Not conditional on whether the repo is shared, private, or temporary.
+5. **This skill doesn't know where it's being used.** Never name a specific project, plugin, workflow, or tool inside the file's content — the file should read the same regardless of what surrounds it. Refer to any project-specific ongoing record (a decisions log, a requirements doc) generically, by what it is, not by an assumed filename.
 
 ## Workflow
 
 Full detail on compaction judgment calls and redaction patterns: `references/compaction-and-redaction.md`. Condensed sequence:
 
-1. **Confirm this is a genuine human request.** If there's any doubt this was actually asked for in this turn, don't proceed.
-2. **Get the next-session scope.** Use what was given at invocation, or ask the one direct question if it wasn't.
-3. **Synthesize the live thread.** Walk the session and extract, per the Output template: current state, work done, work remaining, decisions made, the one exact next action, how to verify it, relevant gotchas.
-4. **Compact.** For every candidate item, check whether it already exists somewhere durable (spec, doc, commit, an existing project decisions record). If so, drop the restatement and add the pointer under References instead.
-5. **Scope-filter.** Trim or reduce-to-a-reference anything that falls outside the declared next-session focus, except blockers that would affect it regardless.
-6. **Redact.** Scan for credentials, tokens, keys, and PII; replace with a note of what was redacted, never the value. Always fill in the Redaction Note, even when the answer is "nothing found".
-7. **Write `HANDOFF.md` at the project root.** Full overwrite if it already exists.
-8. **Ensure it's gitignored.** See Gitignore Handling below.
-9. **Confirm back to the human.** File path, generated timestamp, and a one-line summary of what got captured — not a restatement of the whole file.
+1. **Get the next-session scope.** Use what was given at invocation, or ask the one direct question if it wasn't.
+2. **Synthesize the live thread.** Walk the session and extract, per the Output template: current state, work done, work remaining, decisions made, the one exact next action, how to verify it, relevant gotchas.
+3. **Compact.** For every candidate item, check whether it already exists somewhere durable (spec, doc, commit, an existing project decisions record). If so, drop the restatement and add the pointer under References instead.
+4. **Scope-filter.** Trim or reduce-to-a-reference anything that falls outside the declared next-session focus, except blockers that would affect it regardless.
+5. **Redact.** Scan for credentials, tokens, keys, and PII; replace with a note of what was redacted, never the value. Always fill in the Redaction Note, even when the answer is "nothing found."
+6. **Write `HANDOFF.md` at the project root.** Full overwrite if it already exists.
+7. **Ensure it's gitignored.** See Gitignore Handling below.
+8. **Confirm back to the human.** File path, generated timestamp, and a one-line summary of what got captured — not a restatement of the whole file.
 
 ## Gitignore Handling
 
@@ -127,7 +120,6 @@ If neither shell is usable for some reason, fall back to doing the same check-th
 
 ## Anti-Patterns
 
-- **Self-invoking this skill.** No exception exists for this.
 - **Dumping the raw conversation instead of compacting it.** The point is the live thread, not a transcript.
 - **Restating content that already lives in a durable artifact.** If it's already written down somewhere, that's what References is for.
 - **A vague Exact Next Action** ("keep working on the feature") instead of one concrete, startable step.
@@ -149,11 +141,22 @@ If neither shell is usable for some reason, fall back to doing the same check-th
 | Rationalization                                                          | Why it's wrong                                                                                                                                                                            |
 | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | "I'll include everything, just to be safe."                              | This defeats compaction. A bloated handoff costs the next session more reading time than a missing detail would — use References to keep everything reachable without inflating the file. |
-| "This session is getting long, I should proactively hand off."           | Never self-invoke, regardless of context pressure. Only an explicit human request in the current turn triggers this.                                                                      |
 | "It's just a local/private repo, redaction doesn't really matter here."  | Redact regardless of repo visibility — a local repo can become shared later, and the check costs nothing to run every time.                                                               |
 | "I'll append to the existing HANDOFF.md so nothing gets lost."           | This is a snapshot mechanism, not a log — overwrite fully. Anything worth keeping long-term belongs in a durable artifact, not accumulating inside this file.                             |
 | "The script ran without an error, that's good enough."                   | Verify by reading `.gitignore` back. A script that silently no-ops for the wrong reason still exits 0.                                                                                    |
 | "I can guess what the next session is for from what we were just doing." | Ask (or use what was already stated) instead of guessing — a wrong guess about scope produces a file that over- or under-includes the wrong things.                                       |
+
+## Verification
+
+Before confirming back to the human, confirm:
+
+- [ ] Every item under Done This Session and Decisions Made This Session was checked against durable artifacts (specs, docs, commits) — nothing here duplicates what's already written down elsewhere.
+- [ ] Exact Next Action is a single concrete, immediately-actionable step — not a list, not a vague direction.
+- [ ] How to Verify names a concrete, checkable action, not "make sure it looks right."
+- [ ] The Redaction Note is present and explicit — content was actually scanned for credentials/tokens/PII, not assumed clean.
+- [ ] `.gitignore` was read back after running the script (or doing the equivalent edit) to confirm the `HANDOFF.md` line is actually present — not just trusted from a success message.
+- [ ] `HANDOFF.md` was fully overwritten, not appended to, if it already existed.
+- [ ] No specific project, tool, or plugin name appears inside the handoff content itself.
 
 ## Reference Files
 

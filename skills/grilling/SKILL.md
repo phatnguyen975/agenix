@@ -1,6 +1,6 @@
 ---
 name: grilling
-description: Interview the user through structured, round-based questioning to resolve ambiguity in a plan, decision, or idea before any artifact, spec, or code gets created. Builds a dependency-ordered decision tree, asks only the questions whose prerequisites are already settled, and refuses to accept vague or "should-want" answers as resolved. Use this proactively whenever a request is underspecified, contains a fork with more than one reasonable implementation, or you catch yourself about to silently assume something non-trivial before producing a spec, design, or plan — even if the user never asked to be interviewed. Also use whenever the user explicitly asks to be "grilled", "interviewed", to "stress-test" a plan, or invokes this skill by name with an optional --mode flag. Do not confuse this with a simple clarifying question — this skill is for structured, multi-round elicitation, not a single one-off "did you mean X?".
+description: Interview the user through structured, round-based questioning to resolve ambiguity in a plan, decision, or idea before any artifact, spec, or code gets created. Use proactively when a request is underspecified or has a fork with more than one reasonable implementation, or when the user asks to be "grilled", "interviewed", or to "stress-test" a plan. Not for a single one-off clarifying question — this is structured, multi-round elicitation.
 ---
 
 # Grilling
@@ -138,6 +138,17 @@ These are excuses that sound reasonable in the moment but quietly defeat the poi
 | "This is a minor detail, not worth its own question."                              | Size of the sentence needed to ask isn't the same as size of the impact. If it's tagged Shaping or Blocking, its priority — not its word count — decides whether it gets asked.                            |
 | "The user gave a vague answer, but pushing again feels pedantic."                  | A vague answer isn't a resolved decision, it's an unresolved one wearing different clothes. One follow-up for specifics is not pedantic — silently guessing what they meant is the actual risk.            |
 | "This plan sounds like it follows common best practice, so I don't need to check." | "Best practice" is a direction with many valid concrete implementations. Naming the practice isn't the same as picking one; that's still an open decision.                                                 |
+
+## Verification
+
+Before presenting the Resolution Summary, confirm:
+
+- [ ] Every Blocking and Shaping node has an explicit, concrete answer — not a buzzword, deferred-to-convention, or hedged non-answer.
+- [ ] No question was asked whose prerequisite was still unresolved at the time.
+- [ ] In `normal` mode, every Cosmetic item is either absent from the questioning or logged under "Auto-Defaulted" with the default applied — none silently dropped without a trace.
+- [ ] If the session ended early, every remaining unresolved item is listed under "Still Open", not omitted.
+- [ ] The summary follows the exact template structure and names no specific project, tool, or plugin.
+- [ ] The mode used matches how the session was invoked (self-invoked sessions default to `normal` unless the user explicitly asked otherwise).
 
 ## Reference Files
 

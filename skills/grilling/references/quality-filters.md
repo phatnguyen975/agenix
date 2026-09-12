@@ -11,7 +11,7 @@ The failure mode this guards against isn't silence — it's a confident-sounding
 Watch for these patterns in a reply:
 
 - **Buzzwords standing in for a spec.** "Scalable", "robust", "clean", "modern", "flexible", "enterprise-grade" — these describe a quality, not a concrete choice. They're fine as color commentary alongside a real answer, but not as the answer itself.
-- **Deferred to unspecified convention.** "The way most apps do it", "the standard pattern", "whatever's normal here", "best practice." These name a category of answer without picking a member of it. There are usually several "standard" ways to do most things.
+- **Deferred to unspecified convention.** "The way most apps do it", "the standard pattern", "whatever's normal here", "best practice". These name a category of answer without picking a member of it. There are usually several "standard" ways to do most things.
 - **Hedging language.** "I think", "probably", "I guess", "maybe just", "something like". This often signals the user hasn't actually thought it through yet, not just that they're being casual — worth a gentle check rather than taking the literal words at face value.
 - **Answering a different, easier question.** Sometimes a reply resolves a nearby but distinct question instead of the one asked. Check that the reply actually maps onto the node before marking it resolved.
 - **Non-answer confirmations.** "Yeah, sounds good" to an open-ended question (not one with a suggested default to confirm) doesn't tell you which of several options they meant — only accept a bare confirmation when there was a concrete default on offer to confirm.
@@ -29,7 +29,7 @@ Don't over-apply this — these are legitimately resolved:
 
 When a reply looks vague:
 
-1. **Push once, specifically** — don't re-ask the original question verbatim. Narrow it using their own words: if they said "the usual auth flow", ask "do you mean session cookies, or a token-based flow like JWT?" rather than repeating "what auth flow do you want?"
+1. **Push once, specifically** — don't re-ask the original question verbatim. Narrow it using their own words: if they said "The usual auth flow", ask "Do you mean session cookies, or a token-based flow like JWT?" rather than repeating "what auth flow do you want?"
 2. **Offer 2–3 concrete options if the space is genuinely open**, rather than an open-ended re-ask — this respects that they may not have a specific technical vocabulary for what they want, and it's faster for them to point at one than to invent a spec from scratch.
 3. **Accept the second answer even if it's still not fully precise**, as long as it's now concrete enough to act on without further silent interpretation. Don't turn this into an infinite loop chasing perfect precision — one follow-up is usually enough; use judgment past that point rather than mechanically repeating the pattern.
 4. **If, after a follow-up, the user clearly wants to delegate the decision** ("you pick", "whatever you think is right"), treat that as resolved via delegation (see above) rather than pushing a third time.

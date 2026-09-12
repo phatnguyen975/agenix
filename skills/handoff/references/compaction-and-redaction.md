@@ -1,6 +1,6 @@
 # Compaction & Redaction — Detailed Guidance
 
-This is the detail behind Workflow steps 3–6 in `SKILL.md`: how to judge what's "already durable" versus what belongs in the live thread, and how to redact sensitive content before writing.
+This is the detail behind Workflow steps 2–5 in `SKILL.md`: how to judge what's "already durable" versus what belongs in the live thread, and how to redact sensitive content before writing.
 
 ## Judging "already durable" vs. "live thread"
 
