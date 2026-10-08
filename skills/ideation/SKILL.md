@@ -36,7 +36,8 @@ ideation
 <the raw idea, in plain language>
 ```
 
-- The raw idea is whatever they describe when invoking.
+- The idea is whatever was described with the invocation, or the task already in front of you.
+- Flag briefly that you're opening it up before narrowing, so the person can redirect if they'd rather proceed directly — then go straight into Workflow.
 
 ## Output
 
@@ -103,7 +104,7 @@ Direct, thoughtful, slightly provocative — a sharp thinking partner, not a fac
 
 ## Workflow
 
-A default flow, not a rigid script — adapt to what the person says. This is a conversation, not a form to fill in. Exactly three phases — resist adding more.
+A default flow, not a rigid script — adapt to what the person says. This is a conversation, not a form to fill in. Exactly three phases — resist adding more. Full example: `references/worked-examples.md`.
 
 **Phase 1 — Open It Up (Divergent)**
 
@@ -176,9 +177,3 @@ Before presenting the concept doc:
 - [ ] "Not Doing" makes trade-offs explicit, not just a wish list of what's included.
 - [ ] Output is the concept doc itself, not just conversation.
 - [ ] The human confirmed the direction and save location before anything is written.
-
-## Reference Files
-
-- `references/ideation-techniques.md` — the core lenses with trigger prompts, plus deeper frameworks (SCAMPER, How Might We, First Principles, Jobs-to-Be-Done, Constraint-Based Ideation, Pre-mortem, Analogous Inspiration), each tagged with which phase it fits best.
-- `references/evaluation-criteria.md` — full rubric for user value, feasibility, and differentiation (with red flags for each), the assumption audit, a value × feasibility decision matrix, and MVP scoping principles.
-- `references/worked-examples.md` — one ideation session, end to end.
