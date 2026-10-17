@@ -1,7 +1,6 @@
 ---
 name: context-priming
 description: Load exactly the context a session needs — no more, no less — by mapping the project onto a five-level Context Hierarchy (rules, specs, source, errors, history) before work begins. Use when starting a new session, switching to a different task mid-session, resuming after a context window reset, or when output quality shows signs of "context rot" (wrong patterns, invented APIs, ignored conventions). Also use on direct invocation by name or phrasing like "prime context", "load context", "refresh context".
-disable-model-invocation: true
 ---
 
 # Context Priming

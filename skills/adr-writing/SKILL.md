@@ -36,7 +36,7 @@ If any required input is missing, ask for it or look for it in the repository/co
 
 ## Output
 
-A single Markdown file following the structure below. The canonical, fully annotated version of this template is `assets/adr-template.md` — use it as the starting point for every draft rather than retyping the structure from memory.
+A single Markdown file following the structure below. The canonical, fully annotated version of this template is `references/adr-template.md` — use it as the starting point for every draft rather than retyping the structure from memory.
 
 | Section                | Purpose                                                            |
 | ---------------------- | ------------------------------------------------------------------ |
@@ -78,7 +78,7 @@ A single Markdown file following the structure below. The canonical, fully annot
 
    Pick the script based on the environment the command will actually run in (the human's OS, or the OS of the machine executing the command) — not the skill's own platform. Both scripts implement identical logic and produce identical output for the same input, so either is safe to use once the right one is chosen. They match the `ADR-NNN-<slug>.md` pattern specifically; if step 2 found a different existing convention, follow that project's own numbering/naming pattern by hand instead of using either script.
 
-5. **Draft the ADR** from `assets/adr-template.md`:
+5. **Draft the ADR** from `references/adr-template.md`:
    - Title the decision itself, not the question.
    - Write Context objectively — the situation as it stood, without presupposing the outcome.
    - State the Decision and its rationale in one clear statement.

@@ -1,7 +1,6 @@
 ---
 name: ideation
 description: Refine a raw idea into a sharp, actionable concept through divergent-then-convergent thinking — generate several real variations, evaluate them against value/feasibility/differentiation, surface hidden assumptions, and converge on one direction with explicit trade-offs. Use when an idea is still vague, before committing to a spec or plan, or when the user asks to "ideate", "refine this idea", or "brainstorm directions".
-disable-model-invocation: true
 ---
 
 # Ideation

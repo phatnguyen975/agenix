@@ -1,7 +1,6 @@
 ---
 name: handoff
 description: Compact the live thread of the current session — what's in flight, why, and the exact next action — into a single HANDOFF.md snapshot, so a fresh session, a different agent, or a different tool can resume immediately without re-reading the whole conversation. Use on phrases like "hand off", "wrap up this session", "create a handoff", "prepare a handoff for the next session", or a direct invocation of this skill by name.
-disable-model-invocation: true
 ---
 
 # Handoff
