@@ -6,27 +6,27 @@ Fill this exact structure end to end. Every `<...>` placeholder must be replaced
 # PRD: <System or Feature Name>
 
 > **Status:** Draft | Approved
-> **Date:** <YYYY-MM-DD> — v<N>
 > **Owner:** <name>
+> **Date:** <YYYY-MM-DD> — v<N>
 
-## Executive Summary
+## 1. Executive Summary
 
 <One paragraph: what the system/feature is, who it serves, the core value it
 delivers, current status.>
 
-## Problem Statement
+## 2. Problem Statement
 
 <The user/business problem being solved, current situation and relevant
 context, why this is being addressed now.>
 
-## Goals
+## 3. Goals
 
 <Bulleted, numbered business and system-level goals this PRD exists to satisfy.>
 
 - **G-01:** <goal>
 - **G-02:** <goal>
 
-## Target Users
+## 4. Target Users
 
 <Primary and secondary user segments — role, context, need, pain point. Not a
 full persona deep-dive.>
@@ -34,7 +34,7 @@ full persona deep-dive.>
 - **<segment> (Primary):** <context, need, pain point>
 - **<segment> (Secondary):** <context, need, pain point>
 
-## User Journeys
+## 5. User Journeys
 
 <Each journey uses this exact format, ordered by priority — High first.
 Narrative flow, not acceptance-test detail: that belongs to a feature spec.
@@ -54,7 +54,7 @@ elicitation-flow.md, Section 5.>
   3. <step>
 - **Outcome:** <end state / value delivered>
 
-## Scope
+## 6. Scope
 
 ### In Scope
 
@@ -68,7 +68,7 @@ elicitation-flow.md, Section 5.>
 
 - <capability>
 
-## Functional Requirements
+## 7. Functional Requirements
 
 <Numbered, capability-level requirements using MUST / SHALL / MUST NOT,
 grouped by capability area, each tied back to the journey it supports. See
@@ -84,7 +84,7 @@ writing-conventions.md for phrasing rules.>
 - **FR-03:** The system SHALL <behavior>. _(supports: UJ-02)_
 - **FR-04:** The system MUST NOT <restricted behavior>. _(supports: UJ-02)_
 
-## Non-Functional Requirements
+## 8. Non-Functional Requirements
 
 <Quality attributes — performance, scalability, security, reliability,
 accessibility, compliance — each a measurable target under a stated
@@ -93,19 +93,19 @@ condition.>
 - **NFR-01:** The system MUST <attribute> within <threshold> under <condition>.
 - **NFR-02:** The system SHALL <attribute> within <threshold> under <condition>.
 
-## Constraints
+## 9. Constraints
 
 <External limitations the system must operate within, with type.>
 
 - **CON-01:** <constraint> — **type:** technical | budget | timeline | legal | organizational
 
-## Data Overview
+## 10. Data Overview
 
 <Only if the system is data-heavy. Core domain entities — no implementation-level schema.>
 
 - **<entity>:** <description> | **key attributes:** <...> | **relates to:** <other entity>
 
-## Success Metrics
+## 11. Success Metrics
 
 <Numbered, measurable outcomes, each with a baseline, a target, and a
 measurement window, tied back to the goal it measures.>
@@ -113,20 +113,20 @@ measurement window, tied back to the goal it measures.>
 - **SC-01:** <metric> — **baseline:** <value or "N/A, new capability">, **target:** <value>, **by:** <timeframe>. _(measures: G-01)_
 - **SC-02:** <metric> — **baseline:** <value>, **target:** <value>, **by:** <timeframe>. _(measures: G-02)_
 
-## Assumptions
+## 12. Assumptions
 
 <Beliefs taken as true about users, environment, or existing systems — and
 the impact if wrong.>
 
 - **A-01:** <assumption> — **if false:** <impact>
 
-## Dependencies
+## 13. Dependencies
 
 <External systems, teams, services, or infrastructure this system relies on.>
 
 - **D-01:** <dependency> — **type:** internal | external — **if unavailable:** <impact>
 
-## Glossary
+## 14. Glossary
 
 <Optional. Domain-specific terms used in this document that a reader would
 need defined to avoid misreading a requirement.>
