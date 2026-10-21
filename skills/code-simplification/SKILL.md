@@ -52,7 +52,7 @@ Reduce code complexity while preserving behavior exactly. The goal is not fewer 
    - Why might it have been written this way (performance, a platform constraint, a historical reason)? Check history (e.g. blame/log) if unclear.
 3. **No test coverage, no simplification.** Behavior preservation is only verifiable against something. If the code in scope isn't covered by `test_command`, stop and report that back, do not proceed on inspection alone.
 4. **Clarity over cleverness.** Simplicity means faster comprehension, not fewer lines or denser syntax. A change that needs a mental pause to parse isn't a simplification even when it's shorter.
-5. **Convention first, principles second.** The project's own conventions outrank general heuristics like KISS, DRY, and YAGNI, and outrank the language-specific idioms in `references/` too.
+5. **Convention first, principles second.** The project's own conventions outrank general heuristics like KISS, DRY, and YAGNI, and outrank general language idioms too.
    ```markdown
    1. Read `CLAUDE.md` / `AGENTS.md` / Project conventions
    2. Study how neighboring code handles similar patterns
@@ -71,7 +71,7 @@ Reduce code complexity while preserving behavior exactly. The goal is not fewer 
 
 ## Complexity Signals
 
-Language-specific examples and additional idioms are in `references/`. Scan for these patterns — each one is a concrete signal, not a vague smell:
+Scan for these patterns — each one is a concrete signal, not a vague smell:
 
 **Structural complexity:**
 
@@ -112,18 +112,7 @@ Language-specific examples and additional idioms are in `references/`. Scan for 
    - Passing tests cover it → continue to Step 3.
    - No coverage, or no `test_command` available → **STOP.** Produce the completion report marked as blocked, recommending test coverage before this skill is run again (characterization tests, if none exist at all, per Michael Feathers' definition: tests that pin down current behavior before it is changed). Do not write those tests yourself.
 3. **Understand.** Work through Principle 2's questions for anything non-obvious before proceeding.
-4. **Identify opportunities.** Match the code in scope against the Complexity Signals above, then route to language-specific detail:
-   - Detect the language of the files in scope from their extensions.
-   - Read only the one matching reference file below — not the others — for idioms that are expected (don't flag these), additional smell → fix pairs, and behavior-preserving traps unique to that language.
-
-     | Language                | Extensions                | Reference                                                                  |
-     | ----------------------- | ------------------------- | -------------------------------------------------------------------------- |
-     | JavaScript / TypeScript | `.js` `.jsx` `.ts` `.tsx` | [references/javascript-typescript.md](references/javascript-typescript.md) |
-     | Java                    | `.java`                   | [references/java.md](references/java.md)                                   |
-     | Go                      | `.go`                     | [references/go.md](references/go.md)                                       |
-     | Python                  | `.py`                     | [references/python.md](references/python.md)                               |
-
-   - No reference file matches the detected language → apply the Core Principles and Complexity Signals above only.
+4. **Identify opportunities.** Match the code in scope against the Complexity Signals above. For idioms, naming, and anything specific to the language in scope: the project's own convention always wins — follow it wherever it exists (style guide, linter config, project conventions, or the patterns already used in neighboring code). Where the project has no convention of its own, fall back to that language's own widely-accepted standards and real-world best practices.
 5. **Plan and confirm with the human.** Summarize the proposed changes: what will change, why, and the expected risk level for each. Present this plan before touching any code.
    - If feedback comes back, revise the plan and re-confirm if the revision is material.
    - Proceed to execution only once the plan is approved.
@@ -170,5 +159,5 @@ Run before producing the completion report. Any unchecked item blocks a "pass" s
 - [ ] Diff touches only files declared in `scope`
 - [ ] Each simplification was applied and verified independently, not batched
 - [ ] The human-approved plan was followed; any deviation is explained in the report
-- [ ] No language-specific behavior-preserving trap (see the matching `references/` file) was triggered
+- [ ] No language-specific behavior-preserving trap was triggered (coercion/equality rules, mutable defaults, closure capture, error-wrapping semantics, and similar gotchas for the language in scope)
 - [ ] Read as a whole, the diff is a net improvement a reviewer would approve — genuinely easier to understand, not just shorter
