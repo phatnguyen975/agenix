@@ -1,6 +1,9 @@
 ---
 name: prd-writing
 description: Creates a system-level or feature-level Product Requirements Document (PRD) from a raw idea, concept description, or existing proposal, through a structured interview that resolves every ambiguity before anything is written. Use this skill whenever the user asks to write, draft, or create a PRD, a product requirements document, or a requirements document for a new system or a new feature being added to an existing system — even when they don't say "PRD" explicitly, such as "help me define what this system needs to do", "turn this idea into formal requirements", or "write up what we need before we start building this". Do not use it for low-level technical specs, API/schema design, or fully detailed feature-level acceptance criteria — that level of detail belongs to a separate feature-spec step.
+metadata:
+  author: phatnguyen975
+  version: 1.0
 ---
 
 # PRD Writing

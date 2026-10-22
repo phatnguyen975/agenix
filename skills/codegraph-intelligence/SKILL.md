@@ -1,6 +1,9 @@
 ---
 name: codegraph-intelligence
 description: Use CodeGraph (colbymchenry/codegraph) instead of grep/find/glob or blind file reads whenever a task needs code structure — tracing call chains and bug flows, computing blast radius before renaming or changing a signature, finding tests affected by a change, auditing architecture/pattern/route consistency, or orienting in an unfamiliar repo. Trigger proactively for debugging ("how does X reach Y"), refactoring ("what breaks if I change this"), code review ("what does this diff impact"), and codebase onboarding — even if the user doesn't name CodeGraph. Also covers guiding setup when CodeGraph isn't configured yet. Not for editing code, free-text search, or reading a single already-known file.
+metadata:
+  author: phatnguyen975
+  version: 1.0
 ---
 
 # CodeGraph Intelligence

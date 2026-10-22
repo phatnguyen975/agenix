@@ -1,6 +1,9 @@
 ---
 name: adr-writing
 description: Write, review, and maintain Architecture Decision Records (ADRs) — structured documents that capture the reasoning behind a significant technical or architectural decision. Use this skill whenever a decision is hard to reverse, affects system structure, non-functional characteristics (performance, security, scalability, reliability), dependencies, or interfaces, or whenever the user asks to document, record, write up, or explain "why" a technical choice was made — even if they never say the word "ADR". Also use it to update an existing ADR's status, supersede a past decision with a new one, or retroactively document a decision that was made but never written down.
+metadata:
+  author: phatnguyen975
+  version: 1.0
 ---
 
 # ADR Writing

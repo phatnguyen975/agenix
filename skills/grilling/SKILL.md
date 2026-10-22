@@ -1,6 +1,9 @@
 ---
 name: grilling
 description: Interview the user through structured, round-based questioning to resolve ambiguity in a plan, decision, or idea before any artifact, spec, or code gets created. Use proactively when a request is underspecified or has a fork with more than one reasonable implementation, or when the user asks to be "grilled" or "interviewed" about an already-chosen plan. Not for a single one-off clarifying question — this is structured, multi-round elicitation.
+metadata:
+  author: phatnguyen975
+  version: 1.0
 ---
 
 # Grilling

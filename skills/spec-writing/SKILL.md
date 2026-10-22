@@ -1,6 +1,9 @@
 ---
 name: spec-writing
 description: Creates an implementation-ready specification for one feature, through a structured interview that resolves every ambiguity before anything is written. Use this skill whenever the user asks to write, draft, or create a spec, a feature spec, or a specification for a feature — even when they don't say "spec" explicitly, such as "write up exactly what this feature needs to do before we build it" or "turn this into something an engineer could implement without asking me questions". Do not use it for a system-level or product-level requirements document covering multiple features or a whole product, or for any document outside this feature's own behavior and requirements.
+metadata:
+  author: phatnguyen975
+  version: 1.0
 ---
 
 # Spec Writing

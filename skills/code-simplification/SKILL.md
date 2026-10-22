@@ -1,6 +1,9 @@
 ---
 name: code-simplification
 description: Simplifies code for clarity and maintainability without changing its observable behavior. Use when refactoring code for readability, when code works but is harder to read, extend, or debug than it should be, when a code review flags complexity or duplication, or when consolidating logic that accumulated under time pressure. Do NOT use for adding features, fixing bugs, performance tuning, architectural rewrites, or on code with no test coverage.
+metadata:
+  author: phatnguyen975
+  version: 1.0
 ---
 
 # Code Simplification
@@ -117,8 +120,8 @@ Scan for these patterns — each one is a concrete signal, not a vague smell:
    - If feedback comes back, revise the plan and re-confirm if the revision is material.
    - Proceed to execution only once the plan is approved.
 6. **Apply incrementally.** One simplification at a time → run `test_command` (and build/lint if available) → keep the change if it passes, revert and reconsider if it doesn't, before moving to the next. Avoid batching multiple simplifications into a single untested change. If something breaks, you need to know which simplification caused it.
-7. **Self-verify.** Run the full Verification checklist below against the final diff — read it as a reviewer would, not just by checking boxes. If the "simplified" version is harder to follow than the original, revert it; not every attempt succeeds.
-8. **Generate the completion report.** Read `assets/report-template.html` — and the two worked examples beside it, `assets/example-completed.html` and `assets/example-blocked.html` — before filling it in. Do not redesign the layout; fill the placeholders and duplicate the marked repeating blocks per change/file, the same way the examples do. Before writing the file, confirm the save location with the human — propose `docs/code-simplification-report.html` as the default and show it to them; save there if they accept it, or at whatever path/filename they give instead.
+7. **Self-verify.** Run the full Verification below against the final diff — read it as a reviewer would, not just by checking boxes. If the "simplified" version is harder to follow than the original, revert it; not every attempt succeeds.
+8. **Generate the completion report.** Read `assets/report-template.html` and only read the specific example file matching your run's outcome (`assets/example-completed.html` if successful, or `assets/example-blocked.html` if blocked) — do not read both. Do not redesign the layout; fill the placeholders and duplicate the marked repeating blocks per change/file, the same way the example does. Before writing the file, confirm the save location with the human — propose `docs/code-simplification-<scope>-<YYYYMMDD>.html` as the default and show it to them; save there if they accept it, or at whatever path/filename they give instead.
 
 ## Anti-Patterns
 
@@ -143,11 +146,11 @@ Scan for these patterns — each one is a concrete signal, not a vague smell:
 | "I'll just clean up this nearby code too"     | Scope creep — the leading failure mode in agentic refactoring                                                  |
 | "The original author must have had a reason"  | Check (git blame, tests, comments), don't assume either way                                                    |
 | "This abstraction might be useful later"      | Speculative generality is complexity without current value (YAGNI)                                             |
-| "It's shorter, so it must be correct"         | Run the full Verification checklist; brevity isn't proof of correctness                                        |
+| "It's shorter, so it must be correct"         | Run the full Verification; brevity isn't proof of correctness                                                  |
 | "The types make it self-documenting"          | Types document structure, not intent — a well-named function still carries meaning a signature doesn't         |
 | "I'll refactor while I'm adding this feature" | Mixed changes are harder to review, revert, and understand in history later — keep them separate (Principle 9) |
 
-## Verification Checklist
+## Verification
 
 Run before producing the completion report. Any unchecked item blocks a "pass" status in the report.
 

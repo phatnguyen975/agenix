@@ -1,6 +1,9 @@
 ---
 name: context-priming
 description: Load exactly the context a session needs — no more, no less — by mapping the project onto a five-level Context Hierarchy (rules, specs, source, errors, history) before work begins. Use when starting a new session, switching to a different task mid-session, resuming after a context window reset, or when output quality shows signs of "context rot" (wrong patterns, invented APIs, ignored conventions). Also use on direct invocation by name or phrasing like "prime context", "load context", "refresh context".
+metadata:
+  author: phatnguyen975
+  version: 1.0
 ---
 
 # Context Priming
@@ -110,13 +113,13 @@ If a level has nothing to load (new project, no spec yet, no active error), say 
 
 **Most persistent → most transient.** Map onto the actual project structure; don't hardcode paths.
 
-| Level                                                         | Contains                                                          | Loaded                |
-| ------------------------------------------------------------- | ----------------------------------------------------------------- | --------------------- |
-| 1. Rules Files (`CLAUDE.md`, `AGENTS.md`, `CONTEXT.md`, etc.) | Project-wide conventions, guardrails, stack, commands, boundaries | Always                |
-| 2. Spec / Architecture Docs                                   | The relevant section for the current feature/session              | Per feature/session   |
-| 3. Relevant Source Files                                      | Files to be touched, their tests, one existing pattern to follow  | Per task              |
-| 4. Error Output / Test Results                                | The specific failure being worked on                              | Per iteration         |
-| 5. Conversation History / Prior Session                       | This session so far, or a prior snapshot artifact if one exists   | Accumulates, compacts |
+| Level                                                          | Contains                                                          | Loaded                |
+| -------------------------------------------------------------- | ----------------------------------------------------------------- | --------------------- |
+| 1. Rules Files (`CLAUDE.md`, `AGENTS.md`, `GLOSSARY.md`, etc.) | Project-wide conventions, guardrails, stack, commands, boundaries | Always                |
+| 2. Spec / Architecture Docs                                    | The relevant section for the current feature/session              | Per feature/session   |
+| 3. Relevant Source Files                                       | Files to be touched, their tests, one existing pattern to follow  | Per task              |
+| 4. Error Output / Test Results                                 | The specific failure being worked on                              | Per iteration         |
+| 5. Conversation History / Prior Session                        | This session so far, or a prior snapshot artifact if one exists   | Accumulates, compacts |
 
 How to read each level efficiently, not just what it contains:
 

@@ -1,6 +1,9 @@
 ---
 name: incremental-implementation
 description: Breaks a unit of work into small vertical slices and drives each one through test-driven development (Red-Green-Refactor) before committing it. Use when implementing a non-trivial change, or picking up a unit of work already broken into slices by a prior planning step — especially when the work is large enough that writing it in one pass risks producing untested, unreviewable code. Not for trivial single-location edits (a label, a comment, a config value, a formatting change) or for a pure investigation/spike that isn't meant to produce kept code.
+metadata:
+  author: phatnguyen975
+  version: 1.0
 ---
 
 # Incremental Implementation

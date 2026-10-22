@@ -1,6 +1,9 @@
 ---
 name: work-breakdown-planning
 description: Breaks a unit of work of any size into small, independently deliverable vertical slices and plans them with acceptance criteria, acyclic dependencies and status, saved as a plan document. Supports a one-level or fully recursive split, and extending an existing plan. Use when the user asks to break down, decompose, split or plan a piece of work, or to update such a breakdown, even if they do not say "slice". Not for carrying out the work or for trivial single-location edits.
+metadata:
+  author: phatnguyen975
+  version: 1.0
 ---
 
 # Work Breakdown Planning
