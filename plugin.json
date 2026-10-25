@@ -1,5 +1,5 @@
 {
   "name": "agenix",
-  "description": "Universal SDLC workflow framework for AI coding agents, providing structured lifecycle management, zero-trust quality gating, seamless issue tracking, and architectural context synchronization.",
-  "version": "0.1.0"
+  "version": "1.0.0",
+  "description": "Universal SDLC workflow framework for AI coding agents, providing structured lifecycle management, zero-trust quality gating, seamless issue tracking, and architectural context synchronization."
 }

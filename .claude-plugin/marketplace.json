@@ -1,0 +1,30 @@
+{
+  "name": "phatnguyen975",
+  "description": "Universal SDLC workflow framework for AI coding agents, providing structured lifecycle management, zero-trust quality gating, seamless issue tracking, and architectural context synchronization.",
+  "owner": {
+    "name": "Phat Nguyen",
+    "url": "https://github.com/phatnguyen975"
+  },
+  "plugins": [
+    {
+      "name": "agenix",
+      "version": "1.0.0",
+      "source": {
+        "source": "github",
+        "repo": "phatnguyen975/agenix"
+      },
+      "description": "Universal SDLC workflow framework for AI coding agents, providing structured lifecycle management, zero-trust quality gating, seamless issue tracking, and architectural context synchronization.",
+      "homepage": "https://github.com/phatnguyen975/agenix",
+      "license": "MIT",
+      "keywords": [
+        "skills",
+        "agents",
+        "engineering",
+        "spec",
+        "tdd",
+        "review",
+        "ship"
+      ]
+    }
+  ]
+}
