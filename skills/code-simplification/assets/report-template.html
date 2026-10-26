@@ -2,89 +2,61 @@
 <!--
   CODE SIMPLIFICATION — COMPLETION REPORT TEMPLATE
 
-  This file is a TEMPLATE, not a finished report. Two fully-filled,
-  ready-to-read examples sit next to this file — read them alongside
+  This file is a TEMPLATE, not a finished report. Two fully-filled, ready-to-read examples sit next to this file — read them alongside
   these comments, not instead of them:
     - example-completed.html  (a successful COMPLETED run)
     - example-blocked.html    (a BLOCKED run, no test coverage)
-  Both examples share this exact structure and style; only their
-  content differs. Match that: every report this skill produces must
-  look like these two, regardless of status — the layout, colors, and
-  components never change between a COMPLETED, BLOCKED, or PARTIAL
+  Both examples share this exact structure and style; only their content differs. Match that: every report this skill produces must
+  look like these two, regardless of status — the layout, colors, and components never change between a COMPLETED, BLOCKED, or PARTIAL
   report, only which sections have real content vs. an empty-state note.
 
-  When Workflow Step 8 is reached, copy this file and replace every
-  placeholder before saving it as the run's output. Do not redesign
+  When Workflow Step 8 is reached, copy this file and replace every placeholder before saving it as the run's output. Do not redesign
   the layout.
 
   PLACEHOLDERS
-  - A token written as two curly braces around a name, e.g. the overall
-    score token, means: replace with a single value (plain text,
-    already HTML-escaped before inserting). Numbers only, no extra
-    characters, unless the comment beside it says otherwise.
-  - A repeating section is wrapped by a pair of one-line HTML comments
-    that both read "REPEAT: NAME", one ending in START and the other
-    in END. Duplicate everything between that pair once per item, fill
-    each copy's placeholders, then delete the two marker comments
+  - A token written as two curly braces around a name, e.g. the overall score token, means: replace with a single value (plain text,
+    already HTML-escaped before inserting). Numbers only, no extra characters, unless the comment beside it says otherwise.
+  - A repeating section is wrapped by a pair of one-line HTML comments that both read "REPEAT: NAME", one ending in START and the other
+    in END. Duplicate everything between that pair once per item, fill each copy's placeholders, then delete the two marker comments
     themselves from the final output.
-  - EVERY repeating section has an explicit empty-state instruction
-    directly below it in this file. If a section has zero items, you
-    MUST use that instruction's exact wording/markup — never leave a
-    section blank, and never invent new empty-state wording per report
+  - EVERY repeating section has an explicit empty-state instruction directly below it in this file. If a section has zero items, you
+    MUST use that instruction's exact wording/markup — never leave a section blank, and never invent new empty-state wording per report
     so completed and blocked runs read consistently.
 
   RUN STATUS
-  Set data-status on the body tag, and the status badge text, to one
-  of: COMPLETED, BLOCKED, or PARTIAL.
-  - COMPLETED: ran through Workflow Step 7 with the Verification
-    checklist fully passing. Omit the Status Note section entirely
+  Set data-status on the body tag, and the status badge text, to one of: COMPLETED, BLOCKED, or PARTIAL.
+  - COMPLETED: ran through Workflow Step 7 with the Verification checklist fully passing. Omit the Status Note section entirely
     (delete it, including its instructional comment).
-  - BLOCKED: stopped at Step 2 (no test coverage for code in scope).
-    Include the Status Note section explaining why and what to do next.
+  - BLOCKED: stopped at Step 2 (no test coverage for code in scope). Include the Status Note section explaining why and what to do next.
   - PARTIAL: stopped partway through Step 6. Include the Status Note.
-  Each checklist row's status token is PASS or FAIL, set as the
-  data-check attribute on its list item.
+  Each checklist row's status token is PASS or FAIL, set as the data-check attribute on its list item.
 
   SCORE CALCULATION
-  OVERALL_SCORE is never chosen independently — it is always the
-  average of the three breakdown scores, so the ring and the three
+  OVERALL_SCORE is never chosen independently — it is always the average of the three breakdown scores, so the ring and the three
   bars beside it can never visually disagree:
     OVERALL_SCORE = (SCORE_BEHAVIOR + SCORE_SCOPE + SCORE_VERIFICATION) / 3
-  Round every score (the overall average and each of the three
-  breakdown scores) to 2 decimal places. If the rounded value is a
-  whole number, display it without decimals (100, not 100.00); if it
-  isn't, display exactly 2 decimals (33.33, not 33.3 or 33.333).
+  Round every score (the overall average and each of the three breakdown scores) to 2 decimal places. If the rounded value is a
+  whole number, display it without decimals (100, not 100.00); if it isn't, display exactly 2 decimals (33.33, not 33.3 or 33.333).
 
   SCORE COLOR TIERS
-  OVERALL_SCORE and each of the three breakdown scores must be colored
-  by their own value, not a fixed color — this is what makes a 100
+  OVERALL_SCORE and each of the three breakdown scores must be colored by their own value, not a fixed color — this is what makes a 100
   look visibly different from a 45:
     90-100 -> var(--green)   70-89 -> var(--accent)
     40-69  -> var(--amber)    0-39 -> var(--red)
-  For the ring: set style="--score: N; --tier: <color-var>;" on the
-  .score-ring element, using the matching var() from the table above
-  and OVERALL_SCORE's own tier. For each breakdown bar: set the
-  .bar-fill's style attribute directly to "width: N%; background:
-  <color-var>;" using that bar's OWN score's tier (the three bars can
-  each land in a different tier from each other and from the ring).
+  For the ring: set style="--score: N; --tier: <color-var>;" on the .score-ring element, using the matching var() from the table above
+  and OVERALL_SCORE's own tier. For each breakdown bar: set the .bar-fill's style attribute directly to "width: N%; background:
+  <color-var>;" using that bar's OWN score's tier (the three bars can each land in a different tier from each other and from the ring).
 
   DIFF LAYOUT: SIDE-BY-SIDE VS. STACKED
-  Each file-change's Before/After pair starts as a 2-column
-  (side-by-side) diff-grid. Before filling one in, check the longer of
-  the two snippets: if its longest single line is longer than ~55
-  characters, OR it has more than ~10 lines, add the class "stacked"
-  to that change's diff-grid div (e.g. class="diff-grid stacked").
-  Stacked gives each block the full card width instead of squeezing
-  both into half-width columns, so long or deeply-nested code gets
-  enough room on the right and isn't truncated or forced into a tiny
-  horizontal-scroll box. When unsure, prefer stacked — it never looks
-  wrong, while 2-column with long lines does.
+  Each file-change's Before/After pair starts as a 2-column (side-by-side) diff-grid. Before filling one in, check the longer of
+  the two snippets: if its longest single line is longer than ~55 characters, OR it has more than ~10 lines, add the class "stacked"
+  to that change's diff-grid div (e.g. class="diff-grid stacked"). Stacked gives each block the full card width instead of squeezing
+  both into half-width columns, so long or deeply-nested code gets enough room on the right and isn't truncated or forced into a tiny
+  horizontal-scroll box. When unsure, prefer stacked — it never looks wrong, while 2-column with long lines does.
 
   PLAN STEPS AND RISK
-  Each proposed simplification is one PLAN_STEP: a short title, a
-  one-line description, and a risk chip. RISK_LEVEL is "Low",
-  "Medium", or "High"; the risk-chip's class must be risk-low,
-  risk-medium, or risk-high to match (lowercase, hyphenated).
+  Each proposed simplification is one PLAN_STEP: a short title, a one-line description, and a risk chip. RISK_LEVEL is "Low",
+  "Medium", or "High"; the risk-chip's class must be risk-low, risk-medium, or risk-high to match (lowercase, hyphenated).
 -->
 <html lang="en">
     <head>

@@ -4,22 +4,22 @@
 Usage: python3 validate_plan.py <plan-file.md>
 
 Checks (errors):
-  - header fields present and well formed
-  - every Slice has the required fields and sections
+  - Header fields present and well formed
+  - Every Slice has the required fields and sections
   - Dependencies reference existing Slices, no self-dependency, no duplicate
     entry, no cycle (one concrete cycle is reported)
-  - status invariants (BLOCKED iff an unfinished Dependency; IN-PROGRESS / DONE
+  - Status invariants (BLOCKED iff an unfinished Dependency; IN-PROGRESS / DONE
     need finished Dependencies; DONE needs every acceptance criterion checked)
   - Dependency Graph edges and classes match the Slice data
   - Execution Order matches the Waves computed from the Dependencies
   - Progress counts match the Slice data
-  - References: table rows complete with unique IDs; every Reference used by a
+  - References table rows complete with unique IDs; every Reference used by a
     Slice exists in the table
 
-Warnings: a Dependency implied through another Dependency, a Slice reference
-  without a section part, a registered Reference
-  that no Slice uses, leftover template comments, possible leftover
-  placeholders, Atomic Slices with more than 5 acceptance criteria.
+Warnings: A Dependency implied through another Dependency, a Slice reference
+  without a section part, a registered Reference that no Slice uses, leftover
+  template comments, possible leftover placeholders, Atomic Slices with more
+  than 5 acceptance criteria.
 
 Exit code: 0 when there are no errors, 1 otherwise. Standard library only.
 """
