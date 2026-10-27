@@ -1,0 +1,1602 @@
+<!doctype html>
+<!-- GUIDE
+Purpose
+  This file is the single source of structure for the debug report. scripts/render-report.py fills it from a findings file.
+  Without Python, fill it by hand with the rules below; the result must have the same structure every time.
+
+Rules
+  1. Keep all nine sections and the at-a-glance strip, in this order. Change no markup, class name, order, or style; only replace tokens and resolve markers.
+  2. A section without content keeps its heading and shows a placeholder paragraph stating why it is empty (findings key empty.<section>; by hand, the same sentence). Never leave a section blank and never remove it.
+  3. An optional value that is missing (impact, date, command, output, before, after, changed files) shows the not-provided label as a placeholder. Never drop the line.
+  4. Write every title, label, and sentence in the report language chosen in the setup question. Commands, paths, identifiers, and tool output stay unchanged.
+  5. HTML-escape every inserted value (& < > " '). Keep line breaks inside values as they are; the styles preserve them. Add no br or other tags inside values.
+  6. Keep the report self-contained: do not load external resources or include user-provided scripts. The small fixed inline script for the accessible contents dialog is part of this template UI. Never expose secrets; redact them first.
+  7. Remove every GUIDE comment from the final file. Indentation and blank lines are not significant.
+
+Syntax
+  Token {{name}}         The escaped value. Inside a loop, name is looked up in the current entry first, then in the findings.
+  Token {{a.b}}          A nested value, for example symptom.expected.
+  Token {{label.key}}    The title for key in the report language.
+  Token {{.}}            The current entry of a list of text.
+  Token {{@n}}           The position of the current entry, starting at 1.
+  Marker IF value / ELSE / /IF       Keep the block before ELSE when value has text or is a non-empty list or object; otherwise keep the block after ELSE. Without ELSE, keep nothing.
+  Marker EACH list / /EACH           Repeat the block once per entry, in list order. An empty list repeats nothing.
+  Markers are HTML comments whose text is the marker name and its argument. Markers can nest; each /IF or /EACH closes the nearest open marker of its kind. By hand, keep the chosen block and delete the marker comments.
+
+Worked example
+  value is empty, list is [a, b]
+  IF value: Y; ELSE: N; /IF  gives  N
+  EACH list: <li>{{.}}</li>; /EACH  gives  <li>a</li><li>b</li>
+
+Derived values (computed from the findings; compute them exactly this way by hand)
+  lang              the report language tag; en when none is given
+  status_class      the status key: resolved, mitigated, or unresolved
+  status_label      label.status_<status>
+  result_class      confirmed gives pass; refuted gives fail; inconclusive gives neutral
+  result_label      label.result_<result>
+  verdict_class     pass gives pass; fail gives fail; not_run gives neutral
+  verdict_label     label.verdict_<verdict>
+  guard.level_name  label.guard_level_<level>
+  id                RC-1, RC-2, and so on in list order when a root cause has no id
+  glance.*          the counts defined in the at-a-glance guide
+-->
+<html lang="{{lang}}">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="color-scheme" content="light dark" />
+        <title>{{title}}</title>
+        <style>
+            /* Design tokens */
+            :root {
+                color-scheme: light dark;
+                --bg: #f2f4f8;
+                --surface: #ffffff;
+                --surface-2: #f7f8fb;
+                --text: #172033;
+                --muted: #4f5a70;
+                --border: #d9dfea;
+                --accent: #2f4fc4;
+                --accent-soft: #e6ebff;
+                --ok: #14633b;
+                --ok-bg: #e0f3e8;
+                --ok-line: #5fb482;
+                --warn: #764a00;
+                --warn-bg: #fff0c9;
+                --warn-line: #d9a53a;
+                --bad: #9f2217;
+                --bad-bg: #fde5e2;
+                --bad-line: #e0786d;
+                --info: #1b4b8f;
+                --info-bg: #e3eefc;
+                --info-line: #6a9be0;
+                --chip-bg: #e9edf6;
+                --chip-line: #cbd3e4;
+                --code-bg: #0f1726;
+                --code-fg: #e8eef9;
+                --code-line: #26324b;
+                --shadow:
+                    0 1px 2px rgba(16, 24, 40, 0.06),
+                    0 6px 20px rgba(16, 24, 40, 0.05);
+                --radius-sm: 0.5rem;
+                --radius-md: 0.75rem;
+                --radius-lg: 1rem;
+                --space-1: 0.25rem;
+                --space-2: 0.5rem;
+                --space-3: 0.75rem;
+                --space-4: 1rem;
+                --space-5: 1.5rem;
+                --space-6: 2rem;
+                --sans:
+                    system-ui, -apple-system, "Segoe UI", Roboto,
+                    "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+                --mono:
+                    ui-monospace, SFMono-Regular, Menlo, Consolas,
+                    "Liberation Mono", monospace;
+            }
+            @media (prefers-color-scheme: dark) {
+                :root {
+                    --bg: #0d1220;
+                    --surface: #151c2e;
+                    --surface-2: #1b2438;
+                    --text: #e8ecf5;
+                    --muted: #a3adc2;
+                    --border: #2a3550;
+                    --accent: #9db3ff;
+                    --accent-soft: #1d2a52;
+                    --ok: #6fd69a;
+                    --ok-bg: #123324;
+                    --ok-line: #2f8a58;
+                    --warn: #f0c46a;
+                    --warn-bg: #3a2b0a;
+                    --warn-line: #a07424;
+                    --bad: #ff9d92;
+                    --bad-bg: #3c1815;
+                    --bad-line: #b9483d;
+                    --info: #9cc3ff;
+                    --info-bg: #14284a;
+                    --info-line: #3d6cb3;
+                    --chip-bg: #27314b;
+                    --chip-line: #3a4666;
+                    --code-bg: #0a0f1b;
+                    --code-fg: #e8eef9;
+                    --code-line: #25314b;
+                    --shadow:
+                        0 1px 2px rgba(0, 0, 0, 0.4),
+                        0 6px 20px rgba(0, 0, 0, 0.3);
+                }
+            }
+
+            /* Base */
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+            }
+            html {
+                scroll-behavior: smooth;
+                scroll-padding-top: 4.5rem;
+                -webkit-text-size-adjust: 100%;
+            }
+            body {
+                margin: 0;
+                background: var(--bg);
+                color: var(--text);
+                font: 1rem/1.6 var(--sans);
+            }
+            h1,
+            h2,
+            h3,
+            p,
+            dl,
+            dd,
+            ul,
+            ol {
+                margin: 0;
+            }
+            h1,
+            h2,
+            h3 {
+                text-wrap: balance;
+            }
+            p,
+            li,
+            dd {
+                text-wrap: pretty;
+            }
+            :focus-visible {
+                outline: 0.1875rem solid var(--accent);
+                outline-offset: 0.125rem;
+                border-radius: 0.25rem;
+            }
+            @media (prefers-reduced-motion: reduce) {
+                html {
+                    scroll-behavior: auto;
+                }
+            }
+
+            /* Inline code: one chip style everywhere */
+            code,
+            pre {
+                font-family: var(--mono);
+            }
+            code {
+                font-size: 0.8125rem;
+                line-height: 1.4;
+                background: var(--chip-bg);
+                border: 1px solid var(--chip-line);
+                border-radius: 0.375rem;
+                padding: 0.125rem 0.375rem;
+                max-width: 100%;
+                overflow-wrap: anywhere;
+                -webkit-box-decoration-break: clone;
+                box-decoration-break: clone;
+            }
+            /* Inline code is also used as a direct child of grid rows on mobile.
+               Prevent grid's default stretch from turning the chip into a block. */
+            .files code,
+            .rt td code {
+                justify-self: start;
+            }
+
+            /* Code blocks: one block style everywhere */
+            pre {
+                margin: 0;
+                background: var(--code-bg);
+                color: var(--code-fg);
+                border: 1px solid var(--code-line);
+                border-radius: var(--radius-sm);
+                padding: var(--space-3) var(--space-4);
+                overflow: auto;
+                max-height: 21rem;
+                font-size: 0.875rem;
+                line-height: 1.5;
+                white-space: pre-wrap;
+            }
+            .environment-output {
+                white-space: pre-wrap;
+                overflow-wrap: anywhere;
+            }
+            pre code {
+                font-size: inherit;
+                line-height: inherit;
+                background: none;
+                border: 0;
+                padding: 0;
+                max-width: none;
+                overflow-wrap: normal;
+            }
+
+            /* Labels: one label style everywhere (subheads, panel titles, field names, table headers) */
+            .label,
+            .subhead,
+            .panel h3,
+            .kv dt,
+            .rt th {
+                color: var(--muted);
+                font-size: 0.75rem;
+                font-weight: 600;
+                letter-spacing: 0.06em;
+                line-height: 1.4;
+                text-transform: uppercase;
+            }
+            .subhead {
+                margin: var(--space-5) 0 var(--space-2);
+            }
+            .subhead:first-of-type {
+                margin-top: 0;
+            }
+            /* The Fix section's first subhead follows descriptive prose, so it needs separation. */
+            .section#fix > .subhead {
+                margin-top: var(--space-4);
+            }
+
+            /* Placeholders: one style for blocks and inline */
+            .placeholder {
+                color: var(--muted);
+                font-style: italic;
+                background: var(--surface-2);
+                border: 1px dashed var(--border);
+                border-radius: var(--radius-sm);
+                padding: var(--space-3) var(--space-4);
+            }
+            .placeholder-inline {
+                color: var(--muted);
+                font-style: italic;
+            }
+
+            /* Shared card for list entries (root cause, investigation step, file, check) */
+            .item {
+                background: var(--surface-2);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-md);
+                padding: var(--space-4);
+            }
+            .item-title {
+                font-size: 1rem;
+                font-weight: 600;
+                line-height: 1.4;
+            }
+            .stack {
+                display: grid;
+                gap: var(--space-3);
+            }
+            .prose {
+                white-space: pre-line;
+                text-align: start;
+                max-width: none;
+                margin-inline: 0;
+            }
+
+            /* Skip link */
+            .skip {
+                position: absolute;
+                left: -62rem;
+                top: 0.5rem;
+                background: var(--surface);
+                color: var(--text);
+                padding: var(--space-2) var(--space-4);
+                border-radius: var(--radius-sm);
+                border: 1px solid var(--border);
+                z-index: 20;
+            }
+            .skip:focus {
+                left: var(--space-3);
+            }
+
+            /* Page layout: desktop sidebar; modal contents menu on narrow screens */
+            .shell {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr);
+                gap: var(--space-4);
+                max-width: 73.75rem;
+                margin: 0 auto;
+                padding: 0 var(--space-4) 4.5rem;
+            }
+            .shell > * {
+                min-width: 0;
+            }
+            .toc-desktop {
+                display: none;
+            }
+            .toc-title {
+                margin: 0 0 var(--space-3) var(--space-3);
+                color: var(--muted);
+                font-size: 0.75rem;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+            }
+            .toc-trigger {
+                position: relative;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex: none;
+                width: 2.25rem;
+                height: 2.25rem;
+                margin-inline-start: auto;
+                padding: 0;
+                border: 1px solid var(--border);
+                border-radius: 0.625rem;
+                background: var(--surface);
+                color: var(--text);
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+            }
+            /* Keep a comfortable hit target while making the visible control compact. */
+            .toc-trigger::before {
+                content: "";
+                position: absolute;
+                inset: -0.25rem;
+            }
+            .toc-trigger:hover {
+                border-color: var(--accent);
+                background: var(--surface-2);
+            }
+            .toc-trigger svg {
+                display: block;
+                width: 1.125rem;
+                height: 1.125rem;
+            }
+            .toc-close svg {
+                display: block;
+                width: 1rem;
+                height: 1rem;
+            }
+            .toc-dialog {
+                width: min(28rem, calc(100vw - 2rem));
+                max-width: calc(100vw - 2rem);
+                max-height: min(82dvh, 42rem);
+                margin: auto;
+                padding: 0;
+                border: 1px solid var(--border);
+                border-radius: var(--radius-lg);
+                background: var(--surface);
+                color: var(--text);
+                box-shadow: 0 1.25rem 4rem rgba(0, 0, 0, 0.28);
+                overflow: hidden;
+            }
+            .toc-dialog[open] {
+                display: flex;
+                flex-direction: column;
+            }
+            .toc-dialog::backdrop {
+                background: rgba(7, 12, 26, 0.58);
+                -webkit-backdrop-filter: blur(2px);
+                backdrop-filter: blur(2px);
+            }
+            .toc-dialog-head {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: var(--space-3);
+                padding: var(--space-4) var(--space-4) var(--space-3);
+                border-bottom: 1px solid var(--border);
+            }
+            .toc-dialog-head h2 {
+                min-width: 0;
+                margin: 0;
+                font-size: 1.125rem;
+                line-height: 1.35;
+            }
+            .toc-close {
+                position: relative;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex: none;
+                width: 2rem;
+                height: 2rem;
+                padding: 0;
+                border: 1px solid var(--border);
+                border-radius: var(--radius-md);
+                background: var(--surface-2);
+                color: var(--text);
+                cursor: pointer;
+            }
+            /* Keep a 40px interactive target while making the visible close control compact. */
+            .toc-close::before {
+                content: "";
+                position: absolute;
+                inset: -0.25rem;
+            }
+            .toc-close:hover {
+                border-color: var(--accent);
+            }
+            .toc-dialog nav {
+                min-height: 0;
+                overflow-y: auto;
+                overscroll-behavior: contain;
+                padding: var(--space-3);
+                scrollbar-gutter: stable;
+            }
+            .toc-dialog-list {
+                display: flex;
+                flex-direction: column;
+                gap: 0.125rem;
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+            .toc-dialog-list a {
+                display: block;
+                padding: 0.625rem var(--space-3);
+                border: 1px solid transparent;
+                border-radius: var(--radius-sm);
+                color: var(--text);
+                font-size: 0.9375rem;
+                line-height: 1.4;
+                text-decoration: none;
+                overflow-wrap: anywhere;
+            }
+            .toc-dialog-list a:hover {
+                border-color: var(--border);
+                background: var(--surface-2);
+            }
+            main {
+                display: flex;
+                flex-direction: column;
+                gap: var(--space-4);
+                min-width: 0;
+                padding-top: var(--space-2);
+                counter-reset: sec;
+            }
+            @media (min-width: 62.5em) {
+                .shell {
+                    grid-template-columns: 13.5rem minmax(0, 1fr);
+                    gap: 2.5rem;
+                    padding: 0 var(--space-5) 6rem;
+                }
+                .toc-desktop {
+                    display: block;
+                    position: sticky;
+                    top: var(--space-6);
+                    align-self: start;
+                    margin: var(--space-6) 0 0;
+                    padding: 0;
+                }
+                .toc-desktop ul {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.125rem;
+                    list-style: none;
+                    margin: 0;
+                    padding: 0;
+                }
+                .toc-desktop a {
+                    display: block;
+                    padding: 0.4375rem var(--space-3);
+                    border: 0;
+                    border-radius: var(--radius-sm);
+                    background: none;
+                    color: var(--muted);
+                    font-size: 0.875rem;
+                    line-height: 1.4;
+                    text-decoration: none;
+                    white-space: normal;
+                    overflow-wrap: anywhere;
+                }
+                .toc-desktop a:hover {
+                    color: var(--text);
+                    background: var(--surface);
+                }
+                .toc-trigger,
+                .toc-dialog {
+                    display: none !important;
+                }
+                main {
+                    gap: var(--space-5);
+                    padding-top: var(--space-6);
+                }
+            }
+
+            /* Hero */
+            .hero {
+                padding: clamp(1rem, 0.6rem + 2vw, 1.75rem);
+                background: linear-gradient(
+                    135deg,
+                    var(--accent-soft),
+                    var(--surface) 70%
+                );
+                border: 1px solid var(--border);
+                border-radius: var(--radius-lg);
+                box-shadow: var(--shadow);
+            }
+            .hero-topline {
+                display: flex;
+                align-items: center;
+                gap: var(--space-3);
+                min-width: 0;
+            }
+            .hero-topline .eyebrow {
+                min-width: 0;
+                overflow-wrap: anywhere;
+            }
+            .eyebrow {
+                color: var(--accent);
+                font-size: 0.75rem;
+                font-weight: 700;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+            }
+            h1 {
+                margin: var(--space-2) 0 var(--space-4);
+                font-size: clamp(1.5rem, 1.1rem + 1.8vw, 2.125rem);
+                line-height: 1.25;
+            }
+            .chips {
+                display: flex;
+                flex-wrap: wrap;
+                gap: var(--space-2);
+                align-items: center;
+            }
+            .chip,
+            .badge {
+                display: inline-flex;
+                align-items: center;
+                gap: var(--space-2);
+                max-width: 100%;
+                padding: 0.25rem var(--space-3);
+                border: 1px solid var(--border);
+                border-radius: 1rem;
+                background: var(--surface);
+                color: var(--muted);
+                font-size: 0.875rem;
+            }
+            .chip-placeholder {
+                border-style: dashed;
+                font-style: italic;
+            }
+            .badge {
+                font-weight: 700;
+            }
+            .badge .dot {
+                flex: none;
+                width: 0.5625rem;
+                height: 0.5625rem;
+                border-radius: 50%;
+                background: currentColor;
+            }
+            .badge-resolved {
+                color: var(--ok);
+                background: var(--ok-bg);
+                border-color: var(--ok-line);
+            }
+            .badge-mitigated {
+                color: var(--warn);
+                background: var(--warn-bg);
+                border-color: var(--warn-line);
+            }
+            .badge-unresolved {
+                color: var(--bad);
+                background: var(--bad-bg);
+                border-color: var(--bad-line);
+            }
+
+            /* At a glance */
+            .glance {
+                display: grid;
+                grid-template-columns: repeat(
+                    auto-fit,
+                    minmax(min(9.375rem, 100%), 1fr)
+                );
+                gap: var(--space-3);
+            }
+            .tile {
+                display: flex;
+                flex-direction: column;
+                gap: var(--space-1);
+                min-width: 0;
+                padding: var(--space-3) var(--space-4);
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-lg);
+                box-shadow: var(--shadow);
+            }
+            .tile-value {
+                color: var(--accent);
+                font-size: 1.75rem;
+                font-weight: 700;
+                line-height: 1.15;
+                font-variant-numeric: tabular-nums;
+            }
+            .tile-label {
+                color: var(--muted);
+                font-size: 0.875rem;
+            }
+            @media (max-width: 35em) {
+                .glance .tile:last-child:nth-child(odd) {
+                    grid-column: 1 / -1;
+                }
+            }
+
+            /* Sections */
+            .section {
+                counter-increment: sec;
+                min-width: 0;
+                padding: clamp(1rem, 0.6rem + 1.6vw, 1.5rem);
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-lg);
+                box-shadow: var(--shadow);
+            }
+            .section > h2 {
+                display: flex;
+                align-items: center;
+                gap: var(--space-3);
+                margin-bottom: var(--space-4);
+                font-size: 1.25rem;
+                line-height: 1.3;
+            }
+            .section > h2::before {
+                content: counter(sec, decimal-leading-zero);
+                flex: none;
+                padding: 0.4375rem var(--space-2);
+                border-radius: var(--radius-sm);
+                background: var(--accent-soft);
+                color: var(--accent);
+                font: 700 0.8125rem/1 var(--mono);
+            }
+            .lead {
+                font-size: 1.0625rem;
+                white-space: pre-line;
+                text-align: start;
+                max-width: none;
+                margin-inline: 0;
+            }
+
+            /* Symptom panels */
+            .split {
+                display: grid;
+                grid-template-columns: repeat(
+                    auto-fit,
+                    minmax(min(16rem, 100%), 1fr)
+                );
+                gap: var(--space-3);
+            }
+            .panel {
+                padding: var(--space-3) var(--space-4);
+                background: var(--surface-2);
+                border: 1px solid var(--border);
+                border-left-width: 0.3125rem;
+                border-radius: var(--radius-md);
+            }
+            .panel h3 {
+                margin-bottom: var(--space-1);
+            }
+            .panel p {
+                white-space: pre-line;
+                text-align: start;
+                max-width: none;
+                margin-inline: 0;
+            }
+            .panel-ok {
+                border-left-color: var(--ok-line);
+            }
+            .panel-bad {
+                border-left-color: var(--bad-line);
+            }
+            .panel-info {
+                margin-top: var(--space-3);
+                border-left-color: var(--info-line);
+            }
+
+            /* Key-value rows (root cause, investigation step) */
+            .kv {
+                display: grid;
+                grid-template-columns: fit-content(40%) minmax(0, 1fr);
+                gap: var(--space-2) var(--space-4);
+            }
+            .kv dt {
+                padding-top: 0.1875rem;
+            }
+            .kv dd {
+                white-space: pre-line;
+                text-align: start;
+                max-width: none;
+                margin-inline: 0;
+            }
+            @media (max-width: 35em) {
+                .kv {
+                    grid-template-columns: minmax(0, 1fr);
+                    gap: 0.125rem;
+                }
+                .kv dd {
+                    margin-bottom: var(--space-2);
+                }
+            }
+
+            /* Root causes */
+            .rc {
+                border-left: 0.3125rem solid var(--accent);
+            }
+            .rc-head {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: baseline;
+                gap: var(--space-3);
+                margin-bottom: var(--space-3);
+            }
+            .rc-id {
+                padding: 0.3125rem var(--space-2);
+                border-radius: 0.375rem;
+                background: var(--accent-soft);
+                color: var(--accent);
+                font: 700 0.75rem/1 var(--mono);
+            }
+
+            /* Investigation */
+            .steps {
+                display: grid;
+                gap: var(--space-3);
+                margin: 0;
+                padding: 0;
+                list-style: none;
+            }
+            .step {
+                display: grid;
+                grid-template-columns: auto minmax(0, 1fr) auto;
+                gap: var(--space-3) var(--space-4);
+                align-items: start;
+            }
+            .step-num {
+                display: grid;
+                place-items: center;
+                width: 1.875rem;
+                height: 1.875rem;
+                border-radius: 50%;
+                background: var(--accent-soft);
+                color: var(--accent);
+                font: 700 0.875rem var(--mono);
+            }
+            .step .item-title {
+                margin-bottom: var(--space-2);
+            }
+            @media (max-width: 35em) {
+                .step {
+                    grid-template-columns: auto minmax(0, 1fr);
+                }
+                .step .pill {
+                    grid-column: 2;
+                    justify-self: start;
+                }
+            }
+
+            /* Pills */
+            .pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.375rem;
+                max-width: 100%;
+                padding: 0.1875rem var(--space-3);
+                border: 1px solid transparent;
+                border-radius: 1rem;
+                font-size: 0.8125rem;
+                font-weight: 700;
+                line-height: 1.35;
+            }
+            .pill::before {
+                content: "";
+                flex: none;
+                width: 0.5rem;
+                height: 0.5rem;
+                border-radius: 50%;
+                background: currentColor;
+            }
+            .pill-pass {
+                color: var(--ok);
+                background: var(--ok-bg);
+                border-color: var(--ok-line);
+            }
+            .pill-fail {
+                color: var(--bad);
+                background: var(--bad-bg);
+                border-color: var(--bad-line);
+            }
+            .pill-neutral {
+                color: var(--warn);
+                background: var(--warn-bg);
+                border-color: var(--warn-line);
+            }
+            .pill-info {
+                color: var(--info);
+                background: var(--info-bg);
+                border-color: var(--info-line);
+            }
+
+            /* Fix and regression guard */
+            .files {
+                display: grid;
+                gap: var(--space-2);
+                margin: 0;
+                padding: 0;
+                list-style: none;
+            }
+            .files li {
+                display: grid;
+                grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+                gap: var(--space-1) var(--space-4);
+                align-items: baseline;
+                padding: var(--space-3);
+            }
+            @media (max-width: 35em) {
+                .files li {
+                    grid-template-columns: minmax(0, 1fr);
+                }
+            }
+            .guard-head {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: var(--space-3);
+                margin-bottom: var(--space-3);
+            }
+            .compare {
+                display: grid;
+                grid-template-columns: repeat(
+                    auto-fit,
+                    minmax(min(16rem, 100%), 1fr)
+                );
+                gap: var(--space-4);
+                margin-top: var(--space-3);
+            }
+            .compare .subhead {
+                margin-top: 0;
+            }
+
+            /* Verification */
+            .checks {
+                display: grid;
+                gap: var(--space-3);
+                margin: 0;
+                padding: 0;
+                list-style: none;
+            }
+            .check {
+                border-left: 0.3125rem solid var(--border);
+            }
+            .check-pass {
+                border-left-color: var(--ok-line);
+            }
+            .check-fail {
+                border-left-color: var(--bad-line);
+            }
+            .check-neutral {
+                border-left-color: var(--warn-line);
+            }
+            .check-head {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: var(--space-3);
+            }
+            .claim {
+                flex: 1 1 16rem;
+                min-width: 0;
+                font-weight: 600;
+            }
+            .check-body {
+                display: grid;
+                gap: var(--space-3);
+                margin-top: var(--space-3);
+            }
+            .field .label {
+                display: block;
+                margin-bottom: var(--space-1);
+            }
+            details summary {
+                padding: var(--space-1) 0;
+                color: var(--accent);
+                font-size: 0.875rem;
+                cursor: pointer;
+            }
+            details[open] summary {
+                margin-bottom: var(--space-2);
+            }
+
+            /* Tables: tabular on wide screens, labelled rows on narrow screens */
+            .rt {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.9375rem;
+            }
+            .rt th {
+                padding: var(--space-2) var(--space-3);
+                background: var(--surface-2);
+                border-bottom: 1px solid var(--border);
+                text-align: left;
+            }
+            .rt td {
+                padding: var(--space-3);
+                border-bottom: 1px solid var(--border);
+                vertical-align: top;
+            }
+            .rt td.num {
+                font-variant-numeric: tabular-nums;
+            }
+            @media (max-width: 40em) {
+                .rt thead {
+                    position: absolute;
+                    width: 1px;
+                    height: 1px;
+                    overflow: hidden;
+                    clip: rect(0 0 0 0);
+                }
+                .rt,
+                .rt tbody,
+                .rt tr,
+                .rt td {
+                    display: block;
+                    width: 100%;
+                }
+                .rt tr {
+                    margin-bottom: var(--space-3);
+                    padding: var(--space-1) 0;
+                    background: var(--surface-2);
+                    border: 1px solid var(--border);
+                    border-radius: var(--radius-md);
+                }
+                .rt td {
+                    display: grid;
+                    grid-template-columns: minmax(0, min(7rem, 40%)) minmax(
+                            0,
+                            1fr
+                        );
+                    gap: var(--space-2);
+                    padding: var(--space-2) var(--space-3);
+                    border: 0;
+                }
+                .rt td::before {
+                    content: attr(data-label);
+                    color: var(--muted);
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    letter-spacing: 0.06em;
+                    text-transform: uppercase;
+                }
+            }
+
+            /* Follow-ups */
+            .todo {
+                display: grid;
+                gap: var(--space-2);
+                margin: 0;
+                padding: 0;
+                list-style: none;
+            }
+            .todo li {
+                position: relative;
+                padding: var(--space-3) var(--space-4) var(--space-3) 2.5rem;
+                background: var(--surface-2);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-sm);
+                white-space: pre-line;
+                text-align: start;
+            }
+            .todo li::before {
+                content: "";
+                position: absolute;
+                left: 0.875rem;
+                top: 1rem;
+                width: 0.875rem;
+                height: 0.875rem;
+                border: 0.125rem solid var(--accent);
+                border-radius: 0.25rem;
+            }
+
+            /* Wrapping: long unbroken values wrap inside their box */
+            .hero,
+            .section,
+            .tile {
+                overflow-wrap: anywhere;
+            }
+
+            @media print {
+                body {
+                    background: #fff;
+                    color: #000;
+                    font-size: 11pt;
+                }
+                .toc-desktop,
+                .toc-trigger,
+                .toc-dialog,
+                .skip {
+                    display: none !important;
+                }
+                .shell {
+                    display: block;
+                    max-width: none;
+                    padding: 0;
+                }
+                .section,
+                .hero,
+                .tile {
+                    box-shadow: none;
+                    break-inside: avoid;
+                }
+                pre {
+                    max-height: none;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <a class="skip" href="#main">{{label.skip_link}}</a>
+        <div class="shell">
+            <nav class="toc-desktop" aria-label="{{label.contents}}">
+                <p class="toc-title">{{label.contents}}</p>
+                <ul>
+                    <li><a href="#summary">{{label.summary}}</a></li>
+                    <li><a href="#symptom">{{label.symptom}}</a></li>
+                    <li><a href="#root-causes">{{label.root_causes}}</a></li>
+                    <li>
+                        <a href="#investigation">{{label.investigation}}</a>
+                    </li>
+                    <li><a href="#fix">{{label.fix}}</a></li>
+                    <li><a href="#guard">{{label.guard}}</a></li>
+                    <li><a href="#verification">{{label.verification}}</a></li>
+                    <li><a href="#follow-ups">{{label.follow_ups}}</a></li>
+                    <li><a href="#appendix">{{label.appendix}}</a></li>
+                </ul>
+            </nav>
+
+            <main id="main">
+                <!-- GUIDE (header)
+                     title   One line naming the symptom or area; no secrets.
+                     status  resolved: the root cause is fixed and verified. mitigated: the impact is reduced and the root cause remains. unresolved: the root cause was not found.
+                             The badge shows the status title in the report language; its class is badge-<status_class>.
+                     date    ISO date (YYYY-MM-DD) of the report. When unknown, the not-provided placeholder is shown. -->
+                <header class="hero">
+                    <div class="hero-topline">
+                        <p class="eyebrow">{{label.report_kind}}</p>
+                        <button
+                            class="toc-trigger"
+                            type="button"
+                            data-toc-open
+                            aria-label="{{label.contents}}"
+                            aria-haspopup="dialog"
+                            aria-controls="toc-dialog"
+                            aria-expanded="false"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                aria-hidden="true"
+                                focusable="false"
+                            >
+                                <path d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                    </div>
+                    <h1>{{title}}</h1>
+                    <div class="chips">
+                        <span class="badge badge-{{status_class}}"
+                            ><span class="dot" aria-hidden="true"></span
+                            >{{status_label}}</span
+                        >
+                        <!--IF date-->
+                        <span class="chip"
+                            >{{label.date}}:
+                            <time datetime="{{date}}">{{date}}</time></span
+                        >
+                        <!--ELSE-->
+                        <span class="chip chip-placeholder"
+                            >{{label.date}}: {{label.not_provided}}</span
+                        >
+                        <!--/IF-->
+                    </div>
+                    <dialog
+                        class="toc-dialog"
+                        id="toc-dialog"
+                        aria-labelledby="toc-dialog-title"
+                    >
+                        <div class="toc-dialog-head">
+                            <h2 id="toc-dialog-title">{{label.contents}}</h2>
+                            <button
+                                class="toc-close"
+                                type="button"
+                                data-toc-close
+                                aria-label="Close contents menu"
+                            >
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    aria-hidden="true"
+                                    focusable="false"
+                                >
+                                    <path d="m6 6 12 12M18 6 6 18" />
+                                </svg>
+                            </button>
+                        </div>
+                        <nav aria-label="{{label.contents}}">
+                            <ul class="toc-dialog-list">
+                                <li>
+                                    <a href="#summary">{{label.summary}}</a>
+                                </li>
+                                <li>
+                                    <a href="#symptom">{{label.symptom}}</a>
+                                </li>
+                                <li>
+                                    <a href="#root-causes"
+                                        >{{label.root_causes}}</a
+                                    >
+                                </li>
+                                <li>
+                                    <a href="#investigation"
+                                        >{{label.investigation}}</a
+                                    >
+                                </li>
+                                <li><a href="#fix">{{label.fix}}</a></li>
+                                <li><a href="#guard">{{label.guard}}</a></li>
+                                <li>
+                                    <a href="#verification"
+                                        >{{label.verification}}</a
+                                    >
+                                </li>
+                                <li>
+                                    <a href="#follow-ups"
+                                        >{{label.follow_ups}}</a
+                                    >
+                                </li>
+                                <li>
+                                    <a href="#appendix">{{label.appendix}}</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </dialog>
+                </header>
+
+                <!-- GUIDE (at a glance)
+                     Five counts derived from the sections below; each must equal the length of its list. Write 0 for an empty list.
+                       glance.root_causes   number of root cause entries
+                       glance.hypotheses    number of investigation entries
+                       glance.refuted       number of investigation entries whose result is refuted
+                       glance.checks_passed number of verification entries whose verdict is pass
+                       glance.checks_total  number of verification entries
+                       glance.files_changed number of changed files listed in the fix section -->
+                <section class="glance" aria-label="{{label.glance}}">
+                    <div class="tile">
+                        <span class="tile-value">{{glance.root_causes}}</span
+                        ><span class="tile-label"
+                            >{{label.glance_root_causes}}</span
+                        >
+                    </div>
+                    <div class="tile">
+                        <span class="tile-value">{{glance.hypotheses}}</span
+                        ><span class="tile-label"
+                            >{{label.glance_hypotheses}}</span
+                        >
+                    </div>
+                    <div class="tile">
+                        <span class="tile-value">{{glance.refuted}}</span
+                        ><span class="tile-label"
+                            >{{label.glance_refuted}}</span
+                        >
+                    </div>
+                    <div class="tile">
+                        <span class="tile-value"
+                            >{{glance.checks_passed}} /
+                            {{glance.checks_total}}</span
+                        ><span class="tile-label">{{label.glance_checks}}</span>
+                    </div>
+                    <div class="tile">
+                        <span class="tile-value">{{glance.files_changed}}</span
+                        ><span class="tile-label">{{label.glance_files}}</span>
+                    </div>
+                </section>
+
+                <!-- GUIDE (section 1, summary)
+                     Required. Two to five sentences for a reader who stops here: what failed, the root cause in plain words (or that it is unknown),
+                     what was done, and the final status. Facts only; each claim must be backed by a later section. -->
+                <section
+                    class="section"
+                    id="summary"
+                    aria-labelledby="h-summary"
+                >
+                    <h2 id="h-summary">{{label.summary}}</h2>
+                    <p class="lead">{{summary}}</p>
+                </section>
+
+                <!-- GUIDE (section 2, symptom and impact)
+                     Required: expected and actual behavior, each stated as an observable fact (include the exact error text or measured value).
+                     impact is optional: who or what is affected and how badly; when unknown, the not-provided placeholder is shown. -->
+                <section
+                    class="section"
+                    id="symptom"
+                    aria-labelledby="h-symptom"
+                >
+                    <h2 id="h-symptom">{{label.symptom}}</h2>
+                    <div class="split">
+                        <div class="panel panel-ok">
+                            <h3>{{label.expected}}</h3>
+                            <p>{{symptom.expected}}</p>
+                        </div>
+                        <div class="panel panel-bad">
+                            <h3>{{label.actual}}</h3>
+                            <p>{{symptom.actual}}</p>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <h3>{{label.impact}}</h3>
+                        <!--IF symptom.impact-->
+                        <p>{{symptom.impact}}</p>
+                        <!--ELSE-->
+                        <p class="placeholder-inline">{{label.not_provided}}</p>
+                        <!--/IF-->
+                    </div>
+                </section>
+
+                <!-- GUIDE (section 3, root causes)
+                     Required when status is resolved. One entry per confirmed root cause (several are allowed).
+                       id        Short identifier such as RC-1; numbered automatically when omitted.
+                       what      The defect in one sentence.
+                       where     File, function, configuration, or data location (line numbers when known).
+                       why       The mechanism by which the defect produces the symptom.
+                       evidence  The experiment, its prediction, and the observed result that confirmed the cause.
+                     Empty: when no root cause is confirmed (mitigated or unresolved), keep the section and state why in the placeholder, for example that the cause is still unknown. -->
+                <section
+                    class="section"
+                    id="root-causes"
+                    aria-labelledby="h-root-causes"
+                >
+                    <h2 id="h-root-causes">{{label.root_causes}}</h2>
+                    <!--IF root_causes-->
+                    <div class="stack">
+                        <!--EACH root_causes-->
+                        <article class="item rc">
+                            <div class="rc-head">
+                                <span class="rc-id">{{id}}</span>
+                                <h3 class="item-title">{{what}}</h3>
+                            </div>
+                            <dl class="kv">
+                                <dt>{{label.where}}</dt>
+                                <dd><code>{{where}}</code></dd>
+                                <dt>{{label.why}}</dt>
+                                <dd>{{why}}</dd>
+                                <dt>{{label.evidence}}</dt>
+                                <dd>{{evidence}}</dd>
+                            </dl>
+                        </article>
+                        <!--/EACH-->
+                    </div>
+                    <!--ELSE-->
+                    <p class="placeholder">{{empty.root_causes}}</p>
+                    <!--/IF-->
+                </section>
+
+                <!-- GUIDE (section 4, investigation)
+                     Required when status is unresolved. One entry per hypothesis tested, in the order tested (the investigation log).
+                       hypothesis  The falsifiable statement.
+                       prediction  What must be observed if the hypothesis is true.
+                       experiment  The single change or probe that was run.
+                       result      confirmed, refuted, or inconclusive; the pill shows result_label and its class is pill-<result_class>.
+                     Empty: when no hypothesis was tested (for example, the error named the cause directly), keep the section and say so in the placeholder. -->
+                <section
+                    class="section"
+                    id="investigation"
+                    aria-labelledby="h-investigation"
+                >
+                    <h2 id="h-investigation">{{label.investigation}}</h2>
+                    <!--IF investigation-->
+                    <ol class="steps">
+                        <!--EACH investigation-->
+                        <li class="item step">
+                            <span class="step-num">{{@n}}</span>
+                            <div>
+                                <h3 class="item-title">{{hypothesis}}</h3>
+                                <dl class="kv">
+                                    <dt>{{label.prediction}}</dt>
+                                    <dd>{{prediction}}</dd>
+                                    <dt>{{label.experiment}}</dt>
+                                    <dd>{{experiment}}</dd>
+                                </dl>
+                            </div>
+                            <span class="pill pill-{{result_class}}"
+                                >{{result_label}}</span
+                            >
+                        </li>
+                        <!--/EACH-->
+                    </ol>
+                    <!--ELSE-->
+                    <p class="placeholder">{{empty.investigation}}</p>
+                    <!--/IF-->
+                </section>
+
+                <!-- GUIDE (section 5, fix)
+                     Required when status is resolved or mitigated.
+                       description  What was changed and why it removes the root cause. For mitigated: what was done to reduce the impact, and that the root cause remains.
+                       changes      One entry per changed file: path and a one-line summary. When the list is unavailable, the not-provided placeholder is shown.
+                     Empty: when no change was made (unresolved), keep the section and state that no change was applied. -->
+                <section class="section" id="fix" aria-labelledby="h-fix">
+                    <h2 id="h-fix">{{label.fix}}</h2>
+                    <!--IF fix-->
+                    <p class="prose">{{fix.description}}</p>
+                    <h3 class="subhead">{{label.files_changed}}</h3>
+                    <!--IF fix.changes-->
+                    <ul class="files">
+                        <!--EACH fix.changes-->
+                        <li class="item">
+                            <code>{{path}}</code>
+                            <span>{{summary}}</span>
+                        </li>
+                        <!--/EACH-->
+                    </ul>
+                    <!--ELSE-->
+                    <p class="placeholder">{{label.not_provided}}</p>
+                    <!--/IF-->
+                    <!--ELSE-->
+                    <p class="placeholder">{{empty.fix}}</p>
+                    <!--/IF-->
+                </section>
+
+                <!-- GUIDE (section 6, regression guard)
+                     Required when status is resolved.
+                       level        Integer 1 to 5 from the regression guard hierarchy: 1 automated regression test, 2 committed reproduction script or check,
+                                    3 benchmark with a threshold, 4 repeated-run check, 5 documented manual verification.
+                       description  What the guard checks and where it lives.
+                       before       Output showing the guard failing before the fix.
+                       after        Output showing the guard passing after the fix.
+                     A missing description is omitted; a missing before or after shows the not-provided placeholder.
+                     Empty: when no guard exists, keep the section and state why (for example, no correct test seam exists; recorded as a follow-up). -->
+                <section class="section" id="guard" aria-labelledby="h-guard">
+                    <h2 id="h-guard">{{label.guard}}</h2>
+                    <!--IF guard-->
+                    <div class="guard-head">
+                        <span class="pill pill-info"
+                            >{{label.guard_level}} {{guard.level}}</span
+                        >
+                        <strong>{{guard.level_name}}</strong>
+                    </div>
+                    <!--IF guard.description-->
+                    <p class="prose">{{guard.description}}</p>
+                    <!--/IF-->
+                    <div class="compare">
+                        <div>
+                            <h3 class="subhead">{{label.before}}</h3>
+                            <!--IF guard.before-->
+                            <pre
+                                tabindex="0"
+                            ><code>{{guard.before}}</code></pre>
+                            <!--ELSE-->
+                            <p class="placeholder">{{label.not_provided}}</p>
+                            <!--/IF-->
+                        </div>
+                        <div>
+                            <h3 class="subhead">{{label.after}}</h3>
+                            <!--IF guard.after-->
+                            <pre tabindex="0"><code>{{guard.after}}</code></pre>
+                            <!--ELSE-->
+                            <p class="placeholder">{{label.not_provided}}</p>
+                            <!--/IF-->
+                        </div>
+                    </div>
+                    <!--ELSE-->
+                    <p class="placeholder">{{empty.guard}}</p>
+                    <!--/IF-->
+                </section>
+
+                <!-- GUIDE (section 7, verification)
+                     Two parts.
+                     Checks (required when status is resolved or mitigated): one entry per row of the evidence table.
+                       claim    The statement being proven.
+                       command  The exact command run; missing shows the not-provided placeholder.
+                       output   An excerpt of the real output, redacted, taken after the final change; missing shows the placeholder.
+                       verdict  pass, fail, or not_run; the pill shows verdict_label and the classes are check-<verdict_class> and pill-<verdict_class>.
+                     Statistics (optional): one row per metric whose before and after values come from captured command output only (reproduction rate,
+                                            test counts against the baseline, benchmark measurements with the method, diff statistics). Never estimate.
+                     Empty: keep the part and state why there are no checks, or no statistics. -->
+                <section
+                    class="section"
+                    id="verification"
+                    aria-labelledby="h-verification"
+                >
+                    <h2 id="h-verification">{{label.verification}}</h2>
+                    <h3 class="subhead">{{label.checks}}</h3>
+                    <!--IF verification-->
+                    <ul class="checks">
+                        <!--EACH verification-->
+                        <li class="item check check-{{verdict_class}}">
+                            <div class="check-head">
+                                <p class="claim">{{claim}}</p>
+                                <span class="pill pill-{{verdict_class}}"
+                                    >{{verdict_label}}</span
+                                >
+                            </div>
+                            <div class="check-body">
+                                <div class="field">
+                                    <span class="label">{{label.command}}</span>
+                                    <!--IF command-->
+                                    <code>{{command}}</code>
+                                    <!--ELSE-->
+                                    <span class="placeholder-inline"
+                                        >{{label.not_provided}}</span
+                                    >
+                                    <!--/IF-->
+                                </div>
+                                <details open>
+                                    <summary>{{label.output}}</summary>
+                                    <!--IF output-->
+                                    <pre
+                                        tabindex="0"
+                                    ><code>{{output}}</code></pre>
+                                    <!--ELSE-->
+                                    <p class="placeholder">
+                                        {{label.not_provided}}
+                                    </p>
+                                    <!--/IF-->
+                                </details>
+                            </div>
+                        </li>
+                        <!--/EACH-->
+                    </ul>
+                    <!--ELSE-->
+                    <p class="placeholder">{{empty.verification}}</p>
+                    <!--/IF-->
+
+                    <h3 class="subhead">{{label.statistics}}</h3>
+                    <!--IF statistics-->
+                    <table class="rt">
+                        <thead>
+                            <tr>
+                                <th scope="col">{{label.metric}}</th>
+                                <th scope="col">{{label.before}}</th>
+                                <th scope="col">{{label.after}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!--EACH statistics-->
+                            <tr>
+                                <td data-label="{{label.metric}}">
+                                    {{metric}}
+                                </td>
+                                <td class="num" data-label="{{label.before}}">
+                                    {{before}}
+                                </td>
+                                <td class="num" data-label="{{label.after}}">
+                                    {{after}}
+                                </td>
+                            </tr>
+                            <!--/EACH-->
+                        </tbody>
+                    </table>
+                    <!--ELSE-->
+                    <p class="placeholder">{{empty.statistics}}</p>
+                    <!--/IF-->
+                </section>
+
+                <!-- GUIDE (section 8, follow-ups)
+                     One entry per line of text: hardening proposals, areas left without a regression guard, observability gaps,
+                                                 architectural findings. Each entry is a concrete action or finding, not a general wish.
+                     Empty: when there are none, keep the section and state that no follow-up was identified. -->
+                <section
+                    class="section"
+                    id="follow-ups"
+                    aria-labelledby="h-follow-ups"
+                >
+                    <h2 id="h-follow-ups">{{label.follow_ups}}</h2>
+                    <!--IF follow_ups-->
+                    <ul class="todo">
+                        <!--EACH follow_ups-->
+                        <li>{{.}}</li>
+                        <!--/EACH-->
+                    </ul>
+                    <!--ELSE-->
+                    <p class="placeholder">{{empty.follow_ups}}</p>
+                    <!--/IF-->
+                </section>
+
+                <!-- GUIDE (section 9, appendix)
+                     Two independent parts.
+                       Command log  Every command whose output backs a claim, in the order run, with its exit code.
+                       Environment  The facts needed to rerun (operating system, runtime and tool versions, relevant configuration), redacted.
+                                    Put one fact per line; do not join facts with semicolons.
+                     Empty: keep the part and state why it is empty. -->
+                <section
+                    class="section"
+                    id="appendix"
+                    aria-labelledby="h-appendix"
+                >
+                    <h2 id="h-appendix">{{label.appendix}}</h2>
+                    <h3 class="subhead">{{label.command_log}}</h3>
+                    <!--IF appendix.commands-->
+                    <table class="rt">
+                        <thead>
+                            <tr>
+                                <th scope="col">{{label.command}}</th>
+                                <th scope="col">{{label.exit_code}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!--EACH appendix.commands-->
+                            <tr>
+                                <td data-label="{{label.command}}">
+                                    <code>{{command}}</code>
+                                </td>
+                                <td
+                                    class="num"
+                                    data-label="{{label.exit_code}}"
+                                >
+                                    {{exit_code}}
+                                </td>
+                            </tr>
+                            <!--/EACH-->
+                        </tbody>
+                    </table>
+                    <!--ELSE-->
+                    <p class="placeholder">{{empty.appendix_commands}}</p>
+                    <!--/IF-->
+
+                    <h3 class="subhead">{{label.environment}}</h3>
+                    <!--IF appendix.environment-->
+                    <pre
+                        class="environment-output"
+                        tabindex="0"
+                    ><code>{{appendix.environment}}</code></pre>
+                    <!--ELSE-->
+                    <p class="placeholder">{{empty.appendix_environment}}</p>
+                    <!--/IF-->
+                </section>
+            </main>
+        </div>
+        <script>
+            (() => {
+                const trigger = document.querySelector("[data-toc-open]");
+                const dialog = document.getElementById("toc-dialog");
+                if (
+                    !(trigger instanceof HTMLButtonElement) ||
+                    !(dialog instanceof HTMLDialogElement)
+                )
+                    return;
+
+                const closeButton = dialog.querySelector("[data-toc-close]");
+                const closeDialog = () => {
+                    if (dialog.open) dialog.close();
+                };
+
+                trigger.addEventListener("click", () => {
+                    if (!dialog.open) {
+                        dialog.showModal();
+                        trigger.setAttribute("aria-expanded", "true");
+                    }
+                });
+                closeButton?.addEventListener("click", closeDialog);
+                dialog.addEventListener("click", (event) => {
+                    if (event.target === dialog) closeDialog();
+                });
+                dialog.querySelectorAll("a").forEach((link) => {
+                    link.addEventListener("click", closeDialog);
+                });
+                dialog.addEventListener("close", () => {
+                    trigger.setAttribute("aria-expanded", "false");
+                });
+            })();
+        </script>
+    </body>
+</html>

@@ -59,23 +59,27 @@ This skill gives an AI agent a complete and safe procedure for working with git.
 
 **Completion report** (final message to the user):
 
-```
-Branch: <name> (base: origin/<trunk> @ <short-sha>)
-Commits:
-  - <short-sha> <header>
-Verification: <command → result | "not possible: <reason>">
-Delivery: <pushed | PR <url> | not pushed: <reason>>
-Not touched: <areas deliberately left alone>
-Action needed: <review and merge the PR | run the command below | none>
+```markdown
+## Completion Report
+
+- **Branch:** `<name>` (base: `origin/<trunk>` @ `<short-sha>`)
+- **Commits:**
+  - `<short-sha>` <header>
+- **Verification:** <command → result | not possible: reason>
+- **Delivery:** <pushed | PR link | not pushed: reason>
+- **Not touched:** <areas deliberately left alone>
+- **Action needed:** <merge the PR | run the command in a handoff | none>
 ```
 
 **Handoff** (when an action is Forbidden, or Restricted without authorization):
 
-```
-Action not performed: <command or action>
-Reason: <Forbidden Fn | Restricted Rn without explicit request>
-Current state: <branch, working tree status>
-To proceed: <the exact command for the user to run | confirm "<what>" to authorize>
+```markdown
+## Handoff
+
+- **Action not performed:** <command or action>
+- **Reason:** <Forbidden Fn | Restricted Rn without explicit request>
+- **Current state:** <branch, working tree status>
+- **To proceed:** <the exact command for the user to run | confirm "what" to authorize>
 ```
 
 ## Operating Model
