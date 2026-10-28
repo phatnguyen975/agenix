@@ -87,7 +87,6 @@ Rejection Behavior when the row is valid).
 - Valid: Yes or No.
 - Expected Behavior: what the system does when the transition succeeds. N/A if invalid.
 - Rejection Behavior: what the system does when the transition is rejected. N/A if valid.
-
 >
 
 | From State | Event/Trigger | Guard/Condition     | To State        | Valid  | Expected Behavior  | Rejection Behavior |
