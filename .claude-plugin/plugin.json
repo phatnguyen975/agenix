@@ -9,6 +9,5 @@
   "homepage": "https://github.com/phatnguyen975/agenix",
   "repository": "https://github.com/phatnguyen975/agenix",
   "license": "MIT",
-  "skills": "./skills/",
-  "agents": "./agents/"
+  "skills": "./skills/"
 }
