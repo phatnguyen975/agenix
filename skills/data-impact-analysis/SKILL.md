@@ -10,7 +10,7 @@ metadata:
 
 ## Overview
 
-Produce a reviewable **Data Impact Document** before implementation or when a feature's data design changes. Identify what the feature reads, writes, derives, or retains; whether the current model supports it; and the smallest justified model changes. It does **not** write application code, run migrations, alter a live database, or create a system-wide data model from scratch. Update an existing System Data Model Document only after explicit approval of each new or materially changed DMC.
+Produces a reviewable **Data Impact Document** before implementation or when a feature's data design changes. Identify what the feature reads, writes, derives, or retains; whether the current model supports it; and the smallest justified model changes. It does **not** write application code, run migrations, alter a live database, or create a system-wide data model from scratch. Update an existing System Data Model Document only after explicit approval of each new or materially changed DMC.
 
 | Term                       | Meaning                                                                                                                                               |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -231,9 +231,9 @@ Use `references/gates.md`. Skip only when the user gave the exact path and filen
 | Do not                                                   | Do instead                                                                  |
 | -------------------------------------------------------- | --------------------------------------------------------------------------- |
 | Persist every displayed UI value.                        | Classify it as existing, new, derived, or transient.                        |
-| Add an index “just in case”.                             | Link it to an AP and justify its cost.                                      |
+| Add an index "just in case".                             | Link it to an AP and justify its cost.                                      |
 | Guess missing cardinality, deletion, or retention rules. | Ask at Gate 0 or record an approved assumption.                             |
 | Treat every additive DMC as rollout-safe.                | Check existing data, consumers, engine behavior, and version compatibility. |
-| Treat “no consumer found” as “no consumer exists”.       | State the search scope and remaining uncertainty.                           |
+| Treat "no consumer found" as "no consumer exists".       | State the search scope and remaining uncertainty.                           |
 | Apply a DMC before approval.                             | Obtain explicit Gate 1 approval first.                                      |
 | Treat validator success as design proof.                 | Complete Phase 6 semantic and diagram review.                               |

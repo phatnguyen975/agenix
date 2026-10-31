@@ -7,7 +7,7 @@
 - Run: `python scripts/repeat-run.py --runs N [--parallel K] --timeout S -- COMMAND`.
 - Each execution passes when the command exits 0; any failed or timed-out run makes the overall command fail. Use `--stop-on-fail` only when an early stop fits the investigation, and use `--json` when machine-readable results help.
 - Manual fallback: run the command N times in a shell loop and count non-zero exits.
-- Reproduction rate = failed or timed-out executions divided by total executions actually started. Choose a bounded run/time budget and increase N enough to observe multiple failures when practical. If `--stop-on-fail` prevents later runs from starting, report the actual execution count, not the planned count. If no failures occur, report “not reproduced in N runs”; do not treat that as proof the failure is gone.
+- Reproduction rate = failed or timed-out executions divided by total executions actually started. Choose a bounded run/time budget and increase N enough to observe multiple failures when practical. If `--stop-on-fail` prevents later runs from starting, report the actual execution count, not the planned count. If no failures occur, report "not reproduced in N runs"; do not treat that as proof the failure is gone.
 
 ## Raise the rate
 
