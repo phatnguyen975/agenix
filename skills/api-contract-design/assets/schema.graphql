@@ -1,0 +1,239 @@
+# GraphQL SDL contract template. Baseline: GraphQL specification September 2025 edition; fallback October 2021.
+#
+# HOW TO FILL
+#   1. Complete the five header-note fields below (Protocol decision ... Design rules not expressible in the format).
+#   2. Replace placeholder names (types, fields, scopes, limits) with project values.
+#   3. Give every type, field, argument, and enum value a description (block string).
+#   4. Make nullability deliberate: non-null only when the field is guaranteed under every resolver failure mode.
+#   5. Bound every list: connections with `first`/`after`, and a documented maximum page size.
+#   6. Mutations: one `input` argument and one payload type that carries `userErrors`.
+#   7. Deprecate with @deprecated(reason: ...) naming the replacement; never remove without a sunset.
+#   8. State value constraints through custom scalars, @oneOf, project directives, or description text.
+#   9. Delete the "COVERAGE" section at the end and all comments that start with "TEMPLATE" before delivery.
+#   10. Under the October 2021 edition delete constructs marked (Sept 2025): @oneOf and deprecation of arguments or input fields.
+#
+# GraphQL SDL contract template (specification edition September 2025).
+# Header notes:
+#   Protocol decision: GraphQL for client-shaped reads across related data. Rejected: REST (many clients with differing projections).
+#   Consumers and exposure: first-party web and mobile clients; authenticated users; public internet.
+#   Format version: GraphQL September 2025 edition (baseline).
+#   Standards in draft or de-facto use: GraphQL over HTTP (draft); Relay Cursor Connections and Global Object Identification conventions.
+#   Design rules not expressible in the format:
+#     - Authentication: bearer token in the Authorization header; field-level authorization in the domain layer.
+#     - Limits: maximum depth 10; cost budget 1000 per request; maximum page size 100; batching disabled.
+#     - Introspection: disabled for unauthenticated callers in production.
+#     - Subscriptions transport: WebSocket-based, documented separately in the deployment notes.
+#     - Persisted operations: required in production; unknown operations are rejected.
+
+schema {                                        # only when root type names deviate from Query, Mutation, Subscription
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+"""Marks fields whose value requires a permission."""
+directive @requires(permission: String!) on FIELD_DEFINITION | OBJECT
+
+"""Declares a length bound enforced by the server."""
+directive @length(min: Int = 0, max: Int!) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
+
+"""An instant in RFC 3339 `date-time` format, in UTC."""
+scalar DateTime @specifiedBy(url: "https://www.rfc-editor.org/rfc/rfc3339")
+
+"""A URL as defined by RFC 3986."""
+scalar URL @specifiedBy(url: "https://www.rfc-editor.org/rfc/rfc3986")
+
+"""An object with a globally unique identifier."""
+interface Node {
+  """Globally unique identifier."""
+  id: ID!
+}
+
+"""Lifecycle state of an order."""
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  """Cancelled orders cannot be reopened."""
+  CANCELLED
+  LEGACY_HOLD @deprecated(reason: "Use PENDING.")
+}
+
+"""An amount in minor units with an ISO 4217 currency code."""
+type Money {
+  amount: Int!
+  currency: String!
+}
+
+"""A customer order."""
+type Order implements Node {
+  id: ID!
+  status: OrderStatus!
+  total: Money!
+  """Free text; null when none was provided."""
+  note: String
+  createdAt: DateTime!
+  """Lines of the order. Bounded by `first` (maximum 100)."""
+  lines(first: Int = 20, after: String): OrderLineConnection!
+  """Internal reference. Requires the `orders:admin` permission."""
+  internalReference: String @requires(permission: "orders:admin")
+  legacyCode: String @deprecated(reason: "Use id.")
+}
+
+type OrderLine implements Node {
+  id: ID!
+  sku: String!
+  quantity: Int!
+}
+
+"""Relay-style connection for orders."""
+type OrderConnection {
+  edges: [OrderEdge!]!
+  pageInfo: PageInfo!
+}
+type OrderEdge {
+  cursor: String!
+  node: Order!
+}
+type OrderLineConnection {
+  edges: [OrderLineEdge!]!
+  pageInfo: PageInfo!
+}
+type OrderLineEdge {
+  cursor: String!
+  node: OrderLine!
+}
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+"""Results of a search across types."""
+union SearchResult = Order | OrderLine
+
+"""Filter for listing orders."""
+input OrderFilter {
+  status: [OrderStatus!]
+  createdAfter: DateTime
+  createdBefore: DateTime
+}
+
+"""Input for creating an order."""
+input CreateOrderInput {
+  """Client-generated identifier; repeating it returns the original result."""
+  clientMutationId: ID!
+  total: MoneyInput!
+  note: String @length(max: 500)
+  callbackUrl: URL
+}
+input MoneyInput {
+  amount: Int!
+  currency: String!
+}
+
+"""Exactly one of the fields must be provided."""
+input OrderLookup @oneOf {
+  id: ID
+  externalReference: String
+}
+
+type CreateOrderPayload {
+  order: Order
+  """Domain errors the caller can correct."""
+  userErrors: [UserError!]!
+}
+type CancelOrderPayload {
+  order: Order
+  userErrors: [UserError!]!
+}
+type UserError {
+  """Stable machine-readable code."""
+  code: String!
+  """Path to the invalid input field."""
+  field: [String!]
+  message: String!
+}
+
+type Query {
+  """Fetch any object by global identifier."""
+  node(id: ID!): Node
+  """Fetch one order by identifier or external reference."""
+  order(lookup: OrderLookup!): Order
+  """List orders, newest first. `first` maximum 100."""
+  orders(first: Int = 20, after: String, filter: OrderFilter): OrderConnection!
+  search(query: String! @length(min: 1, max: 200), first: Int = 20): [SearchResult!]!
+}
+
+type Mutation {
+  """Create an order. Safe to retry with the same clientMutationId."""
+  createOrder(input: CreateOrderInput!): CreateOrderPayload!
+  cancelOrder(id: ID!): CancelOrderPayload!
+}
+
+type Subscription {
+  """Order updates for the authenticated caller."""
+  orderUpdated(orderId: ID!): Order!
+}
+
+extend type Query {
+  """Health probe for gateways."""
+  ping: String!
+}
+
+# ---------------------------------------------------------------------------
+# COVERAGE: constructs available in SDL. Delete this section before delivery.
+# ---------------------------------------------------------------------------
+
+# TEMPLATE: extensions cannot carry descriptions; a `schema { ... }` definition can.
+extend schema @contact(name: "API Support", url: "https://example.com/support")
+
+"""Applied to the schema itself."""
+directive @contact(name: String!, url: String) on SCHEMA
+
+"""Repeatable directive: may be applied several times to one element."""
+directive @tag(name: String!) repeatable on OBJECT | FIELD_DEFINITION | INTERFACE | UNION | ARGUMENT_DEFINITION | INPUT_OBJECT | INPUT_FIELD_DEFINITION | ENUM | ENUM_VALUE | SCALAR
+
+"""Interface that implements another interface."""
+interface Auditable implements Node {
+  id: ID!
+  updatedAt: DateTime!
+}
+
+type Invoice implements Auditable & Node @tag(name: "billing") @tag(name: "finance") {
+  id: ID!
+  updatedAt: DateTime!
+  """Deprecated argument and defaults."""
+  lines(first: Int = 20, after: String, includeVoid: Boolean = false @deprecated(reason: "Void lines are no longer returned.")): [OrderLine!]!
+}
+
+input InvoiceFilter {
+  status: [OrderStatus!]
+  """Deprecated input field."""
+  olderThan: DateTime @deprecated(reason: "Use createdBefore.")
+  createdBefore: DateTime
+  limit: Int = 20
+}
+
+# Extensions of existing definitions.
+extend type Order {
+  invoice: Invoice
+}
+extend enum OrderStatus {
+  REFUNDED
+}
+extend union SearchResult = Invoice
+extend input OrderFilter {
+  minimumTotal: Int
+}
+interface Labeled {
+  label: String
+}
+extend interface Labeled {
+  """Adding a field to an interface requires every implementing type to provide it."""
+  shortLabel: String
+}
+extend scalar URL @tag(name: "web")
+
+# TEMPLATE: schema coordinates identify elements precisely in change notes: Order.status, Query.orders(first:), OrderStatus.PAID.

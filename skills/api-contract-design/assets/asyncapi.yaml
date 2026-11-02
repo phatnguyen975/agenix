@@ -1,0 +1,376 @@
+# AsyncAPI contract template (WebSocket and messaging). Baseline: AsyncAPI 3.1.0; fallback 3.0.0.
+#
+# HOW TO FILL
+#   1. Complete the five header-note fields in info.description.
+#   2. Replace every placeholder (names, hosts, addresses, scopes) with project values; example.com hosts are illustrative only.
+#   3. Keep every field marked (R); delete every optional section the API does not use.
+#   4. Define each message and schema once under components and reference it with $ref from channels and operations.
+#   5. Perspective: `send` means the described application sends; `receive` means it receives.
+#   6. For every channel, state in its description: delivery guarantee, ordering scope, retention, dead-letter policy.
+#   7. For every message, provide name, content type, payload schema, and at least one example.
+#   8. Pin bindingVersion in every binding; confirm binding field lists in the AsyncAPI bindings repository.
+#   9. Delete this guide and all (R)/(O) comments before delivery.
+# Legend: (R) required by the specification; (O) optional.
+asyncapi: 3.1.0 # (R)
+id: urn:example:orders:events # (O) application identifier (URI recommended)
+info: # (R)
+  title: Orders Events # (R)
+  version: 1.0.0 # (R) contract version (semantic versioning), not the AsyncAPI version
+  description: | # (O) first section = header notes
+    ## Header notes
+    - Protocol decision: Messaging (Kafka-compatible log) for order events; WebSocket for live order updates to browsers. Rejected: polling REST (latency), SSE (clients also send subscription changes).
+    - Consumers and exposure: internal services (messaging); authenticated browser clients (WebSocket).
+    - Format version: AsyncAPI 3.1.0 (baseline).
+    - Standards in draft or de-facto use: CloudEvents 1.0.2 envelope attributes in message headers.
+    - Design rules not expressible in the format: at-least-once delivery; ordering guaranteed per order identifier only; consumers must be idempotent; retention 7 days; dead-letter channel after 5 attempts.
+  termsOfService: https://example.com/terms # (O)
+  contact: {
+      name: API Support,
+      url: https://example.com/support,
+      email: api-support@example.com,
+    } # (O)
+  license: {
+      name: Apache 2.0,
+      url: https://www.apache.org/licenses/LICENSE-2.0.html,
+    } # (O)
+  tags: # (O)
+    - { name: orders, description: Order domain events }
+  externalDocs: {
+      description: Full documentation,
+      url: https://example.com/docs,
+    } # (O)
+defaultContentType: application/json # (O)
+
+servers: # (O)
+  broker:
+    host: broker.example.com:9092 # (R) host and optional port
+    protocol: kafka # (R)
+    protocolVersion: "3.7" # (O)
+    pathname: / # (O)
+    title: Event broker # (O)
+    summary: Production broker # (O)
+    description: Kafka-compatible broker. # (O)
+    variables: # (O)
+      env:
+        {
+          description: Environment,
+          default: prod,
+          enum: [prod, staging],
+          examples: [prod],
+        }
+    security: # (O)
+      - $ref: "#/components/securitySchemes/brokerScram"
+    tags: [{ name: internal }] # (O)
+    externalDocs: { url: https://example.com/docs/broker } # (O)
+    bindings: # (O) Kafka server binding
+      kafka:
+        schemaRegistryUrl: https://registry.example.com
+        schemaRegistryVendor: example
+        bindingVersion: 0.5.0
+  realtime:
+    host: realtime.example.com
+    protocol: wss
+    pathname: /v1/stream
+    security:
+      - $ref: "#/components/securitySchemes/bearer"
+
+channels: # (O)
+  orderPlaced: # key used for references
+    address: orders.order.placed # (O) topic, queue, or path; null when dynamic
+    title: Order placed # (O)
+    summary: Order placed events # (O)
+    description: | # (O)
+      Delivery: at-least-once. Ordering: per order identifier (message key). Retention: 7 days. Dead-letter after 5 failed attempts.
+    servers: # (O) restrict to listed servers
+      - $ref: "#/servers/broker"
+    messages: # (O)
+      orderPlaced: { $ref: "#/components/messages/OrderPlaced" }
+    parameters: {} # (O) address variables, for example { tenantId: {...} } with {tenantId} in address
+    tags: [{ name: orders }] # (O)
+    externalDocs: { url: https://example.com/docs/orders-events } # (O)
+    bindings: # (O) Kafka channel binding
+      kafka:
+        topic: orders.order.placed
+        partitions: 12
+        replicas: 3
+        topicConfiguration:
+          cleanup.policy: [delete]
+          retention.ms: 604800000
+        bindingVersion: 0.5.0
+  liveOrders:
+    address: /orders/{orderId}
+    parameters:
+      orderId: { description: Order identifier., examples: [ord_01HZX] }
+    servers:
+      - $ref: "#/servers/realtime"
+    messages:
+      subscribe: { $ref: "#/components/messages/Subscribe" }
+      orderUpdate: { $ref: "#/components/messages/OrderUpdate" }
+    bindings: # (O) WebSockets channel binding; confirm fields in the bindings repository
+      ws:
+        method: GET
+        bindingVersion: 0.1.0
+  orderQuoteRequests:
+    address: orders.quote.requests
+    messages:
+      quoteRequest: { $ref: "#/components/messages/QuoteRequest" }
+  orderQuoteReplies:
+    address: null # dynamic reply address resolved at runtime
+    messages:
+      quoteReply: { $ref: "#/components/messages/QuoteReply" }
+
+operations: # (O)
+  publishOrderPlaced:
+    action: send # (R) send | receive, from the perspective of the described application
+    channel: { $ref: "#/channels/orderPlaced" } # (R)
+    title: Publish order placed # (O)
+    summary: Emit an event when an order is placed. # (O)
+    description: Published after the order transaction commits (transactional outbox). # (O)
+    security: # (O)
+      - $ref: "#/components/securitySchemes/brokerScram"
+    tags: [{ name: orders }] # (O)
+    externalDocs: { url: https://example.com/docs/orders-events } # (O)
+    bindings: # (O) Kafka operation binding
+      kafka:
+        clientId: { type: string, enum: [orders-service] }
+        bindingVersion: 0.5.0
+    traits: # (O) a trait property must not override the target's property
+      - $ref: "#/components/operationTraits/orderEvent"
+    messages: # (O) subset of the channel's messages
+      - $ref: "#/channels/orderPlaced/messages/orderPlaced"
+  consumeOrderPlaced:
+    action: receive
+    channel: { $ref: "#/channels/orderPlaced" }
+    summary: Receive order placed events (shipping service).
+    bindings:
+      kafka:
+        groupId: { type: string, enum: [shipping-service] }
+        bindingVersion: 0.5.0
+  receiveLiveOrderUpdates:
+    action: send # the server sends updates to the client
+    channel: { $ref: "#/channels/liveOrders" }
+    messages:
+      - $ref: "#/channels/liveOrders/messages/orderUpdate"
+  receiveSubscribe:
+    action: receive
+    channel: { $ref: "#/channels/liveOrders" }
+    messages:
+      - $ref: "#/channels/liveOrders/messages/subscribe"
+  requestQuote:
+    action: send
+    channel: { $ref: "#/channels/orderQuoteRequests" }
+    messages:
+      - $ref: "#/channels/orderQuoteRequests/messages/quoteRequest"
+    reply: # (O) request-reply
+      address:
+        location: $message.header#/replyTo # (R) runtime expression
+        description: Reply destination taken from the request header.
+      channel: { $ref: "#/channels/orderQuoteReplies" }
+      messages:
+        - $ref: "#/channels/orderQuoteReplies/messages/quoteReply"
+
+components: # (O)
+  schemas:
+    Order:
+      type: object
+      properties:
+        id: { type: string, maxLength: 64 }
+        status: { type: string, enum: [PENDING, PAID, SHIPPED, CANCELLED] }
+        total: { $ref: "#/components/schemas/Money" }
+        createdAt: { type: string, format: date-time }
+      required: [id, status, total, createdAt]
+    Money:
+      type: object
+      properties:
+        amount: { type: integer, minimum: 0, maximum: 999999999999 }
+        currency: { type: string, pattern: "^[A-Z]{3}$" }
+      required: [amount, currency]
+      additionalProperties: false
+    Envelope: # CloudEvents attributes carried as message headers
+      type: object
+      properties:
+        ce_id: { type: string, maxLength: 128 }
+        ce_source: { type: string, format: uri-reference, maxLength: 2048 }
+        ce_specversion: { type: string, const: "1.0" }
+        ce_type: { type: string, maxLength: 256 }
+        ce_time: { type: string, format: date-time }
+        traceparent: { type: string, maxLength: 64 }
+        correlationId: { type: string, maxLength: 128 }
+        replyTo: { type: string, maxLength: 256 }
+      required: [ce_id, ce_source, ce_specversion, ce_type]
+  servers: # (O) reusable servers
+    sandbox: { host: sandbox.example.com, protocol: wss }
+  serverVariables: # (O)
+    env: { default: prod, enum: [prod, staging] }
+  channels: # (O) reusable channels
+    deadLetter:
+      address: orders.dead-letter
+      description: Messages that failed processing after 5 attempts.
+      messages:
+        failed: { $ref: "#/components/messages/OrderPlaced" }
+  operations: # (O) reusable operations
+    consumeDeadLetter:
+      action: receive
+      channel: { $ref: "#/components/channels/deadLetter" }
+  messages:
+    OrderPlaced:
+      name: OrderPlaced # (O)
+      title: Order placed # (O)
+      summary: An order was placed. # (O)
+      description: Fact event; consumers fetch current state when needed. # (O)
+      contentType: application/json # (O) overrides defaultContentType
+      tags: [{ name: orders }]
+      externalDocs: { url: https://example.com/docs/orders-events }
+      headers: { $ref: "#/components/schemas/Envelope" } # (O)
+      payload: { $ref: "#/components/schemas/Order" } # (O)
+      correlationId: { $ref: "#/components/correlationIds/default" } # (O)
+      bindings: # (O) Kafka message binding
+        kafka:
+          key:
+            {
+              type: string,
+              description: Order identifier used as ordering key.,
+            }
+          bindingVersion: 0.5.0
+      examples: # (O)
+        - name: pending
+          summary: Newly placed order
+          headers:
+            {
+              ce_id: evt_01,
+              ce_source: /orders-service,
+              ce_specversion: "1.0",
+              ce_type: com.example.order.placed.v1,
+            }
+          payload:
+            {
+              id: ord_01HZX,
+              status: PENDING,
+              total: { amount: 1250, currency: EUR },
+              createdAt: "2026-03-01T09:30:00Z",
+            }
+      traits: # (O)
+        - $ref: "#/components/messageTraits/commonHeaders"
+    Subscribe:
+      name: Subscribe
+      payload:
+        type: object
+        properties:
+          type: { const: subscribe }
+          orderId: { type: string, maxLength: 64 }
+        required: [type, orderId]
+    OrderUpdate:
+      name: OrderUpdate
+      payload: # Multi Format Schema Object (other schema formats)
+        schemaFormat: application/vnd.aai.asyncapi+json;version=3.1.0
+        schema: { $ref: "#/components/schemas/Order" }
+    AvroOrderPlaced: # Multi Format Schema Object with a non-AsyncAPI schema format
+      name: AvroOrderPlaced
+      contentType: application/vnd.apache.avro+json
+      payload:
+        schemaFormat: application/vnd.apache.avro;version=1.9.0
+        schema:
+          type: record
+          name: OrderPlaced
+          namespace: com.example.orders
+          fields:
+            - { name: id, type: string }
+            - { name: total, type: long }
+    QuoteRequest:
+      name: QuoteRequest
+      headers: { $ref: "#/components/schemas/Envelope" }
+      correlationId: { $ref: "#/components/correlationIds/default" }
+      payload:
+        {
+          type: object,
+          properties: { orderId: { type: string } },
+          required: [orderId],
+        }
+    QuoteReply:
+      name: QuoteReply
+      correlationId: { $ref: "#/components/correlationIds/default" }
+      payload:
+        {
+          type: object,
+          properties: { amount: { type: integer, minimum: 0 } },
+          required: [amount],
+        }
+  securitySchemes: # every security scheme type
+    userPassword: { type: userPassword, description: Username and password. }
+    apiKey: {
+        type: apiKey,
+        in: user,
+        description: API key sent as the user name.,
+      } # in: user | password
+    x509: { type: X509, description: Client certificate. }
+    symmetricEncryption:
+      {
+        type: symmetricEncryption,
+        description: Shared-secret payload encryption.,
+      }
+    asymmetricEncryption:
+      {
+        type: asymmetricEncryption,
+        description: Public-key payload encryption.,
+      }
+    httpApiKey: { type: httpApiKey, name: X-API-Key, in: header } # in: query | header | cookie
+    bearer:
+      {
+        type: http,
+        scheme: bearer,
+        bearerFormat: JWT,
+        description: Access token validated by the gateway.,
+      }
+    oauth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://auth.example.com/token
+          availableScopes: { "orders:read": Read order events }
+      scopes: ["orders:read"]
+    oidc:
+      {
+        type: openIdConnect,
+        openIdConnectUrl: https://auth.example.com/.well-known/openid-configuration,
+        scopes: ["openid"],
+      }
+    plain: { type: plain, description: SASL PLAIN. }
+    brokerScram: { type: scramSha256, description: SASL/SCRAM-SHA-256. }
+    scramSha512: { type: scramSha512, description: SASL/SCRAM-SHA-512. }
+    gssapi: { type: gssapi, description: SASL GSSAPI (Kerberos). }
+  parameters: # (O) reusable channel parameters
+    orderId: { description: Order identifier. }
+  correlationIds:
+    default:
+      description: Correlation identifier carried in the message headers.
+      location: $message.header#/correlationId
+  replies: # (O)
+    quoteReply:
+      address: { location: $message.header#/replyTo }
+      channel: { $ref: "#/channels/orderQuoteReplies" }
+      messages:
+        - $ref: "#/channels/orderQuoteReplies/messages/quoteReply"
+  replyAddresses: # (O)
+    replyTo:
+      {
+        location: $message.header#/replyTo,
+        description: Destination for the reply.,
+      }
+  externalDocs: # (O)
+    orders: { url: https://example.com/docs/orders-events }
+  tags: # (O)
+    internal: { name: internal, description: Internal use only. }
+  operationTraits:
+    orderEvent: { tags: [{ name: orders }] }
+  messageTraits:
+    commonHeaders: { contentType: application/json }
+  serverBindings: # (O)
+    kafkaDefault: { kafka: { bindingVersion: 0.5.0 } }
+  channelBindings: # (O)
+    kafkaDefault:
+      { kafka: { partitions: 12, replicas: 3, bindingVersion: 0.5.0 } }
+  operationBindings: # (O)
+    kafkaDefault:
+      { kafka: { clientId: { type: string }, bindingVersion: 0.5.0 } }
+  messageBindings: # (O)
+    kafkaDefault: { kafka: { key: { type: string }, bindingVersion: 0.5.0 } }

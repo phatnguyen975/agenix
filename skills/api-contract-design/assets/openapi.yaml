@@ -1,0 +1,908 @@
+# OpenAPI contract template (REST, SSE, webhooks). Baseline: OpenAPI 3.2.1; fallback 3.1.2.
+#
+# HOW TO FILL
+#   1. Complete the five header-note fields in info.description.
+#   2. Replace every placeholder (names, URLs, hosts, scopes, identifiers) with project values.
+#      example.com hosts are illustrative only; never ship real secrets, hosts, or personal data in examples.
+#   3. Keep every field marked (R); delete every optional section the API does not use.
+#   4. Define each schema, parameter, header, and response once under components and reference it with $ref.
+#   5. Give every operation: operationId, summary, tags, security, every returned response, and examples.
+#   6. Fields marked (3.2) exist only in 3.2.x documents; delete them when the project uses 3.1.x.
+#   7. Delete this guide, the "SCHEMA KEYWORD CATALOG" component, and all (R)/(O) comments before delivery.
+# Legend: (R) required by the specification; (O) optional; (3.2) exists only in 3.2.x.
+openapi: 3.2.1 # (R)
+$self: https://api.example.com/contracts/orders/openapi.yaml # (O)(3.2) base URI of this document
+info: # (R)
+  title: Orders API # (R)
+  summary: Create and track orders. # (O)
+  description: | # (O) first section = header notes
+    ## Header notes
+    - Protocol decision: REST for commands and queries; SSE for live order events. Rejected: GraphQL (no graph-shaped reads), WebSocket (one-way updates only).
+    - Consumers and exposure: partner and first-party web clients; public internet.
+    - Format version: OpenAPI 3.2.1 (baseline).
+    - Standards in draft or de-facto use: Idempotency-Key header (IETF draft); RateLimit and RateLimit-Policy headers (IETF draft).
+    - Design rules not expressible in the format: order creation must complete within 5 seconds, otherwise use the asynchronous pattern; clients must retry only with an Idempotency-Key.
+  termsOfService: https://example.com/terms # (O)
+  contact: # (O)
+    name: API Support
+    url: https://example.com/support
+    email: api-support@example.com
+  license: # (O) name required; identifier and url are mutually exclusive
+    name: Apache 2.0
+    identifier: Apache-2.0
+  version: 1.0.0 # (R) contract version (semantic versioning), not the OpenAPI version
+# jsonSchemaDialect: <dialect URI>             # (O) omit to use the OAS dialect (JSON Schema 2020-12 + OAS base vocabulary)
+servers: # (O) defaults to "/" when omitted
+  - url: https://{environment}.example.com/v1
+    name: primary # (O)(3.2)
+    description: Production and sandbox
+    variables:
+      environment:
+        default: api # (R)
+        enum: [api, sandbox]
+        description: Target environment
+security: # (O) default requirements; alternatives (OR)
+  - OAuth2: [orders:read]
+tags: # (O)
+  - name: Orders # (R)
+    summary: Orders # (O)(3.2)
+    description: Order lifecycle operations.
+    kind: nav # (O)(3.2) classification of the tag
+    externalDocs:
+      description: Order guide
+      url: https://example.com/docs/orders
+  - name: Order Events
+    summary: Order events
+    parent: Orders # (O)(3.2) parent tag name
+    kind: nav
+externalDocs: # (O)
+  description: Full documentation
+  url: https://example.com/docs
+
+paths: # (R unless components or webhooks present)
+  /orders:
+    summary: Order collection # (O)
+    description: Create and list orders. # (O)
+    parameters: [] # (O) parameters common to all operations on this path
+    get:
+      tags: [Orders]
+      summary: List orders
+      description: Returns orders visible to the caller, newest first. Cursor pagination; maximum page size 100.
+      externalDocs:
+        url: https://example.com/docs/orders#list
+      operationId: listOrders
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - name: status
+          in: query
+          description: Filter by status. Repeat the parameter for several values.
+          required: false
+          deprecated: false
+          allowEmptyValue: false
+          style: form
+          explode: true
+          allowReserved: false
+          schema:
+            type: array
+            items: { $ref: "#/components/schemas/OrderStatus" }
+            maxItems: 5
+          examples:
+            single: { summary: One status, dataValue: [PENDING] } # dataValue is (3.2)
+      responses:
+        "200":
+          description: A page of orders.
+          headers:
+            ETag: { $ref: "#/components/headers/ETag" }
+            RateLimit: { $ref: "#/components/headers/RateLimit" }
+            RateLimit-Policy: { $ref: "#/components/headers/RateLimitPolicy" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrderPage" }
+              examples:
+                firstPage:
+                  summary: First page
+                  value:
+                    items:
+                      - id: ord_01HZX
+                        status: PENDING
+                        total: { amount: 1250, currency: EUR }
+                        createdAt: "2026-03-01T09:30:00Z"
+                    nextCursor: eyJpZCI6Im9yZF8wMUhaWCJ9
+          links:
+            GetOrderById:
+              operationId: getOrder
+              parameters:
+                orderId: "$response.body#/items/0/id"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        default: { $ref: "#/components/responses/UnexpectedError" }
+      deprecated: false
+      security:
+        - OAuth2: [orders:read]
+        - ApiKeyAuth: []
+      servers: # (O) operation-level server override
+        - url: https://api.example.com/v1
+    post:
+      tags: [Orders]
+      summary: Create an order
+      description: Creates an order. Safe to retry only with the same Idempotency-Key.
+      operationId: createOrder
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        $ref: "#/components/requestBodies/OrderCreate"
+      responses:
+        "201":
+          description: Order created.
+          headers:
+            Location:
+              description: URI of the created order.
+              required: true
+              schema: { type: string, format: uri-reference, maxLength: 2048 }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Order" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/UnprocessableContent" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        default: { $ref: "#/components/responses/UnexpectedError" }
+      callbacks: # (O) requests the provider sends to a caller-supplied URL
+        orderShipped:
+          "{$request.body#/callbackUrl}":
+            post:
+              summary: Order shipped notification
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema: { $ref: "#/components/schemas/OrderEvent" }
+              responses:
+                "204": { description: Notification accepted. }
+      security:
+        - OAuth2: [orders:write]
+  /orders/{orderId}:
+    parameters:
+      - $ref: "#/components/parameters/OrderId"
+    get:
+      tags: [Orders]
+      summary: Get an order
+      operationId: getOrder
+      responses:
+        "200":
+          description: The order.
+          headers:
+            ETag: { $ref: "#/components/headers/ETag" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Order" }
+        "304": { description: Not modified. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        default: { $ref: "#/components/responses/UnexpectedError" }
+    patch:
+      tags: [Orders]
+      summary: Update an order
+      description: JSON Merge Patch (RFC 7396). A null value removes an optional field.
+      operationId: updateOrder
+      parameters:
+        - name: If-Match
+          in: header
+          required: true
+          description: ETag of the version being updated.
+          schema: { type: string, maxLength: 256 }
+      requestBody:
+        required: true
+        content:
+          application/merge-patch+json:
+            schema: { $ref: "#/components/schemas/OrderUpdate" }
+      responses:
+        "200":
+          description: The updated order.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Order" }
+        "412": { $ref: "#/components/responses/PreconditionFailed" }
+        "428": { $ref: "#/components/responses/PreconditionRequired" }
+        default: { $ref: "#/components/responses/UnexpectedError" }
+      security:
+        - OAuth2: [orders:write]
+    delete:
+      tags: [Orders]
+      summary: Cancel an order
+      operationId: cancelOrder
+      responses:
+        "204": { description: Order cancelled. }
+        "404": { $ref: "#/components/responses/NotFound" }
+        default: { $ref: "#/components/responses/UnexpectedError" }
+      security:
+        - OAuth2: [orders:write]
+  /orders/{orderId}/attachments:
+    parameters: # (O) shared by every operation on this path
+      - $ref: "#/components/parameters/OrderId"
+      - name: X-Request-Source # header parameter
+        in: header
+        schema: { type: string, maxLength: 64 }
+      - name: session_hint # cookie parameter
+        in: cookie
+        schema: { type: string, maxLength: 128 }
+    put:
+      tags: [Orders]
+      summary: Upload an attachment
+      operationId: putOrderAttachment
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, contentMediaType: application/pdf }
+                metadata:
+                  {
+                    type: object,
+                    properties: { label: { type: string, maxLength: 100 } },
+                  }
+              required: [file]
+            encoding: # (O) per-property encoding
+              file:
+                contentType: application/pdf # (O)
+                headers: # (O)
+                  X-Checksum: { schema: { type: string, maxLength: 128 } }
+              metadata:
+                contentType: application/json
+                style: form # (O)
+                explode: true # (O)
+                allowReserved: false # (O)
+      responses:
+        "204": { description: Attachment stored. }
+        "413": {
+            $ref: "#/components/responses/UnexpectedError",
+            description: Attachment too large.,
+          } # $ref with description override
+        "415":
+          {
+            $ref: "#/components/responses/UnexpectedError",
+            summary: Unsupported type,
+            description: Unsupported attachment type.,
+          }
+    head:
+      tags: [Orders]
+      summary: Check whether an attachment exists
+      operationId: headOrderAttachment
+      responses:
+        "200": { description: Exists. }
+        "404": { $ref: "#/components/responses/NotFound" }
+    options:
+      tags: [Orders]
+      summary: Supported methods for attachments
+      operationId: optionsOrderAttachment
+      responses:
+        "204": { description: Allowed methods in the Allow header. }
+    trace: # (O) rarely exposed; delete unless required
+      tags: [Orders]
+      summary: Echo the request
+      operationId: traceOrderAttachment
+      responses:
+        "200": { description: Echoed request. }
+  /orders/{orderId}/summary:
+    $ref: "#/components/pathItems/OrderSummary" # (O) path item defined once under components
+  /orders/search:
+    query: # (O)(3.2) safe, idempotent request with a body (RFC 10008)
+      tags: [Orders]
+      summary: Search orders
+      operationId: searchOrders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/OrderSearch" }
+      responses:
+        "200":
+          description: Matching orders.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrderPage" }
+        default: { $ref: "#/components/responses/UnexpectedError" }
+    additionalOperations: # (O)(3.2) methods outside the fixed set
+      PURGE:
+        summary: Purge cached search results
+        operationId: purgeOrderSearchCache
+        responses:
+          "204": { description: Purged. }
+  /orders/{orderId}/events:
+    parameters:
+      - $ref: "#/components/parameters/OrderId"
+    get:
+      tags: [Order Events]
+      summary: Stream order events (SSE)
+      description: Server-sent events for one order. Resume with Last-Event-ID; replay window 24 hours; heartbeat comment every 15 seconds.
+      operationId: streamOrderEvents
+      parameters:
+        - name: Last-Event-ID
+          in: header
+          required: false
+          schema: { type: string, maxLength: 128 }
+      responses:
+        "200":
+          description: Event stream.
+          content:
+            text/event-stream:
+              itemSchema: # (3.2) schema of one event
+                type: object
+                properties:
+                  event: { type: string, enum: [order.updated, order.shipped] }
+                  id: { type: string, maxLength: 128 }
+                  retry: { type: integer, minimum: 0 }
+                  data:
+                    type: string
+                    contentMediaType: application/json
+                    contentSchema: { $ref: "#/components/schemas/OrderEvent" }
+                required: [data]
+  /reports:
+    get:
+      tags: [Orders]
+      summary: Export report parameters as one query string
+      operationId: getReport
+      parameters:
+        - name: reportQuery
+          in: querystring # (3.2) whole query string described by content
+          required: true
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                properties:
+                  from: { type: string, format: date }
+                  to: { type: string, format: date }
+                additionalProperties: false
+      responses:
+        "200":
+          description: Report.
+          content:
+            text/csv:
+              schema: { type: string, maxLength: 10485760 }
+
+webhooks: # (O) provider-initiated requests (3.1+)
+  orderStatusChanged:
+    post:
+      summary: Order status changed
+      operationId: orderStatusChangedWebhook
+      parameters:
+        - name: webhook-id
+          in: header
+          required: true
+          schema: { type: string, maxLength: 128 }
+        - name: webhook-timestamp
+          in: header
+          required: true
+          schema: { type: string, pattern: "^[0-9]{10,13}$" }
+        - name: webhook-signature
+          in: header
+          required: true
+          schema: { type: string, maxLength: 1024 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/OrderEvent" }
+      responses:
+        "2XX": { description: Event accepted; any 2xx acknowledges delivery. }
+
+components: # (O)
+  schemas:
+    OrderStatus:
+      type: string
+      enum: [PENDING, PAID, SHIPPED, CANCELLED]
+      description: Order lifecycle state.
+    Money:
+      type: object
+      description: Amount in minor units with currency.
+      properties:
+        amount:
+          {
+            type: integer,
+            minimum: 0,
+            maximum: 999999999999,
+            description: Minor units.,
+          }
+        currency:
+          { type: string, pattern: "^[A-Z]{3}$", description: ISO 4217 code. }
+      required: [amount, currency]
+      additionalProperties: false
+    Order:
+      type: object
+      description: An order as returned by the API.
+      properties:
+        id: { type: string, maxLength: 64, readOnly: true }
+        status: { $ref: "#/components/schemas/OrderStatus" }
+        total: { $ref: "#/components/schemas/Money" }
+        note:
+          {
+            type: [string, "null"],
+            maxLength: 500,
+            description: Free text; null when none.,
+          }
+        createdAt: { type: string, format: date-time, readOnly: true }
+      required: [id, status, total, createdAt]
+      examples:
+        - {
+            id: ord_01HZX,
+            status: PENDING,
+            total: { amount: 1250, currency: EUR },
+            note: null,
+            createdAt: "2026-03-01T09:30:00Z",
+          }
+    OrderCreate:
+      type: object
+      properties:
+        total: { $ref: "#/components/schemas/Money" }
+        note: { type: string, maxLength: 500 }
+        callbackUrl:
+          { type: string, format: uri, maxLength: 2048, writeOnly: true }
+      required: [total]
+      unevaluatedProperties: false
+    OrderUpdate:
+      type: object
+      properties:
+        note: { type: [string, "null"], maxLength: 500 }
+      unevaluatedProperties: false
+    OrderSearch:
+      type: object
+      properties:
+        q: { type: string, minLength: 1, maxLength: 200 }
+        limit: { type: integer, minimum: 1, maximum: 100, default: 20 }
+        cursor: { type: string, maxLength: 512 }
+      unevaluatedProperties: false
+    OrderPage:
+      type: object
+      properties:
+        items:
+          {
+            type: array,
+            items: { $ref: "#/components/schemas/Order" },
+            maxItems: 100,
+          }
+        nextCursor: { type: [string, "null"], maxLength: 512 }
+      required: [items]
+    OrderEvent:
+      type: object
+      properties:
+        id: { type: string, maxLength: 128 }
+        type: { type: string, enum: [order.updated, order.shipped] }
+        createdAt: { type: string, format: date-time }
+        data: { $ref: "#/components/schemas/Order" }
+      required: [id, type, createdAt, data]
+    Pet: # polymorphism example with discriminator
+      oneOf:
+        - { $ref: "#/components/schemas/Cat" }
+        - { $ref: "#/components/schemas/Dog" }
+      discriminator:
+        propertyName: kind # (R)
+        mapping:
+          { cat: "#/components/schemas/Cat", dog: "#/components/schemas/Dog" }
+        defaultMapping: "#/components/schemas/Cat" # (O)(3.2)
+    Cat:
+      type: object
+      properties: { kind: { const: cat } }
+      required: [kind]
+    Dog:
+      type: object
+      properties: { kind: { const: dog } }
+      required: [kind]
+    # ---- SCHEMA KEYWORD CATALOG: illustrates every common keyword. Delete before delivery. ----
+    KeywordCatalog:
+      $comment: Illustrates the keywords available in a Schema Object; not part of the API.
+      title: Keyword catalog
+      description: Reference only.
+      type: object
+      deprecated: false
+      externalDocs: { url: https://example.com/docs/schemas }
+      properties:
+        text:
+          {
+            type: string,
+            minLength: 1,
+            maxLength: 100,
+            pattern: "^[a-z]+$",
+            default: abc,
+            examples: [abc],
+          }
+        flag: { type: boolean }
+        count:
+          {
+            type: integer,
+            format: int32,
+            minimum: 0,
+            maximum: 100,
+            multipleOf: 5,
+          }
+        ratio:
+          {
+            type: number,
+            format: double,
+            exclusiveMinimum: 0,
+            exclusiveMaximum: 1,
+          }
+        bigId:
+          {
+            type: string,
+            pattern: "^[0-9]{1,20}$",
+            description: 64-bit integer carried as a string.,
+          }
+        nullableText: { type: [string, "null"], maxLength: 100 }
+        fixed: { const: v1 }
+        choice: { enum: [A, B, C] }
+        when: { type: string, format: date-time }
+        day: { type: string, format: date }
+        span: { type: string, format: duration }
+        link: { type: string, format: uri, maxLength: 2048 }
+        email: { type: string, format: email, maxLength: 320 }
+        uid: { type: string, format: uuid }
+        blob:
+          {
+            type: string,
+            contentEncoding: base64,
+            contentMediaType: image/png,
+            maxLength: 1048576,
+          }
+        json:
+          {
+            type: string,
+            contentMediaType: application/json,
+            contentSchema: { type: object },
+          }
+        list:
+          {
+            type: array,
+            items: { type: string, maxLength: 50 },
+            minItems: 0,
+            maxItems: 20,
+            uniqueItems: true,
+          }
+        pair:
+          {
+            type: array,
+            prefixItems: [{ type: string, maxLength: 50 }, { type: integer }],
+            items: false,
+            minItems: 2,
+            maxItems: 2,
+          }
+        withSeven:
+          {
+            type: array,
+            items: { type: integer },
+            contains: { const: 7 },
+            minContains: 1,
+            maxContains: 2,
+            maxItems: 20,
+          }
+        dictionary:
+          {
+            type: object,
+            additionalProperties: { type: integer },
+            propertyNames: { pattern: "^[a-z]+$" },
+            minProperties: 0,
+            maxProperties: 50,
+          }
+        patterned:
+          {
+            type: object,
+            patternProperties: { "^x-": { type: string, maxLength: 100 } },
+            unevaluatedProperties: false,
+          }
+        secret: { type: string, writeOnly: true, maxLength: 128 }
+        stamp: { type: string, format: date-time, readOnly: true }
+        oldField: { type: string, deprecated: true, maxLength: 50 }
+      required: [text]
+      dependentRequired: { flag: [count] } # when flag is present, count is required
+      dependentSchemas: { ratio: { required: [count] } }
+      if: { properties: { choice: { const: A } }, required: [choice] }
+      then: { required: [fixed] }
+      else: { not: { required: [fixed] } }
+      not: { required: [oldField, secret] }
+      unevaluatedProperties: false
+    AllOfExample: # extension of a base schema
+      allOf:
+        - { $ref: "#/components/schemas/Money" }
+        - { type: object, properties: { taxIncluded: { type: boolean } } }
+    AnyOfExample: # at least one alternative matches
+      anyOf:
+        - { type: string, maxLength: 100 }
+        - { type: integer, minimum: 0 }
+    Problem:
+      type: object
+      description: Problem Details (RFC 9457).
+      properties:
+        type: { type: string, format: uri-reference, default: "about:blank" }
+        title: { type: string }
+        status: { type: integer, minimum: 100, maximum: 599 }
+        detail: { type: string }
+        instance: { type: string, format: uri-reference }
+        code: { type: string, description: Stable machine-readable code. }
+        errors:
+          type: array
+          maxItems: 100
+          items:
+            type: object
+            properties:
+              pointer:
+                {
+                  type: string,
+                  description: JSON Pointer to the invalid value.,
+                }
+              code: { type: string }
+              detail: { type: string }
+            required: [code]
+    Tagged: # XML object example
+      type: object
+      xml: # (O) all XML Object fields
+        name: tagged
+        namespace: https://example.com/schema
+        prefix: ex
+        nodeType: element # (3.2) element | attribute | text | cdata | none; replaces attribute and wrapped
+  parameters:
+    OrderId:
+      {
+        name: orderId,
+        in: path,
+        required: true,
+        schema: { type: string, maxLength: 64 },
+      }
+    Limit:
+      {
+        name: limit,
+        in: query,
+        schema: { type: integer, minimum: 1, maximum: 100, default: 20 },
+      }
+    Cursor:
+      { name: cursor, in: query, schema: { type: string, maxLength: 512 } }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: Unique value per logical operation (IETF draft header).
+      schema: { type: string, minLength: 16, maxLength: 128 }
+  requestBodies:
+    OrderCreate:
+      description: Order to create.
+      required: true
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/OrderCreate" }
+          examples:
+            minimal:
+              {
+                summary: Minimal,
+                value: { total: { amount: 1250, currency: EUR } },
+              }
+  headers:
+    ETag:
+      {
+        description: Version validator.,
+        schema: { type: string, maxLength: 256 },
+      }
+    RateLimit:
+      {
+        description: Remaining quota (IETF draft).,
+        schema: { type: string, maxLength: 256 },
+      }
+    RateLimitPolicy:
+      {
+        description: Quota policies (IETF draft).,
+        schema: { type: string, maxLength: 256 },
+      }
+    RetryAfter:
+      {
+        description: Delay before retrying.,
+        schema: { type: string, maxLength: 64 },
+      }
+    RequestId: # all Header Object fields
+      description: Identifier of the request, for support.
+      required: false
+      deprecated: false
+      style: simple
+      explode: false
+      schema: { type: string, maxLength: 64 }
+      example: req_9f2c
+  responses:
+    BadRequest: { $ref: "#/components/responses/ProblemBase" }
+    Unauthorized:
+      {
+        description: Missing or invalid credentials.,
+        headers: { WWW-Authenticate: { schema: { type: string } } },
+        content:
+          {
+            application/problem+json:
+              { schema: { $ref: "#/components/schemas/Problem" } },
+          },
+      }
+    Forbidden:
+      {
+        description: Not permitted.,
+        content:
+          {
+            application/problem+json:
+              { schema: { $ref: "#/components/schemas/Problem" } },
+          },
+      }
+    NotFound:
+      {
+        description: Not found.,
+        content:
+          {
+            application/problem+json:
+              { schema: { $ref: "#/components/schemas/Problem" } },
+          },
+      }
+    Conflict:
+      {
+        description: Conflict or in-flight duplicate.,
+        content:
+          {
+            application/problem+json:
+              { schema: { $ref: "#/components/schemas/Problem" } },
+          },
+      }
+    PreconditionFailed:
+      {
+        description: Version mismatch.,
+        content:
+          {
+            application/problem+json:
+              { schema: { $ref: "#/components/schemas/Problem" } },
+          },
+      }
+    PreconditionRequired:
+      {
+        description: If-Match required.,
+        content:
+          {
+            application/problem+json:
+              { schema: { $ref: "#/components/schemas/Problem" } },
+          },
+      }
+    UnprocessableContent:
+      {
+        description: Semantic validation failure or key reuse with different payload.,
+        content:
+          {
+            application/problem+json:
+              { schema: { $ref: "#/components/schemas/Problem" } },
+          },
+      }
+    TooManyRequests:
+      description: Rate limited.
+      headers:
+        Retry-After: { $ref: "#/components/headers/RetryAfter" }
+        RateLimit: { $ref: "#/components/headers/RateLimit" }
+      content:
+        {
+          application/problem+json:
+            { schema: { $ref: "#/components/schemas/Problem" } },
+        }
+    UnexpectedError:
+      {
+        description: Unexpected error.,
+        content:
+          {
+            application/problem+json:
+              { schema: { $ref: "#/components/schemas/Problem" } },
+          },
+      }
+    ProblemBase: {
+        description: Invalid request.,
+        summary: Invalid request,
+        content:
+          {
+            application/problem+json:
+              { schema: { $ref: "#/components/schemas/Problem" } },
+          },
+      } # summary is (3.2)
+  examples:
+    PendingOrder:
+      summary: Pending order
+      description: A newly created order.
+      value:
+        {
+          id: ord_01HZX,
+          status: PENDING,
+          total: { amount: 1250, currency: EUR },
+          createdAt: "2026-03-01T09:30:00Z",
+        }
+  links:
+    GetOrder:
+      {
+        operationId: getOrder,
+        parameters: { orderId: "$response.body#/id" },
+        description: Fetch the created order.,
+      }
+    GetOrderByRef:
+      operationRef: "#/paths/~1orders~1{orderId}/get" # alternative to operationId
+      parameters: { orderId: "$response.body#/id" }
+      requestBody: "$request.body#/note" # (O) value passed as the linked operation's body
+      server: { url: "https://api.example.com/v1" } # (O)
+  callbacks:
+    onOrderShipped: # reusable callback
+      "{$request.body#/callbackUrl}":
+        post:
+          requestBody:
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/OrderEvent" } },
+              }
+          responses:
+            "204": { description: Accepted. }
+  pathItems:
+    OrderSummary:
+      get:
+        tags: [Orders]
+        summary: Get an order summary
+        operationId: getOrderSummary
+        parameters:
+          - $ref: "#/components/parameters/OrderId"
+        responses:
+          "200":
+            description: Summary.
+            content:
+              application/json:
+                schema: { $ref: "#/components/schemas/Order" }
+                examples:
+                  external:
+                    {
+                      summary: Example stored outside the document,
+                      externalValue: "https://example.com/examples/order-summary.json",
+                    }
+          "404": { $ref: "#/components/responses/NotFound" }
+  mediaTypes: # (O)(3.2) reusable media type objects
+    OrderJson:
+      schema: { $ref: "#/components/schemas/Order" }
+  securitySchemes:
+    ApiKeyAuth:
+      {
+        type: apiKey,
+        name: X-API-Key,
+        in: header,
+        description: Application API key.,
+      }
+    LegacyKey: {
+        type: apiKey,
+        name: X-Legacy-Key,
+        in: query,
+        deprecated: true,
+        description: Replaced by ApiKeyAuth.,
+      } # deprecated is (3.2)
+    BearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+    MutualTLS: { type: mutualTLS, description: Client certificate. }
+    OAuth2:
+      type: oauth2
+      description: OAuth 2.0; use authorization code with PKCE for user clients.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.example.com/authorize
+          tokenUrl: https://auth.example.com/token
+          refreshUrl: https://auth.example.com/token
+          scopes:
+            {
+              "orders:read": Read orders,
+              "orders:write": Create and change orders,
+            }
+        clientCredentials:
+          tokenUrl: https://auth.example.com/token
+          scopes: { "orders:read": Read orders }
+        deviceAuthorization: # (3.2)
+          deviceAuthorizationUrl: https://auth.example.com/device
+          tokenUrl: https://auth.example.com/token
+          scopes: { "orders:read": Read orders }
+      oauth2MetadataUrl: https://auth.example.com/.well-known/oauth-authorization-server # (3.2)
+    OpenId:
+      {
+        type: openIdConnect,
+        openIdConnectUrl: https://auth.example.com/.well-known/openid-configuration,
+      }

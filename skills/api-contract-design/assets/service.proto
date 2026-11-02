@@ -1,0 +1,255 @@
+// Protobuf contract template (gRPC). Baseline: Edition 2024; fallback proto3.
+//
+// HOW TO FILL
+//   1. Complete the five header-note fields below (Protocol decision ... Design rules not expressible in the format).
+//   2. Replace placeholder names (package, service, messages, options) with project values.
+//   3. Keep a versioned package (company.domain.v1). Every RPC gets its own request and response message.
+//   4. Comment every RPC: behavior, idempotency, possible status codes, deadline expectations.
+//   5. Never reuse or renumber field numbers; reserve removed numbers and names.
+//   6. State field constraints with Protovalidate annotations when the project uses them; otherwise state them in comments.
+//   7. Delete the "COVERAGE" section at the end and all comments that start with "TEMPLATE" before delivery.
+//   8. Under proto3 replace `edition = "2024";` with `syntax = "proto3";`, write `optional` where explicit presence is needed,
+//      quote names in `reserved`, and delete Edition-only constructs (features, export, local, import option).
+//
+// Protobuf contract template — gRPC (Edition 2024).
+// Header notes:
+//   Protocol decision: gRPC for internal service-to-service calls. Rejected: REST (typed streaming needed), Messaging (calls need an immediate answer).
+//   Consumers and exposure: internal services only; mutual TLS; no direct browser access.
+//   Format version: Protobuf Edition 2024 (baseline).
+//   Standards in draft or de-facto use: Protovalidate (buf.validate) annotations for field constraints (Buf ecosystem convention).
+//   Design rules not expressible in the format:
+//     - Authentication: mutual TLS between services; end-user identity in the "authorization" metadata key (access token).
+//     - Deadlines: clients set a deadline on every call; default recommendation 2 seconds for unary methods.
+//     - Retries: only methods marked idempotent, or calls carrying request_id; retryable code UNAVAILABLE with exponential backoff and jitter.
+//     - Health: grpc.health.v1.Health is served; reflection is disabled in production.
+edition = "2024";                               // replaces syntax = "proto3"
+
+package company.orders.v1;                      // major version in the package
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/field_mask.proto";
+// import "google/protobuf/any.proto";           // TEMPLATE: google.protobuf.Any for unavoidable open-ended payloads
+// import "google/protobuf/struct.proto";        // TEMPLATE: google.protobuf.Struct for unavoidable free-form JSON
+import "buf/validate/validate.proto";           // Protovalidate definitions (when used)
+// import public "google/protobuf/empty.proto";   // TEMPLATE: re-exports imported symbols to files that import this one
+// import option "my/custom/options.proto";    // Edition 2024: import custom options only, without symbols
+
+// File-level options and features (set only when they differ from the edition defaults).
+option go_package = "example.com/gen/company/orders/v1;ordersv1";   // language options are project-specific
+option java_package = "com.company.orders.v1";
+// option features.field_presence = EXPLICIT;           // EXPLICIT | IMPLICIT | LEGACY_REQUIRED
+// option features.enum_type = OPEN;                     // OPEN | CLOSED
+// option features.repeated_field_encoding = PACKED;     // PACKED | EXPANDED
+// option features.utf8_validation = VERIFY;             // VERIFY | NONE
+// option features.message_encoding = LENGTH_PREFIXED;   // LENGTH_PREFIXED | DELIMITED
+// option features.json_format = ALLOW;                  // ALLOW | LEGACY_BEST_EFFORT
+// option features.enforce_naming_style = STYLE2024;     // STYLE2024 | STYLE_LEGACY
+// option features.default_symbol_visibility = EXPORT_TOP_LEVEL;  // controls importable symbols
+
+// OrderService manages the order lifecycle.
+service OrderService {
+  option deprecated = false;
+
+  // GetOrder returns one order.
+  // Idempotent. Errors: NOT_FOUND, PERMISSION_DENIED, UNAUTHENTICATED, INVALID_ARGUMENT.
+  rpc GetOrder(GetOrderRequest) returns (GetOrderResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;   // NO_SIDE_EFFECTS | IDEMPOTENT | IDEMPOTENCY_UNKNOWN
+  }
+
+  // ListOrders returns a page of orders, newest first.
+  // Idempotent. Errors: INVALID_ARGUMENT (invalid page_token), PERMISSION_DENIED.
+  rpc ListOrders(ListOrdersRequest) returns (ListOrdersResponse);
+
+  // CreateOrder creates an order.
+  // Retry-safe only with the same request_id. Errors: INVALID_ARGUMENT, ALREADY_EXISTS, FAILED_PRECONDITION, RESOURCE_EXHAUSTED.
+  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
+
+  // UpdateOrder changes the fields named in update_mask.
+  // Errors: NOT_FOUND, ABORTED (etag mismatch), INVALID_ARGUMENT.
+  rpc UpdateOrder(UpdateOrderRequest) returns (UpdateOrderResponse) {
+    option idempotency_level = IDEMPOTENT;
+    // TEMPLATE: optional REST transcoding when a gateway is used (requires importing google/api/annotations.proto):
+    // option (google.api.http) = { patch: "/v1/orders/{order.id}" body: "order" };
+  }
+
+  // WatchOrders streams order change events (server streaming).
+  // Ordering: per order identifier. Resume with resume_token. Ends when the client cancels or the deadline expires.
+  rpc WatchOrders(WatchOrdersRequest) returns (stream WatchOrdersResponse);
+
+  // ImportOrders accepts a stream of orders (client streaming) and returns a summary.
+  rpc ImportOrders(stream ImportOrdersRequest) returns (ImportOrdersResponse);
+
+  // Chat exchanges messages on one call (bidirectional streaming).
+  rpc Chat(stream ChatMessage) returns (stream ChatMessage);
+
+  // LegacyGetOrder is replaced by GetOrder.
+  rpc LegacyGetOrder(GetOrderRequest) returns (GetOrderResponse) {
+    option deprecated = true;
+  }
+}
+
+// Order is an order as returned by the service.
+message Order {
+  // Output only. Stable opaque identifier.
+  string id = 1 [(buf.validate.field).string.max_len = 64];
+  OrderStatus status = 2;
+  Money total = 3;
+  // Optional free text; explicit presence distinguishes unset from empty.
+  string note = 4 [(buf.validate.field).string.max_len = 500];
+  // Output only. Creation time.
+  google.protobuf.Timestamp create_time = 5;
+  // Output only. Version validator for optimistic concurrency.
+  string etag = 6;
+  repeated string tags = 7 [(buf.validate.field).repeated.max_items = 20];
+  map<string, string> labels = 8;
+  oneof fulfilment {
+    string pickup_location_id = 9;
+    Address shipping_address = 10;
+  }
+  string legacy_reference = 11 [deprecated = true];   // Deprecated: use id.
+  reserved 12, 13;                                    // removed fields: numbers are never reused
+  reserved old_name, retired_field;                   // Edition syntax: unquoted names
+}
+
+// OrderStatus is the lifecycle state of an order.
+enum OrderStatus {
+  ORDER_STATUS_UNSPECIFIED = 0;                 // zero value
+  ORDER_STATUS_PENDING = 1;
+  ORDER_STATUS_PAID = 2;
+  ORDER_STATUS_SHIPPED = 3;
+  ORDER_STATUS_CANCELLED = 4;
+  reserved 5;
+}
+
+// Money is an amount in minor units with an ISO 4217 currency code.
+message Money {
+  int64 amount = 1 [(buf.validate.field).int64.gte = 0];
+  string currency = 2 [(buf.validate.field).string.pattern = "^[A-Z]{3}$"];
+}
+
+message Address {
+  string line1 = 1 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 200];
+  string city = 2 [(buf.validate.field).string.max_len = 100];
+  string country_code = 3 [(buf.validate.field).string.len = 2];
+}
+
+message GetOrderRequest {
+  // Required. Order identifier.
+  string order_id = 1 [(buf.validate.field).required = true];
+}
+message GetOrderResponse { Order order = 1; }
+
+message ListOrdersRequest {
+  // Maximum items per page; default 20, maximum 100.
+  int32 page_size = 1 [(buf.validate.field).int32 = {gte: 0, lte: 100}];
+  // Opaque token from a previous response.
+  string page_token = 2 [(buf.validate.field).string.max_len = 512];
+  // Optional filter expression (documented grammar).
+  string filter = 3 [(buf.validate.field).string.max_len = 1000];
+  // Optional ordering, for example "create_time desc".
+  string order_by = 4 [(buf.validate.field).string.max_len = 200];
+}
+message ListOrdersResponse {
+  repeated Order orders = 1;
+  // Empty when there are no more pages.
+  string next_page_token = 2;
+}
+
+message CreateOrderRequest {
+  // Required. Client-generated unique value; repeating it returns the original result.
+  string request_id = 1 [(buf.validate.field).string.uuid = true];
+  Order order = 2 [(buf.validate.field).required = true];
+}
+message CreateOrderResponse { Order order = 1; }
+
+message UpdateOrderRequest {
+  Order order = 1 [(buf.validate.field).required = true];
+  // Fields to update; unset means no field changes.
+  google.protobuf.FieldMask update_mask = 2;
+  // Expected etag; mismatch returns ABORTED.
+  string etag = 3;
+}
+message UpdateOrderResponse { Order order = 1; }
+
+message WatchOrdersRequest {
+  // Resume after this token when reconnecting.
+  string resume_token = 1;
+  google.protobuf.Duration heartbeat_interval = 2;
+}
+message WatchOrdersResponse {
+  oneof event {
+    Order created = 1;
+    Order updated = 2;
+    string deleted_order_id = 3;
+    Heartbeat heartbeat = 4;
+  }
+  string resume_token = 5;
+}
+message Heartbeat {}
+
+message ImportOrdersRequest { Order order = 1; }
+message ImportOrdersResponse {
+  int32 imported_count = 1;
+  repeated ImportFailure failures = 2;
+}
+message ImportFailure {
+  int32 index = 1;
+  string reason = 2;
+}
+
+message ChatMessage { string text = 1 [(buf.validate.field).string.max_len = 1000]; }
+
+// ---------------------------------------------------------------------------
+// COVERAGE: constructs available in a definition. Delete this section before delivery.
+// ---------------------------------------------------------------------------
+
+// Symbol visibility (Edition 2024): export makes a symbol importable; local keeps it file-private.
+export message SharedMoney { int64 amount = 1; string currency = 2; }
+local message InternalHelper { string value = 1; }
+
+message FeatureShowcase {
+  // Field-level feature overrides.
+  string implicit_text = 1 [features.field_presence = IMPLICIT];
+  repeated int32 expanded_numbers = 2 [features.repeated_field_encoding = EXPANDED];
+  string custom_json = 3 [json_name = "customJson"];
+  bytes payload = 4;
+  double ratio = 5;
+  bool flag = 6;
+  fixed64 big_counter = 7;
+  sint32 signed_delta = 8;
+  google.protobuf.Duration timeout = 9;
+  Nested nested = 10;
+  map<string, Nested> by_key = 11;
+  oneof choice {
+    string text_choice = 12;
+    int32 number_choice = 13;
+  }
+  // Nested message and enum.
+  message Nested { string name = 1; Mode mode = 2; }
+  enum Mode {
+    option allow_alias = true;
+    MODE_UNSPECIFIED = 0;
+    MODE_FAST = 1;
+    MODE_QUICK = 1;                                 // alias of MODE_FAST (requires allow_alias)
+  }
+  reserved 100 to 199;                              // ranges can be reserved
+  reserved legacy_a;                                // names are unquoted identifiers in editions
+  option deprecated = false;
+  // Message-level cross-field rule (Protovalidate with CEL).
+  option (buf.validate.message).cel = {
+    id: "showcase.mode"
+    message: "nested.mode must be set when nested is present"
+    expression: "!has(this.nested) || this.nested.mode != 0"
+  };
+}
+
+message DateRange {
+  google.protobuf.Timestamp start = 1;
+  google.protobuf.Timestamp end = 2;
+  option (buf.validate.message).cel = {
+    id: "date_range.order"
+    message: "end must not be before start"
+    expression: "this.end >= this.start"
+  };
+}
