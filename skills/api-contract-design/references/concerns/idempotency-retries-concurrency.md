@@ -1,23 +1,9 @@
 # Idempotency, Retries, Concurrency
 
-## Contents
-
-- Scope
-- Method Semantics
-- Idempotency Keys
-- Server Behavior
-- Non-HTTP Protocols
-- Retries
-- Optimistic Concurrency
-- Contract Mapping
-- Anti-Patterns
-- Checklist
-- Sources
-
 ## Scope
 
 - Making operations safe to retry and safe under concurrent writers.
-- `Idempotency-Key` is an IETF draft (`draft-ietf-httpapi-idempotency-key-header`); label it in the header notes. Its header name is widely used by existing APIs.
+- `Idempotency-Key` is an IETF Internet-Draft (`draft-ietf-httpapi-idempotency-key-header-08`), not an RFC; its name is widely used by existing APIs. When adopting the draft syntax, identify its status in the relevant parameter/header description or linked consumer documentation and verify the current revision.
 
 ## Method Semantics
 
@@ -33,7 +19,7 @@
 - Use a UUID or another high-entropy random value; low-entropy keys let attackers guess other clients' keys.
 - A key must not be reused with a different request payload.
 - The provider publishes: which operations require a key, the key format, and the expiry policy.
-- Apply keys to non-idempotent operations (POST, PATCH); do not require them on naturally idempotent methods.
+- Apply keys where callers may retry a non-idempotent side effect and a natural unique constraint is insufficient. Do not add keys mechanically to every POST/PATCH or require them on naturally idempotent operations.
 
 ## Server Behavior
 
@@ -41,21 +27,19 @@
 - Validate the key against the published format before using it.
 - Atomically claim the key before performing side effects (insert-if-absent); prevent two concurrent requests from both executing.
 - Store the request fingerprint (checksum of the payload or of selected fields) with the key.
-- Outcomes:
+- Outcomes (the IETF draft describes 409 for a concurrent request, 422 for key reuse with a different payload, and recommends 400 when a required key is missing; these are draft recommendations, not universal HTTP requirements):
+  | Situation                                      | Behavior                                                                                                                                                                                                      |
+  | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+  | First request                                  | Process normally; store the result under the key                                                                                                                                                              |
+  | Retry after a completed, deterministic outcome | Replay the stored status and response for that outcome; do not turn a transient or uncertain infrastructure failure into a final cached result                                                                |
+  | Retry while the original is in flight          | A documented policy: 409 Conflict, wait for the first result, or return an operation reference (for example 202); choose one. Revision -08 of the current IETF draft describes 409 for concurrent processing. |
+  | Same key, different payload                    | Reject with a stable client error; revision -08 of the current IETF draft describes 422.                                                                                                                      |
+  | Key required but missing                       | 400 with a pointer to documentation                                                                                                                                                                           |
+- Retention covers the documented client retry horizon plus reasonable network/queue delay. State the expiry behavior; after expiry, the same key may be treated as a new operation only if documented. Persist the key and result durably enough to survive the failures the API claims to handle.
+- Define which outcomes are replayed. Persist completed deterministic results; for unknown outcomes (for example a timeout after a downstream side effect) reconcile or retain an in-progress/unknown state rather than blindly executing again. Do not replay transient infrastructure failures as a final business result unless explicitly intended.
+- In-flight claims need lease/recovery semantics so a crashed worker does not block a key forever; recovery must not permit duplicate side effects after an uncertain commit.
 
-| Situation                             | Behavior                                                             |
-| ------------------------------------- | -------------------------------------------------------------------- |
-| First request                         | Process normally; store the result under the key                     |
-| Retry after completion                | Return the stored result, success or error, with the original status |
-| Retry while the original is in flight | 409 Conflict                                                         |
-| Same key, different payload           | 422                                                                  |
-| Key required but missing              | 400 with a pointer to documentation                                  |
-
-- Retention covers at least the longest period over which clients retry; delete expired keys.
-- Store results for failed operations too when the failure is deterministic; do not store transient infrastructure failures as final results.
-- The in-flight claim has a timeout so a crashed request does not block the key forever.
-
-Example sequence for `POST /orders` with key `K`:
+**Example:** sequence for `POST /orders` with key `K`.
 
 | Step | Request                                | Response                                                |
 | ---- | -------------------------------------- | ------------------------------------------------------- |
@@ -67,16 +51,17 @@ Example sequence for `POST /orders` with key `K`:
 
 ## Non-HTTP Protocols
 
-- gRPC: a client-generated `request_id` field in the request message; same server rules.
-- GraphQL: a client-supplied identifier in the mutation input.
-- WebSocket and SSE: message `id` for client commands; server de-duplicates; replay safe by identifier.
-- Messaging: every message has a stable `id`; consumers record processed identifiers (inbox) or apply version-checked upserts.
-- Webhooks: deliveries carry a stable event `id`; consumers de-duplicate.
+- **gRPC:** a client-generated `request_id` field in the request message; apply the same scope, fingerprint, retention, atomic-claim, and replay rules.
+- **GraphQL:** use a purpose-defined idempotency key in the mutation input. A Relay-style `clientMutationId` is a correlation convention and does not provide idempotency unless the server explicitly defines it that way.
+- **WebSocket:** give retryable client commands a stable identifier and define server-side de-duplication; make replayed server messages safe to process twice when the protocol supports resume.
+- **SSE:** use event IDs for stream resume; clients handle replayed events idempotently or de-duplicate them by event ID. SSE is server-to-client, so client commands use a separate HTTP operation.
+- **Messaging:** when delivery or replay can produce duplicates, give messages stable IDs; consumers record processed identifiers transactionally or apply version-checked upserts.
+- **Webhooks:** deliveries carry a stable event `id`; consumers de-duplicate.
 
 ## Retries
 
 - Retry only idempotent operations, or non-idempotent ones protected by a key.
-- Retryable HTTP outcomes: connection failures, 408, 429 (honor `Retry-After`), 502, 503 (honor `Retry-After`), 504; 500 only for idempotent operations.
+- Retryable HTTP outcomes include connection failures, 408, 429 (honor `Retry-After`), 502, 503 (honor `Retry-After`), and 504. Retry 500 only when the operation is idempotent or protected by a functioning idempotency mechanism.
 - Do not retry 4xx other than 408, 429, and, for conflicts, after correcting the request.
 - gRPC: `UNAVAILABLE`; `DEADLINE_EXCEEDED` and `RESOURCE_EXHAUSTED` only when safe and with backoff.
 - Exponential backoff with jitter, capped attempts, capped total time.
@@ -101,10 +86,10 @@ PATCH /orders/ord_1          If-Match: "3"  ->  412 Precondition Failed
 
 ## Contract Mapping
 
-- OpenAPI: `Idempotency-Key` as a header parameter (string, format and length bounds) on each operation that supports it; responses 400, 409, 422 declared; `ETag` response header and `If-Match` request header; 412 and 428 responses.
-- Protobuf: `request_id` and `etag`/`version` fields documented in comments.
-- AsyncAPI: message `id` header and consumer de-duplication note in the operation description.
-- Header notes: record the draft status of `Idempotency-Key`.
+- **OpenAPI:** define `Idempotency-Key` only on operations that support it. When adopting draft `-08`, model its wire value as a Structured Field String (including the surrounding quotes) and label the field as an Internet-Draft convention, not an RFC; specify key format, scope, fingerprint, and retention. Declare the applicable 400, 409, and 422 outcomes. For optimistic concurrency, define `ETag`, `If-Match`, and applicable 412/428 responses.
+- **Protobuf:** `request_id` and `etag`/`version` fields documented in comments.
+- **AsyncAPI:** message `id` header and consumer de-duplication note in the operation description.
+- Identify the draft status where the field is defined or in linked consumer documentation; do not imply draft syntax is a finalized RFC.
 
 ## Anti-Patterns
 
@@ -122,11 +107,5 @@ PATCH /orders/ord_1          If-Match: "3"  ->  412 Precondition Failed
 - [ ] Key format, scope, retention, and outcomes are documented.
 - [ ] Retry guidance (statuses, backoff, limits) is documented.
 - [ ] Concurrent updates use `ETag`/`If-Match` or a version field.
-- [ ] Consumers of messages and webhooks de-duplicate by identifier.
+- [ ] Duplicate-capable message channels and webhook deliveries have stable identifiers and a consumer de-duplication strategy.
 - [ ] Draft status of `Idempotency-Key` is noted.
-
-## Sources
-
-- RFC 9110 (method semantics, conditional requests), RFC 6585 (428).
-- `draft-ietf-httpapi-idempotency-key-header`.
-- gRPC retry and status documentation; Google API Improvement Proposals (request identification, retries).

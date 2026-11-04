@@ -1,41 +1,27 @@
 # Schema Modeling (OpenAPI and AsyncAPI)
 
-## Contents
-
-- Scope
-- Dialects
-- Types and Constraints
-- Objects and Properties
-- Composition
-- Nullability and Presence
-- Read and Write Variants
-- Reuse
-- Examples
-- Anti-Patterns
-- Checklist
-- Sources
-
 ## Scope
 
 - How to express field types, constraints, and structure inside schemas of OpenAPI and AsyncAPI documents.
-- Schemas live inside the contract; no standalone schema file is created.
-- Protobuf and GraphQL SDL have native type systems and use their own references.
+- The project owns the physical file layout: contracts may be monolithic or modular. Do not prescribe splitting or merging files.
+- Keep one logical definition for each schema and resolve references according to the host format and project tooling. Inline definitions, local references, and external references are all valid when the project supports them.
+- Protobuf and GraphQL SDL have native type systems and use their own language-level composition or import mechanisms.
 
 ## Dialects
 
 | Host                | Dialect                                                                                                  | Notes                                                                                                |
 | ------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | OpenAPI 3.1 and 3.2 | OAS dialect: JSON Schema 2020-12 vocabularies plus the OAS base vocabulary                               | Adds `discriminator`, `xml`, `externalDocs`, `example`; `jsonSchemaDialect` can override the default |
-| AsyncAPI 3.x        | AsyncAPI Schema Object: JSON Schema draft-07 superset plus `discriminator`, `externalDocs`, `deprecated` | Other formats through Multi Format Schema Object                                                     |
+| AsyncAPI 3.x        | AsyncAPI Schema Object: JSON Schema draft-07 superset plus `discriminator`, `externalDocs`, `deprecated` | Other formats through the Multi Format Schema Object                                                 |
 
 - Keyword differences that matter:
 
-| Topic                   | 2020-12 (OpenAPI)       | draft-07 (AsyncAPI)      |
-| ----------------------- | ----------------------- | ------------------------ |
-| Reusable definitions    | `$defs`                 | `definitions`            |
-| Tuple arrays            | `prefixItems` + `items` | array-form `items`       |
-| Keywords next to `$ref` | Allowed                 | Ignored; wrap in `allOf` |
-| `unevaluatedProperties` | Available               | Not available            |
+| Topic                   | 2020-12 (OpenAPI)       | draft-07 (AsyncAPI)                                                       |
+| ----------------------- | ----------------------- | ------------------------------------------------------------------------- |
+| Reusable definitions    | `$defs`                 | `definitions`                                                             |
+| Tuple arrays            | `prefixItems` + `items` | array-form `items`                                                        |
+| Keywords next to `$ref` | Allowed                 | Do not rely on siblings; wrap in `allOf` when needed for interoperability |
+| `unevaluatedProperties` | Available               | Not available                                                             |
 
 - Use only keywords the host dialect defines.
 
@@ -53,10 +39,10 @@
 | Documentation            | `title`, `description`, `default`, `examples`, `deprecated`                                                              |
 | Access                   | `readOnly`, `writeOnly`                                                                                                  |
 
-- `format` is an annotation unless the validator asserts it; do not rely on it for security-relevant validation, and pair it with `pattern` or length bounds where needed.
+- `format` is generally an annotation unless the selected validator is configured to assert it; do not rely on it as a security control. Add explicit bounds and application validation for security-sensitive values.
 - Common formats: `date-time`, `date`, `time`, `duration`, `email`, `uri`, `uuid`; OpenAPI also documents `int32`, `int64`, `float`, `double`.
-- Every string has `maxLength`; every array has `maxItems`; every number has a range or a documented reason for none.
-- `integer` with `format: int64`: values above 2^53 − 1 lose precision in consumers that use IEEE 754 doubles; transmit such identifiers and counters as strings.
+- Bound consumer-controlled strings, arrays, maps, and numeric inputs where domain, security, or resource limits require it. Encode meaningful finite limits in the schema when supported; do not invent arbitrary caps.
+- `integer` with `format: int64`: values above 2⁵³ − 1 lose precision in consumers that use IEEE 754 doubles; transmit such identifiers and counters as strings.
 - `pattern` is an unanchored regular expression; anchor it (`^...$`) and keep it ECMA-262-compatible.
 
 ```yaml
@@ -80,7 +66,7 @@ code: { type: string, pattern: "^[A-Z]{3}$" }
 
 ## Objects and Properties
 
-- List every property with a type, description, and constraints.
+- Give every consumer-facing property a type and a meaningful description; express applicable constraints in the schema.
 - `required` lists properties that must be present; it does not mean non-null.
 - Closed objects (`additionalProperties: false`, or `unevaluatedProperties: false` in 2020-12) for request bodies when unknown input must be rejected.
 - Response objects stay open so producers can add fields; consumers ignore unknown fields.
@@ -156,10 +142,12 @@ User:
 
 ## Reuse
 
+- Prefer a shared schema when the meaning and constraints are genuinely identical; similarly named fields with different meaning should remain separate.
 - Define each schema once in `components.schemas`; reference with `$ref`.
 - Extract shared value objects (`Money`, `Address`, `Problem`, `PageInfo`).
 - Name schemas `PascalCase` and by meaning, not by operation.
-- Do not duplicate a schema between OpenAPI and AsyncAPI documents when a shared definition is not possible; keep both aligned and note the pairing in the descriptions.
+- Reuse must not erase operation-specific rules: create, update, read, and event payloads often have different writable or required fields.
+- Use the project's existing component or reference layout. Do not duplicate a schema merely to avoid a supported reference, and do not force a separate schema file when the project keeps contracts together.
 
 ## Examples
 
@@ -180,14 +168,9 @@ User:
 ## Checklist
 
 - [ ] Only keywords of the host dialect are used.
-- [ ] Every property has type, description, and bounds.
+- [ ] Every property has a type and meaningful description; applicable domain and resource bounds are explicit.
 - [ ] `required`, nullability, and optionality are consistent.
 - [ ] Request objects are closed or the openness is intentional.
 - [ ] Read-only and write-only fields are marked; privileged fields are absent from writes.
 - [ ] Shared schemas are defined once.
 - [ ] Examples validate.
-
-## Sources
-
-- JSON Schema 2020-12 Core and Validation specifications (https://json-schema.org/specification).
-- OpenAPI Specification, Schema Object; AsyncAPI Specification, Schema Object and Multi Format Schema Object.

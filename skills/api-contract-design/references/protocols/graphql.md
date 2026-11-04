@@ -1,23 +1,5 @@
 # GraphQL
 
-## Contents
-
-- Scope
-- Schema Design
-- Types and Naming
-- Nullability
-- Queries and Pagination
-- Mutations
-- Subscriptions
-- Errors
-- Transport
-- Security and Cost
-- Evolution
-- Contract Mapping
-- Anti-Patterns
-- Checklist
-- Sources
-
 ## Scope
 
 - GraphQL APIs described by a schema in SDL, edition September 2025.
@@ -30,7 +12,7 @@
 - Expose a graph of domain types connected by fields; root types: `Query`, `Mutation`, optional `Subscription`.
 - Use interfaces and unions for polymorphism; keep hierarchies shallow.
 - Global object identification: an `id: ID!` that is unique across the schema for refetchable objects (Relay `Node` interface pattern).
-- Document every type, field, argument, and enum value with a description.
+- Describe public types, fields, arguments, and enum values when their names are not self-descriptive or when consumers need constraints, units, authorization, or behavior. When useful, describe the schema itself with an SDL description on the explicit `schema` definition; it is exposed through `__Schema.description`.
 - Prefer domain-specific scalars (`DateTime`, `URL`) with `@specifiedBy(url:)` pointing to their specification over untyped strings.
 
 ## Types and Naming
@@ -39,7 +21,8 @@
 - Input types end with `Input`; mutation payload types end with `Payload`.
 - Mutations are verb-first: `createOrder`, `cancelOrder`.
 - Enums for closed sets; document whether new values may be added.
-- Input objects model mutually exclusive choices with `@oneOf` (September 2025 edition).
+- Input objects model mutually exclusive choices with `@oneOf` (September 2025 edition); remove it when targeting the October 2021 fallback and express the rule in validation/documentation instead.
+- The September 2025 edition permits `@deprecated` on arguments and input fields; the October 2021 fallback permits it only on field definitions and enum values. Remove argument/input-field deprecation directives when using the fallback.
 
 ## Nullability
 
@@ -89,7 +72,7 @@ type Mutation {
 ## Subscriptions
 
 - Subscriptions deliver events for a subject; define the event payload type and filter arguments.
-- The transport for subscriptions is not defined by the core specification; choose a documented transport (WebSocket-based or SSE-based) and state it in the header notes.
+- The transport for subscriptions is not defined by the core specification; choose and document a supported transport (for example WebSocket-based or SSE-based) in the API integration documentation and represent the transport contract separately where supported.
 - Authorize at subscribe time and per event; enforce limits on concurrent subscriptions per identity.
 
 ## Errors
@@ -138,8 +121,8 @@ type Mutation {
 
 ## Contract Mapping
 
-- SDL file with descriptions, directives, and the header notes as a leading comment.
-- Authentication, rate limits, and subscription transport are not expressible in SDL: record them in the header notes.
+- SDL file with descriptions and explicitly defined directives.
+- Authentication, rate limits, query-cost limits, and subscription transport are not standardized by SDL; document them in the appropriate transport/API documentation and enforce them in the runtime.
 - Schema Coordinates (`Type.field`) reference schema elements precisely in change notes (September 2025 edition).
 
 ## Anti-Patterns
@@ -161,9 +144,3 @@ type Mutation {
 - [ ] Depth, cost, batching, and introspection policies are stated.
 - [ ] Error `extensions.code` values are listed.
 - [ ] Subscription transport is documented when subscriptions exist.
-
-## Sources
-
-- GraphQL specification, September 2025 edition (https://spec.graphql.org/September2025/).
-- GraphQL over HTTP specification (draft).
-- Relay Cursor Connections specification; Relay Global Object Identification.

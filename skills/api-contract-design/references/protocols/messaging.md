@@ -1,21 +1,5 @@
 # Messaging
 
-## Contents
-
-- Scope
-- Message Types
-- Channels and Naming
-- Envelope
-- Delivery and Ordering
-- Consumer Design
-- Failure Handling
-- Schema Evolution
-- Security and Operations
-- Contract Mapping
-- Anti-Patterns
-- Checklist
-- Sources
-
 ## Scope
 
 - Asynchronous, brokered communication: queues, publish-subscribe topics, and logs, over protocols such as AMQP, MQTT, Kafka, and NATS.
@@ -48,14 +32,15 @@
 
 ## Envelope
 
-- Use a standard envelope for every message. CloudEvents 1.0.2 required attributes: `id`, `source`, `specversion`, `type`; optional: `datacontenttype`, `dataschema`, `subject`, `time`.
-- `source` + `id` uniquely identify an event; `id` is stable across redelivery.
-- `type` names the message type and carries version information when versioned by type (`com.example.order.placed.v1`).
-- Metadata that routes or traces belongs in headers or attributes; the business payload in `data`.
-- Propagate trace context (W3C `traceparent`, `tracestate`) in message headers.
-- Declare content type and serialization (JSON, Avro, Protobuf) per message.
+- Choose one consistent envelope for related message types; do not impose CloudEvents when the project uses another established envelope or has no envelope requirement.
+- When adopting CloudEvents 1.0.2, include its required attributes: `id`, `source`, `specversion`, and `type`; optional attributes include `datacontenttype`, `dataschema`, `subject`, and `time`.
+- For CloudEvents, `source` and `id` identify an event, and `id` remains stable across redelivery.
+- `type` names the message type and carries version information when the project versions by type (for example, `com.example.order.placed.v1`).
+- Put routing and tracing metadata in headers or envelope attributes; keep business data in the payload.
+- Propagate trace context (`traceparent`, `tracestate`) in message headers when distributed tracing is used.
+- For payload-bearing messages, declare the effective content type and serialization (JSON, Avro, Protobuf); document intentional payloadless messages and their control semantics.
 
-Example: CloudEvents 1.0.2 structured JSON.
+**Example:** CloudEvents 1.0.2 structured JSON.
 
 ```json
 {
@@ -73,7 +58,7 @@ Example: CloudEvents 1.0.2 structured JSON.
 ## Delivery and Ordering
 
 - Delivery guarantees: at-most-once, at-least-once. Exactly-once effect is achieved by at-least-once delivery plus idempotent consumers, not by the transport alone.
-- Design for at-least-once: duplicates and redelivery occur.
+- Assume at-least-once delivery unless the selected broker and configuration explicitly guarantee otherwise; duplicates and redelivery are common.
 - Ordering exists only within an ordering scope (a partition, a queue, a session). Choose the ordering key (usually the aggregate identifier) so related messages share a scope.
 - No global ordering; do not rely on cross-key order.
 - State the delivery guarantee and ordering scope of every channel in the contract.
@@ -81,7 +66,7 @@ Example: CloudEvents 1.0.2 structured JSON.
 
 ## Consumer Design
 
-- Consumers are idempotent: record processed message `id` (inbox/dedup store) or make the effect naturally idempotent (upsert with version check).
+- When the delivery mode permits redelivery, replay, or duplicate delivery, make consumer effects duplicate-safe: record processed message IDs transactionally with the business effect, or use a naturally idempotent/version-checked operation. A broker delivery guarantee alone does not guarantee exactly-once business effects.
 - Acknowledge after the effect is durably applied.
 - Competing consumers share a queue or consumer group; fan-out consumers each get their own subscription.
 - Bound prefetch and concurrency to apply backpressure.
@@ -90,13 +75,13 @@ Example: CloudEvents 1.0.2 structured JSON.
 
 ## Failure Handling
 
-- Transient failures: retry with exponential backoff and jitter, bounded attempts.
-- Poison messages: after the retry limit, route to a dead-letter channel with failure reason and original headers; alert and provide a replay path.
+- **Transient failures:** retry with exponential backoff and jitter, bounded attempts.
+- **Poison messages:** after the retry limit, route to a dead-letter channel with failure reason and original headers; alert and provide a replay path.
 - Define the visibility of failure to producers (usually none; use reply events when a result is needed).
-- Producer side: publish atomically with state change using a transactional outbox when a database write and a publish must agree.
-- Large payloads: store the payload externally and send a reference (claim-check) with size and integrity data.
+- **Producer side:** use a transactional outbox or an equivalent atomic publication design when a database state change and message publication must agree.
+- **Large payloads:** store the payload externally and send a reference (claim-check) with size and integrity data.
 
-Example: headers added when routing to a dead-letter channel (names are a project convention).
+**Example:** headers added when routing to a dead-letter channel (names are a project convention).
 
 ```
 x-failure-reason: schema-validation-failed
@@ -106,7 +91,7 @@ x-attempts: 5
 
 ## Schema Evolution
 
-- Every message type has a schema; reference it from the contract and the envelope (`dataschema` or schema identifier).
+- Every payload-bearing message type has an explicit schema; reference it from the contract and, when the selected envelope supports it, from the envelope (`dataschema` or schema identifier). Payloadless control messages must still have documented purpose and metadata.
 - Compatible changes: add optional fields with defaults, add new message types. Consumers ignore unknown fields.
 - Breaking changes: removing or renaming fields, changing types or meaning, changing required status. Publish a new message type version and run both until consumers migrate.
 - When a schema registry exists, set compatibility mode per channel (backward, forward, or full) and enforce it in CI.
@@ -129,7 +114,7 @@ x-attempts: 5
   - `operations`: `send` for producing, `receive` for consuming.
   - `messages`: headers, payload, `correlationId`, `contentType`.
   - Protocol bindings: broker-specific settings.
-- Delivery guarantee, ordering key, retention, dead-letter policy, and idempotency expectations go into message and channel descriptions and the header notes.
+- Put delivery guarantee, ordering key, retention, dead-letter policy, and idempotency expectations on the relevant channel, operation, or message descriptions; keep broker-specific operational configuration in the platform documentation.
 
 ## Anti-Patterns
 
@@ -146,15 +131,8 @@ x-attempts: 5
 
 - [ ] Each message is classified as event, command, or reply.
 - [ ] Channel kind, delivery guarantee, ordering scope, and retention are stated.
-- [ ] Envelope attributes and content type are defined.
-- [ ] Consumer idempotency strategy is defined.
+- [ ] Envelope attributes are defined where an envelope is used; payload-bearing messages have an effective content type and serialization.
+- [ ] Consumer duplicate-handling strategy matches the channel delivery and replay guarantees.
 - [ ] Retry, dead-letter, and replay behavior are defined.
 - [ ] Schema compatibility rule is stated per channel.
 - [ ] Producer and consumer permissions are defined.
-
-## Sources
-
-- CloudEvents specification 1.0.2.
-- AsyncAPI specification and protocol bindings.
-- OASIS MQTT and AMQP specifications; documentation of the chosen broker for delivery semantics.
-- W3C Trace Context.

@@ -1,21 +1,5 @@
 # WebSocket
 
-## Contents
-
-- Scope
-- Fit
-- Connection
-- Authentication and Authorization
-- Message Design
-- Liveness and Reconnect
-- Flow Control and Limits
-- Close Codes
-- Evolution
-- Contract Mapping
-- Anti-Patterns
-- Checklist
-- Sources
-
 ## Scope
 
 - Full-duplex message sessions over one connection (RFC 6455), also available over HTTP/2 (RFC 8441) and HTTP/3 (RFC 9220).
@@ -29,7 +13,7 @@
 
 ## Connection
 
-- Handshake: HTTP upgrade request with `Sec-WebSocket-Key`; response `101` with `Sec-WebSocket-Accept`.
+- HTTP/1.1: use the RFC 6455 Upgrade handshake (`Sec-WebSocket-Key` / `Sec-WebSocket-Accept`, response `101`). HTTP/2 and HTTP/3 use Extended CONNECT (RFC 8441 and RFC 9220); do not expect a `101` response or the HTTP/1.1 key/accept exchange on those transports.
 - Always `wss://` (TLS) outside local development.
 - Subprotocols: negotiate through `Sec-WebSocket-Protocol`; name and version the application protocol (for example `orders.v1`) and reject unsupported values.
 - Extensions such as per-message compression are negotiated through `Sec-WebSocket-Extensions`; decide whether to allow them (compression can expose sensitive data to compression-oracle attacks).
@@ -73,7 +57,7 @@ Example envelope (JSON text frames).
 - Resume: messages carry a monotonically increasing sequence number or cursor; on reconnect the client sends its last-seen value; the server replays within a documented retention window or signals that a full resync is needed.
 - Replayed messages must be safe to process twice (carry identifiers; consumers de-duplicate).
 
-Example: resume after reconnect.
+**Example:** resume after reconnect.
 
 ```json
 { "type": "resume", "id": "c-2", "payload": { "lastSeq": 42 } }
@@ -86,7 +70,7 @@ The server replays events with `seq` greater than 42 if they are inside the rete
 - Bound outgoing buffers per connection; define the slow-consumer policy (drop, coalesce, or close).
 - Declare maximum message size, maximum frame rate per connection, maximum connections per identity, and maximum subscriptions per connection.
 - Reject oversized or malformed messages with close code 1009 or 1007.
-- Backpressure is the application's responsibility; the protocol does not provide it.
+- TCP flow control exists, but the WebSocket protocol does not provide an application-level demand/acknowledgement mechanism. Bound application queues and define slow-consumer behavior; do not claim transport flow control prevents unbounded buffering.
 
 ## Close Codes
 
@@ -114,7 +98,7 @@ The server replays events with `seq` greater than 42 if they are inside the rete
 ## Contract Mapping
 
 - AsyncAPI: `servers` (protocol `ws`/`wss`), one `channel` per logical endpoint with the WebSockets channel binding, `operations` with `send`/`receive` actions, `messages` with `payload` schemas, `correlationId` for request-reply.
-- Authentication flow, heartbeat, resume, limits, and close-code table are not fully expressible: record them in the header notes and in message descriptions.
+- Document authentication, heartbeat, resume, limits, and application close codes in the relevant AsyncAPI server, channel, operation, or message descriptions, or in linked connection documentation. Define runtime enforcement separately.
 
 ## Anti-Patterns
 
@@ -136,8 +120,3 @@ The server replays events with `seq` greater than 42 if they are inside the rete
 - [ ] Size, rate, connection, and subscription limits declared.
 - [ ] Close codes documented.
 - [ ] `Origin` validation specified.
-
-## Sources
-
-- RFC 6455 (The WebSocket Protocol), RFC 8441, RFC 9220, RFC 7692 (permessage-deflate).
-- AsyncAPI specification and WebSockets bindings.

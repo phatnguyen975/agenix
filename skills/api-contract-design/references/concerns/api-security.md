@@ -1,22 +1,9 @@
 # API Security
 
-## Contents
-
-- Scope
-- Threat Modeling
-- OWASP API Top 10 (2023) Controls
-- Input and Output Handling
-- Transport and Browser Controls
-- Sensitive Data
-- Protocol-Specific Threats
-- Contract Mapping
-- Anti-Patterns
-- Checklist
-- Sources
-
 ## Scope
 
-- Security design decisions that belong in the contract and its design notes; authentication and authorization mechanics are in their own concern.
+- Consumer-visible security requirements and safeguards that affect API use; authentication and authorization mechanics are covered in their own concern.
+- Keep full threat models, residual risks, and service-side controls in security assessments or internal design documents.
 
 ## Threat Modeling
 
@@ -24,13 +11,13 @@
 2. Identify actors: legitimate consumers, malicious consumers, insiders, compromised services.
 3. Identify trust boundaries and entry points: every operation, stream, channel, and callback.
 4. Enumerate threats per entry point (STRIDE: spoofing, tampering, repudiation, information disclosure, denial of service, elevation of privilege).
-5. Assign controls (contract-level or design-note) and note residual risk.
+5. Assign consumer-visible contract controls and service-side mitigations; record residual risk in the security assessment.
 
-- Depth scales with exposure: public and partner APIs and sensitive data get the full pass.
+Depth scales with exposure: public and partner APIs and sensitive data get the full pass.
 
 ## OWASP API Top 10 (2023) Controls
 
-| Risk                                                 | Design control                                                                                       |
+| Risk                                                 | Design Control                                                                                       |
 | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | API1 Broken Object Level Authorization               | Object-level check on every access path; non-guessable identifiers are not a control                 |
 | API2 Broken Authentication                           | Standard flows, short-lived tokens, rate limits on authentication endpoints                          |
@@ -45,13 +32,13 @@
 
 ## Input and Output Handling
 
-- Validate every input against the contract schema: type, bounds, format, allowed values; reject unknown fields on writes.
+- Validate every input against the contract schema: type, bounds, format, and allowed values. Reject unknown write fields by default, or define a safe, consistent ignore policy; never bind unrecognized fields to privileged or internal properties.
 - Enforce `Content-Type`; reject unsupported types with 415.
 - Request size, nesting depth, and array length limits are declared and enforced.
 - Parameterize all queries; never build queries from raw input (SQL, NoSQL, LDAP, command, template injection).
 - Return only fields in the response schema; build responses from explicit view models.
 - Normalize and validate identifiers and paths before use (path traversal).
-- Server-fetched URLs (webhooks, imports, previews): allowlist schemes and hosts, resolve and block private and link-local ranges after DNS resolution, limit redirects, set timeouts and size limits.
+- Server-fetched URLs (webhooks, imports, previews): allowlist schemes and hosts; resolve all A/AAAA results and block loopback, private, link-local, multicast, and reserved ranges; revalidate every redirect target and resolved address to mitigate DNS rebinding; limit redirect count, response size, and time; enforce egress restrictions at the network boundary.
 - File uploads: validate type and size, scan content, store outside executable paths, never trust the supplied filename.
 
 | Server-fetched URL                             | Decision                           |
@@ -70,7 +57,7 @@
 ## Transport and Browser Controls
 
 - TLS for all traffic (1.2 minimum; prefer 1.3); no mixed plaintext endpoints.
-- CORS: explicit allowed origins, methods, and headers; never combine wildcard origins with credentials.
+- CORS is a browser Fetch policy, not authentication or authorization. Allowlist exact origins, methods, and headers; use `Vary: Origin` when reflecting an allowed origin; never combine wildcard origin with credentials.
 - Sensitive responses: `Cache-Control: no-store`.
 - `X-Content-Type-Options: nosniff` on responses.
 - State-changing requests authenticated by cookies need CSRF defenses (SameSite, tokens, or Origin checks).
@@ -105,9 +92,9 @@ Vary: Origin
 ## Contract Mapping
 
 - Schemas: `maxLength`, `maxItems`, ranges, `additionalProperties: false` on writes, `readOnly`/`writeOnly`.
-- Responses: 401, 403, 413, 415, 429 declared.
-- Security schemes and per-operation `security` declared.
-- Threat-model outcomes and non-expressible controls recorded in the header notes.
+- Declare applicable security and validation responses (for example 401, 403, 413, 415, 429); do not add irrelevant status codes to every operation.
+- Declare security schemes and effective security requirements at the API/server or operation level supported by the format; use operation overrides only when policy differs.
+- Express consumer-visible security controls through security schemes, authorization behavior, schemas, responses, and relevant operation/channel descriptions. Keep the full threat model and controls that do not define consumer behavior in a security assessment or internal design document.
 
 ## Anti-Patterns
 
@@ -123,14 +110,8 @@ Vary: Origin
 
 - [ ] Entry points and trust boundaries listed.
 - [ ] Each OWASP risk has a control or a recorded reason it does not apply.
-- [ ] All inputs bounded and validated by schema; writes reject unknown fields.
+- [ ] All inputs are bounded and validated; closed write schemas reject unknown fields when that is the chosen compatibility policy.
 - [ ] Server-side URL fetching is validated.
 - [ ] CORS, cache, and transport policies stated.
 - [ ] Sensitive fields classified; no secrets in URLs or errors.
 - [ ] Protocol-specific threats addressed.
-
-## Sources
-
-- OWASP API Security Top 10, 2023 edition (https://owasp.org/API-Security/).
-- RFC 9700, RFC 8725; RFC 9110 (CORS-related headers via the Fetch Standard).
-- Protocol references: RFC 6455 (Origin), gRPC and GraphQL security documentation.

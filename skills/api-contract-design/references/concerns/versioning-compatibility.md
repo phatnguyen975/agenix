@@ -1,28 +1,15 @@
 # Versioning and Compatibility
 
-## Contents
-
-- Scope
-- Compatibility Model
-- Change Classification
-- Versioning Strategies
-- Deprecation and Sunset
-- Per-Format Rules
-- Update Procedure
-- Anti-Patterns
-- Checklist
-- Sources
-
 ## Scope
 
 - Evolving contracts without breaking consumers; classification of changes; deprecation lifecycle.
 
 ## Compatibility Model
 
-- Backward compatibility: consumers written against the old contract keep working with the new provider.
-- Forward compatibility: old providers tolerate messages from new consumers (tolerant reader: ignore unknown fields).
+- **Backward compatibility:** consumers written against the old contract keep working with the new provider.
+- **Forward compatibility:** old providers tolerate messages from new consumers (tolerant reader: ignore unknown fields).
+- **Hyrum's Law:** with enough users, every observable behavior is depended on, including field order, timing, and error text; treat observable changes as potentially breaking.
 - In message-based systems both directions matter, because producers and consumers deploy independently.
-- Hyrum's Law: with enough users, every observable behavior is depended on, including field order, timing, and error text; treat observable changes as potentially breaking.
 - Every consumer-visible behavior is part of the contract.
 
 ## Change Classification
@@ -32,7 +19,7 @@
 | Additive | Existing consumers keep working without changes      |
 | Breaking | Some correct existing consumer can fail or misbehave |
 
-**Additive**
+**Additive:**
 
 - New optional request field, parameter, header.
 - New response field (when consumers ignore unknown fields).
@@ -41,7 +28,7 @@
 - Relaxing request validation.
 - Documentation-only changes.
 
-**Breaking**
+**Breaking:**
 
 - Removing or renaming any operation, field, parameter, enum value, event type, channel, or RPC.
 - Making an optional request field or parameter required; adding a required field.
@@ -56,8 +43,7 @@
 - Renaming an `operationId` or another identifier that generated code depends on.
 - Changing a protobuf field number or reusing a removed number or name.
 
-- When classification is uncertain, treat the change as breaking.
-- Breaking changes need explicit user approval, a migration path, and a deprecation period.
+When classification is uncertain, treat the change as breaking. Breaking changes need explicit user approval, a migration path, and a deprecation period.
 
 | Change                                                               | Class    |
 | -------------------------------------------------------------------- | -------- |
@@ -86,12 +72,12 @@
 - Limit concurrently supported majors (typically two) and publish the support window.
 - Opt-in behavior changes use new fields or parameters, not silent changes.
 
-Example: `/v1/orders` becomes `/v2/orders` for a breaking change; `info.version` moves from `1.4.0` to `2.0.0`. An additive change keeps `/v1` and moves `info.version` from `1.4.0` to `1.5.0`.
+**Example:** `/v1/orders` becomes `/v2/orders` for a breaking change; `info.version` moves from `1.4.0` to `2.0.0`. An additive change keeps `/v1` and moves `info.version` from `1.4.0` to `1.5.0`.
 
 ## Deprecation and Sunset
 
-- Lifecycle: announce, mark deprecated, monitor usage, set sunset date, remove.
-- Mark in the contract: `deprecated: true` (OpenAPI), `@deprecated(reason: ...)` (GraphQL), `[deprecated = true]` (Protobuf); where a format has no flag, state it in the description.
+- **Lifecycle:** announce, mark deprecated, monitor usage, set sunset date, remove.
+- **Contract markers:** `deprecated: true` (OpenAPI), `@deprecated(reason: ...)` (GraphQL), `[deprecated = true]` (Protobuf); where a format has no flag, state it in the description.
 - Name the replacement and the sunset date in the description.
 - HTTP runtime signals:
   - `Deprecation: @<unix-timestamp>` (RFC 9745; the value is a date item, for example `@1688169599`).
@@ -106,29 +92,27 @@ Sunset: Tue, 01 Dec 2026 00:00:00 GMT
 Link: <https://example.com/docs/migrate-v2>; rel="deprecation"; type="text/html"
 ```
 
-Contract markers: `deprecated: true` (OpenAPI), `@deprecated(reason: "Use totalPrice.")` (GraphQL), `[deprecated = true]` (Protobuf).
-
 ## Per-Format Rules
 
-- **OpenAPI**: compare documents; changes to `required`, types, enums, status codes, parameters, and security are the main breaking vectors; new optional properties are additive.
-- **JSON payloads**: closed request schemas make new client fields rejected by old servers; response schemas stay open.
-- **Protobuf**:
+- **OpenAPI:** compare documents; changes to `required`, types, enums, status codes, parameters, and security are the main breaking vectors; new optional properties are additive.
+- **JSON payloads:** closed request schemas make new client fields rejected by old servers; response schemas stay open.
+- **Protobuf:**
   - Never renumber or reuse fields; `reserved` removed numbers and names.
   - Adding fields and enum values is compatible.
   - Changing a type incompatibly, moving fields into or out of a `oneof`, and renaming a package, service, or RPC are breaking.
   - `buf breaking` is a common automated check.
-- **GraphQL**: add freely; deprecate before removing; changing nullability, argument requirements, or types is breaking in the directions listed in the GraphQL SDL reference.
-- **AsyncAPI and messaging**: schema compatibility modes (backward, forward, full) per channel; breaking changes publish a new message type version or channel; keep old versions until all consumers migrate.
-- **Webhooks**: pin a payload version per subscription; additive changes are unannounced; breaking changes follow the migration window.
+- **GraphQL:** add freely; deprecate before removing; changing nullability, argument requirements, or types is breaking in the directions listed in the GraphQL SDL reference.
+- **AsyncAPI and messaging:** schema compatibility modes (backward, forward, full) per channel; breaking changes publish a new message type version or channel; keep old versions until all consumers migrate.
+- **Webhooks:** pin a payload version per subscription; additive changes are unannounced; breaking changes follow the migration window.
 
 ## Update Procedure
 
-1. Read the current contract and header notes.
+1. Read the current contract, project compatibility policy, relevant descriptions, and linked documentation.
 2. Apply the requested change.
 3. Diff old and new contracts; list every difference.
 4. Classify each difference (additive or breaking) using this reference.
 5. For each breaking difference: present options (additive alternative, new version, opt-in field), obtain approval, add migration and deprecation information.
-6. Record classification in the hand-off; update deprecation markers and the header notes.
+6. Record classification in the hand-off; update deprecation markers, affected element descriptions, and migration documentation where needed.
 
 ## Anti-Patterns
 
@@ -148,10 +132,3 @@ Contract markers: `deprecated: true` (OpenAPI), `@deprecated(reason: "Use totalP
 - [ ] `info.version` change matches the change class.
 - [ ] Deprecated elements carry replacement and sunset date.
 - [ ] Format-specific rules (reserved fields, nullability, schema compatibility) applied.
-
-## Sources
-
-- RFC 9745 (Deprecation), RFC 8594 (Sunset), RFC 9110.
-- Semantic Versioning 2.0.0 (https://semver.org).
-- Protobuf language guide: updating a message type; Buf breaking-change rules.
-- GraphQL specification (deprecation); Google API Improvement Proposals (backwards compatibility, versioning).

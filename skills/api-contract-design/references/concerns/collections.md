@@ -1,18 +1,5 @@
 # Collections: Pagination, Filtering, Sorting, Search
 
-## Contents
-
-- Scope
-- Pagination
-- Filtering
-- Sorting
-- Search
-- Field Selection and Expansion
-- Per-Protocol Mapping
-- Anti-Patterns
-- Checklist
-- Sources
-
 ## Scope
 
 - Operations that return lists or searchable sets, on any protocol.
@@ -21,8 +8,8 @@
 
 - Every list is bounded: declare a default page size and a maximum; reject or clamp larger requests, and state which.
 - Cursor (keyset) pagination is the default for large or changing datasets: stable under inserts and deletes, cost independent of depth.
-  - Request: `limit`, `cursor`.
-  - Response: `items` and `nextCursor` (absent or `null` when no more data).
+  - **Request:** `limit`, `cursor`.
+  - **Response:** `items` and `nextCursor` (absent or `null` when no more data).
   - Cursors are opaque, tied to the sort order and filters they were issued for, and may expire; an invalid or expired cursor returns 400 with a stable error code.
   - Sorting must be deterministic: include a unique tie-breaker (identifier) in the order.
 - Offset pagination (`offset`, `limit`) only for small, stable datasets; deep offsets are slow and drift under concurrent writes.
@@ -46,9 +33,9 @@ Last page: `"nextCursor": null`. Invalid or expired cursor: `400` with problem t
 ## Filtering
 
 - Define filterable fields explicitly; every filter has a field, type, operator set, and effect.
-- Simple filters: one query parameter per field (`status=active`); multiple values as repeated parameters or comma-separated, one convention per API.
-- Ranges: paired parameters (`createdAfter`, `createdBefore`) or operator syntax (`created[gte]`); one convention per API.
-- Rich filters: a documented expression language in one `filter` parameter; state grammar, allowed fields, operators, maximum length and complexity.
+- **Simple filters:** one query parameter per field (`status=active`); multiple values as repeated parameters or comma-separated, one convention per API.
+- **Ranges:** paired parameters (`createdAfter`, `createdBefore`) or operator syntax (`created[gte]`); one convention per API.
+- **Rich filters:** a documented expression language in one `filter` parameter; state grammar, allowed fields, operators, maximum length and complexity.
 - Unknown filter fields or operators return 400; they are never silently ignored.
 - Filters that cannot be served efficiently (no supporting index) are not offered.
 - Filters combine with AND unless the grammar defines OR.
@@ -65,7 +52,7 @@ Last page: `"nextCursor": null`. Invalid or expired cursor: `400` with problem t
 - Search (relevance-ranked text matching) differs from filtering (exact predicates); expose search as its own parameter (`q`) or operation.
 - Document matched fields, normalization (case, accents), operators, minimum query length, and ranking behavior.
 - Relevance-sorted results use cursor pagination with a score and identifier as the cursor basis.
-- Queries too large or too sensitive for URIs use a body: the QUERY method, or POST to a search resource declared safe.
+- Queries too large or too sensitive for URIs may use QUERY (RFC 10008) when the ecosystem supports it. Otherwise use POST to a search resource as an application convention; POST remains unsafe/non-idempotent under HTTP semantics, so do not assume generic safe-method caching or retries.
 - Facets and counts are optional, bounded, and documented as approximate when they are.
 
 | Intent                  | Request                                                                            |
@@ -79,14 +66,14 @@ Last page: `"nextCursor": null`. Invalid or expired cursor: `400` with problem t
 
 ## Field Selection and Expansion
 
-- Sparse fieldsets: `fields=id,name,status` limit returned properties; unknown fields return 400.
-- Expansion: `expand=customer` embeds related resources; bound depth and count.
+- **Sparse fieldsets:** `fields=id,name,status` limit returned properties; unknown fields return 400.
+- **Expansion:** `expand=customer` embeds related resources; bound depth and count.
 - gRPC uses `google.protobuf.FieldMask` for read and update masks; GraphQL selects fields in the query.
 - Defaults return the documented standard representation, not "everything".
 
 ## Per-Protocol Mapping
 
-| Protocol        | Paging                                                               | Filter and sort                              | Contract                                                                 |
+| Protocol        | Paging                                                               | Filter and Sort                              | Contract                                                                 |
 | --------------- | -------------------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------ |
 | REST            | `limit` + `cursor` query parameters; `items` + `nextCursor` response | Query parameters or `filter`/`sort`          | OpenAPI parameters with `minimum`, `maximum`, `default`; response schema |
 | GraphQL         | Connections with `first`/`after`, `last`/`before`, `pageInfo`        | Typed input arguments                        | SDL arguments and connection types                                       |
@@ -112,9 +99,3 @@ Last page: `"nextCursor": null`. Invalid or expired cursor: `400` with problem t
 - [ ] Filterable fields, operators, and error behavior for unknown names defined.
 - [ ] Search semantics documented separately from filters.
 - [ ] Authorization applied before pagination, filtering, and counting.
-
-## Sources
-
-- RFC 8288 (Web Linking), RFC 10008 (QUERY).
-- Relay Cursor Connections specification.
-- Google API Improvement Proposals: ordering, pagination, filtering, field masks.

@@ -1,22 +1,5 @@
 # gRPC
 
-## Contents
-
-- Scope
-- Service Design
-- Method Shapes
-- Messages
-- Errors
-- Deadlines and Retries
-- Streaming
-- Metadata and Security
-- Operations
-- Evolution
-- Contract Mapping
-- Anti-Patterns
-- Checklist
-- Sources
-
 ## Scope
 
 - Typed RPC over HTTP/2 described by Protobuf service definitions.
@@ -30,11 +13,11 @@
 - Resource-oriented services use standard methods (`Get`, `List`, `Create`, `Update`, `Delete`) before custom methods.
 - Keep the service surface small; each method has one clear purpose.
 
-| Good                                                                | Bad                                                                   |
-| ------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| `package company.orders.v1;`                                        | `package orders;` (no version)                                        |
-| `service OrderService`                                              | `service Orders`, `service OrderAPI`                                  |
-| `rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse)` | `rpc createOrder(Order) returns (Order)` (shared message, wrong case) |
+| Good                                                                | Bad                                                                                                     |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `package company.orders.v1;`                                        | `package orders;` (no version)                                                                          |
+| `service OrderService`                                              | `service Orders`, `service OrderAPI`                                                                    |
+| `rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse)` | `rpc createOrder(Order) returns (Order)` (generic model obscures the method-specific write/read shapes) |
 
 ## Method Shapes
 
@@ -50,13 +33,12 @@
 
 ## Messages
 
-- Every method has its own request and response messages, named `<Method>Request` and `<Method>Response`.
-- Define them even when empty, so fields can be added later.
-- Do not reuse one message across methods; do not use bare scalars as request or response.
-- Use `google.protobuf.Empty` only where the project style guide requires it.
+- Prefer method-specific request and response messages named `<Method>Request` and `<Method>Response`. Reuse a type only when the directions have genuinely identical semantics and constraints, such as a symmetric bidirectional-stream frame. In Protobuf Edition 2026, keep service-specific messages local unless another `.proto` file must import them; export only reusable top-level message/enum types.
+- Use a method-specific empty message or `google.protobuf.Empty` for a genuinely empty side, according to project conventions and evolution needs; do not add empty placeholders without a semantic reason.
+- Reuse a message across methods only when its meaning, presence rules, constraints, and compatibility expectations are genuinely identical. Do not reuse merely because fields happen to match today. Do not use bare scalars as request or response.
 - Standard list requests: `page_size`, `page_token`; responses: `next_page_token`.
 - Partial updates: an explicit `google.protobuf.FieldMask` (`update_mask`) in the request.
-- Retry-safe creates: a client-generated `request_id` field.
+- Retry-safe creates: a client-generated `request_id` or idempotency key backed by defined server-side deduplication, scope, retention, and replay behavior.
 - Field constraints use Protovalidate annotations when the project uses them.
 - Use well-known types (`Timestamp`, `Duration`) for time values.
 
@@ -69,7 +51,7 @@
 - Structured details travel in `google.rpc.Status.details` (for example `ErrorInfo`, `BadRequest`, `RetryInfo`, `QuotaFailure`); machine-readable `reason` and `domain` in `ErrorInfo`.
 - Document each method's possible codes in comments.
 
-Example: status with structured details (text format).
+**Example:** status with structured details (text format).
 
 ```
 code: FAILED_PRECONDITION
@@ -87,13 +69,13 @@ details {
 
 - Every client call sets a deadline; servers check and propagate the remaining deadline to downstream calls.
 - A missing deadline means unbounded waiting; never rely on defaults.
-- Retry only idempotent methods, or methods protected by a `request_id`.
+- Retry only idempotent methods, or methods protected by a `request_id`/idempotency key with defined server-side deduplication and replay semantics.
 - `UNAVAILABLE` is retryable.
 - `DEADLINE_EXCEEDED` and `RESOURCE_EXHAUSTED` are retried only for idempotent methods, with backoff; for `RESOURCE_EXHAUSTED`, wait at least the server-provided retry delay.
 - Retry policy through service configuration: `maxAttempts`, `initialBackoff`, `maxBackoff`, `backoffMultiplier`, `retryableStatusCodes`; use retry throttling to prevent retry storms.
 - Exponential backoff with jitter; bounded attempts.
 
-Example: client service configuration (JSON) with a deadline and a retry policy.
+**Example:** client service configuration (JSON) with a deadline and a retry policy.
 
 ```json
 {
@@ -117,22 +99,22 @@ Example: client service configuration (JSON) with a deadline and a retry policy.
 
 ## Streaming
 
-- Flow control is built in; do not buffer unboundedly on either side.
+- gRPC streaming has transport flow control, but applications must still bound queues and define slow-consumer behavior; do not buffer unboundedly on either side.
 - Define message ordering, completion, and cancellation semantics in comments.
 - Long-lived streams: define maximum duration, keepalive, and resume strategy (a cursor or last-processed identifier in the request).
-- Set maximum message sizes explicitly; implementations apply default limits (commonly a few megabytes on receive).
+- Set maximum send and receive message sizes explicitly on clients, servers, gateways, and proxies. Defaults vary by implementation and version; never rely on a generic default.
 
 ## Metadata and Security
 
 - Credentials travel in call metadata (`authorization`) over TLS; mutual TLS for service-to-service identity.
 - Per-method authorization; carry caller identity from credentials, never from request fields.
 - Define which metadata keys are part of the contract (trace context, tenant, locale).
-- Browsers cannot call native gRPC; if browser access is required, use a gRPC-Web layer or a gateway and state it in the header notes.
+- Browsers cannot call native gRPC directly; if browser access is required, define gRPC-Web or a gateway as a distinct consumer-facing surface and document its endpoint, authentication, and compatibility behavior in the relevant API documentation.
 - Server reflection: enable by explicit policy per environment.
 
 ## Operations
 
-- Implement the standard health checking service (`grpc.health.v1.Health`: `Check`, `Watch`) for load balancers and orchestrators.
+- Implement `grpc.health.v1.Health` (`Check`, `Watch`) when the deployment platform uses the standard gRPC health protocol; document service names and serving-state semantics.
 - Return `UNIMPLEMENTED` for methods a server does not support.
 - Graceful shutdown: refuse new calls, drain in-flight calls within a deadline.
 
@@ -146,15 +128,15 @@ Example: client service configuration (JSON) with a deadline and a retry policy.
 ## Contract Mapping
 
 - `.proto` file: edition declaration, versioned package, services, request/response messages, enums, comments.
-- Authentication, rate limits, retry guidance, and browser access are not expressible in Protobuf: record them in the header notes.
-- Optional REST exposure through HTTP annotations (`google.api.http`) when a transcoding gateway is used; record the mapping in the header notes.
+- Protobuf does not define runtime authentication, rate limiting, deadlines, retry policy, or gateway exposure. Document consumer-facing behavior on the relevant service/RPC or in linked gRPC/API documentation, and enforce it in the service or gateway.
+- Use HTTP annotations (`google.api.http`) only when a compatible transcoding gateway is part of the supported surface; document the generated HTTP mapping alongside that surface.
 
 ## Anti-Patterns
 
-- One message type shared by many methods.
+- Reusing a generic message across methods when their semantics, presence rules, or constraints differ.
 - `google.protobuf.Empty` as response of a method that may later return data.
 - Calls without deadlines.
-- Retrying non-idempotent methods without a `request_id`.
+- Retrying non-idempotent methods without a functioning deduplication mechanism.
 - Business errors encoded in successful responses.
 - Using `OK` with an error field instead of status codes.
 - Large messages instead of streaming.
@@ -163,15 +145,9 @@ Example: client service configuration (JSON) with a deadline and a retry policy.
 ## Checklist
 
 - [ ] Package is versioned; services and methods follow naming rules.
-- [ ] Each method has unique request and response messages.
+- [ ] Request/response types are method-specific where their semantics differ; any reuse has identical meaning, presence rules, constraints, and compatibility expectations.
 - [ ] Lists use `page_size` and `page_token`; updates use field masks.
 - [ ] Possible status codes are documented per method.
 - [ ] Deadline and retry guidance is recorded.
 - [ ] Streaming methods define ordering, completion, cancellation, and limits.
 - [ ] Health checking is specified for deployed services.
-
-## Sources
-
-- gRPC documentation: status codes, deadlines, retry, health checking, metadata, authentication (https://grpc.io/docs/).
-- Protocol Buffers style guide (https://protobuf.dev/programming-guides/style/).
-- Google API Improvement Proposals (standard methods, pagination, field masks, errors).

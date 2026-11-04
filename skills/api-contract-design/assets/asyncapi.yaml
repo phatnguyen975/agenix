@@ -1,43 +1,46 @@
 # AsyncAPI contract template (WebSocket and messaging). Baseline: AsyncAPI 3.1.0; fallback 3.0.0.
 #
 # HOW TO FILL
-#   1. Complete the five header-note fields in info.description.
-#   2. Replace every placeholder (names, hosts, addresses, scopes) with project values; example.com hosts are illustrative only.
+#   1. Write a concise application overview in info.description only when it adds
+#      consumer-facing context; describe delivery and interaction semantics on the
+#      relevant channel, operation, or message.
+#   2. Replace every placeholder (names, hosts, addresses, scopes) with project values;
+#      example.com hosts are illustrative only.
 #   3. Keep every field marked (R); delete every optional section the API does not use.
-#   4. Define each message and schema once under components and reference it with $ref from channels and operations.
+#   4. Define each message and schema once under components and reference it with $ref
+#      from channels and operations.
 #   5. Perspective: `send` means the described application sends; `receive` means it receives.
-#   6. For every channel, state in its description: delivery guarantee, ordering scope, retention, dead-letter policy.
-#   7. For every message, provide name, content type, payload schema, and at least one example.
+#   6. For broker channels, state delivery guarantee, ordering scope, retention, and
+#      dead-letter policy; for live sessions, state ordering, replay, and reconnect behavior.
+#   7. Give every message a stable name and at least one example; define a payload schema and
+#      effective content type when it carries a payload. Add headers and correlation data when used.
 #   8. Pin bindingVersion in every binding; confirm binding field lists in the AsyncAPI bindings repository.
 #   9. Delete this guide and all (R)/(O) comments before delivery.
+#
 # Legend: (R) required by the specification; (O) optional.
 asyncapi: 3.1.0 # (R)
 id: urn:example:orders:events # (O) application identifier (URI recommended)
 info: # (R)
   title: Orders Events # (R)
   version: 1.0.0 # (R) contract version (semantic versioning), not the AsyncAPI version
-  description: | # (O) first section = header notes
-    ## Header notes
-    - Protocol decision: Messaging (Kafka-compatible log) for order events; WebSocket for live order updates to browsers. Rejected: polling REST (latency), SSE (clients also send subscription changes).
-    - Consumers and exposure: internal services (messaging); authenticated browser clients (WebSocket).
-    - Format version: AsyncAPI 3.1.0 (baseline).
-    - Standards in draft or de-facto use: CloudEvents 1.0.2 envelope attributes in message headers.
-    - Design rules not expressible in the format: at-least-once delivery; ordering guaranteed per order identifier only; consumers must be idempotent; retention 7 days; dead-letter channel after 5 attempts.
+  description: | # (O) concise consumer-facing application overview; omit when summary is sufficient
+    Application contract for order lifecycle messages and real-time order updates.
+    Delivery, ordering, replay, and reconnect behavior are defined on the relevant channels and operations.
   termsOfService: https://example.com/terms # (O)
   contact: {
       name: API Support,
-      url: https://example.com/support,
-      email: api-support@example.com,
+      url: "https://example.com/support",
+      email: "api-support@example.com",
     } # (O)
   license: {
       name: Apache 2.0,
-      url: https://www.apache.org/licenses/LICENSE-2.0.html,
+      url: "https://www.apache.org/licenses/LICENSE-2.0.html",
     } # (O)
   tags: # (O)
     - { name: orders, description: Order domain events }
   externalDocs: {
       description: Full documentation,
-      url: https://example.com/docs,
+      url: "https://example.com/docs",
     } # (O)
 defaultContentType: application/json # (O)
 
@@ -45,7 +48,7 @@ servers: # (O)
   broker:
     host: broker.example.com:9092 # (R) host and optional port
     protocol: kafka # (R)
-    protocolVersion: "3.7" # (O)
+    protocolVersion: "4.4.0" # (O) illustrative current Kafka version; replace with the deployed broker/protocol version
     pathname: / # (O)
     title: Event broker # (O)
     summary: Production broker # (O)
@@ -58,14 +61,14 @@ servers: # (O)
           enum: [prod, staging],
           examples: [prod],
         }
-    security: # (O)
+    security: # (O) AsyncAPI uses Security Scheme Objects or Reference Objects here.
       - $ref: "#/components/securitySchemes/brokerScram"
     tags: [{ name: internal }] # (O)
-    externalDocs: { url: https://example.com/docs/broker } # (O)
+    externalDocs: { url: "https://example.com/docs/broker" } # (O)
     bindings: # (O) Kafka server binding
       kafka:
         schemaRegistryUrl: https://registry.example.com
-        schemaRegistryVendor: example
+        schemaRegistryVendor: confluent
         bindingVersion: 0.5.0
   realtime:
     host: realtime.example.com
@@ -85,9 +88,8 @@ channels: # (O)
       - $ref: "#/servers/broker"
     messages: # (O)
       orderPlaced: { $ref: "#/components/messages/OrderPlaced" }
-    parameters: {} # (O) address variables, for example { tenantId: {...} } with {tenantId} in address
     tags: [{ name: orders }] # (O)
-    externalDocs: { url: https://example.com/docs/orders-events } # (O)
+    externalDocs: { url: "https://example.com/docs/orders-events" } # (O)
     bindings: # (O) Kafka channel binding
       kafka:
         topic: orders.order.placed
@@ -99,6 +101,7 @@ channels: # (O)
         bindingVersion: 0.5.0
   liveOrders:
     address: /orders/{orderId}
+    description: WebSocket session channel. Messages are ordered per connection; reconnect uses an application resume token and replays at most the prior 24 hours.
     parameters:
       orderId: { description: Order identifier., examples: [ord_01HZX] }
     servers:
@@ -112,10 +115,16 @@ channels: # (O)
         bindingVersion: 0.1.0
   orderQuoteRequests:
     address: orders.quote.requests
+    description: Request messages are delivered at least once; deduplicate by correlationId. Requests expire after 60 seconds; there is no global ordering guarantee.
+    servers:
+      - $ref: "#/servers/broker"
     messages:
       quoteRequest: { $ref: "#/components/messages/QuoteRequest" }
   orderQuoteReplies:
     address: null # dynamic reply address resolved at runtime
+    description: One reply per request correlationId; reply destinations expire with the 60-second request lifetime.
+    servers:
+      - $ref: "#/servers/broker"
     messages:
       quoteReply: { $ref: "#/components/messages/QuoteReply" }
 
@@ -126,10 +135,7 @@ operations: # (O)
     title: Publish order placed # (O)
     summary: Emit an event when an order is placed. # (O)
     description: Published after the order transaction commits (transactional outbox). # (O)
-    security: # (O)
-      - $ref: "#/components/securitySchemes/brokerScram"
-    tags: [{ name: orders }] # (O)
-    externalDocs: { url: https://example.com/docs/orders-events } # (O)
+    externalDocs: { url: "https://example.com/docs/orders-events" } # (O)
     bindings: # (O) Kafka operation binding
       kafka:
         clientId: { type: string, enum: [orders-service] }
@@ -142,11 +148,13 @@ operations: # (O)
     action: receive
     channel: { $ref: "#/channels/orderPlaced" }
     summary: Receive order placed events (shipping service).
+    messages:
+      - $ref: "#/channels/orderPlaced/messages/orderPlaced"
     bindings:
       kafka:
         groupId: { type: string, enum: [shipping-service] }
         bindingVersion: 0.5.0
-  receiveLiveOrderUpdates:
+  sendLiveOrderUpdates:
     action: send # the server sends updates to the client
     channel: { $ref: "#/channels/liveOrders" }
     messages:
@@ -181,8 +189,15 @@ components: # (O)
       required: [id, status, total, createdAt]
     Money:
       type: object
+      description: Amount in minor currency units with an ISO 4217 currency code; for EUR, 1250 means EUR 12.50.
       properties:
-        amount: { type: integer, minimum: 0, maximum: 999999999999 }
+        amount:
+          {
+            type: integer,
+            minimum: 0,
+            maximum: 999999999999,
+            description: Non-negative integer minor units.,
+          }
         currency: { type: string, pattern: "^[A-Z]{3}$" }
       required: [amount, currency]
       additionalProperties: false
@@ -198,6 +213,19 @@ components: # (O)
         correlationId: { type: string, maxLength: 128 }
         replyTo: { type: string, maxLength: 256 }
       required: [ce_id, ce_source, ce_specversion, ce_type]
+    RequestHeaders:
+      type: object
+      properties:
+        correlationId: { type: string, maxLength: 128 }
+        replyTo: { type: string, maxLength: 256 }
+        traceparent: { type: string, maxLength: 64 }
+      required: [correlationId, replyTo]
+    ReplyHeaders:
+      type: object
+      properties:
+        correlationId: { type: string, maxLength: 128 }
+        traceparent: { type: string, maxLength: 64 }
+      required: [correlationId]
   servers: # (O) reusable servers
     sandbox: { host: sandbox.example.com, protocol: wss }
   serverVariables: # (O)
@@ -212,15 +240,15 @@ components: # (O)
     consumeDeadLetter:
       action: receive
       channel: { $ref: "#/components/channels/deadLetter" }
+      messages:
+        - $ref: "#/components/channels/deadLetter/messages/failed"
   messages:
     OrderPlaced:
       name: OrderPlaced # (O)
       title: Order placed # (O)
       summary: An order was placed. # (O)
       description: Fact event; consumers fetch current state when needed. # (O)
-      contentType: application/json # (O) overrides defaultContentType
-      tags: [{ name: orders }]
-      externalDocs: { url: https://example.com/docs/orders-events }
+      externalDocs: { url: "https://example.com/docs/orders-events" }
       headers: { $ref: "#/components/schemas/Envelope" } # (O)
       payload: { $ref: "#/components/schemas/Order" } # (O)
       correlationId: { $ref: "#/components/correlationIds/default" } # (O)
@@ -250,20 +278,35 @@ components: # (O)
               createdAt: "2026-03-01T09:30:00Z",
             }
       traits: # (O)
-        - $ref: "#/components/messageTraits/commonHeaders"
+        - $ref: "#/components/messageTraits/orderEvent"
     Subscribe:
       name: Subscribe
+      contentType: application/json
       payload:
         type: object
         properties:
           type: { const: subscribe }
           orderId: { type: string, maxLength: 64 }
         required: [type, orderId]
+      examples:
+        - name: subscribeOrder
+          summary: Subscribe to one order
+          payload: { type: subscribe, orderId: ord_01HZX }
     OrderUpdate:
       name: OrderUpdate
+      contentType: application/json
       payload: # Multi Format Schema Object (other schema formats)
         schemaFormat: application/vnd.aai.asyncapi+json;version=3.1.0
         schema: { $ref: "#/components/schemas/Order" }
+      examples:
+        - name: changedOrder
+          payload:
+            {
+              id: ord_01HZX,
+              status: PAID,
+              total: { amount: 1250, currency: EUR },
+              createdAt: "2026-03-01T09:30:00Z",
+            }
     AvroOrderPlaced: # Multi Format Schema Object with a non-AsyncAPI schema format
       name: AvroOrderPlaced
       contentType: application/vnd.apache.avro+json
@@ -276,9 +319,12 @@ components: # (O)
           fields:
             - { name: id, type: string }
             - { name: total, type: long }
+      examples:
+        - name: avroOrderPlaced
+          payload: { id: ord_01HZX, total: 1250 }
     QuoteRequest:
       name: QuoteRequest
-      headers: { $ref: "#/components/schemas/Envelope" }
+      headers: { $ref: "#/components/schemas/RequestHeaders" }
       correlationId: { $ref: "#/components/correlationIds/default" }
       payload:
         {
@@ -286,15 +332,20 @@ components: # (O)
           properties: { orderId: { type: string } },
           required: [orderId],
         }
+      examples:
+        - name: quoteForOrder
+          headers:
+            { correlationId: corr_01, replyTo: orders.quote.replies.client_01 }
+          payload: { orderId: ord_01HZX }
     QuoteReply:
       name: QuoteReply
+      headers: { $ref: "#/components/schemas/ReplyHeaders" }
       correlationId: { $ref: "#/components/correlationIds/default" }
-      payload:
-        {
-          type: object,
-          properties: { amount: { type: integer, minimum: 0 } },
-          required: [amount],
-        }
+      payload: { $ref: "#/components/schemas/Money" }
+      examples:
+        - name: quoteReply
+          headers: { correlationId: corr_01 }
+          payload: { amount: 1250, currency: EUR }
   securitySchemes: # every security scheme type
     userPassword: { type: userPassword, description: Username and password. }
     apiKey: {
@@ -331,7 +382,7 @@ components: # (O)
     oidc:
       {
         type: openIdConnect,
-        openIdConnectUrl: https://auth.example.com/.well-known/openid-configuration,
+        openIdConnectUrl: "https://auth.example.com/.well-known/openid-configuration",
         scopes: ["openid"],
       }
     plain: { type: plain, description: SASL PLAIN. }
@@ -357,13 +408,13 @@ components: # (O)
         description: Destination for the reply.,
       }
   externalDocs: # (O)
-    orders: { url: https://example.com/docs/orders-events }
+    orders: { url: "https://example.com/docs/orders-events" }
   tags: # (O)
     internal: { name: internal, description: Internal use only. }
   operationTraits:
     orderEvent: { tags: [{ name: orders }] }
   messageTraits:
-    commonHeaders: { contentType: application/json }
+    orderEvent: { tags: [{ name: orders }] }
   serverBindings: # (O)
     kafkaDefault: { kafka: { bindingVersion: 0.5.0 } }
   channelBindings: # (O)

@@ -1,55 +1,12 @@
 # Performance and Reliability
 
-## Contents
-
-- Scope
-- Caching
-- Payload Efficiency
-- Timeouts and Deadlines
-- Resilience
-- Observability
-- Service Objectives
-- Contract Mapping
-- Anti-Patterns
-- Checklist
-- Sources
-
 ## Scope
 
 - Contract-level decisions that determine latency, load, and failure behavior: caching, payload size, timeouts, resilience, and observability fields.
 
 ## Caching
 
-- Only safe methods are cacheable in practice; design cacheable reads as GET.
-- `Cache-Control` directives:
-
-| Directive                                             | Use                                               |
-| ----------------------------------------------------- | ------------------------------------------------- |
-| `max-age`, `s-maxage`                                 | Freshness lifetime; `s-maxage` for shared caches  |
-| `private`                                             | User-specific data                                |
-| `no-store`                                            | Sensitive data                                    |
-| `no-cache`                                            | Cache may store, but must revalidate before reuse |
-| `stale-while-revalidate`, `stale-if-error` (RFC 5861) | Acceptable staleness windows                      |
-
-- Validators: `ETag` (and `Last-Modified`); clients revalidate with `If-None-Match` or `If-Modified-Since`; servers return 304 with no body.
-- `Vary` lists the request headers that change the representation (`Accept`, `Accept-Language`, `Authorization` for per-user caching rules).
-- Declare cache behavior in the contract for every cacheable operation.
-- GraphQL and POST-based reads need explicit cache design (persisted operations over GET, application-level caching).
-- Authorization applies before cache use; shared caches never serve one user's private data to another.
-
-| Response                                         | Header                                             |
-| ------------------------------------------------ | -------------------------------------------------- |
-| Public catalog, tolerates 5 minutes of staleness | `Cache-Control: public, max-age=300`               |
-| User-specific resource, must revalidate          | `Cache-Control: private, no-cache` and `ETag: "4"` |
-| Sensitive data                                   | `Cache-Control: no-store`                          |
-
-```http
-GET /orders/ord_1 HTTP/1.1
-If-None-Match: "4"
-
-HTTP/1.1 304 Not Modified
-ETag: "4"
-```
+Caching policy, validators, and conditional request semantics are covered in `caching-and-conditional-requests.md`. Keep cacheability, freshness, authorization variation, and invalidation explicit for each operation; do not infer cacheability from a read-only method alone.
 
 ## Payload Efficiency
 
@@ -79,15 +36,7 @@ ETag: "4"
 
 ## Observability
 
-- Propagate W3C Trace Context (`traceparent`, `tracestate`) across HTTP, gRPC metadata, and message headers.
-- Return or log a request identifier; include it in error responses (`instance` or an extension member).
-- Contracts declare which correlation headers are accepted and returned.
-- Standard signals per operation: request rate, error rate, latency distribution (rate, errors, duration).
-- Logs contain identifiers and outcomes, not payloads or secrets.
-
-```http
-traceparent: 00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01
-```
+Trace propagation, request correlation, structured logs, metrics cardinality, audit events, and stream-specific telemetry are covered in `observability.md`. Preserve trace context across HTTP, RPC, messaging, and callback boundaries; do not put secrets or high-cardinality identifiers in metric labels.
 
 ## Service Objectives
 
@@ -102,10 +51,10 @@ traceparent: 00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01
 
 ## Contract Mapping
 
-- OpenAPI: response headers `Cache-Control`, `ETag`, `Last-Modified`, `Vary`, `Retry-After`; request headers `If-None-Match`, `If-Modified-Since`, `traceparent`; 304 response; descriptions with duration and objective statements.
-- Protobuf: deadline and idempotency notes in RPC comments; health service definition when deployed.
-- AsyncAPI: message headers for trace context; channel descriptions for latency and retention expectations.
-- Header notes: service objectives and non-expressible reliability rules.
+- **OpenAPI:** response headers `Retry-After`; request timeout/deadline guidance in descriptions; define objective statements without implying they are protocol guarantees.
+- **Protobuf:** deadline and idempotency notes in RPC comments; health service definition when deployed.
+- **AsyncAPI:** channel descriptions for latency, retention, and consumer processing expectations.
+- Put consumer-visible timeouts, retry obligations, and reliability guarantees in the relevant operation, RPC, channel, or message documentation. Keep internal SLOs and implementation objectives in service-level documentation unless they create an explicit consumer commitment.
 
 ## Anti-Patterns
 
@@ -118,15 +67,7 @@ traceparent: 00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01
 
 ## Checklist
 
-- [ ] Cacheability and validators defined for each read.
 - [ ] Payload maximums and pagination defined.
 - [ ] Timeout or deadline and expected duration stated per operation.
 - [ ] Degraded behavior documented.
-- [ ] Trace context and request identifier propagation defined.
 - [ ] Objectives stated with percentiles.
-
-## Sources
-
-- RFC 9111 (HTTP Caching), RFC 9110 (conditional requests, content coding), RFC 5861.
-- W3C Trace Context.
-- gRPC documentation: deadlines, health checking, retry.

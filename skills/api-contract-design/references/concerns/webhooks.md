@@ -1,19 +1,5 @@
 # Webhooks
 
-## Contents
-
-- Scope
-- Event Design
-- Subscription Management
-- Delivery
-- Security
-- Versioning
-- Consumer Rules
-- Contract Mapping
-- Anti-Patterns
-- Checklist
-- Sources
-
 ## Scope
 
 - HTTP callbacks sent by a provider to consumer-hosted endpoints when events occur.
@@ -25,10 +11,10 @@
 - Payload envelope fields: `id` (unique event identifier, stable across redelivery), `type`, `createdAt` (RFC 3339), `apiVersion` or schema version, `data` (the resource or change).
 - Alternative: CloudEvents structured or binary HTTP mode, when the project uses CloudEvents.
 - Thin payloads (identifiers, consumers fetch current state) reduce exposure and ordering problems; fat payloads (full state) save a round trip. Choose per event type and document it.
-- No ordering guarantee unless documented; include `createdAt` or a sequence number so consumers can order and discard stale events.
+- No ordering guarantee unless documented; include an aggregate sequence/version when consumers must detect gaps or discard stale events. A timestamp alone does not establish a total order.
 - Publish a catalogue of event types with schemas.
 
-| Event type        | Payload kind           | Schema       |
+| Event Type        | Payload Kind           | Schema       |
 | ----------------- | ---------------------- | ------------ |
 | `order.paid`      | Fat (full order)       | `OrderEvent` |
 | `order.cancelled` | Thin (identifier only) | `OrderRef`   |
@@ -44,10 +30,10 @@
 
 ## Delivery
 
-- Semantics: at least once; duplicates occur.
+- **Semantics:** at least once; duplicates occur.
+- **Success:** any 2xx unless the provider contract defines a narrower acknowledgement. A 2xx means the receiver accepted responsibility for processing, not necessarily that the business action completed. Anything else, including timeouts and connection errors, is a failed delivery attempt.
+- **Retries:** exponential backoff with jitter over a documented horizon (for example hours to days), then mark the delivery failed.
 - Provider sends `POST` with `Content-Type: application/json`, a bounded payload size, and a short timeout.
-- Success: any 2xx. Anything else, including timeouts and connection errors, is a failure.
-- Retries: exponential backoff with jitter over a documented horizon (for example hours to days), then mark the delivery failed.
 - Disable endpoints that fail continuously beyond a threshold; notify the subscriber; allow re-enable and replay.
 - Delivery attempts are logged and visible to subscribers (status, response code, time).
 - Do not follow redirects blindly; treat 3xx as failure unless documented.
@@ -60,7 +46,7 @@
   - `webhook-timestamp`: Unix seconds.
   - `webhook-signature`: one or more space-separated signatures such as `v1,<base64 HMAC-SHA256>`.
   - Signed content: `<id>.<timestamp>.<raw body>`, using the endpoint secret.
-- Consumers verify with the raw request body, compare in constant time, and reject timestamps outside a short tolerance window to prevent replay.
+- Consumers verify the exact raw body bytes before parsing or re-serializing JSON, compare signatures in constant time, and reject timestamps outside the documented tolerance window. Define how multiple signatures are handled during secret rotation.
 - HTTPS only; secrets are per subscription, high entropy, stored securely.
 - Optionally publish source IP ranges or support mutual TLS as additional controls, not as replacements for signatures.
 - SSRF controls on every registered URL (see API security).
@@ -73,8 +59,7 @@ webhook-id: msg_2KWPBgLlAfxdpx2AI54pPJ85f4W
 webhook-timestamp: 1772357400
 webhook-signature: v1,<base64-hmac-sha256>
 
-{"id": "evt_01HZY", "type": "order.paid", "createdAt": "2026-03-01T09:30:00Z", "apiVersion": "2026-03-01",
- "data": {"id": "ord_01HZX", "status": "PAID"}}
+{"id": "evt_01HZY", "type": "order.paid", "createdAt": "2026-03-01T09:30:00Z", "apiVersion": "2026-03-01", "data": {"id": "ord_01HZX", "status": "PAID"}}
 ```
 
 Verification procedure for the consumer:
@@ -105,7 +90,7 @@ Verification procedure for the consumer:
 - OpenAPI `callbacks`: for callback URLs supplied per request, with runtime expressions for the URL.
 - Subscription management lives in `paths` as ordinary operations.
 - Under AsyncAPI-based projects, model webhooks as `send` operations over an `http` channel.
-- Header notes: signing scheme and its convention status, retry policy, retention of delivery logs.
+- Document the signing scheme and its status where it affects consumer verification, and describe delivery retry behavior at the webhook operation or in linked integration documentation. Keep delivery-log retention policy internal unless it affects consumer obligations.
 
 ## Anti-Patterns
 
@@ -126,9 +111,3 @@ Verification procedure for the consumer:
 - [ ] Duplicate and ordering behavior documented.
 - [ ] URL validation (SSRF) defined.
 - [ ] Versioning and compatibility rules defined.
-
-## Sources
-
-- Standard Webhooks specification.
-- OpenAPI Specification: `webhooks` and `callbacks` (3.1 and later).
-- RFC 9110; CloudEvents HTTP protocol binding.

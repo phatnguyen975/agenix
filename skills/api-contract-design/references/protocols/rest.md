@@ -147,7 +147,7 @@ Content-Type: application/json
 
 ## Contract Mapping
 
-- **OpenAPI:** `paths` (one path item per resource URI), `operationId` per operation, `parameters`, `requestBody`, `responses` for each status above, `components` for shared schemas, parameters, and responses.
+- OpenAPI: `paths` (one path item per resource URI), `operationId` per operation, `parameters`, `requestBody`, `responses` for each status above, `components` for shared schemas, parameters, and responses.
 - OpenAPI `query` operations require 3.2. Under 3.1, POST may model a body-bearing search for compatibility, but HTTP still classifies POST as unsafe and non-idempotent by default; do not promise safe-method caching or generic intermediary retries.
 - Define default `security` at the API root when appropriate. Each operation inherits it unless it overrides it; use `security: []` to intentionally remove inherited security, or `[{}]` / an empty requirement object when anonymous access is one allowed alternative. Keep the effective policy clear without duplicating root-level requirements on every operation.
 

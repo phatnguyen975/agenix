@@ -9,7 +9,7 @@
 
 - Use for notifications, progress, live feeds, and long-running operation updates.
 - The client sends commands through separate HTTP requests; the stream carries server events only.
-- For bidirectional low-latency exchange, use WebSocket.
+- Bidirectional low-latency exchange: use WebSocket.
 
 ## Stream Format
 
@@ -78,7 +78,7 @@ The server sends the events that follow `41`, then continues live.
 - OpenAPI 3.2: a `get` operation whose 200 response has `content: text/event-stream` with `itemSchema` describing one event (`event`, `data`, `id`, `retry` properties); `data` can use `contentMediaType` and `contentSchema` for its JSON structure.
 - Under OpenAPI 3.1 there is no `itemSchema`: describe the event format in the description and keep schemas in `components`.
 - Document `Last-Event-ID` as a request header parameter.
-- Retention window, heartbeat, and limits go in the operation description and header notes.
+- Put the replay/retention window, heartbeat, and consumer-visible limits in the relevant OpenAPI operation/response descriptions or linked stream documentation.
 
 ## Anti-Patterns
 

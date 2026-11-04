@@ -1,22 +1,9 @@
 # Rate Limiting and Quotas
 
-## Contents
-
-- Scope
-- Concepts
-- Limit Design
-- HTTP Signaling
-- Per-Protocol Rules
-- Client Guidance
-- Contract Mapping
-- Anti-Patterns
-- Checklist
-- Sources
-
 ## Scope
 
 - Protecting capacity and fairness, and telling clients how to behave under limits.
-- `RateLimit` and `RateLimit-Policy` fields are an IETF draft (`draft-ietf-httpapi-ratelimit-headers`); label them in the header notes.
+- `RateLimit` and `RateLimit-Policy` fields are an IETF Internet-Draft (`draft-ietf-httpapi-ratelimit-headers-11`), not an RFC. When adopting them, identify their draft status in the relevant response-header description or linked consumer documentation and verify the current revision.
 
 ## Concepts
 
@@ -44,9 +31,9 @@
 - Draft fields (Structured Field Lists):
   - `RateLimit-Policy: "burst";q=100;w=60,"daily";q=1000;w=86400`: policy name, `q` quota (required), `qu` quota unit (`requests`, `content-bytes`, `concurrent-requests`), `w` window in seconds, `pk` partition key.
   - `RateLimit: "default";r=50;t=30`: policy name, `r` remaining quota (required), `t` seconds until the effective window ends, `pk` partition key.
-- The fields may be sent on any response, not only 429.
+- The current Internet-Draft allows the fields to be sent on responses other than 429; verify the exact revision before adopting field syntax or semantics.
 - Remaining quota is a hint, not a guarantee; servers may throttle earlier.
-- With both `Retry-After` and `RateLimit`, `Retry-After` takes precedence; do not point it earlier than the effective window end.
+- Use `Retry-After` when the client must wait before retrying (for example a temporary server condition). Treat `RateLimit` values as advisory quota information, not a guarantee that a subsequent request will succeed. Do not let client-supplied or intermediary-modified values cause unbounded waits.
 - Add jitter to reset times so throttled clients do not return simultaneously.
 - Draft problem types for errors: `https://iana.org/assignments/http-problem-types#quota-exceeded` (429), `#temporary-reduced-capacity` (503), `#abnormal-usage-detected` (429), with a `violated-policies` extension member listing policy names.
 - Legacy `X-RateLimit-Limit`, `-Remaining`, `-Reset` headers have inconsistent semantics across vendors; use them only when the project already does, and document their units.
@@ -76,13 +63,13 @@ RateLimit: "burst";r=0;t=30
 
 ## Per-Protocol Rules
 
-- **REST**: 429 or 503 with the signaling above.
-- **GraphQL**: cost or complexity budgets per operation; depth limits; per-identity request rate; report remaining budget in `extensions`.
-- **gRPC**: `RESOURCE_EXHAUSTED` with `RetryInfo` (retry delay) and `QuotaFailure` details; `UNAVAILABLE` for overload.
-- **WebSocket**: per-connection message rate, maximum connections and subscriptions per identity; close with 1008 or an application code, and document whether reconnect is allowed.
-- **SSE**: maximum concurrent streams per identity; 429 on connect.
-- **Messaging**: producer quotas and maximum message size at the broker; consumer prefetch and concurrency limits; overflow policy.
-- **Webhooks**: outbound delivery rate per subscriber and backoff on failing endpoints.
+- **REST:** 429 or 503 with the signaling above.
+- **GraphQL:** cost or complexity budgets per operation; depth limits; per-identity request rate; report remaining budget in `extensions`.
+- **gRPC:** `RESOURCE_EXHAUSTED` with `RetryInfo` (retry delay) and `QuotaFailure` details; `UNAVAILABLE` for overload.
+- **WebSocket:** per-connection message rate, maximum connections and subscriptions per identity; close with 1008 or an application code, and document whether reconnect is allowed.
+- **SSE:** maximum concurrent streams per identity; 429 on connect.
+- **Messaging:** producer quotas and maximum message size at the broker; consumer prefetch and concurrency limits; overflow policy.
+- **Webhooks:** outbound delivery rate per subscriber and backoff on failing endpoints.
 
 ## Client Guidance
 
@@ -94,10 +81,11 @@ RateLimit: "burst";r=0;t=30
 
 ## Contract Mapping
 
-- OpenAPI: `429` and `503` responses with `Retry-After`, `RateLimit`, `RateLimit-Policy` header definitions in `components.headers`; Problem Details schema with `violated-policies`.
-- Protobuf and GraphQL SDL: describe limits in comments and header notes; gRPC lists `RESOURCE_EXHAUSTED` per method.
-- AsyncAPI: limits in channel and server descriptions and binding settings.
-- Header notes: the limits policy and the draft status of the fields.
+- **OpenAPI:** `429` and `503` responses with `Retry-After`, `RateLimit`, `RateLimit-Policy` header definitions in `components.headers`; Problem Details schema with `violated-policies`.
+- **Protobuf:** document applicable limits in service/RPC comments or linked gRPC documentation; use `RESOURCE_EXHAUSTED` for quota or resource exhaustion.
+- **GraphQL SDL:** document limits in accompanying API documentation and describe field-specific constraints where useful. Enforce limits in the runtime.
+- **AsyncAPI:** limits in channel and server descriptions and binding settings.
+- When using draft HTTP fields, identify their draft status at the response-header definition or linked consumer documentation.
 
 ## Anti-Patterns
 
@@ -116,9 +104,3 @@ RateLimit: "burst";r=0;t=30
 - [ ] Streams, connections, and subscriptions have concurrency limits.
 - [ ] Client backoff guidance documented.
 - [ ] Draft header status noted.
-
-## Sources
-
-- RFC 6585 (429), RFC 9110 (`Retry-After`), RFC 9651 (Structured Fields).
-- `draft-ietf-httpapi-ratelimit-headers`.
-- gRPC status codes and `google.rpc` error details.

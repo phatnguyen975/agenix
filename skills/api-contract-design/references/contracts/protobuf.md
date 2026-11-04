@@ -1,59 +1,44 @@
 # Protobuf Contract
 
-## Contents
-
-- Scope
-- Edition Rules
-- File Layout
-- Naming
-- Fields
-- Enums
-- Services
-- Constraints
-- Compatibility Rules
-- Anti-Patterns
-- Checklist
-- Sources
-
 ## Scope
 
 - Authoring rules for `.proto` files describing gRPC services and message types.
-- Baseline Edition 2024; fallback proto3. Messages also serve as payload schemas for binary messaging when the project uses Protobuf there.
+- Baseline Edition 2026; fallback Edition 2024, then proto3 only for legacy toolchains. Messages also serve as payload schemas for binary messaging when the project uses Protobuf there.
 
 ## Edition Rules
 
-- `edition = "2024";` replaces `syntax = "proto3";`; the wire format is unchanged by editions.
+- `edition = "2026";` is the current baseline and replaces `syntax = "proto3";`; editions preserve Protobuf wire-format compatibility when the same field numbers and types are used. Edition 2026 requires `protoc` 36.0 or later; Edition 2024 requires 32.0 or later. Confirm runtime and generated-code support too.
 - Behaviors are controlled by features:
-
-| Feature                              | Values                                                  | Controls                             |
-| ------------------------------------ | ------------------------------------------------------- | ------------------------------------ |
-| `features.field_presence`            | `EXPLICIT`, `IMPLICIT`, `LEGACY_REQUIRED`               | Whether unset differs from default   |
-| `features.enum_type`                 | `OPEN`, `CLOSED`                                        | Handling of unknown enum numbers     |
-| `features.repeated_field_encoding`   | `PACKED`, `EXPANDED`                                    | Wire encoding of repeated scalars    |
-| `features.utf8_validation`           | `VERIFY`, `NONE`                                        | UTF-8 checking of strings            |
-| `features.message_encoding`          | `LENGTH_PREFIXED`, `DELIMITED`                          | Encoding of sub-messages             |
-| `features.json_format`               | `ALLOW`, `LEGACY_BEST_EFFORT`                           | JSON mapping strictness              |
-| `features.enforce_naming_style`      | `STYLE2024`, `STYLE_LEGACY`                             | Naming-style enforcement             |
-| `features.default_symbol_visibility` | `EXPORT_ALL`, `EXPORT_TOP_LEVEL`, `LOCAL_ALL`, `STRICT` | Which symbols other files may import |
-
-- Features are set at file level and overridden at message, field, enum, or other levels.
-- Edition 2024 grammar:
+  | Feature                              | Values                                                  | Controls                                        |
+  | ------------------------------------ | ------------------------------------------------------- | ----------------------------------------------- |
+  | `features.field_presence`            | `EXPLICIT`, `IMPLICIT`, `LEGACY_REQUIRED`               | Whether unset differs from default              |
+  | `features.enum_type`                 | `OPEN`, `CLOSED`                                        | Handling of unknown enum numbers                |
+  | `features.repeated_field_encoding`   | `PACKED`, `EXPANDED`                                    | Wire encoding of repeated scalars               |
+  | `features.utf8_validation`           | `VERIFY`, `NONE`                                        | UTF-8 checking of strings                       |
+  | `features.message_encoding`          | `LENGTH_PREFIXED`, `DELIMITED`                          | Encoding of sub-messages                        |
+  | `features.json_format`               | `ALLOW`, `LEGACY_BEST_EFFORT`                           | JSON mapping strictness                         |
+  | `features.enforce_naming_style`      | `STYLE2026`, `STYLE2024`, `STYLE_LEGACY`                | Naming-style enforcement                        |
+  | `features.enforce_proto_limits`      | `PROTO_LIMITS2026`, `LEGACY_NO_EXPLICIT_LIMITS`         | Compiler limits for messages, oneofs, and enums |
+  | `features.default_symbol_visibility` | `EXPORT_ALL`, `EXPORT_TOP_LEVEL`, `LOCAL_ALL`, `STRICT` | Which symbols other files may import            |
+- Edition 2026 changes defaults, including `STYLE2026` naming, strict symbol visibility, and `PROTO_LIMITS2026`; do not assume Edition 2024 defaults. Features can be set at the allowed scope and overridden at narrower scopes. Check the feature's allowed scope before setting it explicitly; `enforce_proto_limits` is not a file-level option.
+- Edition 2026 supports custom ProtoJSON strings for enum values through `(pb.enumvalue.json).string`. This changes JSON representation, not the numeric Protobuf wire value. Use it only when every relevant parser, serializer, generated-code runtime, and gateway supports the option; treat the chosen JSON string as a compatibility-sensitive contract value.
+- Edition grammar (verify against the selected edition):
   - No `required` label; use `LEGACY_REQUIRED` only for legacy compatibility.
   - No `optional` label needed; explicit presence is the default.
   - `reserved` names are unquoted identifiers.
   - No `import weak`; `import option` imports custom options only.
-  - `export` and `local` keywords control symbol visibility.
+  - `export` and `local` keywords control symbol visibility. Under Edition 2026 `STRICT`, messages and enums are local by default; export only top-level types intentionally imported by other `.proto` files. Keep service-specific request/response and helper messages local when they are used only in the service file. Service declarations themselves are not importable message/enum types and cannot be marked `export`.
   - No `ctype` field option.
 - Mixed projects may import proto2 and proto3 files from editions files and the reverse.
-- Use proto3 only when the project toolchain does not support editions; then `syntax = "proto3";`, explicit `optional` for presence, and quoted `reserved` names.
+- Use Edition 2024 when the compiler/runtime does not support Edition 2026. Use proto3 only when the project toolchain does not support editions; then `syntax = "proto3";`, explicit `optional` for scalar presence where needed, and quoted `reserved` names.
 
 ## File Layout
 
-- One file per cohesive set of messages and services; file name `lower_snake_case.proto`.
-- Package with major version: `company.domain.v1`; directory structure mirrors the package.
-- Order: edition/syntax, package, imports, file options, then definitions.
-- Header notes as a leading comment block.
-- Import only what is used; avoid cyclic imports.
+- Preserve the project's `.proto` package, module, and import layout; file name `lower_snake_case.proto`.
+- Package names normally carry a major API version (for example `company.domain.v1`); use the project's established package policy.
+- Within a file, order declarations consistently: edition/syntax, package, imports, file options, then definitions.
+- Use comments on services, RPCs, messages, and fields to describe the element they accompany. Keep cross-cutting transport, authentication, and operational policies in maintained API documentation when they cannot be expressed at the relevant declaration.
+- Import only what is used; avoid cyclic imports. Keep imported definitions stable and available to the generated-code toolchain.
 
 ## Naming
 
@@ -79,7 +64,7 @@
 - Mark deprecated fields `[deprecated = true]`.
 - Document each field in a comment: meaning, units, bounds, and whether it is output-only.
 
-Example: removing a field safely.
+**Example:** removing a field safely.
 
 ```proto
 // Before
@@ -117,7 +102,7 @@ enum OrderStatus {
 ## Services
 
 - One service per capability; RPCs follow the gRPC reference (shapes, naming, errors).
-- Each RPC has unique request and response messages.
+- Prefer dedicated request and response types per RPC so each method can evolve independently. Reuse a message only when its direction, semantics, and constraints are genuinely identical (for example, a symmetric bidirectional-stream frame). Keep service-specific request/response types local by default under Edition 2026 `STRICT`; export a type only when another `.proto` file must import it.
 - Comment each RPC with behavior, idempotency, error codes, and deadline expectations.
 
 ## Constraints
@@ -126,7 +111,7 @@ enum OrderStatus {
 - Value constraints use Protovalidate (`buf.validate`) annotations:
   - Standard rules per field type: string length and pattern, numeric ranges, repeated size limits, required fields.
   - Custom rules written in CEL.
-- Import the Protovalidate definitions and annotate fields; state in the header notes that Protovalidate is a Buf ecosystem convention, not a Protobuf standard.
+- Import Protovalidate definitions and annotate fields only when the project declares and supports the dependency. Identify Protovalidate accurately as a Buf ecosystem project, not a Protobuf language feature; pin compatible plugin/runtime versions in project configuration.
 - When the project does not use Protovalidate, state constraints in field comments.
 
 ```proto
@@ -151,9 +136,9 @@ message DateRange {
 
 ## Compatibility Rules
 
-- Compatible: add fields with new numbers; add enum values; add RPCs and services; add new messages.
-- Breaking: remove or renumber fields; change a field's type to an incompatible one; change field presence semantics; reuse numbers or names; rename a package, service, or RPC; change an RPC's streaming shape.
-- Removing a field: `reserved` its number and name.
+- **Compatible:** add fields with new numbers; add enum values; add RPCs and services; add new messages.
+- **Breaking:** remove or renumber fields; change a field's type to an incompatible one; change field presence semantics; reuse numbers or names; rename a package, service, or RPC; change an RPC's streaming shape.
+- When removing a field, `reserved` its number and name.
 - Changing between wire-compatible scalar types is possible only within documented compatible groups; treat it as breaking unless the Protobuf documentation lists it as compatible.
 - Breaking changes require a new package version.
 
@@ -172,12 +157,8 @@ message DateRange {
 - [ ] Naming follows the table; enum zero values named `_UNSPECIFIED`.
 - [ ] Field numbers never reused; removed ones reserved.
 - [ ] Presence semantics chosen per field.
+- [ ] Edition-specific features and ProtoJSON enum strings are supported by the complete compiler/runtime/toolchain; JSON representation changes are reviewed for compatibility.
 - [ ] Constraints expressed by annotations or comments.
 - [ ] RPC comments list errors, idempotency, and deadlines.
-- [ ] Header notes present.
-
-## Sources
-
-- Protobuf Editions overview and feature settings (https://protobuf.dev/editions/overview/, https://protobuf.dev/editions/features/).
-- Protocol Buffers style guide and language guide (editions).
-- Protovalidate documentation (https://buf.build/docs/protovalidate).
+- [ ] Public services, RPCs, messages, and fields have useful element-level comments where needed; transport and runtime policies are documented and enforced separately.
+- [ ] Under Edition 2026 `STRICT`, only reusable cross-file message/enum entry points are exported; service-local request/response and helper types remain local unless cross-file reuse is required.

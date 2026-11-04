@@ -1,21 +1,5 @@
 # Payload Conventions
 
-## Contents
-
-- Scope
-- Naming
-- Identifiers
-- Time
-- Numbers and Money
-- Enums
-- Null, Absent, Empty
-- Text and Locale
-- Structure
-- Binary Data
-- Anti-Patterns
-- Checklist
-- Sources
-
 ## Scope
 
 - Data-level conventions for any payload: HTTP bodies, GraphQL values, message data, and stream events.
@@ -40,7 +24,7 @@
 
 - Opaque, stable, immutable strings; consumers never parse them.
 - Identifiers are unique within their resource type and never reused after deletion.
-- UUIDs (RFC 9562): version 4 for random, version 7 for time-ordered; lowercase canonical text form.
+- UUIDs: choose an appropriate version (for example v4 random or v7 time-ordered); use the canonical textual form. Do not expose UUID version as a security control.
 - Sequential integer keys exposed to consumers invite enumeration; if used, authorize every access by object.
 - Identifiers are JSON strings, even when numeric inside.
 - Cross-resource references use the identifier plus, when helpful, a link.
@@ -67,10 +51,10 @@
 ## Numbers and Money
 
 - Money: integer amount in minor units plus ISO 4217 currency code, or a decimal string plus currency code; never binary floating point.
-- Integers beyond 2^53 − 1 are strings in JSON (precision of IEEE 754 doubles). ProtoJSON maps 64-bit integers to strings for this reason.
+- For JSON consumers that may parse numbers as IEEE 754 doubles, represent integers beyond 2⁵³ − 1 as strings to preserve precision. ProtoJSON maps 64-bit integers to strings for this reason.
 - Percentages, ratios, and rates: state the scale (0–1 or 0–100) in the description.
 - Quantities carry units; use SI units unless the domain dictates otherwise.
-- State bounds (minimum, maximum) for every number.
+- State meaningful numeric bounds and precision where required by the domain, security, or resource constraints; do not invent arbitrary limits.
 
 ## Enums
 
@@ -101,15 +85,15 @@ Example with JSON Merge Patch semantics:
 - UTF-8 everywhere; lengths are measured in characters (code points) in JSON Schema and bytes in some binary limits; state which.
 - Language tags: BCP 47 (`en-US`); country codes: ISO 3166-1 alpha-2; currency codes: ISO 4217.
 - Free text fields have maximum lengths and a trimming policy.
-- Display text is localized by the client; the API returns codes plus optional localized messages with `Content-Language`.
+- Decide where localization occurs. Prefer stable machine-readable codes and locale-neutral values; when the API returns localized text, document locale negotiation and `Content-Language`.
 
 ## Structure
 
-- Top-level payloads are objects, never bare arrays or scalars.
+- Prefer object envelopes for extensible JSON responses. A top-level scalar or array is not inherently invalid; use one only when it is the clearest stable representation and the project permits it.
 - Collections are wrapped in a named property (`items`) with sibling metadata (`nextCursor`).
 - Group related fields into nested objects (`address`, `money`) instead of prefixes.
 - Limit nesting depth and total size; state both.
-- Consumers ignore unknown fields; producers add fields without notice.
+- For response payloads, document whether consumers must tolerate unknown fields; open response objects usually improve forward compatibility. For request payloads, reject or ignore unknown fields deliberately and consistently; closed write schemas are often safer against mass assignment.
 - No behavior-changing flags hidden in boolean fields; model modes explicitly.
 
 ## Binary Data
@@ -134,10 +118,5 @@ Example with JSON Merge Patch semantics:
 - [ ] Time, duration, money, and large integers follow the rules.
 - [ ] Enum policy for unknown values is stated.
 - [ ] Null, absent, and empty are defined for optional fields.
-- [ ] Top-level payloads are objects; collections are wrapped.
+- [ ] Top-level payload shape is intentional; prefer object envelopes when extensibility or sibling metadata is needed, and use arrays/scalars only when they are a clear, stable fit for the project.
 - [ ] Sizes and nesting are bounded.
-
-## Sources
-
-- RFC 3339, RFC 9562, RFC 8259, RFC 4648, RFC 7396; ISO 4217; ISO 3166-1; BCP 47; ISO 8601.
-- ProtoJSON format (https://protobuf.dev/programming-guides/json/).

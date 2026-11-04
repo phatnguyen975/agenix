@@ -1,31 +1,20 @@
 # Long-Running and Bulk Operations
 
-## Contents
-
-- Scope
-- Long-Running Operations
-- Bulk Operations
-- File Transfer
-- Per-Protocol Mapping
-- Contract Mapping
-- Anti-Patterns
-- Checklist
-- Sources
-
 ## Scope
 
-- Work that outlasts a request time budget, requests that carry many items, and transfer of large files.
+- Work that outlasts a request time budget, requests that carry many items, and asynchronous import/export jobs.
+- For HTTP media negotiation and byte-level upload/download behavior, use `content-negotiation-and-file-transfer.md`.
 
 ## Long-Running Operations
 
-- Trigger: the operation cannot reliably finish within the request timeout.
-- HTTP pattern:
-  - Start: `POST` returns `202 Accepted` with a `Location` header to an operation resource, and optionally `Retry-After`.
-  - Operation resource: `id`, `status` (`pending`, `running`, `succeeded`, `failed`, `cancelled`), optional progress, `createdAt`, `updatedAt`, `expiresAt`, and either `result` (or a link to it) or `error` (Problem Details).
-  - Poll: `GET` on the operation; the response may carry `Retry-After` to pace polling.
-  - Cancel: `DELETE` on the operation or a documented cancellation action; define what already-completed work remains.
+- **Trigger:** the operation cannot reliably finish within the request timeout.
+- **HTTP pattern:**
+  - **Start:** `POST` returns `202 Accepted` with a `Location` header to an operation resource, and optionally `Retry-After`.
+  - **Operation resource:** `id`, `status` (`pending`, `running`, `succeeded`, `failed`, `cancelled`), optional progress, `createdAt`, `updatedAt`, `expiresAt`, and either `result` (or a link to it) or `error` (Problem Details).
+  - **Poll:** `GET` on the operation; the response may carry `Retry-After` to pace polling.
+  - **Cancel:** `DELETE` on the operation or a documented cancellation action; define what already-completed work remains.
   - Finished operations stay available for a documented retention period, then return 404 or 410.
-- Starting operations is idempotent through an idempotency key; repeated starts return the same operation.
+- When clients may retry a start after an ambiguous outcome, define duplicate suppression (for example, an idempotency key or client operation ID). Repeating the same logical start within the retention window must not create a second job.
 - Completion notification options: polling, webhook callback, SSE or WebSocket events, or a message on a channel.
 - Define timeouts for the operation itself and what happens at expiry.
 - Authorize operation access to the caller that started it (and administrators).
@@ -68,7 +57,7 @@ Retry-After: 5
   - Return per-item results in request order, each with `status`, an identifier or index, and an error (Problem Details) when failed.
   - The overall status reflects the batch: 200 with item errors, or 207 Multi-Status where the project already uses it.
 - Limit item count and total size; reject larger batches with 413 or 400 and a stable error code.
-- Idempotency applies to the batch (batch-level key) and to items (client-supplied item identifiers).
+- When a batch may be retried after an ambiguous outcome, define duplicate suppression at batch level. For partial retries or item-level replay, use stable client item identifiers and define whether already-processed items are skipped, replayed, or returned unchanged.
 - Validate all items before applying when atomic; report all validation errors.
 - Large batches run as long-running operations.
 - Bulk reads: fetch many resources by identifier list, bounded in count.
@@ -101,12 +90,10 @@ Retry-After: 5
 
 ## File Transfer
 
-- Small files: `multipart/form-data` or a binary body with an explicit `Content-Type`, with size limits (413) and type validation (415).
-- Large files: two-step upload (request an upload target, then upload directly), or a resumable upload protocol; define expiry of upload targets.
-- Downloads: support range requests (`Range`, `206 Partial Content`) for large files; set `Content-Type` and `Content-Disposition`.
-- Exports: model as a long-running operation producing a time-limited download link.
-- Validate content type and content, scan for malware, store outside executable paths, and never trust client-supplied filenames.
-- Integrity: provide checksums where corruption matters.
+- Model an export as a long-running operation whose result becomes a downloadable artifact; define when it is ready, how it is authorized, and when its access expires.
+- Model an import as a job with explicit upload association, validation, processing, partial-failure, and completion semantics.
+- Define whether the artifact remains available after the operation resource expires and how consumers discover that state.
+- Delegate media types, multipart, byte ranges, resumable transfer, integrity, content validation, and file security to `content-negotiation-and-file-transfer.md`.
 
 ## Per-Protocol Mapping
 
@@ -120,10 +107,10 @@ Retry-After: 5
 
 ## Contract Mapping
 
-- OpenAPI: `202` response with `Location` header; operation schema in `components`; `GET`/`DELETE` operation paths; bulk request and per-item result schemas with `maxItems`; multipart `encoding`; `206` and `Range` for downloads.
-- Protobuf: operation messages or the long-running operation pattern; `repeated` items with documented maximum.
-- AsyncAPI: command, progress, and completion messages with `correlationId`.
-- Header notes: retention of operation resources, batch limits, atomicity.
+- **OpenAPI:** `202` response with `Location` header; operation schema in `components`; `GET`/`DELETE` operation paths; bulk request and per-item result schemas with `maxItems`; artifact links and expiry in the operation result.
+- **Protobuf:** operation messages or the long-running operation pattern; `repeated` items with documented maximum.
+- **AsyncAPI:** command, progress, and completion messages with `correlationId`.
+- Put consumer-visible operation-resource retention, batch limits, and atomicity guarantees in the relevant operation/resource descriptions and schema constraints. Keep internal cleanup and storage policy in operational documentation unless it affects consumers.
 
 ## Anti-Patterns
 
@@ -137,13 +124,7 @@ Retry-After: 5
 ## Checklist
 
 - [ ] Operation lifecycle, statuses, polling, cancel, and retention defined.
-- [ ] Start is idempotent.
+- [ ] Duplicate-start behavior is defined when clients may retry after an ambiguous outcome.
 - [ ] Bulk limits, atomicity, and per-item results defined.
-- [ ] File size, type, expiry, and integrity rules defined.
+- [ ] Import/export artifact association, readiness, authorization, and access expiry defined when applicable.
 - [ ] Completion notification mechanism chosen and documented.
-
-## Sources
-
-- RFC 9110 (202, 206, Range, 413, 415), RFC 9457 (error results).
-- Google API Improvement Proposals (long-running operations, batch methods).
-- gRPC `google.longrunning` operations.

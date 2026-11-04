@@ -1,22 +1,5 @@
 # AsyncAPI Contract
 
-## Contents
-
-- Scope
-- Version Rules
-- Document Structure
-- Servers
-- Channels
-- Operations
-- Messages
-- Components and Traits
-- Security Schemes
-- Bindings
-- Authoring Rules
-- Anti-Patterns
-- Checklist
-- Sources
-
 ## Scope
 
 - Authoring rules for AsyncAPI documents describing WebSocket and Messaging APIs.
@@ -32,16 +15,16 @@
 
 ## Document Structure
 
-| Field                | Required | Use                                                                                                                       |
-| -------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `asyncapi`           | Yes      | Specification version                                                                                                     |
-| `id`                 | No       | Application identifier (URI recommended)                                                                                  |
-| `info`               | Yes      | `title`, `version` required; `description` (header notes), `termsOfService`, `contact`, `license`, `tags`, `externalDocs` |
-| `servers`            | No       | Named connection targets                                                                                                  |
-| `defaultContentType` | No       | Content type used when a message omits `contentType`                                                                      |
-| `channels`           | No       | Named addressable message destinations                                                                                    |
-| `operations`         | No       | Send and receive operations on channels                                                                                   |
-| `components`         | No       | Reusable objects                                                                                                          |
+| Field                | Required | Use                                                                                                                                 |
+| -------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `asyncapi`           | Yes      | Specification version                                                                                                               |
+| `id`                 | No       | Application identifier (URI recommended)                                                                                            |
+| `info`               | Yes      | `title`, `version` required; optional consumer-facing `description`, `termsOfService`, `contact`, `license`, `tags`, `externalDocs` |
+| `servers`            | No       | Named connection targets                                                                                                            |
+| `defaultContentType` | No       | Content type used when a message omits `contentType`                                                                                |
+| `channels`           | No       | Named addressable message destinations                                                                                              |
+| `operations`         | No       | Send and receive operations on channels                                                                                             |
+| `components`         | No       | Reusable objects                                                                                                                    |
 
 ## Servers
 
@@ -53,17 +36,15 @@
 ## Channels
 
 - Fields:
-
-| Field                                                     | Meaning                                                                |
-| --------------------------------------------------------- | ---------------------------------------------------------------------- |
-| `address`                                                 | Topic, queue, or path; may contain `{parameters}`; `null` when dynamic |
-| `messages`                                                | Map of messages allowed on the channel                                 |
-| `servers`                                                 | Restricts the channel to listed servers                                |
-| `parameters`                                              | Variables used in `address`                                            |
-| `title`, `summary`, `description`, `tags`, `externalDocs` | Documentation                                                          |
-| `bindings`                                                | Protocol-specific settings                                             |
-
-- A channel describes where messages travel, not who sends them.
+  | Field                                                     | Meaning                                                                                                                           |
+  | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+  | `address`                                                 | Optional string or `null`; topic, queue, or path; may contain `{parameters}`. If absent or `null`, the address is unknown/dynamic |
+  | `messages`                                                | Map of messages allowed on the channel                                                                                            |
+  | `servers`                                                 | Restricts the channel to listed servers                                                                                           |
+  | `parameters`                                              | Variables used in `address`                                                                                                       |
+  | `title`, `summary`, `description`, `tags`, `externalDocs` | Documentation                                                                                                                     |
+  | `bindings`                                                | Protocol-specific settings                                                                                                        |
+- A channel describes where messages travel, not who sends them. `address` is optional in AsyncAPI 3.1; include a concrete address when known and use `null` (or omit it) only when it is genuinely unknown or resolved dynamically at runtime.
 - `parameters` declare address variables with `description`, `enum`, `default`, `examples`, `location`.
 - Name channel keys in `camelCase`; the `address` holds the real name.
 
@@ -107,7 +88,7 @@ An application normally uses one action per channel; the second operation above 
 - Fields: `headers`, `payload`, `correlationId`, `contentType`, `name`, `title`, `summary`, `description`, `tags`, `externalDocs`, `bindings`, `examples`, `traits`.
 - `payload` and `headers` use the AsyncAPI Schema Object or a Multi Format Schema Object (`schemaFormat` + `schema`) for other formats such as Avro, OpenAPI Schema, or JSON Schema draft-07.
 - `correlationId`: `location` as a runtime expression (for example `$message.header#/correlationId`) and `description`.
-- Examples: `name`, `summary`, `headers`, `payload`; every message has at least one.
+- Examples: `name`, `summary`, `headers`, `payload`; provide at least one representative example per message.
 - One message per message type; shared envelope fields live in a reusable `headers` schema.
 
 ```yaml
@@ -131,13 +112,15 @@ components:
   - Bindings: `serverBindings`, `channelBindings`, `operationBindings`, `messageBindings`.
 - Component keys match `^[a-zA-Z0-9\.\-_]+$`.
 - Traits add shared fields to operations or messages; a trait property must not override the same property on the target object.
-- Reference components with `$ref`.
+- Use `$ref` where the AsyncAPI object type supports Reference Objects. AsyncAPI 3 security arrays contain Security Scheme Objects or Reference Objects; this differs from OpenAPI's Security Requirement Object map.
 
 ## Security Schemes
 
 - Types: `userPassword`, `apiKey`, `X509`, `symmetricEncryption`, `asymmetricEncryption`, `httpApiKey`, `http`, `oauth2`, `openIdConnect`, `plain`, `scramSha256`, `scramSha512`, `gssapi`.
 - Declare in `components.securitySchemes`; apply through `servers[*].security` and `operations[*].security`.
-- `oauth2` and `openIdConnect` entries list `scopes`.
+- `servers[*].security` and `operations[*].security` are arrays of Security Scheme Objects or Reference Objects. Reference a component with `- $ref: "#/components/securitySchemes/bearer"`; do not use OpenAPI's `{ schemeName: [scopes] }` Security Requirement Object shape here.
+- Entries within one security array are alternatives (OR): satisfying one is sufficient for that array. If both server-level and operation-level security are present, the applicable server requirement and operation requirement must both be satisfied (AND across the two levels). Do not repeat the same scheme at both levels unless the duplication is intentional.
+- For OAuth2, the scheme defines `flows[*].availableScopes` and its `scopes` field. Document consumer-relevant scope requirements in the relevant operation description or linked security documentation when the format cannot express per-operation scope selection.
 
 ## Bindings
 
@@ -148,9 +131,9 @@ components:
 
 ## Authoring Rules
 
-- Header notes go in `info.description` as the first section.
+- Use `info.description` for a concise consumer-facing application overview when useful. Put delivery, ordering, retention, security, and reply semantics on the relevant server, operation, channel, or message.
 - Define messages and schemas in `components`; reference them from channels and operations.
-- Every message has a name, content type, payload schema, and example.
+- Every application message has a stable name and representative example. When it carries a payload, define its schema and effective content type (explicit `contentType` or `defaultContentType`). Add header schemas and correlation data only when used.
 - State delivery guarantee, ordering scope, retention, and dead-letter policy in channel descriptions.
 - State idempotency expectations for consumers in operation descriptions.
 - Do not embed credentials or real broker hosts.
@@ -159,7 +142,7 @@ components:
 
 - Describing the same message in several channels instead of referencing one component.
 - `send`/`receive` from the wrong perspective.
-- Messages without examples or content type.
+- Payload-bearing messages without a representative example, payload schema, or effective content type.
 - Putting business rules only in bindings.
 - Mixing AsyncAPI 2.x and 3.x structures.
 - Open payload schemas on consumed messages where strictness is required.
@@ -167,15 +150,9 @@ components:
 ## Checklist
 
 - [ ] `asyncapi` version is baseline or recorded fallback.
-- [ ] Header notes in `info.description`.
-- [ ] Each channel has `address`, messages, and a delivery description.
+- [ ] Application overview is concise; channel and operation semantics are documented at the relevant objects.
+- [ ] Each channel has messages and a delivery description; include `address` when known, or explicitly use `null`/omit it only for a genuinely dynamic or unknown address.
 - [ ] Each operation has `action`, `channel`, and explicit `messages`.
-- [ ] Each message has payload, content type, correlation (where replies exist), and example.
+- [ ] Each message has a stable name and example; payload schema and effective content type are defined when it carries a payload; correlation is defined where replies require it.
 - [ ] Bindings pinned with `bindingVersion`.
 - [ ] Security schemes declared and applied.
-
-## Sources
-
-- AsyncAPI Specification 3.1.0 and 3.0.0 (https://www.asyncapi.com/docs/reference/specification/latest).
-- AsyncAPI 3.0.0 and 3.1.0 release notes.
-- AsyncAPI bindings repository.

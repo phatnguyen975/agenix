@@ -1,25 +1,12 @@
 # Errors
 
-## Contents
-
-- Scope
-- Principles
-- HTTP: Problem Details
-- Validation Errors
-- Status Selection
-- Cross-Protocol Mapping
-- Per-Protocol Rules
-- Anti-Patterns
-- Checklist
-- Sources
-
 ## Scope
 
 - Error model design for every protocol; one model per protocol, consistent within the contract.
 
 ## Principles
 
-- Errors are part of the contract: every operation lists its error cases.
+- Errors are part of the contract: document known, consumer-relevant error cases for each operation; use shared response models and avoid claiming an exhaustive list of every possible infrastructure failure.
 - Clients branch on stable machine-readable identifiers, never on human text.
 - Messages help the caller fix the problem and reveal no internals (stack traces, SQL, hostnames, library names).
 - The same condition produces the same error everywhere.
@@ -57,7 +44,7 @@ Content-Type: application/problem+json
 
 ## Validation Errors
 
-- Return all detected field errors at once, not one at a time.
+- For bounded inputs, return the detected independent field errors in one response so callers can correct them together. If validation stops early because of a documented resource limit, make that behavior explicit.
 - Each entry: location (JSON Pointer, RFC 6901, such as `/items/0/quantity`; or parameter name and location), stable `code`, short `detail`.
 - Status: 400 for syntactic problems and invalid parameters; 422 for well-formed content that violates semantic rules. Choose one convention per API.
 
@@ -101,36 +88,36 @@ Content-Type: application/problem+json
 
 ## Cross-Protocol Mapping
 
-| Condition                         | HTTP      | gRPC                  | GraphQL (`extensions.code`)      |
-| --------------------------------- | --------- | --------------------- | -------------------------------- |
-| Invalid argument                  | 400 / 422 | `INVALID_ARGUMENT`    | `BAD_USER_INPUT` or project code |
-| Unauthenticated                   | 401       | `UNAUTHENTICATED`     | `UNAUTHENTICATED`                |
-| Forbidden                         | 403       | `PERMISSION_DENIED`   | `FORBIDDEN`                      |
-| Not found                         | 404       | `NOT_FOUND`           | `NOT_FOUND`                      |
-| Already exists                    | 409       | `ALREADY_EXISTS`      | `CONFLICT`                       |
-| Aborted / concurrent conflict     | 409       | `ABORTED`             | `CONFLICT`                       |
-| State precondition not met        | 400       | `FAILED_PRECONDITION` | `PRECONDITION_FAILED`            |
-| Resource exhausted / rate limited | 429       | `RESOURCE_EXHAUSTED`  | `RATE_LIMITED`                   |
-| Cancelled by client               | 499       | `CANCELLED`           | —                                |
-| Internal error                    | 500       | `INTERNAL`            | `INTERNAL_SERVER_ERROR`          |
-| Not implemented                   | 501       | `UNIMPLEMENTED`       | —                                |
-| Unavailable                       | 503       | `UNAVAILABLE`         | `SERVICE_UNAVAILABLE`            |
-| Deadline exceeded                 | 504       | `DEADLINE_EXCEEDED`   | `TIMEOUT`                        |
+| Condition                         | HTTP                                              | gRPC                  | GraphQL (`extensions.code`)      |
+| --------------------------------- | ------------------------------------------------- | --------------------- | -------------------------------- |
+| Invalid argument                  | 400 / 422                                         | `INVALID_ARGUMENT`    | `BAD_USER_INPUT` or project code |
+| Unauthenticated                   | 401                                               | `UNAUTHENTICATED`     | `UNAUTHENTICATED`                |
+| Forbidden                         | 403                                               | `PERMISSION_DENIED`   | `FORBIDDEN`                      |
+| Not found                         | 404                                               | `NOT_FOUND`           | `NOT_FOUND`                      |
+| Already exists                    | 409                                               | `ALREADY_EXISTS`      | `CONFLICT`                       |
+| Aborted / concurrent conflict     | 409                                               | `ABORTED`             | `CONFLICT`                       |
+| State precondition not met        | 400                                               | `FAILED_PRECONDITION` | `PRECONDITION_FAILED`            |
+| Resource exhausted / rate limited | 429                                               | `RESOURCE_EXHAUSTED`  | `RATE_LIMITED`                   |
+| Cancelled by client               | No standard HTTP status; connection may be closed | `CANCELLED`           | —                                |
+| Internal error                    | 500                                               | `INTERNAL`            | `INTERNAL_SERVER_ERROR`          |
+| Not implemented                   | 501                                               | `UNIMPLEMENTED`       | —                                |
+| Unavailable                       | 503                                               | `UNAVAILABLE`         | `SERVICE_UNAVAILABLE`            |
+| Deadline exceeded                 | 504                                               | `DEADLINE_EXCEEDED`   | `TIMEOUT`                        |
 
-- The HTTP column for gRPC follows the canonical gRPC-to-HTTP mapping used by gateways.
+- These columns show common semantic correspondences, not a normative cross-protocol mapping. gRPC status codes are not HTTP status codes; gateway mappings depend on the gateway and transport.
 - GraphQL has no standard codes; the listed names are conventions; define the project's own set and document it.
 
 ## Per-Protocol Rules
 
-- **REST**: Problem Details on every non-2xx response; document statuses per operation.
-- **GraphQL**: user-correctable domain errors as typed payload fields; protocol-level failures in `errors` with `extensions.code`; never leak resolver internals.
-- **gRPC**: canonical status codes with `google.rpc.Status` details (`ErrorInfo` with `reason` and `domain`, `BadRequest` with field violations, `RetryInfo`).
-- **WebSocket**: typed error messages with `code` and `correlationId`; close codes for connection-level faults.
-- **SSE**: a dedicated `error` event type with `code` and `message`; end the stream only for unrecoverable errors; failures before the stream starts use HTTP statuses.
-- **Messaging**: processing failures go to retry then dead-letter with failure reason attached; reply messages carry a typed error body; consumers never throw away messages silently.
-- **Webhooks**: consumers signal failure with non-2xx; providers retry per policy; provider-side errors appear in delivery logs.
+- **REST:** Use Problem Details for documented HTTP error responses (normally 4xx/5xx); document the known, consumer-relevant statuses per operation. Do not treat redirects or successful no-content responses as errors.
+- **GraphQL:** user-correctable domain errors as typed payload fields; protocol-level failures in `errors` with `extensions.code`; never leak resolver internals.
+- **gRPC:** canonical status codes with `google.rpc.Status` details (`ErrorInfo` with `reason` and `domain`, `BadRequest` with field violations, `RetryInfo`).
+- **WebSocket:** typed error messages with `code` and `correlationId`; close codes for connection-level faults.
+- **SSE:** a dedicated `error` event type with `code` and `message`; end the stream only for unrecoverable errors; failures before the stream starts use HTTP statuses.
+- **Messaging:** processing failures go to retry then dead-letter with failure reason attached; reply messages carry a typed error body; consumers never throw away messages silently.
+- **Webhooks:** consumers signal failure with non-2xx; providers retry per policy; provider-side errors appear in delivery logs.
 
-Examples:
+**Examples:**
 
 ```http
 HTTP/1.1 401 Unauthorized
@@ -154,14 +141,8 @@ data: {"code": "STREAM_EXPIRED", "message": "Stream duration limit reached; reco
 ## Checklist
 
 - [ ] One error schema per protocol, reused everywhere.
-- [ ] Every operation lists error cases with status or code.
+- [ ] Each operation documents known, consumer-relevant error cases with status or code.
 - [ ] Stable `type` or `code` values are catalogued in the contract.
 - [ ] Validation errors report all violations with locations.
 - [ ] No internal detail in error text.
 - [ ] 403/404 policy stated and consistent.
-
-## Sources
-
-- RFC 9457 (Problem Details), RFC 9110 (status codes), RFC 6901, RFC 6585.
-- gRPC status codes and `google.rpc` error model; Google API Improvement Proposals (errors).
-- GraphQL specification, Response (errors).

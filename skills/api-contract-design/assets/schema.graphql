@@ -1,46 +1,48 @@
 # GraphQL SDL contract template. Baseline: GraphQL specification September 2025 edition; fallback October 2021.
 #
 # HOW TO FILL
-#   1. Complete the five header-note fields below (Protocol decision ... Design rules not expressible in the format).
-#   2. Replace placeholder names (types, fields, scopes, limits) with project values.
-#   3. Give every type, field, argument, and enum value a description (block string).
-#   4. Make nullability deliberate: non-null only when the field is guaranteed under every resolver failure mode.
-#   5. Bound every list: connections with `first`/`after`, and a documented maximum page size.
-#   6. Mutations: one `input` argument and one payload type that carries `userErrors`.
-#   7. Deprecate with @deprecated(reason: ...) naming the replacement; never remove without a sunset.
-#   8. State value constraints through custom scalars, @oneOf, project directives, or description text.
-#   9. Delete the "COVERAGE" section at the end and all comments that start with "TEMPLATE" before delivery.
-#   10. Under the October 2021 edition delete constructs marked (Sept 2025): @oneOf and deprecation of arguments or input fields.
-#
-# GraphQL SDL contract template (specification edition September 2025).
-# Header notes:
-#   Protocol decision: GraphQL for client-shaped reads across related data. Rejected: REST (many clients with differing projections).
-#   Consumers and exposure: first-party web and mobile clients; authenticated users; public internet.
-#   Format version: GraphQL September 2025 edition (baseline).
-#   Standards in draft or de-facto use: GraphQL over HTTP (draft); Relay Cursor Connections and Global Object Identification conventions.
-#   Design rules not expressible in the format:
-#     - Authentication: bearer token in the Authorization header; field-level authorization in the domain layer.
-#     - Limits: maximum depth 10; cost budget 1000 per request; maximum page size 100; batching disabled.
-#     - Introspection: disabled for unauthenticated callers in production.
-#     - Subscriptions transport: WebSocket-based, documented separately in the deployment notes.
-#     - Persisted operations: required in production; unknown operations are rejected.
-
-schema {                                        # only when root type names deviate from Query, Mutation, Subscription
+#   1. Replace placeholder names (types, fields, scopes, limits) with project values.
+#   2. Give public types, fields, arguments, and enum values useful descriptions using
+#      GraphQL description strings.
+#   3. Mark a field non-null only when every successful resolver result must contain a
+#      value by contract. Understand null propagation; do not equate database NOT NULL
+#      with a resolvable non-null guarantee.
+#   4. Bound every list: use connections with `first`/`after` or document a maximum page size.
+#   5. Mutations: use one input argument and one payload type when that convention fits the
+#      domain; include typed, actionable domain errors where appropriate.
+#   6. Deprecate with @deprecated(reason: ...) naming the replacement; do not remove before
+#      the agreed migration window.
+#   7. State value constraints through custom scalars, @oneOf, project directives, or
+#      descriptions; ensure runtime enforcement exists.
+#   8. Delete the "COVERAGE" section at the end and all comments that start with "TEMPLATE"
+#      before delivery.
+#   9. Under the October 2021 edition delete constructs marked (Sept 2025): @oneOf and
+#      deprecation of arguments or input fields.
+"""Orders API for querying, creating, and managing customer orders."""
+schema {                         # required when using a schema-level description or non-default root names
   query: Query
   mutation: Mutation
   subscription: Subscription
 }
 
 """Marks fields whose value requires a permission."""
-directive @requires(permission: String!) on FIELD_DEFINITION | OBJECT
+directive @requires(
+  """Permission required to access the annotated field or object."""
+  permission: String!
+) on FIELD_DEFINITION | OBJECT
 
 """Declares a length bound enforced by the server."""
-directive @length(min: Int = 0, max: Int!) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
+directive @length(
+  """Minimum accepted length, inclusive."""
+  min: Int = 0
+  """Maximum accepted length, inclusive."""
+  max: Int!
+) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
 
 """An instant in RFC 3339 `date-time` format, in UTC."""
 scalar DateTime @specifiedBy(url: "https://www.rfc-editor.org/rfc/rfc3339")
 
-"""A URL as defined by RFC 3986."""
+"""An absolute URI using RFC 3986 syntax; callback destinations must use HTTPS."""
 scalar URL @specifiedBy(url: "https://www.rfc-editor.org/rfc/rfc3986")
 
 """An object with a globally unique identifier."""
@@ -51,85 +53,151 @@ interface Node {
 
 """Lifecycle state of an order."""
 enum OrderStatus {
+  """Awaiting payment."""
   PENDING
+  """Payment confirmed."""
   PAID
+  """Dispatched to the customer."""
   SHIPPED
   """Cancelled orders cannot be reopened."""
   CANCELLED
+  """Legacy state retained for compatibility."""
   LEGACY_HOLD @deprecated(reason: "Use PENDING.")
 }
 
+"""A non-negative JSON integer of minor currency units, bounded to 999999999999; for EUR, 1250 means EUR 12.50."""
+scalar MinorUnits
+
 """An amount in minor units with an ISO 4217 currency code."""
 type Money {
-  amount: Int!
+  """Non-negative minor-unit amount, from 0 through 999999999999 inclusive."""
+  amount: MinorUnits!
+  """Three-letter ISO 4217 currency code."""
   currency: String!
 }
 
 """A customer order."""
 type Order implements Node {
+  """Stable opaque order identifier."""
   id: ID!
+  """Current lifecycle state."""
   status: OrderStatus!
+  """Order total."""
   total: Money!
   """Free text; null when none was provided."""
   note: String
+  """Creation instant in UTC."""
   createdAt: DateTime!
   """Lines of the order. Bounded by `first` (maximum 100)."""
-  lines(first: Int = 20, after: String): OrderLineConnection!
+  lines(
+    """Maximum number of lines to return (default 20, maximum 100)."""
+    first: Int = 20
+    """Cursor returned by the previous page."""
+    after: String
+  ): OrderLineConnection!
   """Internal reference. Requires the `orders:admin` permission."""
   internalReference: String @requires(permission: "orders:admin")
+  """Legacy identifier retained for existing consumers; use `id` for new integrations."""
   legacyCode: String @deprecated(reason: "Use id.")
 }
 
+"""A line item belonging to an order."""
 type OrderLine implements Node {
+  """Stable line identifier."""
   id: ID!
+  """Stock keeping unit."""
   sku: String!
+  """Quantity ordered; positive integer."""
   quantity: Int!
 }
 
 """Relay-style connection for orders."""
 type OrderConnection {
+  """Orders and their cursors in the requested sort order."""
   edges: [OrderEdge!]!
+  """Pagination state for this result set."""
   pageInfo: PageInfo!
 }
+"""One order and its cursor."""
 type OrderEdge {
+  """Opaque cursor for this order in the current traversal."""
   cursor: String!
+  """Order at this position."""
   node: Order!
 }
+"""Relay-style connection for order lines."""
 type OrderLineConnection {
+  """Order lines and their cursors in the requested sort order."""
   edges: [OrderLineEdge!]!
+  """Pagination state for this result set."""
   pageInfo: PageInfo!
 }
+"""One order line and its cursor."""
 type OrderLineEdge {
+  """Opaque cursor for this line in the current traversal."""
   cursor: String!
+  """Order line at this position."""
   node: OrderLine!
 }
+"""Pagination metadata for a connection."""
 type PageInfo {
+  """Whether another page follows the current page."""
   hasNextPage: Boolean!
+  """Whether a previous page exists in this traversal."""
   hasPreviousPage: Boolean!
+  """Cursor of the first edge, or null for an empty page."""
   startCursor: String
+  """Cursor of the last edge, or null for an empty page."""
   endCursor: String
 }
 
 """Results of a search across types."""
 union SearchResult = Order | OrderLine
 
+"""One search result and its opaque cursor."""
+type SearchResultEdge {
+  """Cursor for the item in this search traversal."""
+  cursor: String!
+  """Matched resource."""
+  node: SearchResult!
+}
+
+"""Bounded search results."""
+type SearchResultConnection {
+  """Search results in relevance order."""
+  edges: [SearchResultEdge!]!
+  """Pagination state."""
+  pageInfo: PageInfo!
+}
+
 """Filter for listing orders."""
 input OrderFilter {
+  """Include only orders in these lifecycle states."""
   status: [OrderStatus!]
+  """Include orders created at or after this instant."""
   createdAfter: DateTime
+  """Include orders created before this instant."""
   createdBefore: DateTime
 }
 
 """Input for creating an order."""
 input CreateOrderInput {
-  """Client-generated identifier; repeating it returns the original result."""
-  clientMutationId: ID!
+  """Unique key for this logical create operation; same key and same input replay the original result within the documented retention window."""
+  idempotencyKey: ID!
+  """Optional client correlation identifier; this field alone does not provide idempotency."""
+  clientMutationId: ID
+  """Order total."""
   total: MoneyInput!
+  """Optional note; maximum 500 characters."""
   note: String @length(max: 500)
+  """Optional callback destination; validate and authorize destinations server-side to prevent SSRF."""
   callbackUrl: URL
 }
+"""Input amount in minor units; non-negative and bounded to 999999999999."""
 input MoneyInput {
-  amount: Int!
+  """Non-negative integer minor units; serialize as a JSON integer within the declared safe bound."""
+  amount: MinorUnits!
+  """ISO 4217 currency code."""
   currency: String!
 }
 
@@ -139,42 +207,92 @@ input OrderLookup @oneOf {
   externalReference: String
 }
 
+"""Result of an order creation mutation."""
 type CreateOrderPayload {
+  """The created order; null when creation did not complete."""
   order: Order
   """Domain errors the caller can correct."""
   userErrors: [UserError!]!
 }
+"""Input for an idempotent cancellation request."""
+input CancelOrderInput {
+  """Order to cancel."""
+  orderId: ID!
+  """Unique key for this logical cancellation operation."""
+  idempotencyKey: ID!
+  """Optional reason supplied by the caller."""
+  reason: String @length(max: 500)
+}
+"""Result of an order cancellation mutation."""
 type CancelOrderPayload {
+  """The order after cancellation; null when cancellation did not complete."""
   order: Order
+  """Domain errors the caller can correct."""
   userErrors: [UserError!]!
 }
+"""A domain validation or business-rule error."""
 type UserError {
-  """Stable machine-readable code."""
+  """Stable machine-readable code for programmatic handling."""
   code: String!
-  """Path to the invalid input field."""
+  """Path to the invalid input field, when applicable."""
   field: [String!]
+  """Human-readable explanation safe to show to the caller."""
   message: String!
 }
 
+"""Read-only operations exposed by the API."""
 type Query {
-  """Fetch any object by global identifier."""
-  node(id: ID!): Node
+  """Fetch any object by global identifier (Relay-style convention, optional for other APIs)."""
+  node(
+    """Opaque identifier of an object in this schema."""
+    id: ID!
+  ): Node
   """Fetch one order by identifier or external reference."""
-  order(lookup: OrderLookup!): Order
-  """List orders, newest first. `first` maximum 100."""
-  orders(first: Int = 20, after: String, filter: OrderFilter): OrderConnection!
-  search(query: String! @length(min: 1, max: 200), first: Int = 20): [SearchResult!]!
+  order(
+    """Exactly one supported lookup key."""
+    lookup: OrderLookup!
+  ): Order
+  """List orders newest first, with a maximum page size of 100."""
+  orders(
+    """Maximum number of orders to return (default 20, maximum 100)."""
+    first: Int = 20
+    """Cursor returned by the previous page."""
+    after: String
+    """Optional lifecycle and creation-time filters."""
+    filter: OrderFilter
+  ): OrderConnection!
+  """Search orders and lines by relevance; maximum page size is 100."""
+  search(
+    """Search expression, 1–200 characters."""
+    query: String! @length(min: 1, max: 200)
+    """Maximum number of results (default 20, maximum 100)."""
+    first: Int = 20
+    """Cursor returned by the previous page."""
+    after: String
+  ): SearchResultConnection!
 }
 
+"""Operations that create or change domain state."""
 type Mutation {
-  """Create an order. Safe to retry with the same clientMutationId."""
-  createOrder(input: CreateOrderInput!): CreateOrderPayload!
-  cancelOrder(id: ID!): CancelOrderPayload!
+  """Create an order. The same idempotencyKey and identical input replay the original result within the retention window."""
+  createOrder(
+    """Order fields, idempotency key, and optional client correlation ID."""
+    input: CreateOrderInput!
+  ): CreateOrderPayload!
+  """Cancel an order; same idempotencyKey and identical input replay the original result."""
+  cancelOrder(
+    """Order identifier, idempotency key, and optional reason."""
+    input: CancelOrderInput!
+  ): CancelOrderPayload!
 }
 
+"""Long-lived event subscriptions exposed by the API."""
 type Subscription {
-  """Order updates for the authenticated caller."""
-  orderUpdated(orderId: ID!): Order!
+  """Order updates for the authenticated caller; transport, resume, and replay rules are documented separately."""
+  orderUpdated(
+    """Order identifier to observe."""
+    orderId: ID!
+  ): Order!
 }
 
 extend type Query {
@@ -190,44 +308,73 @@ extend type Query {
 extend schema @contact(name: "API Support", url: "https://example.com/support")
 
 """Applied to the schema itself."""
-directive @contact(name: String!, url: String) on SCHEMA
+directive @contact(
+  """Human-readable API support contact name."""
+  name: String!
+  """URL for the API support contact or documentation."""
+  url: String
+) on SCHEMA
 
 """Repeatable directive: may be applied several times to one element."""
-directive @tag(name: String!) repeatable on OBJECT | FIELD_DEFINITION | INTERFACE | UNION | ARGUMENT_DEFINITION | INPUT_OBJECT | INPUT_FIELD_DEFINITION | ENUM | ENUM_VALUE | SCALAR
+directive @tag(
+  """Tag value used for classification and filtering."""
+  name: String!
+) repeatable on OBJECT | FIELD_DEFINITION | INTERFACE | UNION | ARGUMENT_DEFINITION | INPUT_OBJECT | INPUT_FIELD_DEFINITION | ENUM | ENUM_VALUE | SCALAR
 
-"""Interface that implements another interface."""
+"""An entity with a stable identifier and update timestamp."""
 interface Auditable implements Node {
+  """Stable global identifier."""
   id: ID!
+  """Time of the most recent update."""
   updatedAt: DateTime!
 }
 
+"""An invoice associated with an order."""
 type Invoice implements Auditable & Node @tag(name: "billing") @tag(name: "finance") {
+  """Stable global identifier."""
   id: ID!
+  """Time of the most recent update."""
   updatedAt: DateTime!
-  """Deprecated argument and defaults."""
-  lines(first: Int = 20, after: String, includeVoid: Boolean = false @deprecated(reason: "Void lines are no longer returned.")): [OrderLine!]!
+  """Invoice lines, with a bounded page size."""
+  lines(
+    """Maximum lines to return; defaults to 20 and must not exceed 100."""
+    first: Int = 20
+    """Cursor from the previous page."""
+    after: String
+    """Deprecated filter; void lines are no longer returned."""
+    includeVoid: Boolean = false @deprecated(reason: "Void lines are no longer returned.")
+  ): [OrderLine!]!
 }
 
+"""Filters for invoice listings."""
 input InvoiceFilter {
+  """Include invoices with one of these order states."""
   status: [OrderStatus!]
   """Deprecated input field."""
   olderThan: DateTime @deprecated(reason: "Use createdBefore.")
+  """Include invoices created before this instant."""
   createdBefore: DateTime
+  """Maximum number of invoices to return; defaults to 20 and must not exceed 100."""
   limit: Int = 20
 }
 
 # Extensions of existing definitions.
 extend type Order {
+  """Invoice associated with this order, when one exists."""
   invoice: Invoice
 }
 extend enum OrderStatus {
+  """Payment was refunded."""
   REFUNDED
 }
 extend union SearchResult = Invoice
 extend input OrderFilter {
-  minimumTotal: Int
+  """Include orders whose total is at least this amount in minor units."""
+  minimumTotal: MinorUnits
 }
+"""An entity with a human-readable label."""
 interface Labeled {
+  """Display label for the entity."""
   label: String
 }
 extend interface Labeled {

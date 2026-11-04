@@ -1,39 +1,42 @@
 # OpenAPI contract template (REST, SSE, webhooks). Baseline: OpenAPI 3.2.1; fallback 3.1.2.
 #
 # HOW TO FILL
-#   1. Complete the five header-note fields in info.description.
+#   1. Write a concise API overview in info.description only when it adds consumer-facing
+#      context; describe individual behavior at the relevant operation, parameter, or response.
 #   2. Replace every placeholder (names, URLs, hosts, scopes, identifiers) with project values.
-#      example.com hosts are illustrative only; never ship real secrets, hosts, or personal data in examples.
+#      example.com hosts are illustrative only; never ship real secrets, hosts, or personal
+#      data in examples.
 #   3. Keep every field marked (R); delete every optional section the API does not use.
-#   4. Define each schema, parameter, header, and response once under components and reference it with $ref.
-#   5. Give every operation: operationId, summary, tags, security, every returned response, and examples.
+#   4. Define each schema, parameter, header, and response once under components and reference
+#      it with $ref.
+#   5. Give each operation a stable unique operationId, a concise summary, relevant descriptions,
+#      documented success and known error responses, and representative examples. Apply effective
+#      security at the root or operation level; omit redundant overrides.
 #   6. Fields marked (3.2) exist only in 3.2.x documents; delete them when the project uses 3.1.x.
-#   7. Delete this guide, the "SCHEMA KEYWORD CATALOG" component, and all (R)/(O) comments before delivery.
+#   7. Delete this guide, the "SCHEMA KEYWORD CATALOG" component, and all (R)/(O) comments before
+#      delivery.
+#
 # Legend: (R) required by the specification; (O) optional; (3.2) exists only in 3.2.x.
 openapi: 3.2.1 # (R)
 $self: https://api.example.com/contracts/orders/openapi.yaml # (O)(3.2) base URI of this document
 info: # (R)
   title: Orders API # (R)
   summary: Create and track orders. # (O)
-  description: | # (O) first section = header notes
-    ## Header notes
-    - Protocol decision: REST for commands and queries; SSE for live order events. Rejected: GraphQL (no graph-shaped reads), WebSocket (one-way updates only).
-    - Consumers and exposure: partner and first-party web clients; public internet.
-    - Format version: OpenAPI 3.2.1 (baseline).
-    - Standards in draft or de-facto use: Idempotency-Key header (IETF draft); RateLimit and RateLimit-Policy headers (IETF draft).
-    - Design rules not expressible in the format: order creation must complete within 5 seconds, otherwise use the asynchronous pattern; clients must retry only with an Idempotency-Key.
+  description: | # (O) concise consumer-facing API overview; omit when summary is sufficient
+    API for creating, retrieving, updating, and tracking customer orders.
+    Real-time order updates are described by the event-stream operation.
   termsOfService: https://example.com/terms # (O)
   contact: # (O)
     name: API Support
-    url: https://example.com/support
-    email: api-support@example.com
+    url: "https://example.com/support"
+    email: "api-support@example.com"
   license: # (O) name required; identifier and url are mutually exclusive
     name: Apache 2.0
     identifier: Apache-2.0
   version: 1.0.0 # (R) contract version (semantic versioning), not the OpenAPI version
-# jsonSchemaDialect: <dialect URI>             # (O) omit to use the OAS dialect (JSON Schema 2020-12 + OAS base vocabulary)
+# jsonSchemaDialect: <dialect URI> # (O) omit to use the OAS dialect
 servers: # (O) defaults to "/" when omitted
-  - url: https://{environment}.example.com/v1
+  - url: "https://{environment}.example.com/v1"
     name: primary # (O)(3.2)
     description: Production and sandbox
     variables:
@@ -42,7 +45,7 @@ servers: # (O) defaults to "/" when omitted
         enum: [api, sandbox]
         description: Target environment
 security: # (O) default requirements; alternatives (OR)
-  - OAuth2: [orders:read]
+  - OAuth2: ["orders:read"]
 tags: # (O)
   - name: Orders # (R)
     summary: Orders # (O)(3.2)
@@ -50,14 +53,14 @@ tags: # (O)
     kind: nav # (O)(3.2) classification of the tag
     externalDocs:
       description: Order guide
-      url: https://example.com/docs/orders
+      url: "https://example.com/docs/orders"
   - name: Order Events
     summary: Order events
     parent: Orders # (O)(3.2) parent tag name
     kind: nav
 externalDocs: # (O)
   description: Full documentation
-  url: https://example.com/docs
+  url: "https://example.com/docs"
 
 paths: # (R unless components or webhooks present)
   /orders:
@@ -69,11 +72,12 @@ paths: # (R unless components or webhooks present)
       summary: List orders
       description: Returns orders visible to the caller, newest first. Cursor pagination; maximum page size 100.
       externalDocs:
-        url: https://example.com/docs/orders#list
+        url: "https://example.com/docs/orders#list"
       operationId: listOrders
       parameters:
         - $ref: "#/components/parameters/Limit"
         - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/IfNoneMatch"
         - name: status
           in: query
           description: Filter by status. Repeat the parameter for several values.
@@ -114,6 +118,10 @@ paths: # (R unless components or webhooks present)
               operationId: getOrder
               parameters:
                 orderId: "$response.body#/items/0/id"
+        "304":
+          description: Not modified; no response body.
+          headers:
+            ETag: { $ref: "#/components/headers/ETag" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "401": { $ref: "#/components/responses/Unauthorized" }
         "403": { $ref: "#/components/responses/Forbidden" }
@@ -121,10 +129,10 @@ paths: # (R unless components or webhooks present)
         default: { $ref: "#/components/responses/UnexpectedError" }
       deprecated: false
       security:
-        - OAuth2: [orders:read]
+        - OAuth2: ["orders:read"]
         - ApiKeyAuth: []
       servers: # (O) operation-level server override
-        - url: https://api.example.com/v1
+        - url: "https://api.example.com/v1"
     post:
       tags: [Orders]
       summary: Create an order
@@ -153,19 +161,9 @@ paths: # (R unless components or webhooks present)
         "429": { $ref: "#/components/responses/TooManyRequests" }
         default: { $ref: "#/components/responses/UnexpectedError" }
       callbacks: # (O) requests the provider sends to a caller-supplied URL
-        orderShipped:
-          "{$request.body#/callbackUrl}":
-            post:
-              summary: Order shipped notification
-              requestBody:
-                required: true
-                content:
-                  application/json:
-                    schema: { $ref: "#/components/schemas/OrderEvent" }
-              responses:
-                "204": { description: Notification accepted. }
+        orderShipped: { $ref: "#/components/callbacks/OrderShipped" }
       security:
-        - OAuth2: [orders:write]
+        - OAuth2: ["orders:write"]
   /orders/{orderId}:
     parameters:
       - $ref: "#/components/parameters/OrderId"
@@ -173,6 +171,8 @@ paths: # (R unless components or webhooks present)
       tags: [Orders]
       summary: Get an order
       operationId: getOrder
+      parameters:
+        - $ref: "#/components/parameters/IfNoneMatch"
       responses:
         "200":
           description: The order.
@@ -181,7 +181,10 @@ paths: # (R unless components or webhooks present)
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Order" }
-        "304": { description: Not modified. }
+        "304":
+          description: Not modified; no response body.
+          headers:
+            ETag: { $ref: "#/components/headers/ETag" }
         "401": { $ref: "#/components/responses/Unauthorized" }
         "404": { $ref: "#/components/responses/NotFound" }
         default: { $ref: "#/components/responses/UnexpectedError" }
@@ -201,6 +204,7 @@ paths: # (R unless components or webhooks present)
         content:
           application/merge-patch+json:
             schema: { $ref: "#/components/schemas/OrderUpdate" }
+            example: { note: "Gift wrap requested" }
       responses:
         "200":
           description: The updated order.
@@ -211,7 +215,7 @@ paths: # (R unless components or webhooks present)
         "428": { $ref: "#/components/responses/PreconditionRequired" }
         default: { $ref: "#/components/responses/UnexpectedError" }
       security:
-        - OAuth2: [orders:write]
+        - OAuth2: ["orders:write"]
     delete:
       tags: [Orders]
       summary: Cancel an order
@@ -221,7 +225,7 @@ paths: # (R unless components or webhooks present)
         "404": { $ref: "#/components/responses/NotFound" }
         default: { $ref: "#/components/responses/UnexpectedError" }
       security:
-        - OAuth2: [orders:write]
+        - OAuth2: ["orders:write"]
   /orders/{orderId}/attachments:
     parameters: # (O) shared by every operation on this path
       - $ref: "#/components/parameters/OrderId"
@@ -271,6 +275,8 @@ paths: # (R unless components or webhooks present)
             summary: Unsupported type,
             description: Unsupported attachment type.,
           }
+      security:
+        - OAuth2: ["orders:write"]
     head:
       tags: [Orders]
       summary: Check whether an attachment exists
@@ -281,15 +287,14 @@ paths: # (R unless components or webhooks present)
     options:
       tags: [Orders]
       summary: Supported methods for attachments
+      description: Unauthenticated capability discovery for the resource.
       operationId: optionsOrderAttachment
+      security: []
       responses:
-        "204": { description: Allowed methods in the Allow header. }
-    trace: # (O) rarely exposed; delete unless required
-      tags: [Orders]
-      summary: Echo the request
-      operationId: traceOrderAttachment
-      responses:
-        "200": { description: Echoed request. }
+        "204":
+          description: Allowed methods for this resource.
+          headers:
+            Allow: { $ref: "#/components/headers/Allow" }
   /orders/{orderId}/summary:
     $ref: "#/components/pathItems/OrderSummary" # (O) path item defined once under components
   /orders/search:
@@ -302,6 +307,7 @@ paths: # (R unless components or webhooks present)
         content:
           application/json:
             schema: { $ref: "#/components/schemas/OrderSearch" }
+            example: { q: "priority customer", limit: 20 }
       responses:
         "200":
           description: Matching orders.
@@ -311,8 +317,12 @@ paths: # (R unless components or webhooks present)
         default: { $ref: "#/components/responses/UnexpectedError" }
     additionalOperations: # (O)(3.2) methods outside the fixed set
       PURGE:
+        tags: [Orders]
         summary: Purge cached search results
+        description: Illustrative extension method, not a generally standardized HTTP method.
         operationId: purgeOrderSearchCache
+        security:
+          - OAuth2: ["orders:write"]
         responses:
           "204": { description: Purged. }
   /orders/{orderId}/events:
@@ -371,28 +381,30 @@ paths: # (R unless components or webhooks present)
 webhooks: # (O) provider-initiated requests (3.1+)
   orderStatusChanged:
     post:
+      tags: [Order Events]
       summary: Order status changed
       operationId: orderStatusChangedWebhook
       parameters:
-        - name: webhook-id
-          in: header
-          required: true
-          schema: { type: string, maxLength: 128 }
-        - name: webhook-timestamp
-          in: header
-          required: true
-          schema: { type: string, pattern: "^[0-9]{10,13}$" }
-        - name: webhook-signature
-          in: header
-          required: true
-          schema: { type: string, maxLength: 1024 }
+        - $ref: "#/components/parameters/WebhookId"
+        - $ref: "#/components/parameters/WebhookTimestamp"
+        - $ref: "#/components/parameters/WebhookSignature"
       requestBody:
         required: true
         content:
           application/json:
             schema: { $ref: "#/components/schemas/OrderEvent" }
+            example:
+              id: evt_02
+              type: order.shipped
+              createdAt: "2026-03-01T09:30:00Z"
+              data:
+                id: ord_01HZX
+                status: SHIPPED
+                total: { amount: 1250, currency: EUR }
+                createdAt: "2026-03-01T09:00:00Z"
       responses:
         "2XX": { description: Event accepted; any 2xx acknowledges delivery. }
+      security: [] # Receiver authenticates the signed webhook headers, not the API's OAuth scheme.
 
 components: # (O)
   schemas:
@@ -407,9 +419,9 @@ components: # (O)
         amount:
           {
             type: integer,
+            description: Non-negative integer minor units from 0 through 999999999999; for EUR 1250 means EUR 12.50.,
             minimum: 0,
             maximum: 999999999999,
-            description: Minor units.,
           }
         currency:
           { type: string, pattern: "^[A-Z]{3}$", description: ISO 4217 code. }
@@ -444,7 +456,13 @@ components: # (O)
         total: { $ref: "#/components/schemas/Money" }
         note: { type: string, maxLength: 500 }
         callbackUrl:
-          { type: string, format: uri, maxLength: 2048, writeOnly: true }
+          {
+            type: string,
+            description: Absolute HTTPS callback URI. Resolve and validate every destination and redirect against SSRF and private-network access before delivery.,
+            format: uri,
+            maxLength: 2048,
+            writeOnly: true,
+          }
       required: [total]
       unevaluatedProperties: false
     OrderUpdate:
@@ -472,6 +490,7 @@ components: # (O)
       required: [items]
     OrderEvent:
       type: object
+      description: A signed order lifecycle notification sent to a registered consumer.
       properties:
         id: { type: string, maxLength: 128 }
         type: { type: string, enum: [order.updated, order.shipped] }
@@ -479,6 +498,7 @@ components: # (O)
         data: { $ref: "#/components/schemas/Order" }
       required: [id, type, createdAt, data]
     Pet: # polymorphism example with discriminator
+      description: A pet with a discriminator selecting its concrete schema.
       oneOf:
         - { $ref: "#/components/schemas/Cat" }
         - { $ref: "#/components/schemas/Dog" }
@@ -489,10 +509,12 @@ components: # (O)
         defaultMapping: "#/components/schemas/Cat" # (O)(3.2)
     Cat:
       type: object
+      description: Cat variant of Pet.
       properties: { kind: { const: cat } }
       required: [kind]
     Dog:
       type: object
+      description: Dog variant of Pet.
       properties: { kind: { const: dog } }
       required: [kind]
     # ---- SCHEMA KEYWORD CATALOG: illustrates every common keyword. Delete before delivery. ----
@@ -502,7 +524,7 @@ components: # (O)
       description: Reference only.
       type: object
       deprecated: false
-      externalDocs: { url: https://example.com/docs/schemas }
+      externalDocs: { url: "https://example.com/docs/schemas" }
       properties:
         text:
           {
@@ -607,10 +629,18 @@ components: # (O)
       else: { not: { required: [fixed] } }
       not: { required: [oldField, secret] }
       unevaluatedProperties: false
-    AllOfExample: # extension of a base schema
+    AllOfExample: # composition with closure at the composed schema boundary
       allOf:
-        - { $ref: "#/components/schemas/Money" }
-        - { type: object, properties: { taxIncluded: { type: boolean } } }
+        - type: object
+          properties:
+            amount: { type: integer, minimum: 0 }
+            currency: { type: string, pattern: "^[A-Z]{3}$" }
+          required: [amount, currency]
+        - type: object
+          properties:
+            taxIncluded: { type: boolean }
+          required: [taxIncluded]
+      unevaluatedProperties: false
     AnyOfExample: # at least one alternative matches
       anyOf:
         - { type: string, maxLength: 100 }
@@ -647,6 +677,24 @@ components: # (O)
         prefix: ex
         nodeType: element # (3.2) element | attribute | text | cdata | none; replaces attribute and wrapped
   parameters:
+    WebhookId:
+      name: webhook-id
+      in: header
+      required: true
+      description: Unique provider-generated delivery identifier.
+      schema: { type: string, maxLength: 128 }
+    WebhookTimestamp:
+      name: webhook-timestamp
+      in: header
+      required: true
+      description: Unix timestamp used by the signature verification window.
+      schema: { type: string, pattern: "^[0-9]{10}$" }
+    WebhookSignature:
+      name: webhook-signature
+      in: header
+      required: true
+      description: Provider signature over the documented canonical payload and timestamp.
+      schema: { type: string, maxLength: 1024 }
     OrderId:
       {
         name: orderId,
@@ -654,6 +702,12 @@ components: # (O)
         required: true,
         schema: { type: string, maxLength: 64 },
       }
+    IfNoneMatch:
+      name: If-None-Match
+      in: header
+      required: false
+      description: Entity-tag validator; use the returned ETag to request a 304 response when the representation is unchanged.
+      schema: { type: string, maxLength: 2048 }
     Limit:
       {
         name: limit,
@@ -666,8 +720,9 @@ components: # (O)
       name: Idempotency-Key
       in: header
       required: true
-      description: Unique value per logical operation (IETF draft header).
+      description: Unique value per logical operation.
       schema: { type: string, minLength: 16, maxLength: 128 }
+      example: '"8e03978e-40d5-43e8-bc93-6894a57f9324"'
   requestBodies:
     OrderCreate:
       description: Order to create.
@@ -684,23 +739,29 @@ components: # (O)
   headers:
     ETag:
       {
-        description: Version validator.,
+        description: Entity tag including its required quotation marks; may be weak when appropriate.,
         schema: { type: string, maxLength: 256 },
       }
     RateLimit:
       {
-        description: Remaining quota (IETF draft).,
+        description: Remaining quota; syntax and semantics follow IETF Internet-Draft draft-ietf-httpapi-ratelimit-headers-11 (not an RFC).,
         schema: { type: string, maxLength: 256 },
       }
     RateLimitPolicy:
       {
-        description: Quota policies (IETF draft).,
+        description: Quota policies; syntax and semantics follow IETF Internet-Draft draft-ietf-httpapi-ratelimit-headers-11 (not an RFC).,
         schema: { type: string, maxLength: 256 },
       }
     RetryAfter:
       {
-        description: Delay before retrying.,
+        description: HTTP-date or delay-seconds value indicating when the client may retry.,
         schema: { type: string, maxLength: 64 },
+      }
+    Allow:
+      {
+        description: Comma-separated list of methods supported by the target resource.,
+        schema: { type: string, maxLength: 256 },
+        example: "GET, HEAD, OPTIONS, PUT",
       }
     RequestId: # all Header Object fields
       description: Identifier of the request, for support.
@@ -828,17 +889,34 @@ components: # (O)
       requestBody: "$request.body#/note" # (O) value passed as the linked operation's body
       server: { url: "https://api.example.com/v1" } # (O)
   callbacks:
-    onOrderShipped: # reusable callback
+    OrderShipped: # reusable callback; referenced by the create-order operation
       "{$request.body#/callbackUrl}":
         post:
+          tags: [Order Events]
+          summary: Receive an order-shipped notification
+          description: Verify the signature, timestamp tolerance, and replay identifier before accepting the event.
+          operationId: receiveOrderShippedCallback
+          parameters:
+            - $ref: "#/components/parameters/WebhookId"
+            - $ref: "#/components/parameters/WebhookTimestamp"
+            - $ref: "#/components/parameters/WebhookSignature"
           requestBody:
+            required: true
             content:
-              {
-                application/json:
-                  { schema: { $ref: "#/components/schemas/OrderEvent" } },
-              }
+              application/json:
+                schema: { $ref: "#/components/schemas/OrderEvent" }
+                example:
+                  id: evt_01
+                  type: order.shipped
+                  createdAt: "2026-03-01T09:30:00Z"
+                  data:
+                    id: ord_01HZX
+                    status: SHIPPED
+                    total: { amount: 1250, currency: EUR }
+                    createdAt: "2026-03-01T09:00:00Z"
           responses:
-            "204": { description: Accepted. }
+            "204": { description: Notification accepted. }
+          security: [] # Signed webhook headers are the authentication mechanism
   pathItems:
     OrderSummary:
       get:
@@ -863,6 +941,66 @@ components: # (O)
   mediaTypes: # (O)(3.2) reusable media type objects
     OrderJson:
       schema: { $ref: "#/components/schemas/Order" }
+    MultipartOrderedParts:
+      # Use with multipart/mixed. Positional parts: JSON metadata, then a JPEG image.
+      schema:
+        type: array
+        prefixItems:
+          - type: object
+            properties:
+              caption: { type: string, maxLength: 200 }
+            required: [caption]
+            additionalProperties: false
+          - type: string
+        items:
+          type: string
+      prefixEncoding:
+        - {} # The first object defaults to application/json.
+        - contentType: image/jpeg
+      itemEncoding:
+        contentType: image/png # Repeated items after the positional prefix.
+    MultipartStreamingImages:
+      # Use with multipart/mixed when each part is processed as it arrives.
+      itemSchema:
+        type: string
+        maxLength: 10485760
+      itemEncoding:
+        contentType: image/jpeg
+    MultipartNested:
+      # Illustrates one level of nested multipart; implementations must support one level.
+      schema:
+        type: object
+        properties:
+          metadata:
+            type: object
+            properties:
+              document: { type: string }
+              photos:
+                type: array
+                items: { type: string }
+            required: [document]
+            additionalProperties: false
+          related:
+            type: array
+            prefixItems:
+              - type: string
+              - type: string
+            items: false
+        required: [metadata, related]
+        additionalProperties: false
+      encoding:
+        metadata:
+          contentType: multipart/mixed
+          encoding:
+            document: { contentType: application/json }
+            photos:
+              contentType: multipart/mixed
+              itemEncoding: { contentType: image/jpeg }
+        related:
+          contentType: multipart/mixed
+          prefixEncoding:
+            - { contentType: application/xml }
+            - { contentType: text/plain }
   securitySchemes:
     ApiKeyAuth:
       {
@@ -904,5 +1042,5 @@ components: # (O)
     OpenId:
       {
         type: openIdConnect,
-        openIdConnectUrl: https://auth.example.com/.well-known/openid-configuration,
+        openIdConnectUrl: "https://auth.example.com/.well-known/openid-configuration",
       }
