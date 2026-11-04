@@ -2,7 +2,7 @@
 """Check Data Impact Document structure and cross-references.
 
 Usage:
-    python3 scripts/validate_data_impact.py <data-impact-file.md>
+    python scripts/validate_data_impact.py <data-impact-file.md>
 
 Exit codes:
     0: no structural findings
@@ -710,7 +710,7 @@ def main(argv: list[str]) -> int:
         return 0
     if len(argv) != 2:
         print(
-            "Usage: python3 scripts/validate_data_impact.py <data-impact-file.md>",
+            "Usage: python scripts/validate_data_impact.py <data-impact-file.md>",
             file=sys.stderr,
         )
         return 2

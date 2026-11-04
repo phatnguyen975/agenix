@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validate a Slice Plan file produced with the work-breakdown-planning skill.
 
-Usage: python3 validate_plan.py <plan-file.md>
+Usage: python validate_plan.py <plan-file.md>
 
 Checks (errors):
   - Header fields present and well formed

@@ -2,10 +2,10 @@
 """Render the debug report (self-contained HTML) from a structured findings file.
 
 Usage:
-  python3 render-report.py --input FINDINGS.json --output REPORT.html
-                           [--template TEMPLATE.html] [--overwrite] [--dry-run]
-  python3 render-report.py --example        # print a sample findings file
-  python3 render-report.py --labels         # print the default labels (to translate)
+  python render-report.py --input FINDINGS.json --output REPORT.html
+                          [--template TEMPLATE.html] [--overwrite] [--dry-run]
+  python render-report.py --example      # print a sample findings file
+  python render-report.py --labels       # print the default labels (to translate)
 
 Steps:
   1. Validate the findings file for the report status (rules in references/report.md).

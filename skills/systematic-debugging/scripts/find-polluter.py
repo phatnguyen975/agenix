@@ -6,10 +6,10 @@ is present. Pollution is either a path that must not exist (--pollution-path) or
 command that must exit 0 (--check-command).
 
 Usage:
-  python3 find-polluter.py (--pollution-path PATH | --check-command "CMD")
-                           [--glob PATTERN]... [--tests-file FILE] [--test TEST]...
-                           [--cwd DIR] [--timeout SECONDS]
-                           -- RUNNER [ARGS...] {test}
+  python find-polluter.py (--pollution-path PATH | --check-command "CMD")
+                          [--glob PATTERN]... [--tests-file FILE] [--test TEST]...
+                          [--cwd DIR] [--timeout SECONDS]
+                          -- RUNNER [ARGS...] {test}
 
 The literal {test} in any runner argument is replaced by the candidate test.
 The runner's own exit code is reported but does not decide pollution.

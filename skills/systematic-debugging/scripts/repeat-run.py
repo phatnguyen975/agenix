@@ -5,9 +5,9 @@ Measure and compare reproduction rates (before and after a fix) and raise the re
 rate of intermittent failures.
 
 Usage:
-  python3 repeat-run.py --runs N [--parallel K] [--timeout SECONDS] [--cwd DIR]
-                        [--stop-on-fail] [--show-failures M] [--tail-lines L]
-                        [--json] -- COMMAND [ARGS...]
+  python repeat-run.py --runs N [--parallel K] [--timeout SECONDS] [--cwd DIR]
+                       [--stop-on-fail] [--show-failures M] [--tail-lines L]
+                       [--json] -- COMMAND [ARGS...]
 
 A run passes when the command exits with code 0. Each run receives the environment variable
 REPEAT_RUN_INDEX (0-based) so a command can derive unique temporary paths or ports. Output
