@@ -15,7 +15,7 @@
   | `s-maxage=N`      | Freshness lifetime for shared caches; takes precedence over `max-age` for shared caches.                                                        |
   | `public`          | Explicitly permits shared-cache storage in cases where it would otherwise be restricted; use only when representation is safe for shared reuse. |
   | `private`         | Prevents shared-cache storage; a private cache may store the response.                                                                          |
-  | `no-cache`        | Storage is allowed, but reuse requires successful revalidation. It does not mean “do not store”.                                                |
+  | `no-cache`        | Storage is allowed, but reuse requires successful revalidation. It does not mean "do not store".                                                |
   | `no-store`        | Instructs caches not to store the response; use for sensitive responses where appropriate.                                                      |
   | `must-revalidate` | A stale response must not be reused without successful validation.                                                                              |
 - `stale-while-revalidate` and `stale-if-error` are extensions defined by RFC 5861; use only where stale responses are acceptable and the cache supports them.
