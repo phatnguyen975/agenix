@@ -49,7 +49,7 @@ A dependent entity's existence is controlled by an owner, but that does not auto
 
 ## Subtypes
 
-Use a supertype/subtype model when entities share common attributes or relationships, but each subtype has its own specific attributes or characteristics.
+Use a supertype/subtype model when entities share meaningful attributes or relationships, but each subtype has its own specific attributes or characteristics.
 
 Record both subtype constraints:
 

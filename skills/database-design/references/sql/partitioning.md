@@ -57,4 +57,4 @@ Partitioning is appropriate only if query predicates and retention operations al
 
 ## Output Mapping
 
-Include the `Partitioning` section only when justified. For each table, record method, partition key, granularity/count strategy, query patterns that prune, uniqueness implications, and lifecycle/maintenance policy. Reference the supporting `Access Patterns` IDs.
+Include the `Partitioning` section only when justified. For each partitioned table, record method/key, the pruning or lifecycle benefit with supporting `AP-nn`, and the impact on primary/unique/foreign keys. Include granularity and maintenance policy in the rationale when material.

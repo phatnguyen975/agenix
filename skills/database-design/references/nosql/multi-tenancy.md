@@ -42,21 +42,18 @@ Choose tenant isolation, database/collection boundaries, tenant-aware uniqueness
 A shared-collection document and per-tenant key make scope explicit:
 
 ```javascript
-{
+db.invoices.insertOne({
   _id: ObjectId("65a000000000000000000001"),
   tenantId: ObjectId("65a000000000000000000099"),
   externalKey: "INV-1042",
-  status: "open"
-}
+  status: "open",
+});
 
-db.invoices.createIndex(
-  { tenantId: 1, externalKey: 1 },
-  { unique: true }
-);
+db.invoices.createIndex({ tenantId: 1, externalKey: 1 }, { unique: true });
 ```
 
 Every access path must derive the tenant ID from authenticated server context and include it in the predicate; the index does not authorize access.
 
 ## Output Mapping
 
-In `Tenant Isolation`, record the isolation model, tenant identifier source/type, scope enforcement point, unique constraints, tenant-aware references, index rationale, administrative roles, lifecycle operations, and sharding implications. Identify cross-tenant access tests. Record database roles and application authorization separately in `Security and Data Protection`.
+In `Tenant Isolation`, record the isolation model, trusted tenant identifier source/type, scope enforcement point, tenant-scoped unique keys/references, and explicitly allowed cross-tenant access. Put database roles and application authorization in `Security and Data Protection`. Identify cross-tenant access tests in the conversation verification report; do not add a verification section to the artifact.

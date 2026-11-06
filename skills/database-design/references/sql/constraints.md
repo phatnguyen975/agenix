@@ -1,6 +1,6 @@
 # SQL Constraints
 
-Map confirmed business invariants to reliable relational mechanisms. Examples use PostgreSQL; verify equivalent capabilities and syntax in the selected engine or version.
+Map confirmed business invariants to reliable relational mechanisms. Examples use PostgreSQL; verify equivalent capabilities and syntax in the selected engine/version.
 
 ## Mechanism Selection
 
@@ -87,6 +87,6 @@ Use these only when their semantics match the domain and the target version supp
 
 ## Output Mapping
 
-- `Tables > Table-Level Constraints`: every primary, unique, foreign-key, check, exclusion, or temporal constraint with name, columns, rule, and referential action.
+- `Tables > <schema.table_name>`: put simple column constraints in the column row; add `Table-Level Constraints` only for composite/table-level constraints. Record the definition, referenced object, and `BR-nn`.
 - `Business Rules`: map each `BR-nn` to its authoritative constraint, trigger, transaction-safe application path, or authorization mechanism.
-- In the `Design Summary` table, use the `Required Extensions and Capabilities` property to list extensions only when the chosen definition depends on them.
+- In the `Design Summary` table, use the optional `Required Extensions / Capabilities` row to list extensions only when the chosen definition depends on them.

@@ -54,32 +54,30 @@ Choose embedding or references from query patterns, cardinality, lifecycle, grow
 - Use unique indexes for cardinality that must be enforced (for example, one profile per user).
 - Avoid DBRefs as the default; explicit application-level references make access patterns and consistency rules clearer.
 
-## Examples
+## Example
 
 Bound embedded children:
 
 ```javascript
-{
+const boundedOrder = {
   _id: ObjectId("65a000000000000000000001"),
   customerId: ObjectId("65a000000000000000000002"),
   shippingAddress: { city: "Da Nang", countryCode: "VN" },
-  items: [
-    { productId: ObjectId("65a000000000000000000003"), quantity: 2 }
-  ]
-}
+  items: [{ productId: ObjectId("65a000000000000000000003"), quantity: 2 }],
+};
 ```
 
 Unbounded children in a separate collection:
 
 ```javascript
-{
+const orderEvent = {
   _id: ObjectId("65a000000000000000000010"),
   orderId: ObjectId("65a000000000000000000001"),
   eventType: "packed",
-  occurredAt: ISODate("2026-10-10T08:00:00Z")
-}
+  occurredAt: ISODate("2026-10-10T08:00:00Z"),
+};
 ```
 
 ## Output Mapping
 
-In `Relationships`, record cardinality, chosen storage pattern, rationale, source-of-truth/copy policy, indexes, integrity enforcement, delete behavior, and growth bound. Link each pattern to consuming `Access Patterns` IDs.
+In `Relationships`, record cardinality/optionality, embed/reference mapping, and growth/integrity implications. Put supporting indexes in `Indexes`, copied-value maintenance in `Design Patterns`, and link decisions to `AP-nn`/`BR-nn` where relevant.

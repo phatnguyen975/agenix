@@ -76,5 +76,5 @@ If a student can enroll in the same course more than once over time, the key mus
 ## Output Mapping
 
 - `Entity Model` and `Relationships`: each relationship with cardinality, optionality, and ownership.
-- `Tables > Table-Level Constraints`: every foreign key with referenced table/columns, nullability, and deletion behavior.
+- `Tables > <schema.table_name>`: define each foreign key in its column row or optional `Table-Level Constraints`, including referenced columns, nullability, and delete behavior.
 - `Indexes`: only the referencing-side indexes justified by workload or parent-side maintenance; map them to `Access Patterns` IDs.

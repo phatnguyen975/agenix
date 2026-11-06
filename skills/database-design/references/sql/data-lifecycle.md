@@ -55,4 +55,4 @@ The query contract must also define whether ordinary reads exclude deleted rows 
 
 ## Output Mapping
 
-In `Data Lifecycle`, record audit fields and their maintenance owner; history mechanism and semantics; deletion/restore behavior; retention trigger and period; archival/purge mechanism; and source requirement for each affected entity/table. Use `Not specified` for unresolved policy values and omit non-applicable rows.
+In `Data Lifecycle`, record audit fields and their maintenance owner; history mechanism and semantics; deletion/restore behavior; retention trigger and period; archival/purge mechanism; and source requirement for each affected entity/table. Use `Not specified` only for material non-blocking unknowns. If a legally or contractually required retention rule is unresolved, stop and clarify before finalizing; omit non-applicable rows and empty subsections.

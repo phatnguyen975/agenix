@@ -67,7 +67,7 @@ Define consistent naming, identifier, data type, and value representation conven
 ## Example
 
 ```javascript
-{
+const invoice = {
   _id: ObjectId("65a000000000000000000001"),
   customerId: ObjectId("65a000000000000000000002"),
   fullName: "Nguyen Van A",
@@ -79,12 +79,12 @@ Define consistent naming, identifier, data type, and value representation conven
   tags: ["premium", "verified"],
   shippingAddress: {
     city: "Ho Chi Minh City",
-    countryCode: "VN"
-  }
-}
+    countryCode: "VN",
+  },
+};
 ```
 
 ## Output Mapping
 
-- `Design Summary`: naming, identifier, date/time, money, and document-bound conventions that affect the model.
-- `Collections`: for each collection list field path, BSON type, requiredness, validation, and meaning.
+- `Design Summary`: identify the target DBMS/version and source requirements.
+- `Collections > <database.collection_name>`: apply project naming/identifier/date-time/money/document-bound conventions consistently; list each field path, BSON type, requiredness, validation rule, and meaning.

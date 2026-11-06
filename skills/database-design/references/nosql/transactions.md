@@ -60,4 +60,4 @@ db.teamRoster.updateOne(
 
 ## Output Mapping
 
-In `Transactions and Concurrency`, record each write pattern's collections/documents, invariant, single- versus multi-document atomicity, read/write concern, concurrency control, expected contention, retry semantics, idempotency key, and failure behavior. Explicitly mark time-series writes as outside multi-document transactions.
+In `Transactions and Concurrency`, record each write operation's `AP-nn`, invariant/atomic boundary, read/write concern, concurrency control, retry/idempotency, and client-visible failure. Omit read-only operations. Do not assign writes to time-series collections inside multi-document transactions.

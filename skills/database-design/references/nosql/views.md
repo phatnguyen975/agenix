@@ -50,4 +50,4 @@ Define how summaries for customers with no remaining orders are removed and how 
 
 ## Output Mapping
 
-In `Views`, record each view/read model's name, kind, source collections, purpose, pipeline summary, consumers, authorization behavior, freshness/staleness, refresh trigger, failure recovery, and target indexes. State `None` or omit the conditional section when no derived read model is justified.
+In `Views`, record each view/read model's name, kind, purpose/sources and consumers, authorization behavior, and freshness/refresh/recovery contract. Include target indexes where applicable. Omit `Views` when no derived read model is justified.

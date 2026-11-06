@@ -51,4 +51,4 @@ If one tenant dominates writes, this key may still concentrate traffic. A hashed
 
 ## Output Mapping
 
-In `Sharding`, document why sharding is needed, candidate comparison, chosen key and ordering, distribution/query trade-offs, expected skew, unique-index compatibility, resharding strategy, and operational dependencies. If unsupported by workload evidence, state `Not required` or omit the conditional section.
+Include `Sharding` only for an approved sharded topology. State why sharding is needed and summarize rejected key alternatives, then record the chosen key/strategy, query targeting/distribution risk, and unique-index compatibility. Omit the section when sharding is not in scope.

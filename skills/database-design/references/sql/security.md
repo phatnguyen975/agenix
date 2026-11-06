@@ -33,11 +33,8 @@ A reporting role receives read access without ownership or write privileges:
 
 ```sql
 CREATE ROLE reporting_reader NOLOGIN;
-
 GRANT USAGE ON SCHEMA app TO reporting_reader;
-
 GRANT SELECT ON app.orders, app.order_items TO reporting_reader;
-
 REVOKE INSERT, UPDATE, DELETE ON app.orders, app.order_items FROM reporting_reader;
 ```
 
@@ -45,4 +42,4 @@ Role membership, object ownership, default privileges, and row-level policies mu
 
 ## Output Mapping
 
-In `Security and Data Protection`, map each actor/role to permitted operations and objects; list sensitive columns with confirmed classification and protection; identify row-level policies and trusted context source; and record security assumptions that require application or infrastructure enforcement.
+In `Security and Data Protection`, map each actor/role to permitted operations and objects; list sensitive columns with confirmed classification and protection; identify row-level policies and trusted context source; and identify controls that remain the responsibility of application or infrastructure layers.

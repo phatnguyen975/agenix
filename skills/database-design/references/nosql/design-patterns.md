@@ -66,23 +66,26 @@ Apply a pattern only when a documented access pattern or domain constraint justi
 - **Required contract:** Define subtree queries, move frequency, consistency/update cost, maximum depth, and cycle prevention.
 - **Avoid when:** The query pattern does not justify maintaining duplicated paths or arrays.
 
-## Pattern Examples
+## Example
 
 Subset and extended-reference examples identify which values are copied and where the source remains authoritative:
 
 ```javascript
-{
+const customerView = {
   _id: ObjectId("65a000000000000000000001"),
   customerId: ObjectId("65a000000000000000000002"),
   customerSummary: { displayName: "Example Customer", tier: "gold" },
   recentOrders: [
-    { orderId: ObjectId("65a000000000000000000010"), placedAt: ISODate("2026-10-20T10:00:00Z") }
-  ]
-}
+    {
+      orderId: ObjectId("65a000000000000000000010"),
+      placedAt: ISODate("2026-10-20T10:00:00Z"),
+    },
+  ],
+};
 ```
 
 The customer record remains the source of truth for `displayName` and `tier`; the embedded summary needs an explicit propagation or staleness policy. `recentOrders` must have a fixed retention/count bound.
 
 ## Output Mapping
 
-For every applied pattern, record the triggering access pattern, source of truth, read/write trade-off, consistency/staleness contract, size/cardinality bound, and repair strategy. State `None` when plain embedding/reference is sufficient.
+For every applied pattern, record the triggering access pattern, source of truth, read/write trade-off, consistency/staleness contract, size/cardinality bound, maintenance, and repair strategy. Omit `Design Patterns` when plain embedding/reference is sufficient.

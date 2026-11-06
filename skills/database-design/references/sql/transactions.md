@@ -13,7 +13,7 @@ Define atomic write boundaries, concurrency protection, isolation, and retry beh
 
 Choose isolation based on the anomaly the invariant must prevent, not on a generic preference for stronger isolation.
 
-| PostgreSQL Level         | Relevant Behavior                                                                                                                           | Design Guidance                                                                                                                                      |
+| Level                    | Relevant Behavior                                                                                                                           | Design Guidance                                                                                                                                      |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Read Committed (default) | Each statement sees a snapshot as of that statement. A transaction can observe different committed states across statements.                | Suitable when constraints, atomic statements, or explicit locks protect the invariant.                                                               |
 | Repeatable Read          | Uses a transaction-wide snapshot; conflicting concurrent updates can cause serialization failures. It can still permit write-skew patterns. | Useful for stable multi-statement reads; do not assume it protects every cross-row invariant.                                                        |
@@ -62,4 +62,4 @@ No returned row means the account was absent or the balance predicate failed; th
 
 ## Output Mapping
 
-In `Transactions and Concurrency`, record each write access pattern's invariant, tables, transaction boundary, isolation level, concurrency mechanism, lock ordering, conflict response, retry policy, idempotency strategy, and external handoff. Use `Not applicable` for read-only patterns.
+In `Transactions and Concurrency`, record each write operation's `AP-nn`, invariant/atomic boundary, isolation level, concurrency control, retry/idempotency, and client-visible failure. Omit read-only operations from this section.

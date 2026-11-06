@@ -25,7 +25,7 @@ Naming, identifiers, types, and null semantics. Apply project conventions first.
 - Prefer an immutable primary key that is stable and compact.
 - PostgreSQL default: `bigint GENERATED ALWAYS AS IDENTITY` for database-generated sequential identifiers. Identity values can have gaps and are not gap-free business numbers.
 - Use UUID when identifiers must be generated independently, across services, or before database insertion. PostgreSQL 18 provides `uuidv7()`; its time ordering can improve index locality compared with random UUIDs. Do not use any identifier as an authorization secret.
-- Do not use legacy `serial` or `bigserial` when identity columns are available.
+- Do not use legacy `serial`/`bigserial` when identity columns are available.
 - Keep a stable natural key as an alternate unique constraint when domain semantics require it. A composite primary key is valid when it is the true stable identity; do not introduce a surrogate only because the natural key has multiple columns.
 - Associative tables commonly use a composite primary key of their foreign keys when a pair can occur only once. Add a discriminator or validity period when repeated relationships are allowed.
 
@@ -59,7 +59,7 @@ Choose the narrowest type that correctly represents the domain without creating 
 
 ## Enumerations
 
-- Use a closed enum or check constraint only for a small, stable set whose values change through controlled schema releases.
+- Use a closed enum/check constraint only for a small, stable set whose values change through controlled schema releases.
 - Use a lookup table when values are data-managed, carry attributes, have their own lifecycle, or are shared across domains.
 - Represent a mutually exclusive lifecycle with one status field rather than contradictory booleans (`is_paid`, `is_shipped`). Model independent facts as separate fields.
 
@@ -81,9 +81,9 @@ CREATE TABLE invoices (
   id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   invoice_number text NOT NULL UNIQUE,
   issued_on date NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
   total_amount numeric(14, 2) NOT NULL CHECK (total_amount >= 0),
-  currency_code text NOT NULL CHECK (currency_code ~ '^[A-Z]{3}$'),
-  created_at timestamptz NOT NULL DEFAULT now()
+  currency_code text NOT NULL CHECK (currency_code ~ '^[A-Z]{3}$')
 );
 ```
 
@@ -91,9 +91,10 @@ The precision, scale, currency set, and identifier strategy must come from the a
 
 ## Output Mapping
 
-- `Design Summary`: concise naming, identifier, time, money, and type conventions that affect the model.
-- `Tables`: each column's type, nullability, default/generation behavior, meaning, units, and NULL semantics.
-- Example:
+- `Design Summary`: identify the target DBMS/version and source requirements.
+- `Tables`: apply project naming/type/time/money conventions consistently; define each column's target-engine type, nullability, default/generation, constraint/rule, and meaning. Include units or special NULL semantics in `Meaning` only when material.
+
+**Example:**
 
 | Column       | Type          | Null | Default  | Description                              |
 | ------------ | ------------- | ---- | -------- | ---------------------------------------- |

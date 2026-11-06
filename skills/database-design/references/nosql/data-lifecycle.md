@@ -34,7 +34,7 @@ Model audit metadata, revisions, deletion, retention, and archival from explicit
 - For active-only uniqueness, use a partial unique index with an explicit active-state predicate (for example `{ isDeleted: false }`) and define behavior for legacy documents missing the flag.
 - TTL indexes delete asynchronously after expiry; they are not exact-time schedulers or a guaranteed legal-erasure workflow.
 - TTL applies to a date field and has index-shape restrictions; verify the target version and collection type. Time-series collections can use collection-level `expireAfterSeconds` retention options.
-- Time-series collections do not support schema validation or change streams, cannot be written to inside multi-document transactions (reads are supported), and have a 4 MiB per-document limit. Do not design their ingestion/integration workflow as though these capabilities exist.
+- Time-series collections do not support schema validation or change streams, cannot be written to inside multi-document transactions (reads are supported), and have a 4 MB per-document limit. Do not design their ingestion/integration workflow as though these capabilities exist.
 - Time-series collections have constrained update semantics: updates can only match/modify the `metaField` and must use supported update operators. Treat measurements as append-oriented facts; use a regular collection when arbitrary measurement correction is required.
 - Set `timeField`, `metaField`, and bucketing/granularity options at collection creation; do not assume these can be freely changed later. MongoDB buckets are bounded by both measurement count and bucket size, so avoid designing custom documents that approach the collection's document limit.
 - Use an idempotent scheduled process when deletion requires conditions, cross-collection cleanup, archival, or auditable completion.
@@ -64,4 +64,4 @@ The expiry worker removes expired documents asynchronously; business workflows m
 
 ## Output Mapping
 
-Per collection, record audit fields and maintenance owner; revision/event approach; delete/restore behavior; retention period and trigger; TTL/job/archive mechanism; time-series options/limitations; and copies that must be anonymized or erased. Omit non-applicable sections explicitly.
+In `Data Lifecycle`, include only collections with applicable audit/history/delete/retention/archive decisions. Record the owner, lifecycle behavior, confirmed period, mechanism, and affected copies. For time-series collections, also honor their retention and collection-type limitations.

@@ -71,4 +71,4 @@ db.createCollection("orders", {
 
 ## Output Mapping
 
-In `Collections > Validation`, record each collection's validator shape, closed/open object policy, validation level/action, migration approach, cross-field rules, and limitations. In `Business Rules`, identify the enforcement layer and failure behavior for each rule.
+In each `Collections > <database.collection_name> > Validation` block, record the validator shape, closed/open object policy, validation level/action, same-document rules, and collection-type limitations. Include a migration approach only when changing an existing collection is in scope. In `Business Rules`, identify the enforcement layer and failure behavior for each rule.

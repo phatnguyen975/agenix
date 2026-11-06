@@ -15,14 +15,14 @@ Do not add an index merely because a column exists or appears in a filter. A seq
 
 ## Index Types
 
-| PostgreSQL Index Type | Typical Use                                                                                                        | Cautions                                                                                  |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
-| B-tree                | Equality, range, ordered retrieval, and many uniqueness constraints                                                | General-purpose default; multicolumn efficiency depends on leading keys.                  |
-| Hash                  | Equality on a single key                                                                                           | Narrow use; B-tree is usually more flexible.                                              |
-| GiST                  | Range overlap/containment, spatial and other operator-class searches, exclusion constraints                        | Operator class and key order matter.                                                      |
-| SP-GiST               | Data with natural partitioning into non-overlapping regions (for example, selected geometric or prefix structures) | Specialized; not a general replacement for B-tree.                                        |
-| GIN                   | Multiple components per row such as arrays, JSONB containment/key search, and full-text vectors                    | Write-heavy updates can be more expensive; operator class determines supported operators. |
-| BRIN                  | Very large tables where indexed values correlate with physical row order (for example, append-time data)           | Lossy block summaries; unsuitable for random distributions or precise single-row lookup.  |
+| Index Type | Typical Use                                                                                                        | Cautions                                                                                  |
+| ---------- | ------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
+| B-tree     | Equality, range, ordered retrieval, and many uniqueness constraints                                                | General-purpose default; multicolumn efficiency depends on leading keys.                  |
+| Hash       | Equality on a single key                                                                                           | Narrow use; B-tree is usually more flexible.                                              |
+| GiST       | Range overlap/containment, spatial and other operator-class searches, exclusion constraints                        | Operator class and key order matter.                                                      |
+| SP-GiST    | Data with natural partitioning into non-overlapping regions (for example, selected geometric or prefix structures) | Specialized; not a general replacement for B-tree.                                        |
+| GIN        | Multiple components per row such as arrays, JSONB containment/key search, and full-text vectors                    | Write-heavy updates can be more expensive; operator class determines supported operators. |
+| BRIN       | Very large tables where indexed values correlate with physical row order (for example, append-time data)           | Lossy block summaries; unsuitable for random distributions or precise single-row lookup.  |
 
 ## Index Forms
 
@@ -72,6 +72,6 @@ This is justified only when the corresponding access pattern uses those leading 
 
 ## Output Mapping
 
-- `Indexes`: one row per non-constraint index with its table, type, keys/expression, predicate, included columns, and supporting `AP-nn`, `BR-nn`, or lifecycle policy.
+- `Indexes`: one row per justified non-constraint index with table, ordered keys/options, supporting `AP-nn`/`BR-nn`, and reason. Include predicates, included columns, operator classes, or expression details only when applicable.
 - `Access Patterns`: define the operation represented by every referenced `AP-nn`.
-- `Tables > Table-Level Constraints`: define primary-key and unique constraints; do not duplicate their implicit indexes in `Indexes`.
+- `Tables > <schema.table_name>`: define primary-key and unique constraints in the column row or optional `Table-Level Constraints`; do not duplicate their implicit indexes in `Indexes`.

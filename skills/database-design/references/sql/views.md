@@ -74,4 +74,4 @@ The materialized view does not automatically update when orders changes. Define 
 
 ## Output Mapping
 
-In `Views`, record each view's name, kind, purpose, source relations, definition summary, consumers, authorization semantics, and freshness. For materialized views also record refresh policy, maximum staleness, failure behavior, and indexes. If none are justified, state `None` or omit the conditional section.
+In `Views`, record each view's name, kind, purpose/sources and consumers, security semantics, and refresh/freshness contract. Include required indexes and materialized-view refresh/failure details in the final column when applicable. Omit `Views` when no view or materialized view is justified.

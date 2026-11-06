@@ -38,7 +38,7 @@ Design indexes based on explicit access patterns, query predicates, sorting, uni
 - Verify that the target database supports the selected index type and its specific restrictions.
 - For MongoDB time-series collections, do not assume ordinary collection behavior: there is no default `_id` index, unique indexes are unsupported, and some secondary index types have `metaField` restrictions. Check the target MongoDB version.
 
-## Index Examples
+## Example
 
 Tenant-scoped filtering and sorting:
 
@@ -86,4 +86,4 @@ For MongoDB, use `explain("executionStats")` to examine documents examined, keys
 ## Output Mapping
 
 - `Access Patterns`: define the query shape and the `AP-nn` served by each index.
-- `Indexes`: record key order, options, uniqueness/partial/TTL semantics, and workload rationale. State `None` when no secondary index beyond required defaults is justified.
+- `Indexes`: record ordered keys, index options, supporting `AP-nn`/`BR-nn`, and query/uniqueness/lifecycle rationale. Omit `Indexes` when no additional index needs a design decision; do not list implicit/default indexes without a reason.
