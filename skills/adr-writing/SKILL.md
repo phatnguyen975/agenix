@@ -75,12 +75,7 @@ A single Markdown file following the structure below. The canonical, fully annot
 1. **Assess significance.** Check the decision against "When to Use" above. If it doesn't clearly qualify, say so and ask whether an ADR is really wanted, rather than writing one by default.
 2. **Detect the repository's convention.** Look for an existing ADR directory, index, or numbering style. Use it if found; otherwise, the default is `docs/adrs/ADR-NNN-<slug>.md`.
 3. **Gather the missing inputs.** Confirm the problem/context, the chosen option and its rationale, and at least one genuinely considered alternative. Ask rather than assume anything not already stated or evident in the repository.
-4. **Compute the file name.** If the default convention applies, run the helper script to get the next number and a slug — it only prints a suggestion, it never writes anything:
-   - Linux/macOS: `scripts/next-adr.sh "<title>" [adr-directory]`
-   - Windows: `scripts/next-adr.ps1 -Title "<title>" [-Directory <adr-directory>]`
-
-   Pick the script based on the environment the command will actually run in (the human's OS, or the OS of the machine executing the command) — not the skill's own platform. Both scripts implement identical logic and produce identical output for the same input, so either is safe to use once the right one is chosen. They match the `ADR-NNN-<slug>.md` pattern specifically; if step 2 found a different existing convention, follow that project's own numbering/naming pattern by hand instead of using either script.
-
+4. **Compute the file name.** If the default convention applies, run the Python helper script `scripts/next-adr.py` to get the next number and a slug — it only prints a suggestion, it never writes anything.
 5. **Draft the ADR** from `references/adr-template.md`:
    - Title the decision itself, not the question.
    - Write Context objectively — the situation as it stood, without presupposing the outcome.

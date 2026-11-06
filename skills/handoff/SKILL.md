@@ -116,16 +116,15 @@ A default flow, not a rigid script. Full detail: `references/compaction-and-reda
 
 ## Gitignore Handling
 
-Two scripts, one per platform — `scripts/ensure-gitignore.sh` (bash), `scripts/ensure-gitignore.ps1` (PowerShell). Both idempotent: safe to run every time, only add the entry if missing.
+Run the Python helper script `scripts/ensure-gitignore.py` against the project root. It adds an exact `HANDOFF.md` entry to `.gitignore` only if missing; repeated runs leave the file unchanged once the entry exists.
 
-Before running either script:
+When using the script:
 
 1. Confirm you're at the project root — look for `.git`, or ask the human if ambiguous.
-2. Pick the script matching the available environment — don't assume based on OS name alone (PowerShell exists on non-Windows; POSIX shells exist inside WSL).
-3. Run it against the project root.
-4. Verify by reading `.gitignore` back afterward — don't trust a successful exit code alone.
+2. Run it against the project root.
+3. Verify by reading `.gitignore` back afterward — don't trust a successful exit code alone.
 
-Neither shell usable? Do the same check-then-append logic as a direct file edit — the scripts exist for convenience, not because the logic requires them.
+If Python is unavailable, do the same check-then-append logic as a direct file edit.
 
 ## Anti-Patterns
 
