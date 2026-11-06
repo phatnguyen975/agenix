@@ -1,0 +1,4 @@
+interface:
+  display_name: "Grilling"
+  short_description: "Resolve an idea's ambiguities through an interview"
+  default_prompt: "Use $grilling to interview me about this plan and resolve its ambiguities before creating artifacts."

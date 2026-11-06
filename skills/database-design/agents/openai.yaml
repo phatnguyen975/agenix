@@ -1,0 +1,4 @@
+interface:
+  display_name: "Database Design"
+  short_description: "Design relational or document-oriented data models"
+  default_prompt: "Use $database-design to design a data model from these requirements and constraints."

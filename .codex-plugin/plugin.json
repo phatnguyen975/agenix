@@ -12,11 +12,11 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Agenix",
-    "shortDescription": "SDLC workflow framework for AI coding agents",
+    "shortDescription": "SDLC workflows for AI agents",
     "longDescription": "Universal SDLC workflow framework for AI coding agents, providing structured lifecycle management, zero-trust quality gating, seamless issue tracking, and architectural context synchronization.",
     "developerName": "Phat Nguyen",
     "category": "Engineering",
     "capabilities": ["Interactive", "Read", "Write"],
-    "websiteUrl": "https://github.com/phatnguyen975/agenix"
+    "websiteURL": "https://github.com/phatnguyen975/agenix"
   }
 }

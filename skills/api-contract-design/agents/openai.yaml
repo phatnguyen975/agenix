@@ -1,0 +1,4 @@
+interface:
+  display_name: "API Contract Design"
+  short_description: "Design and review consumer-facing API contracts"
+  default_prompt: "Use $api-contract-design to define an API contract from the requirements and existing conventions."

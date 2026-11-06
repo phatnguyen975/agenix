@@ -1,0 +1,4 @@
+interface:
+  display_name: "ADR Writing"
+  short_description: "Write and maintain architecture decisions"
+  default_prompt: "Use $adr-writing to document an architectural decision, its alternatives, and consequences."

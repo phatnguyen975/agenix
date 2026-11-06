@@ -1,0 +1,4 @@
+interface:
+  display_name: "Data Impact Analysis"
+  short_description: "Analyze a feature's impact on persisted data"
+  default_prompt: "Use $data-impact-analysis to assess this feature's persisted-data impact and document model gaps."

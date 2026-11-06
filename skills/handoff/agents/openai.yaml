@@ -1,0 +1,4 @@
+interface:
+  display_name: "Handoff"
+  short_description: "Capture the live thread for the next session"
+  default_prompt: "Use $handoff to capture the current work and exact next action for the next session."

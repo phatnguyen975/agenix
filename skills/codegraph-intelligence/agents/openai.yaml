@@ -1,0 +1,4 @@
+interface:
+  display_name: "CodeGraph Intelligence"
+  short_description: "Trace code structure and impact with CodeGraph"
+  default_prompt: "Use $codegraph-intelligence to trace the relevant symbols, callers, and change impact."

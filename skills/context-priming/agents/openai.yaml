@@ -1,0 +1,4 @@
+interface:
+  display_name: "Context Priming"
+  short_description: "Load the project context needed for the next task"
+  default_prompt: "Use $context-priming to load the context needed to start or resume this task."

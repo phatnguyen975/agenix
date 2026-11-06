@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ideation"
+  short_description: "Refine an idea through alternatives and trade-offs"
+  default_prompt: "Use $ideation to explore alternatives and refine this idea into an actionable concept."

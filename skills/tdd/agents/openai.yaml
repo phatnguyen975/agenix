@@ -1,0 +1,4 @@
+interface:
+  display_name: "TDD"
+  short_description: "Drive changes through Red-Green-Refactor"
+  default_prompt: "Use $tdd to plan meaningful tests and implement this change through Red-Green-Refactor."
