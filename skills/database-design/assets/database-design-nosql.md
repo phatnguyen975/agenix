@@ -38,7 +38,7 @@
 
 ```mermaid
 erDiagram
-    <EntityA> ||--o{ <EntityB> : <relationship verb>
+    EntityA ||--o{ EntityB : "relationship verb"
 ```
 
 ### Entity Definitions
