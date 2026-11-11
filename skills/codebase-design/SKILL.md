@@ -74,7 +74,7 @@ Read **only** the reference files needed for the current decision, and load an a
 | Decision / Trigger                                                                   | Read                                         |
 | ------------------------------------------------------------------------------------ | -------------------------------------------- |
 | Repository grouping, release/build unit placement, paths, ownership                  | `references/repository-layout.md`            |
-| Feature/layer/component grouping; internal organization patterns and fit             | `references/code-organization-strategies.md` |
+| Capability/component/layer/use-case grouping; internal patterns and fit              | `references/code-organization-strategies.md` |
 | Candidate modules, split/merge, public surfaces, cohesion/cycles                     | `references/module-design.md`                |
 | Allowed imports, shared code, cross-unit contracts, compatibility                    | `references/dependency-rules.md`             |
 | Naming, error/composition/config/state/asset boundary conventions                    | `references/conventions.md`                  |
@@ -146,7 +146,7 @@ Present concisely:
 
 - **"The framework folder tree is the architecture."** Follow required paths but verify actual responsibility, public access, and dependency ownership.
 - **"Two modules import each other, so use events."** Show the new **static** graph; an event alone does not prove that a cycle disappeared.
-- **"This belongs in `utils` or `common`."** Require a cohesive purpose, specific consumers, owner, and change policy before sharing.
+- **"This belongs in `common`."** Require a cohesive purpose, specific consumers, owner, and change policy before sharing.
 - **"Approval or enforcement can wait."** Do not adopt material unapproved decisions or present unenforced, unrun rules as guaranteed; state the gap explicitly.
 - **"Moving everything at once is simpler."** Prefer small, verified, compatible steps; a tree-only rename does not prove preserved consumer behavior.
 
