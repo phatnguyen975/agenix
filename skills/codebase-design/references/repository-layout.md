@@ -6,6 +6,8 @@ Choose version-control grouping and locate release units, local libraries, build
 
 ## Decision Inputs
 
+For a repository-wide design or review, inventory every relevant release unit, separately governed shared package, and cross-unit boundary before choosing detailed layouts or sampling. A frontend and backend in one monorepo may have different languages, frameworks, internal organizations, and release cadences.
+
 Collect, for the affected units: existing repositories; team ownership; access and compliance separation; shared dependencies; frequency of cross-unit change; ability to coordinate changes; version/release process; build graph/test selection; CI capacity; and current tooling constraints. A single owner or uniform stack does not, by itself, decide the topology.
 
 ## Repository Strategy
@@ -22,7 +24,7 @@ Collect, for the affected units: existing repositories; team ownership; access a
 Decision rules:
 
 1. Select the repository grouping from the strongest constraints; include **hybrid grouping** if warranted (e.g., app and its packages together, regulated subsystem separately).
-2. **Do not equate monorepo with lockstep releases** or polyrepo with autonomous deployments. Record build/release independence separately for each release unit.
+2. Do not equate monorepo with lockstep releases or polyrepo with autonomous deployments. Record build/release independence separately for each release unit.
 3. Explicitly state the source of truth for published interfaces, versioning, and multi-repository coordination when units span repositories.
 4. For an existing repository, retain the arrangement unless demonstrable coordination, access, or tooling costs justify a move. Repository migration has separate operational risk.
 
@@ -41,7 +43,7 @@ Decision rules:
 
 Use only roles actually present:
 
-| Role                     | Content And Constraint                                                               |
+| Role                     | Content and Constraint                                                               |
 | ------------------------ | ------------------------------------------------------------------------------------ |
 | Release-unit root        | Entry points and module directories owned by one release unit                        |
 | Internal package/library | Reusable code within the repository with declared public access and dependency rules |

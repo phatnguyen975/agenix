@@ -1,107 +1,104 @@
-# Current-State Review and Restructuring
+# Review and Restructuring
 
-## Purpose
+## Purpose and Boundaries
 
-Inspect an existing codebase, distinguish observed structural defects from preferences, and plan **incremental, recoverable** movement toward a justified target. The goal is safer maintenance, not a full rewrite or forced conformity to a fashionable tree. Review-only requests stop after findings unless the user asks for a migration plan or changes.
+Assess **current source-code structure**, identify maintainability risks with evidence, and recommend improvements. When a structural change is selected for further design, define a **target structure and incremental migration** in the Design path. A review alone neither approves a target architecture nor authorizes code changes.
 
-## Evidence-Based Scan
+A read-only assessment may be focused, repository-wide, continuous (against new changes), or periodic. A recurring cadence is set by the user/project, not by this reference. Refactoring improves internal design while preserving externally observable behavior; contract or behavior changes are different work and require explicit compatibility planning.
 
-Inspect only the relevant scope first; expand when a dependency crosses it:
+## Evidence-Based Assessment
 
-1. **Build and release inventory:** repository paths, manifests, package boundaries, independently published artifacts, entry points, and generated code.
-2. **Module inventory:** responsibilities, ownership, public exports, internal folders, conventions, test locations, and their confidence level.
-3. **Static dependency graph:** actual imports, build references, exports, and graph edges. Map files/packages to architectural modules; differentiate production, tests, generated sources, and third-party dependencies.
-4. **Runtime boundary evidence:** when a finding concerns cross-unit coupling, identify whether it is a static import, a contract, or runtime communication. Do not infer static dependencies from service names.
-5. **Violation evidence:** path/edge, affected owners/consumers, applicable `DR-xx` or `CV-xx`, impact, and available proof.
-6. **Unknowns:** graph blind spots, undocumented consumers, dynamic imports, code generation, third-party constraints. Ask for material unknown facts before disruptive work; mark others unverified.
+1. **Inventory the requested scope.** Identify repositories, release units, build packages, module owners, shared packages, and significant cross-unit contracts. For repository-wide review, account for every unit even when deeper inspection is sampled.
+2. **Inspect actual boundaries.** Locate entry points, public exports, internal implementation, declared dependency groups, state ownership, structural conventions, tests, and current enforcement.
+3. **Build the relevant graph.** Distinguish direct static source/type imports, declared build dependencies, runtime communication, and generated/dynamic links. Map source artifacts to architectural modules before checking cycles or policy violations.
+4. **Compare with authority.** Prefer approved design rules, project instructions, and language/framework constraints. Where no rule exists, describe an evidenced risk or improvement opportunity; a different style is not automatically a violation.
+5. **Record evidence and limits.** Cite path/edge, manifest, check output, or change history. Separate unexamined units, inaccessible consumers, inferred dependencies, and unrun checks from verified observations.
 
-For large projects sample by release unit or dependency-connected change region, then expand the scan around observed cross-boundary edges. Sampling is not proof that the entire repository is compliant.
+For large repositories, do an inventory-level pass across release units and shared boundaries, then inspect risk-heavy areas and dependency-connected neighborhoods. **Sampling limits coverage claims**; mark it as partial, even when no sampled issue is found.
 
-## Findings and Severity
+## Findings and Prioritization
 
-Each review finding records:
+Classify each `G-xx` finding by **type**, **severity**, **confidence**, and **recommendation**; these are distinct fields:
 
-| Field             | Required Content                                                                                                                            |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| Evidence          | File path/import or manifest/reference proving the behavior                                                                                 |
-| Expected Boundary | Existing or proposed rule and source of authority                                                                                           |
-| Impact            | Change coupling, visibility leak, risky shared state, build/test friction, or another specific consequence                                  |
-| Severity          | Critical / High / Medium / Low based on demonstrated consumer impact, security exposure, or change risk; do not inflate a naming preference |
-| Confidence        | Verified / Likely / Unverified (do not label inferred edges as verified)                                                                    |
-| Recommendation    | Smallest useful structural change, with alternatives where material                                                                         |
-| Migration Risk    | Public consumer impact, versioning, compatibility, data or environment preconditions                                                        |
+| Field      | Meaning                                                                                                         |
+| ---------- | --------------------------------------------------------------------------------------------------------------- |
+| Type       | `Violation` of an established rule, evidenced `Risk`, or `Opportunity` for better structure                     |
+| Severity   | `Critical`, `High`, `Medium`, `Low` — actual or credible harm/consumer impact                                   |
+| Confidence | `Verified` from examined evidence, `Likely` with supporting but incomplete evidence, or `Unverified` hypothesis |
+| Priority   | Action ordering from risk reduction, urgency, effort, ownership, and prerequisites; need not equal severity     |
 
-Prioritize by actual risk: cross-module hidden writes and release-breaking imports usually outweigh a merely unfamiliar directory name. A pattern preference is not a violation without a project requirement, demonstrable coupling, or maintainability impact.
+**Severity guidance:** Critical requires strong evidence of an urgent, consequential structural failure (for example, known release-blocking contract break). High involves significant consumer coupling or change/release risk; Medium involves localized but material maintenance friction; Low is limited impact. Do not assign Critical solely for a pattern preference. A security issue outside structural scope should be handed to the appropriate review, not silently reclassified as a codebase-layout violation.
 
-## Target State and Delta
-
-1. Describe the minimal target boundaries and dependency graph; retain unaffected code and existing public paths.
-2. Identify exactly which changes are **internal** versus **consumer-visible**. An internal move can still break imports if consumers illegally rely on internals.
-3. Identify unchanged contracts that should survive the migration and any planned compatible replacements.
-4. Link each gap to a target rule; if the rule is new, justify it rather than retroactively declaring all existing code defective.
-5. Record unresolved dependencies or external owners before locking in a breaking change.
+Each finding should include evidence (path/import/check), expected boundary and its source, affected consumers, impact, confidence explanation, smallest feasible remediation, and verification unknowns. **No finding** means none established **within the examined scope**, not proof of whole-repository health.
 
 **Example:**
 
 ```text
-Observed: Checkout imports Orders/internal/db (verified static edge).
-Target:   Checkout → Orders/public; Orders/internal/db remains private.
-Gap:      G-01 violates DR-01 (public-entry boundary).
-Change:   Add needed order operation to Orders/public, migrate Checkout,
-          ban the internal import, then remove the exception.
+G-01 — Type: Violation — Severity: High — Confidence: Verified
+Evidence:  Checkout/application imports Orders/internal/storage.
+Authority: Approved DR-01 allows Checkout → Orders/public only.
+Impact:    Checkout changes when Orders storage representation changes.
+Proposal:  Introduce/use an Orders-owned public operation; then remove the
+           internal import and enforce DR-01.
 ```
 
-This describes a structural change without fabricating business method signatures.
+A proposed new rule is not an approved violation criterion: document the risk first, then propose the rule through the Design path if it warrants a new architectural commitment.
+
+## Recommendations and Periodic Comparison
+
+- Prefer the smallest change that removes an evidenced risk, preserving effective existing boundaries. State a plausible alternative and trade-off for consequential recommendations.
+- Rank recommendations as **Now / Next / Later** or the project's existing prioritization scheme. Record expected benefit, owner when known, prerequisites, consumer impact, and decision required. Do not equate high severity with permission to implement.
+- For periodic reviews, compare against an accessible previous snapshot by actual issue identity (paths/rules/consumers), classifying **new, persisting, resolved, or unverified**. `G-xx` IDs are unique within each report; the same number in another report does not establish continuity.
+- Report current check coverage, new or reduced violations, and remaining blind spots. Do not invent trends, test results, or previous review history.
+- Keep the review improvement plan **high-level**. A detailed source migration plan belongs with a proposed or approved target design, not as an implicit part of a read-only review.
+
+## Target Design and Delta
+
+When the user requests a structural redesign or migration, enter the **Design Path** in `SKILL.md`:
+
+1. Describe the smallest target responsibility, module boundary, public surface, and permitted static graph that addresses the approved objective.
+2. Compare observed and proposed paths/edges; distinguish internal-only changes from consumer-visible imports, contracts, build/release boundaries, and ownership changes.
+3. Identify supported consumers, existing exceptions, and compatibility obligations. If external consumers cannot be inventoried fully, clarify the required support and compatibility policy with the human; do not assume unknown clients are safe to break.
+4. Resolve any material target-design ambiguity with the human, then present concrete choices, consequences, and alternatives at the Human Gate before adoption; existing approvals need not be repeated.
+5. Link relevant findings to target `DR`/`CV` rules and `EN` checks. A new constraint is not proof the current code violates an already-accepted rule.
+
+```text
+Current: Checkout → Orders/internal/storage  (observed static import)
+Target:  Checkout → Orders/public            (proposed allowed import)
+Delta:   introduce owned public operation; migrate Checkout; remove backdoor
+Check:   inspect imports and validate the intended graph after each step
+```
 
 ## Migration Techniques
 
-| Technique                                 | Appropriate Situation                                           | Main Precaution                                                                                              |
-| ----------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Move/Rename/Extract (refactoring)         | Local responsibility or import-path cleanup                     | Preserve externally observed behavior; update references and tests                                           |
-| Parallel Change (Expand–Migrate–Contract) | Public API/contract cannot change atomically                    | Keep old and new forms compatible during migration; remove old only after consumers move                     |
-| Branch By Abstraction                     | Widely used dependency/implementation needs gradual replacement | Introduce one stable seam, migrate clients gradually, then remove temporary abstraction if unnecessary       |
-| Incremental Module Extraction             | Code from one boundary is moved behind a new module interface   | Extract ownership and tests first; avoid simultaneous behavior redesign                                      |
-| Cycle Breaking                            | Strongly connected **static** module graph                      | Change ownership, extract legitimate shared abstraction, invert one edge, or merge truly inseparable modules |
-| Strangler Fig                             | Gradual replacement of a legacy application or large subsystem  | Applies to system/subsystem modernization, not a synonym for renaming a folder                               |
+| Technique               | Useful For                                         | Critical Condition                                                             |
+| ----------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Move / Extract / Rename | Local responsibility or path cleanup               | Preserve consumed behavior and update all relevant imports/build/tests         |
+| Parallel Change         | Interface changes across non-atomic consumers      | Expand compatibility, migrate consumers, then contract only when safe          |
+| Branch by Abstraction   | Gradual replacement of an implementation           | Introduce one useful seam and remove temporary indirection if no longer needed |
+| Module Extraction       | Carving a responsibility from tightly coupled code | Define ownership/public surface and move clients incrementally                 |
+| Cycle Breaking          | Static architectural dependency cycles             | Show the revised graph; events do not automatically remove static edges        |
+| Strangler Fig           | Gradual large-subsystem/application replacement    | Use only when the problem genuinely involves subsystem modernization           |
 
-**Do not confuse:** Branch By Abstraction (an intermediate code seam) and Parallel Change (an interface compatibility sequence) are complementary, not substitutes chosen solely by client count. Either can be used without introducing a network boundary.
+Do not use migration patterns as mandatory recipes. Branch by Abstraction and Parallel Change can be combined. A code-only refactor may require no contract versioning; independently released consumers may require a compatible period even within one repository.
 
-## Safe Step Ordering
+## Migration Planning and Acceptance
 
-Order by prerequisites, not an inflexible universal sequence:
+Plan small, dependency-ordered and recoverable steps; use the **Design Template**'s optional migration section for a full persistent plan. Each step records:
 
-1. Establish a reliable test/build baseline and record unverified behavior. Add characterization tests when behavior preservation is otherwise not demonstrable.
-2. Install checks or a narrow legacy violation baseline so new violations do not accumulate.
-3. Introduce a public seam or compatible contract where consumers require it.
-4. Redirect one consumer or one dependency cluster at a time; preserve old paths where external consumers cannot migrate in one change.
-5. Move implementation ownership and remove back-edges; update test-support placement and dependency permissions.
-6. Verify consumer compatibility and remove obsolete exports/adapters/exception entries only after the necessary migration window.
-7. Tighten enforcement and verify target graph integrity.
+- **Preconditions:** affected consumers, known baseline, approvals, build/test ability, and required compatibility window.
+- **Change:** exact ownership/public-surface or static-graph delta, plus generated artifacts and manifest updates where relevant.
+- **Verification:** runnable scope, positive/negative boundary checks when applicable, consumer compatibility, and actual result or `Not Run`/`Blocked`.
+- **Recovery:** source rollback _and_ separately the release/consumer recovery approach when already-published artifacts cannot simply be reverted.
+- **Responsibility:** owner, related `G-xx` finding or target rule, and completion evidence.
 
-Some steps require temporary dual implementations or compatibility adapters; these are valid if their removal criteria are explicit.
+**A possible order is:** capture baseline → guard against new violations → add compatible seam → migrate consumer groups → remove obsolete access → tighten checks. Reorder based on actual dependencies. Never remove an old interface while supported consumers still need it.
 
-## Step Acceptance Criteria
+A passing local test cannot prove compatibility with unknown external consumers; a step is complete only against its declared, executed acceptance criteria. Keep intentional behavior changes separate from behavior-preserving structure changes when practical.
 
-Each migration step should specify **changed boundary, prerequisites, expected graph delta, tests/checks, rollback or release recovery, owner, and completion evidence**. In a full design document, present steps as an ordered list with these details under each step rather than a wide table.
+## Approval and Change Classification
 
-- Keep changes reviewable and recoverable; do not promise every phase can preserve _all_ tests if a required test suite is broken initially—record and avoid regressions against an observed baseline.
-- Separate behavior-preserving refactoring from intentional behavior changes in commits/reviews where feasible. When an interface must evolve, use explicit compatibility steps rather than pretending it is behavior-preserving.
-- For a published contract, identify consumers and migration readiness before removing old exports or protocol forms.
-- Account for generated code, build manifests, packaging, imports, and public paths; a source-only tree move may be incomplete.
-- A step remains **proposed** or **in progress** until the declared checks have actually run and the completion evidence is recorded. A passing test suite does not prove compatibility with unobserved consumers.
-- Distinguish source rollback (revert/refactor) from release recovery: published artifacts or independently deployed consumers may require a forward fix, compatibility adapter, or coordinated rollout rather than a simple repository revert.
-
-## Approval and Delivery Boundaries
-
-- **Proposed structural direction:** for a full or materially changed codebase design, present the candidate topology, modules, public surfaces, main dependency direction, forces, and alternatives at a human decision checkpoint **before** expanding into detailed rules and migration, unless those choices are already approved or mandated. Read-only findings do not require approval.
-- **Document modification:** an explicit request to update a design file authorizes only the requested scope; clarify whether a previously accepted boundary would be replaced. Mark a proposal **Pending Approval** until approved.
-- **Source restructuring:** approval of a design does not automatically authorize implementing it. Before destructive or consumer-impacting edits, identify affected paths/consumers, planned compatibility and recovery, and seek approval for that execution scope. Do not request approval twice for the _same_ precisely approved action.
-- **Late discovery:** when a hidden consumer, changed ownership, or graph edge invalidates an approved decision, pause that portion, present the delta, and seek targeted re-approval. Continue unaffected review work only.
-
-## Update Classification
-
-- **Additive:** adds an internal module, rule, test-support location, or optional public capability without invalidating documented consumers.
-- **Potentially Breaking:** moves/renames public paths, changes exports or error behavior, restricts currently used imports, changes contract compatibility, or reassigns ownership across independently evolving units.
-- **Administrative:** documentation clarification or naming cleanup with no consumer effect.
-
-Classify by **consumer impact**, not edit size. Preserve stable `DR/CV/EN` identifiers; retire or supersede an old rule instead of reassigning its ID to unrelated meaning. Request explicit confirmation before changing/removing consumer-visible contracts or performing destructive restructuring; a migration plan does not authorize executing it.
+- **Review** reports findings without a Human Gate. Approval of a _proposed structural direction_ is needed for material new Design choices, except already approved/mandated choices.
+- **Documents versus code:** permission to write a design report is separate from accepting its architecture; accepting architecture is separate from permission to edit source. Check exact execution scope before destructive or consumer-impacting changes.
+- **Administrative:** documentation clarification without consumer effects. **Additive:** change preserving established consumers. **Potentially Breaking:** any change to consumed paths, contract semantics, dependency permissions, ownership, or build/release boundaries; unknown consumer effect is not assumed additive.
+- **Late discoveries:** return only materially changed decisions to the Human Gate. Preserve stable `DR`/`CV`/`EN` IDs in the living design; retire/supersede rather than repurpose.

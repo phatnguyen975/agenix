@@ -1,6 +1,6 @@
 ---
 name: codebase-design
-description: Design, review, document, and incrementally improve codebase structure across languages and frameworks. Use for repository layout, package or module boundaries, feature versus layer organization, dependency direction, public interfaces, shared libraries, code conventions, test placement, structural enforcement, and migration plans; also use for targeted structural reviews of existing projects. Not for system architecture style, deployment topology, database or API schema design, UI visual design, or feature implementation.
+description: Design and maintain source-code structure or review codebase structural health. Use for initial repository design, architecture-aware feature changes, module/dependency conventions, code organization, ongoing maintenance, focused or periodic codebase reviews, and incremental restructuring plans in any language or framework. Covers repository and release-unit layout, module boundaries, public surfaces, shared code, test placement, and structural enforcement. Not for detailed system deployment architecture, domain modeling, API/database schema design, or general feature implementation.
 metadata:
   author: phatnguyen975
   version: 1.0
@@ -10,156 +10,126 @@ metadata:
 
 ## Purpose and Scope
 
-Design the **source-code organization** of new or existing codebases so that responsibilities, ownership, boundaries, dependencies, tests, and change paths are discoverable and maintainable. Handle full designs, focused reviews, document updates, and incremental restructuring. The result must follow the actual project's supported conventions and constraints, not a universal folder tree.
+Design, maintain, and assess **source-code organization** across a repository or a selected part of it. Apply language-, framework-, and tool-agnostic principles through the **actual project's conventions, constraints, and available boundary mechanisms**. The skill supports monorepos, single-unit repositories, libraries, clients, services, and mixed stacks. Do not impose a universal directory tree.
 
-**In scope:** repository grouping, build/release unit placement, module decomposition, internal organization patterns, public surfaces, static dependencies, shared code, boundary-facing conventions, test placement, structural enforcement, and migration steps.
+**In scope:** repository and build/release-unit placement; module responsibilities and public surfaces; code grouping and internal patterns; static dependencies; shared code and cross-unit contract ownership; structural conventions; test locations; architecture checks; current-state findings; and incremental codebase restructuring.
 
-**Out of scope:** choosing deployment topology or system architecture; inventing domain models or business rules; database/API contract contents; UI appearance; feature implementation; full test strategy or coverage targets; formatter and tool tutorials. Treat established upstream decisions as inputs and flag any conflict affecting code organization rather than silently redesigning those domains.
+**Out of scope:** selecting runtime/deployment topology, inventing domain/business models, designing detailed API/database schemas, UI appearance, full security/performance audits, general function-level code quality, and implementing features as an independent task. Use established decisions in these areas as inputs; report conflicts that affect code structure.
 
 ## Operating Modes
 
-- **Design:** propose a new or substantially revised source structure from requirements and evidence. Produce a full document only when requested.
-- **Review:** inspect existing structure and return evidence-backed findings or recommendations; do not assume authorization to edit files.
-- **Update:** change only affected parts of an approved design/document. Preserve existing names, paths, boundaries, and rule IDs unless the change is justified and approved.
-- **Restructure:** establish current-to-target differences and plan incremental migration; implement only when explicitly requested.
+- **Design:** establish or evolve a target codebase structure. Includes initial design, structure-aware implementation guidance, focused design updates, and migration planning for approved structural changes. Preserve unaffected boundaries; a routine code change does not trigger a full redesign.
+- **Review:** assess current structural health and return evidence-backed findings, priorities, and proposed improvements. Includes focused, repository-wide, continuous, and periodic assessments. Read-only review does not authorize changing code or adopting new architecture.
 
-Modes may be combined, but only run steps relevant to the requested scope. Design intent does not imply permission to create a document; a migration plan does not imply permission to change production code.
+A Review may identify work that warrants a subsequent Design decision. Do not silently convert a recommendation into an approved design or an implementation task. The user determines scope and whether an output is conversational, a persistent document, or authorized code changes. **Neither mode creates files by default.** A periodic review is performed only when invoked; this skill does not schedule itself.
 
-## Inputs and Evidence
+## Evidence and Terminology
 
-Gather enough evidence for the **affected decisions**, not an exhaustive inventory of every file:
+Gather evidence proportionate to the requested scope: repository instructions, requirements, source/test structure, manifests, supported language/framework conventions, build and release boundaries, entry points, public consumers, imports/exports, ownership, existing design decisions, and actual checks/results. Mark claims as **Observed**, **Specified**, **Proposed**, or **Unverified**. Report material uncertainty rather than guessing owners, paths, versions, dependencies, or test outcomes.
 
-- **Requirements and forces:** capabilities/responsibilities, consumers, independently changing concerns, complexity, testability, ownership, delivery coordination, and structural risks.
-- **Actual boundaries:** existing repositories, build targets/packages, release units, module entry points, public consumers, and release/compatibility obligations.
-- **Project authority:** explicit user requirements; repository/agent instructions; manifests and supported language/framework rules; existing architecture/domain/codebase documents; established conventions and working constraints.
-- **Existing state:** source/test trees, imports and build references, public exports, ownership metadata, checks, observed violations, and relevant change history when available.
+| Term                   | Meaning                                                                                                                                                             |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Repository             | Version-control boundary; not necessarily a build or deployment boundary                                                                                            |
+| Build Target / Package | Unit identified by a build or package system; may not release independently                                                                                         |
+| Release Unit           | Application, service, library, or tool distributed/published/deployed as an identifiable unit; may contain multiple build targets                                   |
+| Module                 | Cohesive architectural source boundary with an owned responsibility and intentional access; realized by actual package/export/build rules or stated review controls |
+| Public Surface         | Entry points intended for identified consumers; internal-only modules need no invented cross-module API                                                             |
+| Contract               | Consumer-visible agreement at an independently evolving boundary; details of its API/schema are outside scope                                                       |
+| Dependency             | A static source/type import or declared build edge unless explicitly called runtime interaction or data flow                                                        |
+| Design Forces          | Evidence-backed drivers such as change locality, ownership, consumers, volatility, isolation, and tooling                                                           |
+| Rule / Enforcement     | Structural constraint (`DR`/`CV`) and the check, review, or explicit gap (`EN`) maintaining it                                                                      |
 
-Mark material information as **Observed**, **Specified**, **Proposed**, or **Unverified**. Do not fabricate release independence, owner, consumer, language/framework version, path, rule, or check result. When an unknown materially changes a choice, ask a focused consolidated question or present explicitly provisional alternatives; do not silently finalize an assumption. Do not request information already supplied by the project.
-
-## Terminology
-
-| Term                   | Meaning                                                                                                                                                                        |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Repository             | Version-control boundary; does not by itself define builds or release cadence.                                                                                                 |
-| Build Target / Package | Unit recognized by a build/package system; not necessarily distributed independently.                                                                                          |
-| Release Unit           | Application, service, library, or tool distributed, published, or deployed as one identifiable unit; can contain several build targets.                                        |
-| Module                 | Cohesive architectural source boundary owning a responsibility and hiding decisions; can be implemented by packages, exports, namespaces, assemblies, or enforced directories. |
-| Public Interface       | Intended surface visible to the module's authorized consumers; internal-only code need not expose a cross-module API.                                                          |
-| Contract               | Consumer-visible agreement between independently evolving units (published package API or protocol); its detailed contents are out of scope.                                   |
-| Dependency             | Directed **static** import/type/build edge unless explicitly called runtime interaction, data flow, or deployment dependency.                                                  |
-| Shared Code            | Code reused across responsibility boundaries; reuse inside one module is not automatically a shared package.                                                                   |
-| Design Forces          | Evidence-backed conditions influencing boundaries and patterns: change locality, consumers, volatility, ownership, testability, tooling, and constraints.                      |
-| Composition Root       | Application-entry assembly of concrete collaborators when explicit wiring is useful; not required for every framework/module.                                                  |
-| Rule / Check           | Structural requirement and a stated mechanism to detect, review, or report violations.                                                                                         |
+For **repository-wide** work, identify _all relevant release units_, shared packages, and cross-unit boundaries before detailed design or sampling. In a large repository, inspect each unit at inventory level, then deepen analysis according to scope and risk. State any inaccessible or unexamined units; a sample cannot establish repository-wide compliance.
 
 ## Design Principles
 
-1. **Purpose and change locality:** group code by coherent responsibilities and decisions that change together; assess actual coupling and navigation costs instead of choosing a fashionable pattern or directory count.
-2. **Information hiding and deep modules:** protect volatile choices behind a small, meaningful consumer interface where justified. Avoid exposing internals, shallow forwarding wrappers, and artificial public APIs for internal-only code.
-3. **Distinct boundaries:** decide repositories, build targets, release units, and modules separately. Do not infer one-to-one relationships or deployment behavior from directory layout.
-4. **Explicit dependency direction:** define which _static graph_ is governed, permit cross-module access only through intentional surfaces, and prefer an acyclic architectural-module graph. Do not confuse a runtime call/event with a static import; identify and resolve actual cycles or document a scoped exception.
-5. **Core independence when beneficial:** if core behavior must survive framework/storage changes, keep it independent of concrete adapters via owned abstractions or another justified seam. Do not mandate hexagonal architecture, layering, or dependency injection for trivial code.
-6. **Pattern fit, not prescription:** select top-level organization and module-internal patterns from forces and constraints. Mix compatible patterns where useful and respect framework-required layout, visibility, and build mechanisms.
-7. **Explicit ownership and reuse:** give shared code a cohesive purpose, owner, consumers, visibility, and change/compatibility policy. Avoid catch-all shared modules and premature generalization.
-8. **Consumer-aware contracts:** preserve supported public paths, behavior, and compatibility across independently evolving units. Distinguish internal refactors from changes that affect current consumers.
-9. **Boundary-relevant conventions and tests:** define conventions and test placement that reinforce ownership and integration; omit irrelevant boilerplate, obligatory layers, or test types that have no corresponding boundary.
-10. **Proportionate enforcement:** make high-value rules verifiable with the strongest feasible compiler/build/import/test check; for judgment-based policies use an explicit review. Label missing, planned, and unrun enforcement truthfully.
-11. **Evidence and trade-offs:** record the decisive forces, viable alternatives, consequences, and unresolved assumptions for material structural decisions; do not infer suitability solely from a pattern name.
-12. **Incremental evolution:** retain working arrangements unless evidence warrants change. Separate behavior-preserving moves from functional changes where feasible; plan migration, compatibility, verification, and release recovery before disruptive edits.
+1. **Organize for responsibility and change:** prefer cohesive responsibilities and change locality over fashionable patterns, directory counts, or artificial layers.
+2. **Hide decisions behind useful boundaries:** minimize exposed internals and shallow forwarding APIs. Specify actual consumer access; a folder alone is not an enforced module.
+3. **Keep boundaries distinct:** decide repository, build target, release unit, module, and contract boundaries separately. Independently released units may share a repository.
+4. **Define the graph:** state whether a rule governs static imports, declared build edges, or runtime interaction. Keep intended and observed edges separate; check architectural cycles over a defined graph.
+5. **Choose patterns by forces:** select a primary organization and only the internal separation justified by the module's needs; combine compatible patterns without imposing one layout on every unit.
+6. **Protect volatile integrations selectively:** introduce ports/adapters or other seams when they meaningfully isolate core decisions; avoid speculative interfaces.
+7. **Own shared code and state:** record purpose, consumers, owner, public surface, and change policy; avoid unowned `common` packages or duplicate shared invariants.
+8. **Respect consumers and compatibility:** protect existing public contracts, entry paths, and independently evolving consumers; classify changes by impact, not edit size.
+9. **Place tests at real boundaries:** select module, integration, contract, and end-to-end locations where applicable; follow language/framework idioms and avoid mandatory empty suites.
+10. **Enforce proportionately:** prefer native visibility/build constraints and relevant automated checks; use explicit human review for judgment-based rules. Never present an unrun or absent check as passing.
+11. **Distinguish observations from decisions:** findings require evidence and a source of expected behavior; proposed structure requires forces, meaningful alternatives, trade-offs, and explicit status.
+12. **Evolve incrementally and with approval:** keep sound existing structure, verify small changes, plan compatibility/recovery when needed, and obtain human approval for material new architectural commitments.
 
 ## Reference Routing
 
-Read **only** the reference files needed for the current decision, and load an additional file when its subject materially affects that decision. Do not pre-load all references.
+Read **only** the material needed for the current decision. Start with this file; open a reference when its subject is relevant, not merely because it exists. Use paths relative to the skill root.
 
-| Decision / Trigger                                                                   | Read                                         |
-| ------------------------------------------------------------------------------------ | -------------------------------------------- |
-| Repository grouping, release/build unit placement, paths, ownership                  | `references/repository-layout.md`            |
-| Capability/component/layer/use-case grouping; internal patterns and fit              | `references/code-organization-strategies.md` |
-| Candidate modules, split/merge, public surfaces, cohesion/cycles                     | `references/module-design.md`                |
-| Allowed imports, shared code, cross-unit contracts, compatibility                    | `references/dependency-rules.md`             |
-| Naming, error/composition/config/state/asset boundary conventions                    | `references/conventions.md`                  |
-| Test locations, integration/contract seams, fixture ownership                        | `references/test-layout.md`                  |
-| Structural checks, CI/review stages, legacy violation baselines                      | `references/enforcement.md`                  |
-| Existing-code assessment, gap severity, migration/change classification              | `references/restructuring.md`                |
-| Explicitly requested **full** design document or complete document-structure rewrite | `assets/codebase-design-template.md`         |
+| Trigger                                                                     | Load                                         |
+| --------------------------------------------------------------------------- | -------------------------------------------- |
+| Repository grouping, build/release units, monorepo roots, ownership         | `references/repository-layout.md`            |
+| Feature/component/layer/use-case grouping, internal patterns and fit        | `references/code-organization-strategies.md` |
+| Module candidates, public surfaces, cohesion, split/merge, cycles           | `references/module-design.md`                |
+| Allowed dependencies, shared packages, contracts, compatibility             | `references/dependency-rules.md`             |
+| Structural naming, composition, configuration, error/state/asset ownership  | `references/conventions.md`                  |
+| Test locations, integration/contract seams, test support                    | `references/test-layout.md`                  |
+| Rule checks, CI/review coverage, legacy baselines                           | `references/enforcement.md`                  |
+| Evidence-backed health review, findings, prioritization, migration planning | `references/restructuring.md`                |
+| Explicit full design document                                               | `assets/codebase-design-template.md`         |
+| Explicit full structural review report                                      | `assets/codebase-review-template.md`         |
 
-**Example:** a cyclic dependency review normally needs only `references/module-design.md` and `references/dependency-rules.md`; read `references/restructuring.md` only if a migration plan is requested. A focused document update need not load the full template.
+**Examples:** reviewing a dependency cycle commonly needs `module-design.md` and `dependency-rules.md`, plus `restructuring.md` for findings; creating a complete health report also needs the review template. A routine module placement decision need not load either full template.
 
 ## Workflow
 
-### 1. Establish Scope and Current Facts
+### 1. Establish Scope and Evidence
 
-- Identify mode, deliverable, scope, project authority, and existing accepted decisions. Check whether design/document edits or production-code edits are actually requested.
-- Inspect relevant existing paths, manifests, consumers, static dependency edges, tests, and checks; if scanning an existing codebase, use `references/restructuring.md` for evidence and confidence rules.
-- Extract **design forces** per affected release unit/capability: ownership, change drivers, public consumers, isolation needs, tooling/framework constraints, and known costs. Separate observed facts from constraints and hypotheses.
-- Resolve materially ambiguous inputs before committing to one design; a non-disruptive review may report uncertainty instead of blocking.
+- Determine **Design** or **Review**, the affected repository/units/modules, task depth, output format, and whether document or source edits are explicitly authorized. Reuse accepted project decisions and prior findings when accessible.
+- Inspect relevant requirements, actual code/build boundaries, consumers, constraints, and applicable tests/checks. For repository-wide scope, cover the unit inventory and cross-unit interactions before narrowing.
+- Identify decisive design forces or review criteria and their evidence. After inspecting available inputs, ask the human to resolve missing or conflicting requirements, ownership, consumers, and constraints that affect Design. Do not proceed with an affected design decision until clarified; revisit clarification if new ambiguity emerges. A read-only Review may instead record evidence limits.
 
-### 2. Form a Preliminary Structural Proposal
+### 2. Follow the Applicable Path
 
-- **Repository and unit boundaries (if relevant):** distinguish repository topology from build targets, release units, and public compatibility (`references/repository-layout.md`).
-- **Modules:** identify responsibilities, hidden decisions, consumers, candidate boundaries, public/internal visibility, and ownership; test split/merge choices (`references/module-design.md`).
-- **Organization:** choose primary grouping and optional internal patterns from documented forces, including at least one meaningful alternative for consequential choices (`references/code-organization-strategies.md`).
-- **Dependency sketch:** map important allowed/forbidden static edges and cross-unit surfaces; identify cycles, shared-code candidates, and expected migration impact (`references/dependency-rules.md`).
-- Prepare an **annotated representative layout** (root/unit/pattern only where relevant) and a short decision summary. Do not pretend a proposed tree has been observed in the repository.
+**Design Path**
 
-### 3. Decision Checkpoint
+1. **Propose:** choose relevant repository/build/release boundaries, modules, primary grouping, internal patterns, public surfaces, intended static edges, and significant alternatives. Show a small annotated structure and consequences; preserve unaffected parts.
+2. **Decision Checkpoint (Human Gate):** for a full discretionary design or a material new boundary, ownership, dependency-policy, or consumer-impacting choice, present the proposal, decisive forces, meaningful alternative, trade-offs, affected consumers, and unanswered questions. **Stop for explicit approval, revision, or rejection before treating the choice as adopted.** Do not repeat approval for an equivalent already-approved choice or a structure mandated by authoritative project instructions. A narrow non-material change needs no gate.
+3. **Specify:** after approval, detail only applicable module rules, conventions, tests, enforcement, contract governance, and optional migration. Mark rules as proposed until accepted; link structural rules to real checks, explicit review, or gaps. If late evidence materially changes the approved choice, return only the changed decision to the gate.
+4. **Execute only when authorized:** permission to approve a design, write a document, and change source are separate. Before destructive/consumer-impacting edits, confirm the exact execution scope and compatibility/recovery plan unless already explicitly authorized at that level. For routine authorized edits, maintain existing rules and verify affected boundaries without an additional gate.
 
-For a full new design or a material change to existing repository/module structure, stop after Step 2 and present a reviewable proposal before Step 4. This gate is about approval of architectural choices, not merely permission to edit files.
+**Review Path**
 
-Present concisely:
+1. **Assess:** map current units/modules, public/internal surfaces, static dependencies, ownership, structural conventions, test placement, enforcement, and existing exceptions against accepted constraints. Broaden the scan only as evidence requires; label partial coverage.
+2. **Classify:** distinguish verified violations from risks, hypotheses, and optional improvements. Give findings `G-xx` IDs within the report, paths/edges and authority, severity, confidence, affected consumers, and impact. Do not assert a preference is a violation without a binding rule or evidence of harm.
+3. **Recommend:** prioritize by impact, urgency, feasibility, and dependencies. Offer the smallest appropriate improvement and trade-offs, with **high-level sequence** when useful. Keep recommendations **Proposed**, not automatically approved. Compare previous review findings when an accessible baseline exists; otherwise state no baseline.
+4. **Handoff:** end read-only review with findings. If a material target redesign or detailed migration is requested, enter the Design Path and apply its Human Gate and execution-authorization rules; do not produce an adopted target or modify code just because review found issues.
 
-1. **Proposed decisions:** repository/build/release boundaries (if affected), main modules and owners/consumers, primary organization and significant internal patterns, representative trees, and intended dependency direction.
-2. **Why:** decisive forces, one serious alternative and its trade-off for each consequential choice, plus material risks, compatibility effects, and evidence limitations.
-3. **Approval request:** clearly identify which choices need confirmation and which are mandated by existing project instructions; ask to **approve, revise, or reject** the proposed structural direction.
+### 3. Deliver and Verify
 
-**Wait for explicit user confirmation.** If revised, rework only affected Step 2 decisions and present the changed proposal again. An already-approved equivalent plan need not be approved twice; a choice fully mandated by authoritative project constraints needs no discretionary re-approval. If _all_ structural choices are already specified or approved, record that basis and proceed without a redundant stop.
+- Return the requested outcome in the conversation unless a persistent document or source update was explicitly requested. An explicitly requested **full design document** uses the design template; a **full structural review report** uses the review template. Use the requested path, otherwise the project's documentation convention or `docs/codebase-design.md` / `docs/codebase-review.md` respectively. For dated review history, use distinct report paths when requested; never overwrite historical reports silently.
+- For focused work, deliver only relevant findings or decisions; do not populate a full template. A review's improvement plan is **not** a detailed executable migration plan. Keep detailed migration in the Design deliverable when needed.
+- Check scope and evidence; intended versus observed graphs; rule/check mappings; change authority; consumer compatibility; and applicable tests. State what was **Passed / Failed / Not Run / Blocked** with actual evidence. Do not claim whole-repository coverage from sampling or claim a proposal was implemented.
+- Run the **Verification Checklist** for affected scope. Report blocked actions, unverified facts, and unavailable checks rather than inventing a pass.
 
-**Do not invoke this gate for:** a read-only review, a narrowly scoped explanation, or a non-structural/administrative document fix. For a focused design request, invoke it only if the proposal introduces a material new boundary, ownership change, dependency-policy change affecting consumers, or an equivalent architectural commitment. If a late discovery materially changes an approved decision, return to this checkpoint for the **changed decision**, not the entire design.
+## Decisions, Changes, and Exceptions
 
-### 4. Specify the Approved Design
+- **Decision status:** `Proposed`, `Pending Approval`, `Approved`, or `Superseded` with authority/reference; do not mark a proposal adopted without evidence. Record consequential alternatives and revisit triggers where useful.
+- **Change impact:** `Administrative` (no consumer effect), `Additive` (does not invalidate established consumers), or `Potentially Breaking` (may change a consumed path, contract, dependency permission, ownership, or release/build boundary). Unknown consumer impact is not automatically Additive.
+- **Authority:** human architecture approval does not replace project review/merge controls or authorize source changes. Approval covers only the stated choices and action scope; read-only Review never requires approval to report findings.
+- **Exceptions:** specify rule, scope, reason, owner when known, and review/removal trigger. Existing violations may be baselined narrowly; never turn them silently into accepted target behavior.
+- **Late or conflicting evidence:** follow applicable project/framework constraints, surface structural consequences, and seek targeted reconsideration when a material accepted choice must change. Retain stable IDs and supersede rather than repurpose adopted rules.
 
-- Finalize module responsibilities/public surfaces and the **permitted** dependency model. Keep permitted edges distinct from the **observed** graph; document justified exceptions with scope, owner, reason, and revisit trigger (`references/module-design.md`, `references/dependency-rules.md`).
-- Define cross-unit contract governance and shared-code placement only where relevant; distinguish package-API compatibility from protocol evolution (`references/dependency-rules.md`).
-- Select structural conventions and interaction/composition ownership (`references/conventions.md`); map tests to real boundaries (`references/test-layout.md`).
-- Assign `DR-xx` / `CV-xx` constraints to `EN-xx` checks or explicit review/gaps with honest execution status (`references/enforcement.md`).
-- For restructuring, record current gaps, classify consumer impact, and sequence recoverable, verifiable steps (`references/restructuring.md`). Do not unilaterally expand the previously approved structural scope.
+## Output Contract
 
-### 5. Approve Changes, Deliver, and Verify
-
-- **Change approval:** before applying a potentially breaking change to existing design files or any destructive/consumer-impacting source restructuring, show affected units/consumers, compatibility or recovery plan, and the exact change. Seek explicit confirmation **unless the same impact and scope were already approved at Step 3**. Approval of a proposed direction alone does not authorize implementation.
-- **Review:** report path/edge evidence, confidence, severity, consequences, and focused recommendations. Never claim an unrun check passed.
-- **Design:** present the proposed or approved organization, decisive trade-offs, and outstanding decisions in the requested format; do not create a file without a request.
-- **Explicit full document:** use `assets/codebase-design-template.md` at a specified path or else `docs/codebase-design.md`. Respect the project's documentation language, otherwise English.
-- **Focused update:** modify only relevant document sections plus dependent IDs/mappings; preserve unaffected content.
-- **Restructure:** present or implement only requested steps, clearly labeling what was actually executed.
-- Run the Verification Checklist for affected scope. Report blocked actions, unverified facts, and unavailable checks rather than inventing a pass.
-
-## Conflict and Change Rules
-
-- **Late gaps:** if a new fact changes the architecture choice or its impact, stop and request a targeted decision before proceeding. A low-impact unknown can remain explicitly unresolved in a proposal or review, never silently adopted.
-- **Conflicting constraints:** respect project/language/framework requirements, but surface incompatibilities with module visibility, static cycles, compatibility, ownership, or feasible enforcement. Explain consequences and a viable alternative; record the user-approved exception with a narrow scope, owner, and review trigger. Do not silently ignore the project rule or the structural risk.
-- **Change classes:** **Administrative** (clarifies without consumer effects), **Additive** (extends without invalidating current consumers), **Potentially Breaking** (changes a consumed public path/behavior, allowed dependency, ownership/contract, or build/release boundary). Classify by actual impact, not edit size; do not downgrade an unverified consumer impact to Additive.
-- **Authority:** distinguish the acceptance of _a design decision_, permission to _write a document_, and permission to _change source code_. A user approval covers only the stated scope; repo review settings and `CODEOWNERS` are separate controls and must not be assumed to enforce approval by themselves.
-- **Preservation:** keep existing stable rule IDs and public paths; explicitly supersede changed decisions/rules rather than recycling IDs. Prefer compatible transitions to instantaneous breakage where consumers evolve independently.
-
-## Common Failure Modes
-
-- **"The framework folder tree is the architecture."** Follow required paths but verify actual responsibility, public access, and dependency ownership.
-- **"Two modules import each other, so use events."** Show the new **static** graph; an event alone does not prove that a cycle disappeared.
-- **"This belongs in `common`."** Require a cohesive purpose, specific consumers, owner, and change policy before sharing.
-- **"Approval or enforcement can wait."** Do not adopt material unapproved decisions or present unenforced, unrun rules as guaranteed; state the gap explicitly.
-- **"Moving everything at once is simpler."** Prefer small, verified, compatible steps; a tree-only rename does not prove preserved consumer behavior.
+- **Design document:** living description of the approved or explicitly proposed target structure. Use `assets/codebase-design-template.md` only for full-document requests; migration is optional. If clarification is unavailable, pause the affected Design work and ask in the conversation rather than issuing an incomplete document. A fully specified proposal may retain `Pending Approval` status without implying acceptance.
+- **Review report:** time-scoped snapshot of examined current structure, findings, evidence, confidence, coverage, and improvement recommendations. Use `assets/codebase-review-template.md` only for requested full reports; findings are not accepted architecture decisions.
+- **Templates:** follow their section-level fill instructions. Replace all `<...>` instructional placeholders with real content and remove instructional comments. Use `Not applicable — <Why this section does not apply>` for a required non-applicable section; never invent evidence to fill rows.
+- **Identifiers:** `DR-xx` (dependency rules), `CV-xx` (boundary conventions/shared-code and contract policies), `EN-xx` (checks, explicit reviews, or enforcement gaps), `G-xx` (observed findings/gaps). Preserve IDs within a living design; report IDs are unique within each review snapshot. Every `DR`/`CV` links to one or more `EN` entries or an explicit enforcement gap; never invent check results.
+- **Contract scope:** describe external contract owners, locations, consumers, compatibility, and verification responsibilities — not unrequested API/schema contents. Respect the project's documentation language and actual language/framework/build conventions. Verify version-sensitive claims against authoritative current sources rather than hardcoding versions here.
 
 ## Verification Checklist
 
-Verify each **affected** part; if evidence is unavailable, report the limit:
-
-1. **Forces and fit:** material decisions trace to actual requirements/constraints; plausible alternatives and avoid-when conditions were considered; no pattern was selected by project type alone.
-2. **Checkpoint:** material new architecture/structural changes received explicit confirmation (or the decision was already accepted/mandated); late changes were re-presented; read-only reviews were not needlessly blocked.
-3. **Consistency:** repository, release, build, module names/paths agree in trees, catalog, test mapping, rule and check entries; identifiers are unique, stable, and linked; no unresolved delivered placeholders.
-4. **Boundaries and graph:** public/internal paths and permitted versus observed static edges are distinguished. No unintentional architectural static cycles; do not assert graph compliance without inspecting the actual graph.
-5. **Shared code and contracts:** responsibilities/owners/consumers are explicit and independent release compatibility is addressed where applicable.
-6. **Conventions and tests:** selected areas align with forces and framework constraints; tests belong to meaningful boundaries without artificial empty suites.
-7. **Enforcement:** each numbered rule has a feasible check/review or explicit gap, with scope, stage, owner, and evidence/status; no unrun check is marked passing.
-8. **Migration and approvals:** classify consumer impact, obtain authorization for affected operations, and give each migration step prerequisites, checks, compatibility, rollback/recovery, and owner; distinguish proposed from executed.
-9. **Scope:** no invented domain/system/API decisions, irrelevant tool tutorials, out-of-scope changes, or wholesale rewrites for focused requests.
+- [ ] Scope includes all relevant release units and cross-unit boundaries, or explicitly lists excluded/unexamined units.
+- [ ] Material design inputs were clarified with the human or established by authoritative project evidence; no unresolved design questions remain in the design output.
+- [ ] Every important choice has forces, ownership/consumer context, trade-offs, and accurate approval status; Human Gate applied where warranted.
+- [ ] Review findings separate observation, evidence, applicable authority, severity, confidence, priority, and proposal; previous-review comparisons are grounded.
+- [ ] Public/internal surfaces and allowed versus observed static edges are distinct; no unverified claim of cycle freedom or check compliance.
+- [ ] Shared-code and independent-release compatibility obligations have owners/consumers where applicable.
+- [ ] Structural conventions, tests, enforcement and exceptions fit the actual project and have traceable IDs where documented.
+- [ ] Migration steps, if requested, have prerequisites, expected graph delta, verification and recovery; nothing proposed is misreported as executed.
+- [ ] Documents contain no unresolved placeholders or redundant tables; source/document edits stayed within granted authority.

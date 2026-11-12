@@ -23,7 +23,7 @@ Do not treat an `EN-xx` entry with `CI` as sufficient unless it states the actua
 2. Identify the graph/artifacts the checker reads: static imports, build manifests, public exports, source folders, generated artifacts, or code review changes.
 3. Prefer native visibility/build checks when available, then static graph/import checks, then semantic review for parts that cannot be automated.
 4. Name the exact tool only after confirming the project's language/version and existing tooling actually support the desired rule; otherwise state a **mechanism class** and a concrete feasibility task, not an invented configuration.
-5. Record feedback stage, owner, failure message/action, and limitations. If automation is not currently available, mark the gap rather than claiming compliance.
+5. Record feedback stage, owner, failure message/action, and limitations. Keep **implementation status** (`Active`, `Planned`, `Gap`) separate from **execution result** (`Passed`, `Failed`, `Not Run`, `Blocked`, with evidence). If automation is not currently available, mark the gap rather than claiming compliance.
 
 **Example of a meaningful check:**
 
@@ -86,7 +86,7 @@ A **design checkpoint** approves structural choices before they are adopted; a *
 
 ## Verification Requirements
 
-For every numbered rule link at least one `EN-xx` entry specifying check or review mechanism, evidence scope, stage, owner, and status. Use keyed list entries in the design template rather than a wide register table. Verify that:
+For every numbered `DR-xx` / `CV-xx` rule link at least one `EN-xx` entry specifying check, focused human review, or enforcement gap; include evidence scope, stage, owner, implementation status, execution result, and limitations. A Review finding (`G-xx`) is not itself a new adopted rule. Use keyed list entries in the design template rather than a wide register table. Verify that:
 
 - Every rule ID resolves to at least one real mechanism or an explicitly documented enforcement gap.
 - The check's scanner includes the claimed language, paths, and artifact types.

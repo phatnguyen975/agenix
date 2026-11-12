@@ -14,14 +14,14 @@ Record the following when material:
 | Edge                 | Direct source/type import, declared build dependency, or transitive dependency; name the selected graph. Keep runtime interactions in a separate view |
 | Visibility           | Which exports/entry points are public, internal, or restricted                                                                                        |
 | Allowed direction    | Allowlists, groups/tags, or explicit forbidden edges                                                                                                  |
-| Cycle policy         | Which **architectural** graph must be acyclic; separately handle cycles within one module if useful                                                   |
+| Cycle policy         | Which architectural graph must be acyclic; separately handle cycles within one module if useful                                                       |
 | Scope and exceptions | Who may bypass a rule, why, and when the exception will be revisited                                                                                  |
 
 An architecture module may span multiple language packages; tools that only inspect package-level imports cannot automatically prove a higher-level assertion without a package-to-module mapping.
 
 ## Rules and Identifiers
 
-For design documents, assign unique, stable `DR-xx` IDs to cross-module dependency constraints. Examples:
+For an adopted or proposed design document, assign unique, stable `DR-xx` IDs to cross-module dependency constraints. A Review may cite these rules when reporting violations, but must not treat a suggested new constraint as already binding. Examples:
 
 | ID    | Rule                                                                                                                                            | Static Evidence                               |
 | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
@@ -50,7 +50,7 @@ Orders/Core     --X->  Inventory/Internal  # forbidden internal import
 Orders/Adapter  ---->  Orders/Core/Port    # port is owned by Orders
 ```
 
-This diagram illustrates **static** dependency direction (the `-X->` edge is prohibited), not the sequence of runtime calls. It is not a claim that a module must always import only toward a single technical layer.
+This diagram illustrates **static** dependency direction (the `--X->` edge is prohibited), not the sequence of runtime calls. It is not a claim that a module must always import only toward a single technical layer.
 
 ## Layers and Ports
 

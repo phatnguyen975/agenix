@@ -2,7 +2,7 @@
 
 ## Purpose and Scope
 
-Choose **how code is grouped within a release unit** and **how each architectural module is structured internally**. These are separate, composable decisions. Repository layout, build targets, release units, modules, and runtime deployment boundaries are not interchangeable; use `repository-layout.md` and `module-design.md` for their definitions and ownership.
+Choose **how code is grouped within each affected release unit** and **how each architectural module is structured internally**. A multi-unit repository may use different languages, frameworks, and patterns in different units. These are separate, composable decisions. Repository layout, build targets, release units, modules, and runtime deployment boundaries are not interchangeable; use `repository-layout.md` and `module-design.md` for their definitions and ownership.
 
 - **Primary organization:** the dominant way developers locate code — by capability/feature, component, technical layer, or use case/operation.
 - **Module-internal pattern:** an optional way to separate responsibilities within a module — simple, layered, ports and adapters, vertical slices, pipes and filters, or presentation-state separation.
@@ -12,7 +12,7 @@ These options **overlap** — a capability may be packaged as a component, conta
 
 ## Selection Procedure
 
-1. **Identify constraints and change drivers.** Inspect framework/build requirements, current paths and imports, consumers, ownership, changes that usually occur together, external dependency volatility, and testing needs. Label guesses as unverified.
+1. **Identify constraints and change drivers.** Inspect framework/build requirements, current paths and imports, consumers, ownership, changes that usually occur together, external dependency volatility, and testing needs. Clarify material gaps or conflicts with the human before choosing a target organization; do not substitute guesses for design inputs.
 2. **Choose the simplest viable primary grouping.** Compare an existing or minimal structure against alternatives using change locality, cohesion, public-consumer needs, navigation cost, and coordination cost — not folder counts or arbitrary complexity scores.
 3. **Add internal separation only where it protects a decision.** Select a pattern for an identifiable use case, invariant, I/O boundary, transformation sequence, or UI-state concern. Different modules and operations may use different patterns.
 4. **Specify the real boundary.** Identify owned paths, authorized consumers, intended public surface (or `Internal only`), allowed **static** imports, and the compiler/build/visibility or review mechanism that can maintain those rules. If a rule cannot be enforced, state the gap; a diagram is not enforcement.

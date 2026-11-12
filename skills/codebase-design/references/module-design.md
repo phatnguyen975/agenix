@@ -18,20 +18,20 @@ For a **consequential** boundary proposal, present the candidate responsibility,
 
 ## Split, Merge, or Retain
 
-| Signal                                                             | Consider                       | Countercheck                                                               |
-| ------------------------------------------------------------------ | ------------------------------ | -------------------------------------------------------------------------- |
-| Unrelated responsibilities or independently changing decisions     | Split                          | Will the new boundary require many cross-module calls?                     |
-| Different owners or access requirements                            | Split or isolate               | Does the split duplicate an invariant or require distributed coordination? |
-| Clients depend on unrelated parts of an API                        | Split interface or module      | Would smaller consumer-specific exports solve it?                          |
-| Modules always change together and exchange implementation details | Merge                          | Are they genuinely cohesive, or merely under-defined?                      |
-| Interface mostly forwards calls without hiding decisions           | Merge/remove facade            | Does the facade protect a meaningful external/volatile boundary?           |
-| Existing module is large                                           | Do **not** split by size alone | Is cohesion or change locality actually poor?                              |
+| Signal                                                             | Consider                   | Countercheck                                                               |
+| ------------------------------------------------------------------ | -------------------------- | -------------------------------------------------------------------------- |
+| Unrelated responsibilities or independently changing decisions     | Split                      | Will the new boundary require many cross-module calls?                     |
+| Different owners or access requirements                            | Split or isolate           | Does the split duplicate an invariant or require distributed coordination? |
+| Clients depend on unrelated parts of an API                        | Split interface or module  | Would smaller consumer-specific exports solve it?                          |
+| Modules always change together and exchange implementation details | Merge                      | Are they genuinely cohesive, or merely under-defined?                      |
+| Interface mostly forwards calls without hiding decisions           | Merge/remove facade        | Does the facade protect a meaningful external/volatile boundary?           |
+| Existing module is large                                           | Do not split by size alone | Is cohesion or change locality actually poor?                              |
 
-Do not turn the Single Responsibility Principle into "one class/function/folder per reason anyone might imagine." The unit of change should be meaningful to the project.
+Do not turn the Single Responsibility Principle into "one class/function/folder per reason anyone might imagine". The unit of change should be meaningful to the project.
 
 ## Information Hiding and Public Interfaces
 
-Parnas' criterion: organize modules around decisions likely to change rather than runtime processing steps. A useful module allows a consumer to rely on a stable concept without knowing its storage, algorithm, or integration details.
+**Parnas' criterion:** organize modules around decisions likely to change rather than runtime processing steps. A useful module allows a consumer to rely on a stable concept without knowing its storage, algorithm, or integration details.
 
 For each module record:
 
@@ -68,7 +68,7 @@ The example does not prescribe domain fields, API wire format, or folder names.
 - **Stability:** an interface with many consumers is costly to change. Put volatile details behind appropriately stable boundaries; do not label a whole module stable only because it changes infrequently today.
 - **Acyclic dependencies:** prefer directed static dependencies among architectural modules; cycles suggest unclear responsibility or abstraction placement. Runtime request/response and notifications need not mirror static import direction.
 
-Robert C. Martin's package cohesion principles (REP, CCP, CRP) are heuristics for **reuse/release, common change, and common use**; stable dependency and abstraction principles help review risky dependencies. Do not impose their metrics as universal pass/fail criteria. Instability `I = Ce / (Ca + Ce)` can help compare static package dependencies when a graph is available; `Ca + Ce = 0` makes the ratio undefined, not zero. Define whether `Ca`/`Ce` count modules or classes before comparing.
+Robert C. Martin's package cohesion principles (REP, CCP, CRP) are heuristics for **reuse/release, common change, and common use**. Review incoming and outgoing static dependencies when evaluating stability, but do not impose a universal numeric threshold or mistake graph counts for a complete cohesion assessment.
 
 ## Interaction Styles
 
@@ -94,7 +94,7 @@ Inspect actual edges and strongly connected components; a cycle at function/runt
 
 ## Boundary Confirmation
 
-At a structural decision checkpoint, use a short list of **proposed modules, consumers, visibility, important allowed edges, and the trade-off against a plausible merge/split**. Confirm a boundary before deriving detailed `DR-xx` constraints and assuming every proposed public path is a real exported path. A change discovered later that alters those approved decisions must return for targeted confirmation. An internal-only module may appear in the design without inventing a cross-module API.
+Before confirming a consequential boundary, clarify uncertain responsibility, ownership, consumers, or constraints with the human. At the structural decision checkpoint, present **proposed modules, consumers, visibility, important allowed edges, and the trade-off against a plausible merge/split**. Confirm the choice before deriving detailed `DR-xx` constraints or assuming proposed paths are exported. Clarify newly discovered material ambiguities and return changed approved choices for targeted confirmation. An internal-only module needs no invented cross-module API.
 
 ## Boundary Review Questions
 

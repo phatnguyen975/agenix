@@ -1,355 +1,331 @@
 <!--
-OUTPUT TEMPLATE — Codebase Design
+OUTPUT TEMPLATE — Full Codebase Design
 
-How to use:
-1. For a full design, keep the ten numbered top-level sections and the listed subsections.
-2. Replace every `{{placeholder}}` with a verified project-specific value.
-3. Delete all instructional HTML comments and illustrative rows before delivering.
-4. Use "Not applicable — <specific reason>" for a truly inapplicable subsection;
-   do not leave an empty table, heading, code fence, or bare "TBD".
-5. For full/material structural design with discretionary choices, present a
-   preliminary structure and obtain human decision approval before adopting it.
-   If all decisions were already approved or mandated, cite that authority.
-   Otherwise label the proposal Pending Approval and any material unknowns.
-6. Repeat rows, ownership groups, trees, check entries, migration steps,
-   and optional convention subsections only where useful.
-7. Use the project's real paths, names, ownership, and framework conventions.
-8. Rule IDs DR-xx / CV-xx / EN-xx are unique within each prefix and stable;
-   G-xx identifies observed gaps. Example IDs are illustrative: renumber to match
-   the adopted document and keep references synchronized.
-9. Sections 5 and 9 define constraint/check mappings; module-specific allowed edges
-   appear in section 4 (or one referenced canonical dependency group).
-10. A tree shows meaningful boundaries/entry points, not an exhaustive file listing.
-    Add an annotation for each shown entry explaining its structural role.
-11. No patterns, contracts, shared packages, test types, or checks are mandatory
-    merely because this template contains a place for them.
-12. A focused review or partial update can operate on relevant sections only;
-    it is not required to instantiate this entire template.
-13. Every DR-xx and CV-xx rule must link to an EN-xx entry (active check,
-    specific human review, or explicit enforcement gap), including rules in
-    sections 6 and 7. Do not state a planned check is active.
-14. For material decisions, capture an alternative or constraint considered,
-    the resulting trade-off, approval status, and a revisit trigger if provisional.
-    Approval of a document design does not authorize changing production code.
-15. Use tables only for concise, comparable facts (at most four columns here).
-    Keep cell text short; put long paths, explanations, exceptions, and evidence
-    in adjacent bullets or annotated trees. If populated cells would force
-    horizontal scrolling on GitHub, replace that table with keyed lists.
-16. `{{...}}` markers are plain-text placeholders, not a templating-language
-    requirement. Keep them visible in GitHub previews; replace all before use.
+Use when a full, persistent design document is explicitly requested. This is a
+living description of the proposed or approved source-code structure.
+
+Filling Rules
+1. Keep the ten numbered top-level sections. Include relevant subsections;
+   write 'Not applicable — <Why this section does not apply>' for a required
+   but inapplicable section. Omit optional subsections that add no value.
+2. Text inside <...> is a filling instruction, not a literal output value.
+   Replace each placeholder with project-specific content, remove instructional
+   comments, and delete unneeded sample rows or entries. Repeat rows, forces,
+   decisions, module groups, and migration steps for all applicable items.
+3. Use actual project names, paths, language/framework conventions, and
+   documented authorities. Distinguish Observed current state, Specified project
+   constraints, Proposed target choices, and Unverified claims. Record the
+   decision status separately: Proposed, Pending Approval, Approved, Superseded.
+4. Obtain the Human Gate described in SKILL.md for material discretionary design
+   choices. Approval of a design does not authorize source changes.
+5. Use stable, unique DR-xx / CV-xx / EN-xx IDs throughout this living document;
+   link every DR/CV rule to at least one EN entry (including an explicit gap).
+   Use G-xx for observed migration gaps and link to findings when applicable.
+   Example IDs below are illustrative: assign or retain IDs consistently.
+6. Show only meaningful directories, modules, tests, constraints, and release
+   units; do not invent them to fill the template.
 -->
 
-# Codebase Design: {{project_name}}
+# Codebase Design: <Project Name>
 
-## 1. Scope and Forces
+## 1. Scope and Design Forces
 
-<!-- Describe in 2–4 sentences what code organization this document governs,
-including repository scope, scope exclusions, and authoritative project constraints.
-Keep the approval fields below concise. "Approved" requires an explicit recorded
-user/project decision; a fully specified mandated structure can cite that authority.
-A draft may be Pending Approval but must not be presented as adopted. -->
+<!-- State the design objective, repository or selected-unit scope, exclusions,
+     applicable constraints, and whether this is a greenfield design or an
+     evolution of existing structure. Identify any authoritative baseline. -->
 
-{{scope_status_evidence_constraints}}
+<Design goal, in-scope repositories or units, exclusions, constraints, and existing baseline>
 
-- **Structural Decision Status:** {{proposed_pending_approval_or_approved}}.
-- **Decision Authority / Evidence:** {{approval_reference_or_pending_owner}}.
+- **Overall Design Status:** <Proposed, Pending Approval, Approved, or Superseded>.
+- **Decision Authority:** <Approver and approval record, or decision owner if approval is pending>.
 
 ### 1.1 Release Units
 
-<!-- One concise row per independently distributed/published/deployed unit.
-`Purpose` names the key responsibility and consumer class, not a full
-specification; `Ships` identifies the artifact and whether its release
-cadence is independent. Put long target or artifact paths in a bullet
-below the table, keyed by unit. Build-only internal targets belong to the
-owning release unit. Single-unit repositories have one row. Unknown ownership
-is unresolved in proposals, never asserted as adopted. -->
+<!-- One row per actual or proposed independently deployed, distributed, or
+     published unit, including a sole unit in a single-unit repository. Describe
+     build-only packages under their owning release unit. Use short relative
+     paths/names; if a release boundary needs a longer explanation, add a brief
+     paragraph below the table for that specific unit. -->
 
-| Unit     | Purpose     | Ships     | Owner     |
-| -------- | ----------- | --------- | --------- |
-| {{unit}} | {{purpose}} | {{ships}} | {{owner}} |
+| Unit        | Role        | Ships              | Owner   |
+| ----------- | ----------- | ------------------ | ------- |
+| <Unit name> | <Unit role> | <Release boundary> | <Owner> |
 
-### 1.2 Forces
+### 1.2 Design Forces
 
-<!-- Bullet only decision-relevant conditions: change locality, integration
-volatility, ownership, published consumers, framework/build constraints, security
-separation, testability, and existing structural issues. Cite a source path or
-requirement where important. "Low complexity" without evidence is insufficient.
-For a material choice, keep a short decision note with the selected option,
-strongest alternative, cost, and approval status; avoid duplicating detail from
-sections 2–5. Delete the example decision note if choices are already mandated. -->
+<!-- Repeat one bullet for EACH significant force, not one for each decision.
+     Include the evidence and what it means for source organization. Examples
+     include independent consumers, change locality, ownership, framework
+     restrictions, release cadence, and integration volatility. -->
 
-- {{force_and_evidence}}
+- **<Design force, such as independent releases or change locality>:** <Relevant evidence and how this force constrains code organization>.
 
-**Material Decision Notes:**
+### 1.3 Key Design Decisions
 
-- **{{decision_name}}:** {{selected_option_and_decisive_force}}; **Alternative / Cost:** {{credible_alternative_and_tradeoff}}; **Status:** {{decision_approval_status}}.
+<!-- Repeat one decision record for EACH material discretionary choice. Multiple
+     forces can support one decision and one force can affect several decisions.
+     Do not duplicate the detailed module/rule catalog later in this document.
+     If no discretionary choices exist, cite the governing design authority. -->
+
+**<Architectural decision being made>**
+
+- **Choice and Rationale:** <Selected approach and the forces that justify it>.
+- **Alternative and Trade-Off:** <Viable alternative, why it was not chosen, and cost of the decision>.
+- **Status and Authority:** <Decision status and approver, or pending approval reference>.
+- **Revisit Trigger:** <Specific trigger for revisiting the decision, or Not applicable>.
 
 ## 2. Repository Layout
 
 ### 2.1 Repository Strategy
 
-<!-- State monorepo, polyrepo, or hybrid, with each relevant repository and the
-reason for its grouping. Distinguish repository from release boundaries. For a
-single existing repository, say it is retained and why. -->
+<!-- Describe the chosen or retained monorepo, multi-repository, or hybrid
+     arrangement and its implications for access, ownership, build coordination,
+     shared code, and independent releases. Do not infer release boundaries from
+     directory placement alone. -->
 
-{{repo_strategy_and_tradeoff}}
+<Repository strategy, affected release units, rationale, and meaningful trade-offs>
 
 ### 2.2 Root Layout
 
-<!-- Repeat one annotated tree per repository. Use real folder names and role
-annotations. Show the root of a single-unit repo even when the unit is at root.
-If repositories are inaccessible, label the tree a "proposed layout". -->
+<!-- Show one annotated tree per relevant repository. Include meaningful unit,
+     shared-package, tooling, generated-source, and documentation roots only.
+     For an existing repository, mark changes as proposed rather than observed. -->
 
 ```text
-{{repo_root}}/
-├── {{release_unit_dir}}/      # {{owned_unit_role}}
-├── {{optional_shared_pkg}}/     # {{shared_purpose_owner}}
-└── {{docs_dir}}/     # {{design_doc_location}}
+<Repository root name>/
+├── <Release unit path>/            # <Unit responsibility>
+├── <Shared package path, if any>/  # <Shared responsibility and owner>
+└── <Support directory path>/       # <Tooling or documentation purpose>
 ```
 
 ## 3. Code Organization Strategy
 
 ### 3.1 Primary Organization
 
-<!-- One row per release unit. Use "package by feature/capability", "package by
-component", "package by layer", "package by use case/operation", or a
-framework-constrained hybrid. These may combine; identify the dominant grouping
-and any meaningful secondary grouping. Operation folders are not automatically
-modules or release units. Explain shared-invariant ownership and the decisive
-forces/trade-off. The presence of layers does not imply a single module. -->
+<!-- Repeat one row per release unit or group of units using the same approach.
+     State the dominant grouping (capability, component, layer, use case, or
+     justified hybrid), not every directory detail. Explain non-obvious hybrids
+     or significant trade-offs in prose below the table only when necessary. -->
 
-| Unit     | Strategy     | Trade-Off    |
-| -------- | ------------ | ------------ |
-| {{unit}} | {{strategy}} | {{tradeoff}} |
+| Unit        | Primary Grouping | Decisive Driver | Trade-Off   |
+| ----------- | ---------------- | --------------- | ----------- |
+| <Unit name> | <Grouping>       | <Main driver>   | <Trade-off> |
 
-### 3.2 Module Structure
+### 3.2 Internal Structure Patterns
 
-<!-- Repeat for substantive modules only. Internal patterns are optional and can
-combine; possible values: simple, layered, ports and adapters, vertical slices,
-pipes and filters, presentation-state separation. Record the forces, not arbitrary
-complexity scores. An internal-only module is valid. -->
+<!-- Include only modules whose internal pattern materially affects design.
+     Examples: simple module, layered, ports and adapters, vertical slice,
+     pipes and filters, presentation-state separation. Patterns may combine;
+     a pattern name does not imply a required directory structure. -->
 
-| Module     | Pattern(s)  | Rationale     |
-| ---------- | ----------- | ------------- |
-| {{module}} | {{pattern}} | {{rationale}} |
+| Module / Group    | Pattern(s)   | Reason   |
+| ----------------- | ------------ | -------- |
+| <Module or group> | <Pattern(s)> | <Reason> |
 
-### 3.3 Unit Layout
+### 3.3 Unit Layouts
 
-<!-- Repeat one annotated tree per release unit. Show the package/module
-boundaries, significant entrypoints, actual exported public surfaces if any,
-and framework-required roots. Do not substitute an imagined file layout. -->
+<!-- Repeat one annotated tree for each materially distinct release-unit layout.
+     Show architectural modules, intended entry points and framework-required
+     locations; avoid exhaustive file inventories. -->
+
+**<Release unit name>**
 
 ```text
-{{release_unit_path}}/
-├── {{module_a}}/                   # {{responsibility_and_boundary}}
-└── {{module_b}}/                   # {{responsibility_and_visibility}}
+<Release unit root path>/
+├── <First module path>/    # <Responsibility and visibility>
+└── <Another module path>/  # <Responsibility and visibility>
 ```
 
-### 3.4 Pattern Layout
+### 3.4 Pattern-Specific Layouts
 
-<!-- Show one focused annotated tree for each materially different internal
-pattern variant that needs explaining. One universal pattern tree is NOT required
-for modules with different idioms. If all modules are simple or patterns are
-fully represented in Unit Layout, write "Not applicable — ..." instead. -->
+<!-- Include a focused tree for each important internal pattern not already
+     clear in the unit layout. Omit this subsection if no extra detail helps. -->
+
+**<Module name> — <Pattern or combination of patterns>**
 
 ```text
-{{representative_module_path}}/
-├── {{role_a}}/          # {{purpose_and_import_direction}}
-└── {{role_b}}/          # {{purpose_and_visibility}}
+<Module root path>/
+├── <Internal area path>/          # <Responsibility and visibility>
+└── <Another internal area path>/  # <Responsibility and dependency direction>
 ```
 
 ## 4. Module Catalog
 
-<!-- Group modules under their owning release unit or shared package; repeat
-this subsection as 4.2, 4.3, etc. The group owner is the default module owner;
-list module ownership exceptions after the public-surface details. `Direct Edges`
-means PERMITTED DIRECT static source imports or build edges (state the edge kind
-for this document), not observed edges or runtime calls. Use short module names,
-"None", or a named dependency group defined in section 5. Put public surfaces
-and long dependency details in bullets keyed by module. "Internal only" is valid. -->
+<!-- Repeat a numbered subsection (4.1, 4.2, ...) per release unit or separately
+     governed shared package. The group owner is the default; mark exceptions
+     explicitly. Allowed dependencies are DIRECT permitted static source/type
+     imports or declared build edges, not observed imports or runtime calls.
+     Use short module names or dependency-group IDs inside cells; write
+     'Internal only' when no cross-module surface exists. -->
 
-### 4.1 {{unit_or_package}}
+### 4.1 <Release unit or separately governed shared package>
 
-**Owner:** {{default_owner}}. **Dependency Edge:** {{source_import_or_build}}.
+**Owner:** <Team or role accountable for this unit and its module boundaries>.
 
-| Module     | Purpose     | Direct Edges |
-| ---------- | ----------- | ------------ |
-| {{module}} | {{purpose}} | {{allowed}}  |
+**Catalog:**
 
-**Public Surfaces:**
+<!-- Add one row per module. Use concise names or identifiers. Allowed dependencies
+     represent permitted static source/type imports or declared build edges, not
+     observed imports or runtime calls. -->
 
-- **{{module}}:** {{surface}}.
+| Module        | Responsibility                                | Public Surface                              | Allowed Dependencies                     |
+| ------------- | --------------------------------------------- | ------------------------------------------- | ---------------------------------------- |
+| <Module name> | <Primary responsibility owned by this module> | <Public API, entry point, or Internal only> | <Direct permitted dependencies, or None> |
 
-<!-- Optional: list only module owners differing from the group owner. Delete
-this block when ownership does not differ. -->
+**Dependency Graph:**
 
-**Ownership Exceptions:**
+<!-- Include a Mermaid diagram when it makes dependency direction easier to understand.
+     Replace the example nodes and edges below with the actual permitted dependencies.
+     Use separate diagrams if source and build dependency graphs differ. Remove this
+     subsection when the catalog is sufficient. -->
 
-- **{{module}}:** {{different_owner}}.
+```mermaid
+flowchart LR
+    A["Module A"] --> B["Module B"]
+    B --> C["Module C"]
+```
+
+<!-- Each arrow A → B means A may statically depend on B. The diagram must agree with
+     the catalog and dependency policies in Section 5. -->
+
+**Boundary Notes:**
+
+<!-- Include only details not adequately represented by the catalog or diagram,
+     such as protected implementation boundaries, ownership exceptions, or special
+     public-surface constraints. Remove this subsection when unnecessary. -->
+
+- **<Module or boundary name>:** <Specific boundary constraint, affected consumers, or ownership exception>.
 
 ## 5. Dependency Rules
 
-<!-- Record cross-cutting rules, not a duplicate of every module allowlist.
-Do not mark a proposed DR rule adopted when the structural direction still
-awaits approval. Existing imports forbidden by a new rule need a documented
-migration gap/exception, not an assumption that they have already changed.
-Each `Constraint` includes the affected nodes, static edge kind, and
-allowed or forbidden direction. Define named dependency-group membership below
-this table when used by section 4. Keep exceptions short in the table; put
-scope, reason, owner, and review trigger in keyed bullets if they do not fit.
-Each DR-xx links to a real EN-xx entry or an explicit enforcement gap. If only
-per-module allowlists apply, describe their enforcement without inventing a
-redundant DR-xx. -->
+<!-- Define cross-cutting dependency constraints and exceptions not fully
+     captured by the module-specific allowlists in Section 4. Specify the
+     scope, dependency type, constraint, enforcement, and approval status
+     for each rule. Repeat one record per rule. Do not duplicate dependency
+     diagrams or allowed edges from Section 4. If module allowlists are
+     sufficient, state that no additional rules are needed and reference
+     their enforcement in Section 9. -->
 
-| Rule  | Constraint     | Exception  | Check |
-| ----- | -------------- | ---------- | ----- |
-| DR-01 | {{constraint}} | {{except}} | EN-01 |
+**DR-01 — <Short, descriptive name of the dependency rule>**
 
-## 6. Shared Code Policy
+- **Scope:** <Release units, modules, or dependency boundaries governed by this rule>.
+- **Dependency Type:** <Static source/type imports, declared build dependencies, or other explicitly defined dependency relationships>.
+- **Constraint:** <Required or forbidden dependency directions, visibility restrictions, cycle policies, or other enforceable conditions>.
+- **Enforcement:** <Related EN IDs from Section 9, or an explicit enforcement gap if no check exists>.
+- **Status / Authority:** <Approval status and the decision or authority supporting it>.
+- **Exception:** <Affected scope, justification, responsible owner, and review or expiry condition; omit if none>.
 
-### 6.1 Shared Packages and Modules
+## 6. Shared Code and Contract Policy
 
-<!-- Include code intentionally shared across module/release boundaries, not
-private helpers. Put owner and public paths/contracts in the keyed bullets
-immediately below so tables remain narrow. If none, write "Not applicable —
-no cross-module shared packages are proposed" (remove the table and bullets). -->
+### 6.1 Shared Modules and Packages
 
-| Shared Unit | Purpose     | Consumers     |
-| ----------- | ----------- | ------------- |
-| {{shared}}  | {{purpose}} | {{consumers}} |
+<!-- Repeat one record for each intentionally shared module or package.
+     Record its owner, users, intended public access, and release obligations.
+     Independently published shared libraries also appear in Section 1.1.
+     Omit this subsection when there is no cross-boundary shared code. -->
 
-**Ownership and Public Surfaces:**
+**<Shared module or package name>**
 
-- **{{shared}}:** **Owner:** {{owner}}; **Public Surface:** {{exports_or_contract_location}}.
+- **Responsibility / Owner:** <Single responsibility and accountable owner>.
+- **Consumers / Public Surface:** <Intended consumers and exposed API or contract path>.
+- **Compatibility / Release Policy:** <Compatibility, versioning, and release obligations, or Not applicable>.
 
-### 6.2 Ownership, Change, and Contract Policy
+### 6.2 Ownership and Compatibility Policies
 
-<!-- Assign CV-xx IDs to substantive shared-code/contract governance policies;
-put import restrictions in section 5 as DR-xx. Record approval, consumer
-review/verification, and compatibility for published interfaces (do not impose
-Semantic Versioning on private modules). Below the table, key each relevant
-cross-unit contract's source path, consumers, compatibility policy, and
-verification owner by its CV-xx ID; do not cram paths into cells. Delete
-non-applicable example rows, or use "Not applicable — ..." for the subsection. -->
+<!-- Repeat one CV record per substantive governance rule, such as consumer
+     review, shared ownership, versioning, contract-source ownership, or release
+     compatibility. Import restrictions belong in Section 5. Do not impose
+     versioning rules on non-published implementation details. -->
 
-| Rule  | Policy     | Owner     | Check |
-| ----- | ---------- | --------- | ----- |
-| CV-01 | {{policy}} | {{owner}} | EN-02 |
-| CV-02 | {{policy}} | {{owner}} | EN-03 |
+**CV-01 — <Shared code or compatibility policy name>**
 
-<!-- Required only for each recorded cross-unit contract; remove otherwise. -->
+- **Policy / Scope:** <Required policy and the shared boundary to which it applies>.
+- **Owner / Consumers:** <Policy owner and relevant consumers>.
+- **Compatibility / Verification:** <Compatibility obligations and who verifies them>.
+- **Enforcement:** <Related EN IDs, including an explicit enforcement gap if no check exists>.
+- **Status / Authority:** <Proposed or approved status and authorizing decision>.
 
-- **CV-02 Contract Details:** {{source_path}}; {{consumers}}; {{compatibility_policy}}; {{verification_owner}}.
+## 7. Structural Conventions
 
-## 7. Conventions
+<!-- Define only conventions that matter to codebase boundaries: names/public
+     entry points, error translation, dependency composition, configuration,
+     state ownership, logging boundaries, assets, and generated sources. Use
+     the project's language/framework idioms. Repeat one record per convention;
+     group related records under an optional topic heading if there are many. -->
 
-### 7.1 Naming and Public Surfaces
+**CV-02 — <Structural convention name>**
 
-<!-- Name module/path/public-entry conventions and how consumers discover
-module APIs; use project language/framework idioms and do not copy formatter
-configuration. Assign each genuine CV-xx a unique ID and an EN-xx mapping. -->
-
-| Rule  | Convention     | Owner     | Check |
-| ----- | -------------- | --------- | ----- |
-| CV-03 | {{convention}} | {{owner}} | EN-04 |
-
-### 7.2 Error Boundaries
-
-<!-- Describe failure categories and where module-specific or vendor errors
-are translated for consumers. If no meaningful error boundary exists (for
-example static assets), replace the table with "Not applicable — ...". -->
-
-| Rule  | Convention     | Owner     | Check |
-| ----- | -------------- | --------- | ----- |
-| CV-04 | {{convention}} | {{owner}} | EN-05 |
-
-### 7.3 Additional Structural Conventions
-
-<!-- OPTIONAL: Rename this subsection to one topic (for example "Dependency
-Composition", "Configuration Ownership", "Logging Boundaries", "State
-Ownership", or "Generated Sources"). Repeat as 7.4, 7.5, ... only if relevant.
-If none, replace the table with "Not applicable — no additional structural
-conventions are required". -->
-
-| Rule  | Convention     | Owner     | Check |
-| ----- | -------------- | --------- | ----- |
-| CV-05 | {{convention}} | {{owner}} | EN-06 |
+- **Scope / Convention:** <Affected paths or modules and the convention they must follow>.
+- **Owner / Exceptions:** <Responsible owner and bounded exceptions, or None>.
+- **Enforcement:** <Related EN IDs, including an explicit enforcement gap if no check exists>.
+- **Status / Authority:** <Proposed or approved status and authorizing decision>.
 
 ## 8. Test Layout
 
-### 8.1 Test Types and Placement
+### 8.1 Test Placement
 
-<!-- Include only applicable unit/module/integration/contract/E2E or equivalent
-types. A library need not have E2E tests. State colocated, mirrored, or hybrid
-placement and naming pattern; put long paths in bullets keyed by test type. -->
+<!-- Repeat per applicable test boundary (module, integration, contract, E2E,
+     etc.). Select types justified by this codebase; not every release unit
+     needs every test type. Use concise relative paths. -->
 
-| Type     | Boundary  | Location | Stage     |
-| -------- | --------- | -------- | --------- |
-| {{type}} | {{scope}} | {{path}} | {{stage}} |
+| Boundary   | Type        | Location    | Owner   |
+| ---------- | ----------- | ----------- | ------- |
+| <Boundary> | <Test type> | <Test path> | <Owner> |
 
-### 8.2 Module and Boundary Mapping
+### 8.2 Test Support and Execution
 
-<!-- Map substantive modules to their primary tests or explain that their
-behavior is verified through a larger test boundary. Add contract/provider or
-cross-unit tests only when relevant and identify ownership. -->
+<!-- State how fixture/double ownership and visibility work, and when relevant
+     structural tests run (local, pre-merge, release). Do not invent passing
+     results or require production modules to import test-only utilities. -->
 
-| Module / Contract | Tests     | Owner     |
-| ----------------- | --------- | --------- |
-| {{boundary}}      | {{tests}} | {{owner}} |
-
-### 8.3 Fixtures and Test Doubles
-
-<!-- Define fixture owner, where shared test support lives, any legitimate test
-visibility exception, and that production may not import test support. If no
-fixtures/doubles are needed state "Not applicable — ...". -->
-
-- {{fixtures_and_test_doubles_policy}}
+- **Fixtures and Test Doubles:** <Location, ownership, and visibility of fixtures and test doubles, or Not applicable>.
+- **Execution Boundaries:** <When relevant structural tests run and which checks they cover, or Not applicable>.
 
 ## 9. Enforcement
 
-<!-- Use one keyed list entry per unique EN-xx; an entry may cover many DR/CV
-rules, and a rule may link to multiple checks. Repeat the example for each
-populated rule in sections 5–7 and do not duplicate an EN ID. State the actual
-check and what sources/edges it covers; "CI" alone is not a mechanism. Include
-review trigger for human review, or explicitly mark a gap. The illustrative
-CV-01–CV-05 rows refer to EN-02–EN-06: create those check entries if keeping
-the rules, otherwise remove the rows and unused IDs. Do not mark planned
-checks Active; evidence must come from an observed execution or review. -->
+<!-- Repeat one EN record for every unique EN ID referenced in Sections 5–7.
+     An EN entry may cover multiple rules; a rule can have several EN entries.
+     Specify the actual mechanism, not only 'CI'. Distinguish whether a check
+     exists from whether it has actually run. Record an explicit gap when
+     enforcement is absent. -->
 
-- **EN-01 — {{check_name}}**
-  - **Rules:** DR-01.
-  - **Mechanism / Scope:** {{mechanism_and_paths_or_gap}}.
-  - **Stage:** {{local_ci_review_or_unscheduled}}.
-  - **Owner:** {{owner}}.
-  - **Status:** {{active_proposed_or_gap}}.
-  - **Evidence / Limitations:** {{observed_evidence_or_not_run}}.
+**EN-01 — <Enforcement check or review name>**
 
-## 10. Restructuring Path
+- **Rules / Coverage:** <Covered DR/CV rule IDs, modules, paths, and edge types>.
+- **Mechanism / Stage:** <Executable check or focused review criterion and execution stage>.
+- **Owner / Implementation Status:** <Responsible owner or unassigned>; <Active, Planned, or Gap>.
+- **Execution Evidence:** <Passed, Failed, Not Run, or Blocked, with evidence or reason>.
+- **Limitations / Exceptions:** <Known blind spots or explicitly bounded exceptions, or None>.
 
-### 10.1 Current Gaps
+## 10. Migration Plan
 
-<!-- Existing-codebase restructuring only; each gap must reference observed
-paths or dependency edges, a rule, affected consumer, and a related step.
-If not restructuring, state "Not applicable — new design" or
-"Not applicable — no structural changes requested". Never infer violations
-from stylistic preference alone. -->
+<!-- Use only when changing an existing structure. For greenfield or unchanged
+     design, state 'Not applicable — ...' and omit subsections. A proposal may
+     contain planned steps without implying permission to execute them. The
+     Review Template contains recommendations, not a detailed migration plan. -->
 
-| Gap  | Evidence / Impact | Rule        | Step     |
-| ---- | ----------------- | ----------- | -------- |
-| G-01 | {{evidence}}      | {{rule_id}} | {{step}} |
+### 10.1 Current-to-Target Gaps
+
+<!-- Repeat one gap per evidenced structural difference that needs action.
+     Tie each gap to observed paths/edges, the desired boundary, and relevant
+     finding/rule IDs. A stylistic difference need not be a violation. -->
+
+**G-01 — <Observed gap or required structural change>**
+
+- **Observed State / Evidence:** <Observed paths or edges and supporting evidence>.
+- **Target State / Rule:** <Proposed target boundary and relevant DR/CV rule IDs>.
+- **Affected Consumers / Risk:** <Affected consumers, compatibility needs, and release risks>.
 
 ### 10.2 Migration Steps
 
-<!-- Use an ordered list: steps carry too much distinct information for a
-readable table. Repeat one item per small, dependency-ordered, reviewable change.
-Link observed gap IDs, name owner, test/check evidence, and compatibility or
-release recovery (source revert alone may not reverse published changes).
-"Verified" requires executed checks and evidence, not merely a plan. For new
-code or review-only tasks, use a specific Not applicable reason. -->
+<!-- Repeat the numbered item for each dependency-ordered step. Record what
+     changes, when it is safe to proceed, how to verify the declared scope,
+     and how to recover (source rollback and release recovery may differ).
+     Report executed results separately from planned verification. -->
 
-1. **{{step_title}}** — {{proposed_in_progress_blocked_or_verified}}
-   - **Change / Prerequisites:** {{change_and_preconditions}}.
-   - **Addresses:** G-01.
-   - **Owner:** {{owner}}.
-   - **Verification / Evidence:** {{executed_or_planned_checks}}.
-   - **Compatibility / Recovery:** {{contract_compatibility_and_release_recovery}}.
+1. **<Migration action in dependency order>** — <Proposed, In Progress, Blocked, or Complete>.
+   - **Scope / Prerequisites:** <Affected paths, consumers, approvals, and prerequisites>.
+   - **Change / Expected Dependency Delta:** <Planned structural change and expected dependency delta>.
+   - **Addresses / Owner:** <Related G, DR, or CV IDs>; <Owner of this step>.
+   - **Verification / Evidence:** <Acceptance checks and observed result, or Not Run if only planned>.
+   - **Compatibility / Recovery:** <Compatibility window, source rollback, and release recovery when applicable>.

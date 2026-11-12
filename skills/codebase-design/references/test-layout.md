@@ -59,7 +59,7 @@ In the design document:
 
 1. Map every **substantive** module or reusable package to its primary test location, or state why its behavior is tested through a larger boundary. Avoid manufacturing an empty test directory for a purely declarative module.
 2. Record integration tests at the point that owns each meaningful external adapter.
-3. State where application/end-to-end tests live **when applicable**; a library with no executable user flow need not have e2e tests.
+3. State where application/end-to-end tests live **when applicable**; a library with no executable user flow need not have end-to-end tests.
 4. For independently evolving contracts, identify the verification approach and which participants are responsible. In consumer-driven contract testing, consumer expectations and provider verification form one workflow; a generated contract file alone is insufficient. Not every internal function or package needs consumer-driven contract files.
 5. Record packaging and execution constraints: tests must not leak into shipping artifacts unintentionally, and slow/external tests should have an intentional CI stage.
 
@@ -101,4 +101,4 @@ Placement and ownership:
 
 Record which test groups run locally, pre-submit/PR CI, merge/mainline, or on demand. Place cheap deterministic tests early and expensive environment-dependent tests later. For migration, run relevant characterization/regression tests before and after each boundary move.
 
-A test layout document should **not** claim test coverage or passing status without executed evidence.
+In Design, specify intended test locations and run stages. In Review, distinguish observed test locations and executed results from proposed improvements; absent or unrun suites are not passing evidence. A test layout document must **not** claim coverage or passing status without execution evidence.

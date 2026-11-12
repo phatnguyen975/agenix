@@ -4,7 +4,7 @@
 
 Specify conventions that maintain module boundaries, code discoverability, and safe integration. **Do not duplicate** formatter rules, feature-level business logic, complete security policies, or tutorials on framework APIs. Select each area **only** if it changes a structural decision; naming and public-surface guidance are relevant whenever modules exist, and some topics below are conditional.
 
-For every selected convention: state **scope, required behavior, exceptions, owner, and check**. Use stable `CV-xx` rule IDs in a design document. Prefer established language/framework conventions over arbitrary universal naming styles.
+For every selected convention, state **scope, required behavior, exceptions, owner, and check**. A Review distinguishes existing adopted conventions from recommended new ones; a proposed `CV-xx` rule is not evidence of a violation until adopted. Use stable `CV-xx` rule IDs in a design document. Prefer established language/framework conventions over arbitrary universal naming styles.
 
 | Area                      | Include When                                                          |
 | ------------------------- | --------------------------------------------------------------------- |
