@@ -62,6 +62,17 @@ Reaction: If notification is required, inform applicant
 
 This trace is a working illustration, not an approved requirement. Ask the human to establish material preconditions and refusal behavior before a final design; never carry the bracketed hypothesis into a delivered model.
 
+## Model Business Behavior
+
+Model the **business decision and its effects** before selecting optional tactical patterns. For each material scenario, determine:
+
+1. **Action or trigger:** What intention, time condition, or established fact starts the decision? A locally handled action is not necessarily a message across a context boundary.
+2. **Decision owner:** Which business role, domain concept, or bounded context has the authority to accept or refuse it? Distinguish decision authority from technical orchestration.
+3. **Outcome:** What accepted result is required, and what refusal or exception is authorized when conditions are not met? A successful outcome is not automatically a Domain Event.
+4. **Rules:** Which confirmed business rules, preconditions, and constraints govern the decision? Reuse their identities consistently across scenarios.
+
+A bounded context may have meaningful behavior without an Aggregate or Domain Service. When an Aggregate is justified, connect its invariants to relevant business rules and behavior rather than duplicating the full behavior catalogue. Model Policies and Domain Services only for actual reactions or domain decisions; do not manufacture them to make the design appear complete.
+
 ## Decide Where Behavior Belongs
 
 1. Put behavior that depends on **an entity's own identity, lifecycle, or rules** with that entity or its owning aggregate.
@@ -89,6 +100,7 @@ Strategic type (`Core`, `Supporting`, `Generic`) helps prioritize **investment**
 - Do entity identity and value equality follow actual business needs, not an ORM or database structure?
 - Does the proposed aggregate protect a real consistency rule? If uncertain, consult `aggregate-design.md`.
 - Are preconditions, invariants, process reactions, and external constraints distinguishable?
+- Does each material action/trigger have supported decision ownership, outcomes/refusals, and applicable rules, independently of whether an Aggregate is modeled?
 - Are commands intents, events established facts, and refusals outcomes unless the business explicitly treats them as facts?
 - Are domain services business decisions, not technical orchestrators or generic helper objects?
 - Are optional tactical elements omitted when they would add no domain understanding?

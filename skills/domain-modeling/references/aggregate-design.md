@@ -20,7 +20,7 @@ Use when domain behavior needs an explicit **identity and consistency boundary**
 5. For each command, specify permitted outcomes, refusal conditions, and which invariants must be maintained.
 6. Exercise concurrency, stale information, cancellation, and partial failure. Reconsider boundary and process ownership if the model cannot uphold its own guarantee.
 
-Record the root, responsibility, internal concepts, invariant sources, operations/outcomes, references to other aggregates, and lifecycle **if it materially constrains behavior**.
+Record the root and identity, consistency responsibility, internal concepts, invariant sources, references to other aggregates, and lifecycle if it materially constrains behavior. Describe actions, decisions, and outcomes at the bounded-context **Business Behavior** level and link relevant Aggregate invariants to those entries; do not duplicate full action catalogs for each Aggregate.
 
 ## Local and Cross-Aggregate Consistency
 
@@ -82,4 +82,4 @@ These checks challenge the business model; they do **not** prescribe persistence
 - Are independently owned aggregates referenced by identity where practical?
 - Are lifecycles documented only when states genuinely constrain decisions?
 - Are eventual outcomes, hard guarantees, and external constraints explicitly distinguished?
-- Are material concurrency, cancellation, and failure semantics confirmed before declaring the aggregate model validated?
+- Are material concurrency, cancellation, and failure semantics confirmed before accepting the aggregate design?

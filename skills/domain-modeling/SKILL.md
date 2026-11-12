@@ -39,25 +39,25 @@ Respect the user's language, file path, project conventions, and stated scope. W
 
 1. **Source business facts.** Use approved requirements, explicit business scenarios, authorized stakeholder/domain-expert decisions, and relevant project artifacts. Cite material rules and decisions. Existing code describes observed behavior, not necessarily intended business policy. Do not invent rules, events, authorities, guarantees, or approvals.
 2. **Clarify early and continuously.** At intake, compare inputs for missing scope, conflicting terminology, unowned decisions, and undefined outcomes. Ask the human for **material** gaps before relying on them. During strategic, behavioral, and tactical modeling, ask again when new material uncertainties appear; do not defer all clarification to the last step.
-3. **Distinguish a working hypothesis from a final decision.** A provisional model, candidate boundary, or proposed policy may guide **internal discovery** while evidence is incomplete. Label it explicitly in working analysis and identify what must be confirmed. Never silently promote a proposal to a business fact or a validated deliverable.
+3. **Distinguish a working hypothesis from a final decision.** A provisional model, candidate boundary, or proposed policy may guide **internal discovery** while evidence is incomplete. Label it explicitly in working analysis and identify what must be confirmed. Never silently promote a proposal to a business fact or final deliverable.
 4. **Require authoritative confirmation where it matters.** A decision is material if changing it could alter business outcomes, rules/exceptions, core terminology, responsibility/authority, context boundaries with business consequences, hard invariants, cross-context obligations, or required scenarios. Confirm these decisions with the human unless an existing, explicit, authoritative approval already establishes them. Silence, tool output, and AI inference are not approval. Do not ask humans to approve every ordinary modeling choice.
 5. **Separate design judgment from business authority.** The agent may choose and justify DDD representations that preserve confirmed business semantics. When alternatives encode different business obligations or ownership, present the trade-off and ask for a human decision.
-6. **No unresolved decisions in the final design.** If a material point remains unanswered or conflicting, pause the affected design/evolution, ask precise questions, and do not write or overwrite the final model. Provisional notes can be discussed in conversation if useful; they are not `domain-model.md` and must not be described as validated. Exclude optional, irrelevant detail rather than inventing it; do not use exclusions to conceal an in-scope gap.
+6. **No unresolved decisions in the final design.** If a material point remains unanswered or conflicting, pause the affected design/evolution, ask precise questions, and do not write or overwrite the final model. Provisional notes can be discussed in conversation if useful; they are not the final `domain-model.md`. Exclude optional, irrelevant detail rather than inventing it; do not use exclusions to conceal an in-scope gap.
 
 ## Reference Routing
 
-Use **progressive disclosure** — load only the reference supporting the current decision. For a focused task, skip unrelated phases. Read `references/model-validation.md` when checking or preparing any deliverable. Read the `assets/domain-model-template.md` only when authoring or auditing a complete design document.
+Use **progressive disclosure** — load only the reference needed for the current modeling decision. For focused tasks, skip unrelated topics. Read `references/model-validation.md` when validating or reviewing a deliverable. Read the `assets/domain-model-template.md` only when authoring or auditing a complete design document.
 
-| Decision or Task                                                                | Read                                |
-| ------------------------------------------------------------------------------- | ----------------------------------- |
-| Business events, process branches, triggers, and discovery hotspots             | `references/event-discovery.md`     |
-| Term definitions, synonyms, conflicting meanings, and translations              | `references/ubiquitous-language.md` |
-| Business capabilities, subdomains, strategic importance, and context boundaries | `references/strategic-design.md`    |
-| Context relationships, influence, collaborations, and business messages         | `references/context-mapping.md`     |
-| Business rules, commands, policies, entities/value objects, and domain services | `references/tactical-design.md`     |
-| Aggregate roots, invariants, lifecycles, and consistency boundaries             | `references/aggregate-design.md`    |
-| Scenario checks, review findings, confirmation and release gates                | `references/model-validation.md`    |
-| Complete validated design-document structure                                    | `assets/domain-model-template.md`   |
+| Decision or Task                                                                          | Read                                |
+| ----------------------------------------------------------------------------------------- | ----------------------------------- |
+| Business events, process branches, triggers, and discovery hotspots                       | `references/event-discovery.md`     |
+| Term definitions, synonyms, conflicting meanings, and translations                        | `references/ubiquitous-language.md` |
+| Business capabilities, subdomains, strategic importance, and context boundaries           | `references/strategic-design.md`    |
+| Context relationships, influence, collaborations, and business messages                   | `references/context-mapping.md`     |
+| Business rules, behavior, commands, policies, entities/value objects, and domain services | `references/tactical-design.md`     |
+| Aggregate roots, invariants, lifecycles, and consistency boundaries                       | `references/aggregate-design.md`    |
+| Scenario checks, review findings, confirmation and release gates                          | `references/model-validation.md`    |
+| Complete domain-model document structure                                                  | `assets/domain-model-template.md`   |
 
 ## Modeling Workflow
 
@@ -87,7 +87,7 @@ This is a **default order, not a rigid waterfall**. Discovering behavior may cha
 
 ### 5. Model Rules and Consistency
 
-- Within relevant contexts, use `references/tactical-design.md` for rules, intentions, outcomes, policies, identities, and domain services.
+- Within relevant contexts, use `references/tactical-design.md` for confirmed business rules and behavior (actions, triggers, decision owners, outcomes), then policies, identities, and domain services as justified.
 - Use `references/aggregate-design.md` when actual invariants, lifecycle restrictions, or concurrent decisions require a consistency boundary. Choose tactical depth from domain complexity and scenarios, not solely from subdomain type.
 - Clarify unknown refusal behavior, timing, authority, and required consistency with the human before treating them as design requirements.
 
@@ -95,12 +95,12 @@ This is a **default order, not a rigid waterfall**. Discovering behavior may cha
 
 - Apply `references/model-validation.md` to the requested scope and its relevant dependencies. Check evidence, confirmed decisions, normal/alternative/refusal scenarios, terminology, ownership, consistency, and cross-context semantics where applicable.
 - Resolve failures and material blockers, obtain any missing human decisions, update the model, and rerun affected checks. Only release a final design after all release gates pass; otherwise ask for the missing decisions and stop without creating or overwriting the final artifact.
-- For a full Design/Evolve deliverable, complete the `assets/domain-model-template.md` **after** validation, with no unresolved questions, provisional claims, or instructional placeholders. For a focused deliverable, use the smallest appropriate format. For Review, return findings and validation limits, not an automatically edited model.
+- For a full Design/Evolve deliverable, populate the `assets/domain-model-template.md` **after** validation, with no unresolved questions, provisional claims, instructional placeholders. For focused work, deliver the requested model slice without inventing a full document. For Review, report findings and limitations; do not edit the model without permission.
 
 ## Operation-Specific Checks
 
 - **Design:** Verify that each in-scope requirement and business scenario maps to an appropriate decision, context, or explicitly confirmed external responsibility. Do not let the template dictate unsupported tactical elements.
-- **Evolve:** Trace the change through terminology → rules/decisions → context responsibilities → relationships/messages → aggregate behavior/consistency → affected scenarios as relevant. Preserve unaffected, evidence-backed material. Do not overwrite a validated model with an unconfirmed change; ask and keep the original unchanged until affected release gates pass.
+- **Evolve:** Trace changed requirements through terminology → rules and behavior → context ownership and relationships → cross-boundary business messages → affected aggregates and invariants → regression scenarios, as applicable. Preserve unaffected, evidence-backed material. Do not overwrite the existing final model with an unconfirmed change; leave it unchanged until the applicable release gates pass.
 - **Review:** Distinguish confirmed defects, unverifiable claims, and optional improvements. Report location, finding, evidence, impact/severity, and recommended correction or human decision. An assessment can finish with blockers; that does **not** validate the assessed design. If corrections are requested, use the Evolve workflow and its release gate.
 
 ## Final Quality Gates
@@ -112,5 +112,5 @@ A final Design/Evolve model, whether focused or full, must satisfy the applicabl
 - **Coverage:** Material in-scope capabilities and scenarios have owned business behavior and supported results; exclusions are intentional and confirmed.
 - **Boundaries:** Subdomains, bounded contexts, ownership, and important dependencies are coherent and do not conflate domain design with deployment architecture.
 - **Behavior and Consistency:** Events are facts, commands are intentions, refusals are not manufactured events; claimed invariants and cross-context guarantees are supportable under relevant failure/concurrency cases.
-- **Validation:** Required scenarios pass; there are no material `Fail` or `Blocked` outcomes in the validated scope. Review findings never substitute for acceptance.
-- **Artifact:** No open-question section, pending confirmations, hypotheses presented as decisions, or unfilled `<...>` instructions in a final document. The recorded scope, sources, confirmations, and validation results match the completed work.
+- **Validation:** Required scenarios pass; there are no material `Fail` or `Blocked` outcomes in the agreed scope. Review findings never substitute for acceptance.
+- **Artifact:** No unfilled `<...>` instructions, open questions, pending approvals, invented content, or provisional decisions appear in the delivered model.

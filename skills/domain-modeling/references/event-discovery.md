@@ -73,9 +73,9 @@ For design-level discovery:
 - Represent external observations and inter-context notifications without assuming every event originates from an aggregate.
 - Preserve the original business language even if it does not map directly to code classes or a messaging system.
 
-## Optional Process Diagram
+## Business Flow Diagram
 
-Use a diagram only when it clarifies decisions or branches. Label element types explicitly so an agent does not confuse intentions and facts:
+Use a business-flow diagram only when it clarifies a material process, decision, exception, or handoff. A flow can show actions and outcomes without requiring Domain Events. Label intentions, decisions, and established facts distinctly so they cannot be mistaken for one another:
 
 ```mermaid
 flowchart LR

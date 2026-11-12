@@ -53,14 +53,15 @@ Model **business interactions**, not transport, payload, API endpoint, or queue 
 
 A **domain event** describes an occurrence in a context's internal domain model. A published **integration event / event notification** represents a fact communicated outside its boundary. They may align, but need not share internal names, detail, timing, or contract. A query response is not automatically a domain event.
 
-For every **known, relevant** message, record:
+For each confirmed, material business message:
 
-- **Initiator/sender and recipient** (bounded context, actor, or external collaborator), its business meaning, and supporting evidence. Unconfirmed business-level messages belong in working discovery, not a final context description.
-- **Conversation semantics** (what is being requested or reported, and meaningful accepted/refused/reply paths). Do not promise synchronous or asynchronous behavior without evidence.
-- **Model translation** at the boundary where terms differ, including which context owns the decision made with received data.
-- For two **in-scope contexts**, reconcile sender **Outbound** with receiver **Inbound**. External systems may appear as collaborators without a complete external context model.
+1. Identify its kind and business meaning: a **Command** requests an action, a **Query** requests information, an **Event Notification** reports a fact, and a **Result/Reply** returns a meaningful outcome. A refusal is an outcome unless the business explicitly recognizes and communicates it as a fact.
+2. Identify the **sender and recipient**, including external systems when relevant. State **Inbound** or **Outbound** relative to the context being examined; an action initiated inside a context is not automatically a cross-boundary message.
+3. Identify the required **request/reply or accepted/refused semantics**, when supported by business evidence. Do not infer delivery, synchronization, or transport guarantees from a domain-level exchange.
+4. Identify **translation and decision ownership** where the participants use different meanings. A notification or query response does not transfer business authority by itself.
+5. Cross-check **both sides** whenever the sender and recipient are in-scope bounded contexts. Names may differ across the boundary, but their documented meanings, directions, and expected outcomes must reconcile.
 
-Shared Kernel is joint model ownership, not a message; do not invent interactions just to illustrate it. Direct interaction from a person is not by itself a bounded-context relationship.
+External systems can participate without a modeled internal context. A Shared Kernel denotes jointly owned model elements, not a message. A direct user action is not automatically a context-to-context exchange. Do not invent messages simply because a relationship exists.
 
 ## Example: Downstream Query to Upstream
 
@@ -84,7 +85,7 @@ The **message query goes downstream-to-upstream**, despite the upstream model in
 - Are arrow direction, collaboration posture, and message direction kept distinct?
 - Does each final pattern represent a justified design arrangement, without asserting unconfirmed partnerships, contract authority, or shared ownership?
 - Are distinct context meanings and translations explained without collapsing the models?
-- Are cross-context messages consistent with both contexts' descriptions, including requests and material responses?
+- Do the sender's and recipient's accounts of each cross-context business message agree on direction, meaning, and material response?
 - Are independent contexts shown without invented edges or mandatory `Separate Ways` rows?
 - Are external providers or legacy boundaries explicitly distinguished from locally owned bounded contexts?
 - Have material translations, failure obligations, and collaboration responsibilities been clarified with humans before final delivery?

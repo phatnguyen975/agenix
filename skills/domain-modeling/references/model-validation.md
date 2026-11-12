@@ -60,7 +60,7 @@ Result: Blocked until the responsible business owner clarifies the timing rule
 Action: Ask owner; do not publish the design or infer an eventual policy
 ```
 
-The scenario is illustrative only. A working `Blocked` trace belongs in analysis or a review report, **never** in a final validated design document.
+The scenario is illustrative only. A working `Blocked` trace belongs in analysis or a review report, **never** in the final domain model.
 
 ## Semantic Review
 
@@ -80,22 +80,22 @@ For domain-specific corrections, load only the relevant guide: `ubiquitous-langu
 
 ## Final Design Release Gate
 
-A **Design/Evolve deliverable** may be called **Validated** only for the documented scope when **all** applicable gates pass:
+Release a **final Design/Evolve model** for the agreed scope only when **all** applicable gates pass.:
 
 1. **Business authorization:** all material in-scope ambiguities and conflicting evidence have been resolved by an appropriate human or explicit prior approved requirement; important decisions have traceable confirmation.
 2. **Model correctness:** required capabilities, rules, ownership, meanings, and boundaries reflect that authority. Proposed modeling choices do not smuggle in new business policies.
 3. **Scenario acceptance:** required in-scope scenarios **Pass**; no material **Fail** or **Blocked** result remains. Nonapplicable cases are explicitly outside scope rather than silently assumed to pass.
 4. **Consistency:** known cross-context exchanges reconcile with both sides; actual hard guarantees survive relevant concurrency/failure reasoning; optional patterns are not added for completeness.
-5. **Artifact integrity:** the final document contains **no unresolved questions, pending approvals, tentative business claims, instructional placeholders, or fictitious examples**. It states the validated scope, source evidence, significant decision confirmations, and checks actually performed.
+5. **Completeness of meaning:** the delivered model represents agreed business semantics with no unresolved material question, pending approval, tentative rule, or fictitious example. Keep the working validation record separate from the business model and retain traceability to authoritative sources where important.
 
-**If a gate fails:** ask specific human questions or correct demonstrable modeling defects; revalidate afterward. Do **not** create or overwrite the final `domain-model.md` as an incomplete Draft. Keep provisional hypotheses in working analysis only. If a user explicitly requests a preview, label it clearly **Provisional — Not Validated**, do not present it as the final design or use the final template to disguise unresolved content.
+**If a gate fails:** clarify the missing decision or correct the evidenced model defect, then rerun affected checks. Do **not** publish an incomplete final design or overwrite an accepted model with an unconfirmed change. Keep provisional hypotheses separate from finalized business claims. If a preview is requested, identify its provisional nature and limits; never present it as the completed design.
 
-**Validated is scoped, not permanent:** a new or changed business rule can invalidate affected parts of an earlier model. Evolution rechecks those parts and regression scenarios; unrelated confirmed material remains intact.
+**Acceptance is scoped, not permanent:** a new or changed business rule can affect previous design decisions. Evolution rechecks those parts and regression scenarios; unrelated confirmed material remains intact.
 
 ## Review and Evolution Results
 
-- **Review-only:** return findings ordered by impact. For each give **location → finding → supporting evidence → impact/severity → correction or decision needed**. It is legitimate for a review report to identify unresolved issues, but the assessed model must not be labeled Validated on that basis. Do not edit without authorization.
+- **Review-only:** return findings ordered by impact. For each give **location → finding → supporting evidence → impact/severity → correction or decision needed**. A review may identify unresolved issues; its findings do not establish that the assessed model is correct. Do not edit without authorization.
 - **Evolve:** inspect the original, establish changed business intent, trace impact, confirm material decisions, test affected and regression scenarios, then update the file only after the release gate passes. If blocked, leave the existing file untouched and request clarification.
-- **Focused:** validate the requested slice and its material dependencies. Do not claim the entire domain is validated because one aggregate or terminology change passes.
+- **Focused:** validate the requested slice and its material dependencies. Do not treat the entire domain as accepted merely because one aggregate or terminology change passes.
 
-For a completed model, summarize: **validated scope, key evidence/confirmations, scenario coverage/results, and intentional exclusions**. Do not create a standing unresolved-issues section in the final design.
+At handoff, briefly communicate the checked scope, major evidence, scenario results, and meaningful limitations **separately from the domain model**. Validation results and review findings describe the assessment, not the business design itself.

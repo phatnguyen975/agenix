@@ -20,6 +20,8 @@ Use when discovering or maintaining the shared language of domain experts and mo
 5. Choose a preferred term and scope. Capture aliases, counterexamples, and cross-context translations when they materially clarify decisions.
 6. Update all dependent model elements when a definition changes. Recheck affected scenarios and externally understood terms.
 
+**Definition quality:** For each important term, establish its **bounded-context scope**, preferred name, precise meaning, and any material aliases, contrasts, or translations. Scope can be implicit when the containing model is already unambiguously identified. Avoid large dictionaries of ordinary words or repeated metadata that does not help distinguish business meaning.
+
 ## Meaning and Identity Examples
 
 | Term       | Context   | Illustrative Meaning                                      |
