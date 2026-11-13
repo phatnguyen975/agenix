@@ -21,7 +21,7 @@ Identify the stated scope, source requirements, scenario references, relevant hu
 4. **Reconcile changes:** update affected terminology, ownership, policies, aggregate guarantees, context exchanges, and scenario expectations; check that old evidence is not treated as current after a superseding decision.
 5. **Repeat when necessary:** new material gaps can surface at any modeling step. Working candidates may be explored internally, but final design publication remains blocked until affected decisions are resolved.
 
-**Example (not a prescribed business rule):** If `OrderConfirmed` can be reached before a stock-reservation reply, ask: "Is confirmation allowed while reservation is pending, or must stock first be reserved? Which outcome is required if stock is refused?" The chosen answer determines the process, refusal behavior, and possibly context responsibilities. Do not invent a compensation policy.
+**Example:** If `OrderConfirmed` can be reached before a stock-reservation reply, ask: "Is confirmation allowed while reservation is pending, or must stock first be reserved? Which outcome is required if stock is refused?" The chosen answer determines the process, refusal behavior, and possibly context responsibilities. Do not invent a compensation policy.
 
 ## Scenario Coverage
 
@@ -35,8 +35,6 @@ Select cases that exercise **distinct business decisions and risks**, proportion
 | **Consistency / Concurrency** | Competing decisions, repeated actions, stale information, hard invariant preservation |
 | **Cross-Context / Failure**   | Model translation, ownership, denied or delayed collaboration, partial completion     |
 | **Regression**                | Previously accepted behavior and downstream effects changed by evolution              |
-
-An agent may **propose** a stress case to reveal a missing policy. That proposal is not evidence that the business requires a particular result.
 
 ## Walk Through Each Scenario
 
@@ -80,7 +78,7 @@ For domain-specific corrections, load only the relevant guide: `ubiquitous-langu
 
 ## Final Design Release Gate
 
-Release a **final Design/Evolve model** for the agreed scope only when **all** applicable gates pass.:
+Release a final model for the agreed scope only when **all** applicable gates pass:
 
 1. **Business authorization:** all material in-scope ambiguities and conflicting evidence have been resolved by an appropriate human or explicit prior approved requirement; important decisions have traceable confirmation.
 2. **Model correctness:** required capabilities, rules, ownership, meanings, and boundaries reflect that authority. Proposed modeling choices do not smuggle in new business policies.

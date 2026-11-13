@@ -41,9 +41,9 @@ Section Guidance
 
 <!-- Optional. Include relevant business actors and external collaborators only. -->
 
-| Collaborator                    | Kind                       | Business Role                           |
-| ------------------------------- | -------------------------- | --------------------------------------- |
-| <Actor or external system name> | <Actor or External System> | <Role in an in-scope business scenario> |
+| Collaborator                    | Kind                    | Business Role                           |
+| ------------------------------- | ----------------------- | --------------------------------------- |
+| <Actor or external system name> | <Actor/External System> | <Role in an in-scope business scenario> |
 
 ## 2. Subdomains
 
@@ -97,9 +97,9 @@ flowchart LR
 
 #### Business Rules
 
-| ID                     | Business Rule                 | Source                       |
-| ---------------------- | ----------------------------- | ---------------------------- |
-| <Rule ID, e.g., BR-01> | <Confirmed rule or exception> | <Requirement or decision ID> |
+| ID                     | Business Rule                 | Source                    |
+| ---------------------- | ----------------------------- | ------------------------- |
+| <Rule ID, e.g., BR-01> | <Confirmed rule or exception> | <Requirement or decision> |
 
 #### Business Behavior
 
@@ -119,9 +119,9 @@ flowchart LR
      name. Match the two sides for messages between in-scope contexts. Shared
      Kernel and direct user action do not themselves imply cross-context messages. -->
 
-| Direction             | Collaborator                               | Message                 | Business Meaning                         |
-| --------------------- | ------------------------------------------ | ----------------------- | ---------------------------------------- |
-| <Inbound or Outbound> | <Other bounded context or external system> | <Message kind and name> | <Purpose and meaningful result or reply> |
+| Direction          | Collaborator                               | Message                 | Business Meaning                         |
+| ------------------ | ------------------------------------------ | ----------------------- | ---------------------------------------- |
+| <Inbound/Outbound> | <Other bounded context or external system> | <Message kind and name> | <Purpose and meaningful result or reply> |
 
 #### Business Flows
 

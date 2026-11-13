@@ -105,7 +105,7 @@ This is a **default order, not a rigid waterfall**. Discovering behavior may cha
 
 ## Final Quality Gates
 
-A final Design/Evolve model, whether focused or full, must satisfy the applicable checks:
+A final model, whether focused or full, must satisfy the applicable checks:
 
 - **Authority:** No material unresolved or conflicting business fact or decision within scope; material business decisions have explicit human confirmation or traceable prior approval.
 - **Semantics:** Terminology and business rules agree across requirements, examples, and relevant contexts; contextual differences and translations are explicit.
