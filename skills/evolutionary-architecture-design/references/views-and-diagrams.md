@@ -56,7 +56,7 @@ flowchart LR
 ## Container Example
 
 ```mermaid
-flowchart TD
+flowchart TB
   customer(["Customer<br/>[Person]"])
   provider["Payment Provider<br/>[External System]"]
   subgraph orderSys["Ordering System"]
