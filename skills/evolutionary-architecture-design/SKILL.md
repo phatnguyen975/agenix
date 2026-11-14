@@ -67,17 +67,17 @@ Inspect the user's task, repository instructions and the relevant requirements, 
 
 Load only the references for the active work, and open templates only when producing those artifacts. References are guides for particular design questions, not a required reading sequence:
 
-| Need                                   | Reference                                    | Load When                                                             |
-| -------------------------------------- | -------------------------------------------- | --------------------------------------------------------------------- |
-| Drivers, baseline, iteration, timing   | `references/design-iteration.md`             | Framing, choosing or refining a significant design                    |
-| Quality scenarios, tactics, trade-offs | `references/quality-attributes.md`           | Defining or evaluating quality requirements                           |
-| Style/topology comparison              | `references/architecture-styles.md`          | A structural style or distribution choice is open                     |
-| Module/service/data boundaries         | `references/partitioning-and-granularity.md` | Partitioning, splitting, merging or assessing coupling                |
-| Architectural views                    | `references/views-and-diagrams.md`           | Creating or revising context, structural, runtime or deployment views |
-| Crosscutting policy                    | `references/crosscutting-concepts.md`        | A policy spans multiple architectural elements                        |
-| Architecture guardrails                | `references/fitness-functions.md`            | Defining, evaluating or revising fitness checks                       |
-| Safe migration                         | `references/incremental-change-patterns.md`  | Changing a running system with consumers or state to preserve         |
-| ADR lifecycle                          | `references/adr-guide.md`                    | Proposing, reviewing or superseding an ADR                            |
+| Need                                                     | Reference                                    | Load When                                                             |
+| -------------------------------------------------------- | -------------------------------------------- | --------------------------------------------------------------------- |
+| Drivers, baseline, iteration, timing, technology choices | `references/design-iteration.md`             | Framing, choosing or refining a significant design                    |
+| Quality scenarios, tactics, trade-offs                   | `references/quality-attributes.md`           | Defining or evaluating quality requirements                           |
+| Style/topology comparison                                | `references/architecture-styles.md`          | A structural style or distribution choice is open                     |
+| Module/service/data boundaries                           | `references/partitioning-and-granularity.md` | Partitioning, splitting, merging or assessing coupling                |
+| Architectural views                                      | `references/views-and-diagrams.md`           | Creating or revising context, structural, runtime or deployment views |
+| Crosscutting policy                                      | `references/crosscutting-concepts.md`        | A policy spans multiple architectural elements                        |
+| Architecture guardrails                                  | `references/fitness-functions.md`            | Defining, evaluating or revising fitness checks                       |
+| Safe migration                                           | `references/incremental-change-patterns.md`  | Changing a running system with consumers or state to preserve         |
+| ADR lifecycle                                            | `references/adr-guide.md`                    | Proposing, reviewing or superseding an ADR                            |
 
 Do not load style, migration or vendor guidance solely because it exists. Reuse references already read; do not insert their entire text into the deliverable.
 
@@ -94,7 +94,7 @@ Do not load style, migration or vendor guidance solely because it exists. Reuse 
 ### Phase 2: Establish and Evaluate a Candidate
 
 4. **Establish the baseline.** For an existing system, assess the as-is structure and gaps before proposing a target. For new design, compare credible candidates when a meaningful architectural dimension is open. Define major responsibilities, modules/containers, interfaces, data ownership, deployment/release boundaries and critical dependency paths. Load style/partitioning references only if those choices matter.
-5. **Evaluate consequential choices.** Walk priority scenarios — including failure and change scenarios — through candidates. Check hard constraints as pass/fail conditions; compare operations, cost, coupling, consistency, security, reversibility and migration. Investigate material uncertainties rather than asserting suitability. Record a reasoned proposed baseline, remaining gaps and significant proposed ADRs.
+5. **Evaluate consequential choices.** Walk priority scenarios — including failure and change scenarios — through candidates. Check hard constraints as pass/fail conditions; compare operations, cost, coupling, consistency, security, reversibility and migration. For architecture-level technology choices, distinguish mandated, retained existing and open options; compare viable alternatives when a choice is open, and verify consequential claims. Apply the decision-timing and technology-evaluation guidance in `references/design-iteration.md` when relevant. Investigate material uncertainties rather than asserting suitability. Record a reasoned proposed baseline, remaining gaps and significant proposed ADRs.
 6. **Review the proposed direction.** **Checkpoint B — Architecture:** obtain agreement on material structural trade-offs and new decisions when stakeholder authorization is required. If a proposal includes breaking contracts or irreversible change, acceptance is conditional on the impact review in Checkpoint C; do not mark affected ADRs accepted prematurely. For review-only tasks, provide findings and recommendations rather than fabricating authorization.
 
 ### Phase 3: Refine and Plan Evolution
@@ -131,7 +131,7 @@ Do not load style, migration or vendor guidance solely because it exists. Reuse 
 
 - The task intent, system boundary and source of each consequential fact are clear; unresolved assumptions, targets and approval conditions are visible.
 - All relevant architectural drivers are traced to design coverage and available evidence; quality scenarios have six parts or explicit, actionable missing information. Hard constraints are assessed, not silently overridden.
-- Candidate comparisons address the same priority drivers; significant open choices have rationale and real trade-offs. Document statuses distinguish proposals, accepted decisions, design coverage and verified outcomes.
+- Candidate comparisons address the same priority drivers; significant open choices, including architecture-level technologies, have rationale and real trade-offs. Mandated and retained existing technologies are not presented as invented competitions. Document statuses distinguish proposals, accepted decisions, design coverage and verified outcomes.
 - Major elements, ownership, cross-boundary flows and release/deployment boundaries agree across views; no C4 container is equated automatically with a release unit.
 - Critical change-sensitive properties have feasible checks or explicit gaps, with execution status. Deferred choices have a viable interim approach, owner and revisit signal.
 - Breaking changes and migrations account for compatibility, verification, cutover, rollback/forward recovery and retirement; any required human authorization is explicit.
