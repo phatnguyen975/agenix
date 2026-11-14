@@ -1,0 +1,4 @@
+interface:
+  display_name: "Domain Modeling"
+  short_description: "Design, review, and evolve business domain models with DDD"
+  default_prompt: "Use $domain-modeling to model the business domain from these requirements, clarifying terminology, rules, and boundaries."

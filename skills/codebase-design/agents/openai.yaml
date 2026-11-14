@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codebase Design"
+  short_description: "Design and review code structure, modules, and dependencies"
+  default_prompt: "Use $codebase-design to assess this repository and propose source-code structure and dependency rules suited to its constraints."

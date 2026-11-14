@@ -20,16 +20,17 @@ A single design iteration may produce zero, one or several ADRs. Do not manufact
 
 ## Record Structure
 
-**Required for a substantive decision:** title, context/problem, options actually considered, outcome and rationale, significant consequences, status and trace to driver IDs. Relevant optional information: decision makers/consulted/informed (provided roles only), confirmation mechanism, conditions for review and related decisions.
+**Required for a substantive decision:** title, context/problem, options actually considered, outcome and rationale, significant consequences, status and trace to driver IDs. Relevant optional information: decision-makers, consulted and informed people or roles (only when known); confirmation mechanism, option-by-option pros/cons, conditions for review and related decisions.
 
 - **Title:** short decision phrased as problem and chosen approach; Title Case, no numeric prefix in H1.
 - **Context and Problem Statement:** observed background, driver IDs, constraints, specific question; distinguish facts from assumptions.
 - **Decision Drivers:** prioritized relevant facts/scenarios, not every system requirement.
-- **Considered Options:** realistic alternatives compared using the same decision drivers, with their main benefit, cost or disqualifier. Avoid duplicate pros/cons sections.
+- **Considered Options:** name the viable alternatives and any eliminated option whose constraint failure explains the choice; do not invent a competition.
 - **Decision Outcome:** identify chosen option **only when a decision has been proposed**; tie its rationale to drivers, consequences, constraints and confidence.
 - **Consequences:** benefits, trade-offs, operational work, impact on existing consumers, risks and reversibility. Acknowledge uncertainty.
 - **Confirmation:** if applicable, how the decision will be checked; reference an FF only when it exists and state its `planned`/`active`/`suspended` state and execution method. Verification may be a review, experiment or rollout check instead.
-- **More Information:** links to prior ADRs, issue/context sources, revisit condition and migration plan. Longer option-by-option pros/cons sections are optional when a short comparison is not sufficient.
+- **Pros and Cons of the Options:** compare material advantages, limitations and trade-offs of each option against the same drivers. Include when the brief outcome cannot explain why alternatives were rejected. Do not repeat the chosen option's downstream consequences verbatim.
+- **More Information:** links to prior ADRs, issue/context sources, revisit condition and migration plan.
 
 Avoid bloated sections that merely repeat the system-design document; use references. An ADR is an immutable **historical rationale**, not a continuously rewritten technical specification.
 
@@ -85,8 +86,8 @@ date: 2026-11-14
 
 ## Considered Options
 
-- **Synchronous Fulfillment Request:** simple flow but dependent on fulfillment uptime.
-- **Durable Asynchronous Message:** decouples acknowledgment from downstream processing; introduces eventual consistency and message recovery obligations.
+- Synchronous Fulfillment Request
+- Durable Asynchronous Message
 
 ## Decision Outcome
 
@@ -100,7 +101,19 @@ date: 2026-11-14
 
 ### Confirmation
 
-A planned outage/replay exercise will check QUA-02; no active fitness function has yet been established.
+A planned outage/replay exercise will check `QUA-02`; no active fitness function has yet been established.
+
+## Pros and Cons of the Options
+
+### Synchronous Fulfillment Request
+
+- **Good:** a simpler immediate request/response flow.
+- **Bad:** order acceptance fails if fulfillment must respond and is unavailable.
+
+### Durable Asynchronous Message
+
+- **Good:** can separate durable order acceptance from later processing.
+- **Bad:** needs idempotent consumers, retries, monitoring and explicit pending-order semantics.
 
 ## More Information
 

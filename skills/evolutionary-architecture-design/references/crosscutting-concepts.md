@@ -14,7 +14,7 @@ Do not fill a generic checklist merely for completeness. Mention an ADR by ID in
 
 ## Candidate Concept Areas
 
-| Area                  | Examples Of Architecture-Level Policy                                 |
+| Area                  | Examples of Architecture-Level Policy                                 |
 | --------------------- | --------------------------------------------------------------------- |
 | Security              | Identity boundaries, authorization ownership, secrets and audit rules |
 | Integration           | Sync/async contracts, error semantics, retries, idempotency           |
@@ -47,7 +47,7 @@ In System Design §8, for each selected concept record:
 - **Purpose:** enforce the authorized actions of a customer across the public API and asynchronous worker; trace the applicable security drivers.
 - **Scope:** entry-point authentication, resource-level authorization in the owning business boundary, and identity/authorization context passed to deferred work.
 - **Rule:** a validated session at the edge does not replace authorization at the action owner. A background consumer verifies the authority attached to the command or uses explicitly delegated service privileges; retries must not expand privileges.
-- **Verification:** representative allowed/denied flows and a failure case exercise. Any test or review is `planned` until evidence exists that it executes. Do not assume an identity provider or authorization protocol without a project decision.
+- **Verification:** specify representative allowed/denied flows and a failure case exercise. If recorded as an FF, keep its execution status `planned` until evidence shows the check operates; otherwise describe the validation plan without assigning an FF state. Do not assume an identity provider or authorization protocol without a project decision.
 
 This is an architecture policy, not an instruction to configure a particular identity product. Document implementation-specific roles and policy expressions elsewhere.
 

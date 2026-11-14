@@ -1,6 +1,6 @@
 # Design Iteration
 
-Use when deriving architectural drivers, comparing baseline candidates, timing consequential decisions, evaluating architecture-level technology choices or refining an evolving architecture. The sequence adapts **Attribute-Driven Design** to select a system element and drivers, choose design concepts, instantiate responsibilities/interfaces, analyze against scenarios, record decisions and repeat. It is a design method, not a claim of formal ADD conformance.
+Use when deriving architectural drivers, comparing baseline candidates, timing consequential decisions, evaluating architecture-level technology choices or refining an evolving architecture. The sequence adapts **Attribute-Driven Design** to select relevant drivers and architectural elements, choose design concepts, instantiate responsibilities/interfaces, analyze against scenarios, record decisions and repeat. It is a design method, not a claim of formal ADD conformance.
 
 ## Driver Identification
 
@@ -81,14 +81,14 @@ Technology evaluation can change a structural candidate, and a structural decisi
 
 ## Refinement Loop
 
-1. **Select:** highest-impact unaddressed/gap driver or the most uncertain high-risk interaction; group dependent drivers when designing one element.
+1. **Select:** choose the highest-impact unaddressed/gap driver or uncertain interaction, and the architecture element(s) to design or refine. Group related drivers and elements when one scenario spans several boundaries.
 2. **Evaluate:** use scenario walkthrough, dependency analysis, basic estimation, threat/failure analysis, experiment or measurement. Cite inputs and assumptions. Measurement is not automatically more informative than a correct scenario walkthrough; choose the method that fits the claim.
-3. **Change:** test a small set of feasible tactics or structural alternatives. Prefer the least disruptive that meets the scenario, not a rigid fixed-cost sequence. Consider scaling, isolation, async work, data ownership and operational burden as trade-offs.
+3. **Design:** choose feasible tactics or structural concepts; allocate responsibilities, define the affected interfaces and interactions, and update the candidate. Prefer the least disruptive design supported by the scenario. Consider scaling, isolation, asynchronous work, data ownership and operational burden as trade-offs.
 4. **Record:** create or revise an ADR for a significant newly made decision. Update boundaries, runtime/deployment views, architectural policies and intended verification.
 5. **Reassess:** check the selected driver and affected earlier drivers, including cost, consistency, availability, security, contracts and constraints. Reopen any driver whose design evidence is invalidated.
 6. **Decide disposition:** `addressed`, `gap`, `unverified` or `accepted-risk` as defined in `SKILL.md`; show evidence level. If unresolved gaps block acceptance, return to the human with options, not another unbounded loop.
 
-**Exit:** all high-priority drivers have a credible design and validation approach, or the remaining gaps are escalated with explicit human dispositions. An authorized risk acceptance does not override a non-waivable constraint. For a review-only task, exit with assessed coverage, evidence limits and actionable findings; do not demand a new design or ADR. Lower-priority drivers remain traceable with honest statuses. No status implies production tests passed.
+**Exit:** all high-priority drivers have credible design coverage and a validation approach, or remaining gaps are documented and escalated to the responsible human without claiming approval. An authorized risk acceptance does not override a non-waivable constraint. For a review-only task, exit with assessed coverage, evidence limits and actionable findings; do not demand a new design or ADR. Lower-priority drivers remain traceable with honest statuses. No status implies production tests passed.
 
 ## Deferred Decisions and Revisit Signals
 

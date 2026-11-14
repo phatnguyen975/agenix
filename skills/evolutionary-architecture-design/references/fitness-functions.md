@@ -78,7 +78,7 @@ Record whether a check **blocks**, **alerts**, or **opens a review**. A producti
 
 A numeric FF can evaluate a DD when the signal is observable. Example: sustained queue lag approaches the business freshness target for two agreed observation periods; re-evaluate partitioning. Other revisit signals can be release milestones, a new regulatory requirement or a vendor contract end date; these are decision-review triggers, **not fake numeric fitness functions**.
 
-Record each DD's **interim design, signal, owner, next step and review date/condition** in System Design §4.4. When a trigger fires, reassess options and their drivers; do not automatically execute a preselected migration.
+Record each DD's **interim design, signal, latest-safe decision point, owner and next step** in System Design §4.4. When a trigger fires, reassess options and their drivers; do not automatically execute a preselected migration.
 
 ## When an Objective Check Is Not yet Feasible
 
@@ -88,7 +88,7 @@ If a quality requirement cannot yet be measured reliably, do not fabricate an FF
 
 ## Lifecycle and Anti-Patterns
 
-- Mark status `planned`, `active` or `suspended` (execution method: `automated` or `manual`), with meaningful evidence for `active`. Record last result separately (`pass`, `fail`, `not run`, or unknown); an active check can fail, and a planned check cannot pass.
+- Mark execution status `planned`, `active` or `suspended` (method: `automated` or `manual`), with evidence for `active`. Record last result separately as `pass`, `fail`, `not-run` or `unknown`, with the date and evidence when available; a planned check has `not-run`, and an active check can fail.
 - Keep a source of truth for each check; define ownership of its threshold and runtime environment. If a measure is still unconfirmed, document a check proposal without inventing a pass threshold.
 - Review check usefulness, flakiness, false positives and changing business drivers; retire obsolete guardrails with a documented decision.
 - Reject subjective tests ("architecture is clean"), silent estimate-to-target promotion, unexecuted checks called enforced, or code coverage called a direct modifiability measure.

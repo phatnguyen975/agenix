@@ -1,6 +1,6 @@
 ---
 name: evolutionary-architecture-design
-description: Design, review, and evolve software architecture using evolutionary architecture principles. Use for new or existing systems, from end-to-end design to focused architectural decisions, to address architectural drivers, evaluate trade-offs, and enable safe, incremental evolution through adaptable structures and architectural fitness functions. Do not use for writing code, database schemas, API contracts, UI design, domain modeling or infrastructure provisioning.
+description: Design, review, and evolve software architecture using evolutionary architecture principles. Use for new or existing systems, from end-to-end design to focused architectural decisions, to address architectural drivers, evaluate trade-offs, and enable safe, incremental evolution through adaptable structures and architectural fitness functions. Do not use for implementation code, detailed database or API schemas, UI design, tactical domain modeling or infrastructure provisioning.
 metadata:
   author: phatnguyen975
   version: 1.0
@@ -52,12 +52,12 @@ Use the project's writing language and documentation conventions; default to Eng
 
 - **Architectural driver:** a significant function (`FUN-nn`), quality scenario (`QUA-nn`), mandatory constraint (`CST-nn`), or distinct stakeholder concern requiring architectural analysis (`CNC-nn`). Do not turn every requirement or duplicate concern into a driver. Maintain stable IDs for drivers in the architecture scope being documented.
 - **Quality scenario:** a specific stimulus source, stimulus, environment, affected artifact, response and response measure. A quality goal can group several scenarios. See `references/quality-attributes.md`.
-- **Baseline:** observed as-is architecture for an existing system; an evaluated initial candidate for a new system. A baseline is not proof of suitability.
+- **Baseline:** the observed as-is architecture for an existing system, or an initial architecture candidate for a new system. The target is the architecture being proposed or approved; a baseline is not proof of suitability.
 - **Design coverage:** `addressed` (credible design explanation, not implementation proof), `gap` (known unmet need), `unverified` (insufficient information or validation), `accepted-risk` (documented shortfall explicitly authorized by an accountable human). Assess a hard constraint separately as `meets`, `gap` or `unverified`, with evidence. A non-waivable legal, contractual or other hard constraint cannot be waived merely by choosing `accepted-risk`; it requires an authorized change to the underlying obligation, if one is possible.
 - **Evidence:** `observed`, `analyzed`, `tested`, `measured`, `estimated` or `unverified`, with source, environment and limitations. These describe kinds of support, not a universal ranking of certainty.
 - **ADR status:** `proposed`, `accepted`, `rejected`, `deprecated`, or `superseded by ADR-NNNN`; use project conventions when already established.
 - **Deferred decision (`DD-nn`):** an optional choice not yet made, with safe interim approach and revisit condition.
-- **Fitness function (`FF-nn`):** an objective architectural integrity assessment; execution status is `planned`, `active` or `suspended`, separately from whether its last result passed.
+- **Fitness function (`FF-nn`):** an objective architectural integrity assessment. Execution status is `planned`, `active` or `suspended`; the last result is recorded separately as `pass`, `fail`, `not-run` or `unknown` when applicable. `active` requires evidence of an operating check, not a passing result.
 - **C4 container:** an application or data store in a logical architecture, not necessarily a Docker container or a separately releasable unit. A release/deployment unit is a different concern.
 - **Compatible change:** existing consumers and guarantees can continue without coordinated change; otherwise assess it as breaking, including for data and operational contracts.
 
@@ -93,13 +93,13 @@ Do not load style, migration or vendor guidance solely because it exists. Reuse 
 
 ### Phase 2: Establish and Evaluate a Candidate
 
-4. **Establish the baseline.** For an existing system, assess the as-is structure and gaps before proposing a target. For new design, compare credible candidates when a meaningful architectural dimension is open. Define major responsibilities, modules/containers, interfaces, data ownership, deployment/release boundaries and critical dependency paths. Load style/partitioning references only if those choices matter.
-5. **Evaluate consequential choices.** Walk priority scenarios — including failure and change scenarios — through candidates. Check hard constraints as pass/fail conditions; compare operations, cost, coupling, consistency, security, reversibility and migration. For architecture-level technology choices, distinguish mandated, retained existing and open options; compare viable alternatives when a choice is open, and verify consequential claims. Apply the decision-timing and technology-evaluation guidance in `references/design-iteration.md` when relevant. Investigate material uncertainties rather than asserting suitability. Record a reasoned proposed baseline, remaining gaps and significant proposed ADRs.
+4. **Develop architecture candidates.** For an existing system, use the observed as-is baseline to identify gaps and candidate changes. For new design, establish an initial candidate and compare alternatives when a meaningful structural choice is open. Define major responsibilities, modules/containers, interfaces, data ownership, deployment/release boundaries and critical dependency paths. Load style/partitioning references only when those decisions matter.
+5. **Evaluate consequential choices.** Walk priority scenarios — including failure and change scenarios — through candidates. Check hard constraints as pass/fail conditions; compare operations, cost, coupling, consistency, security, reversibility and migration. For architecture-level technology choices, distinguish mandated, retained existing and open options; compare viable alternatives when a choice is open, and verify consequential claims. Apply the decision-timing and technology-evaluation guidance in `references/design-iteration.md` when relevant. Investigate material uncertainties rather than asserting suitability. Record the preferred candidate, remaining gaps and significant proposed ADRs.
 6. **Review the proposed direction.** **Checkpoint B — Architecture:** obtain agreement on material structural trade-offs and new decisions when stakeholder authorization is required. If a proposal includes breaking contracts or irreversible change, acceptance is conditional on the impact review in Checkpoint C; do not mark affected ADRs accepted prematurely. For review-only tasks, provide findings and recommendations rather than fabricating authorization.
 
 ### Phase 3: Refine and Plan Evolution
 
-7. **Refine high-impact gaps.** Select the most important unaddressed driver or risky interaction; evaluate relevant tactics and choose a proportionate change. Re-evaluate previously addressed drivers affected by it. Repeat only while additional iterations can resolve material uncertainty; escalate blocked trade-offs instead of looping indefinitely.
+7. **Refine high-impact gaps.** Choose the driver(s) and architecture element(s) that the next iteration must address. Evaluate relevant tactics, allocate responsibilities and interfaces, and refine the affected candidate. Reassess previously addressed drivers and constraints. Repeat while iterations add credible design progress; escalate material uncertainty or conflicting priorities instead of looping indefinitely.
 8. **Describe consequential behavior.** Capture the required context/structure, significant success/failure runtime paths, data consistency, trust boundaries, and deployment/failure isolation. Use views and crosscutting policies only where they communicate relevant architectural obligations.
 9. **Define evolution safeguards.** Specify objective checks for critical, regression-prone properties with criteria, ownership, cadence, response and actual execution state. For changes to a running system, plan compatibility phases, affected consumers and data, verification, safe cutover, recovery and retirement.
 10. **Assess risk and approvals.** Trace every relevant driver to design coverage and evidence; record unknowns and residual shortfalls. **Checkpoint C — Change Impact:** obtain explicit authorization before finalizing a breaking/irreversible migration, an agreed target change or a risk exception requiring authority. This review may be combined with Checkpoint B if the necessary impact plan is already available. Never treat a hard constraint as waived by risk acceptance alone.
@@ -118,14 +118,14 @@ Do not load style, migration or vendor guidance solely because it exists. Reuse 
 
 ## Common Rationalizations to Reject
 
-| Rationalization                        | Response                                                                                    |
-| -------------------------------------- | ------------------------------------------------------------------------------------------- |
-| "Microservices are the modern default" | A style is justified by drivers; the baseline is the simplest candidate that satisfies them |
-| "Defer it; we can always change later" | Hard-to-reverse decisions are decided now; deferral needs reversibility and a trigger       |
-| "Decide everything now to be safe"     | Reversible decisions the driver does not require now are deferred with a trigger            |
-| "Splitting this unit is cleaner"       | A split needs a ranked driver that a cheaper change cannot satisfy                          |
-| "Performance is surely fine"           | Evidence with a method (walkthrough, estimate, spike, measurement) is required              |
-| "Skip the questions to keep momentum"  | The clarification gate precedes design                                                      |
+| Rationalization                        | Response                                                                             |
+| -------------------------------------- | ------------------------------------------------------------------------------------ |
+| "Microservices are the modern default" | Judge styles against drivers; prefer the least complex viable target design          |
+| "Defer it; we can always change later" | Assess reversal cost and timing; defer only with a viable interim design and trigger |
+| "Decide everything now to be safe"     | Decide only what is needed; optional choices may be deferred with clear conditions   |
+| "Splitting this unit is cleaner"       | A split needs a ranked driver that a cheaper change cannot satisfy                   |
+| "Performance is surely fine"           | Evidence with a method (walkthrough, estimate, spike, measurement) is required       |
+| "Skip the questions to keep momentum"  | Resolve blocking ambiguity before committing; independent analysis can continue      |
 
 ## Final Verification
 

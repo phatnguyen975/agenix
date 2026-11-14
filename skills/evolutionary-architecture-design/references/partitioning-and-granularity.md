@@ -14,10 +14,10 @@ No partition is automatically the right release boundary. Conway's law is a **de
 
 **Candidate signals:** business capability, change cadence, domain language, data ownership, transaction invariants, security/trust zone, team ownership, scaling/failure needs and integration surface.
 
-- **Bounded context:** a boundary of consistent domain-model meaning. A context may map to one module, multiple applications or part of a larger releaseable unit; there is no mandatory one-to-one mapping to a microservice.
+- **Bounded context:** a boundary of consistent domain-model meaning. A context may map to one module, multiple applications or part of a larger releasable unit; there is no mandatory one-to-one mapping to a microservice.
 - **Subdomain (core/supporting/generic):** business differentiation informs design effort and investment; it does not dictate physical decomposition.
 - **Module:** cohesive unit of software responsibility with a public contract and hidden internals.
-- **C4 component:** grouping within a container; not automatically a release unit.
+- **C4 component:** grouping of functionality within one container; not a separately deployable C4 unit.
 
 Prefer high cohesion, explicit responsibility and minimal change propagation. Record allowed dependency directions and an owner _role_ where known. Shared utilities must not become an accidental place for unrelated business logic.
 

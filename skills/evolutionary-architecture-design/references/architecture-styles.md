@@ -8,7 +8,7 @@ Use when architecture topology is an open, driver-significant choice. **Styles a
 - **Partitioning:** divide by business capability/subdomain, technical layer or a justified combination.
 - **Granularity:** size of responsibility and independently released units.
 - **Communication:** in-process, request/response, event notification or messaging; asynchronous communication does not alone imply a distributed system.
-- **Deployment:** one releaseable system or independently released applications/services; C4 containers can include data stores or browser/mobile applications and are not necessarily deployable server binaries.
+- **Deployment:** one releasable system or independently released applications/services; C4 containers can include data stores or browser/mobile applications and are not necessarily deployable server binaries.
 
 "Event-driven" or "pipeline" can be realized inside one process or across services. Serverless/FaaS describes a hosting and execution model, not by itself a guarantee of coherent domain/service boundaries. A modular monolith can contain layers, processing pipelines, events and a plugin boundary. A distributed system can have a shared database, although that may compromise independent changes.
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Evolutionary Architecture Design"
+  short_description: "Design, review, and evolve architecture with ADRs and safeguards"
+  default_prompt: "Use $evolutionary-architecture-design to design or evolve this system architecture around its drivers, documenting significant decisions and evolution safeguards."

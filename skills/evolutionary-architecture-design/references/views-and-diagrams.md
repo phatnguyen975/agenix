@@ -9,7 +9,7 @@ Use to document an architecture in forms that answer stakeholder concerns. The a
 | Person          | Human interacting with a software system               | A team is a stakeholder, not necessarily a user |
 | Software System | A system that delivers value; in or outside scope      | External systems stay outside the boundary      |
 | Container       | Application or data store within a software system     | Not synonymous with Docker/container image      |
-| Component       | Grouping of related functionality within one container | Not automatically a deployable service          |
+| Component       | Grouping of related functionality within one container | Not a separately deployable C4 unit             |
 | Deployment Node | Runtime/infrastructure location and nested nodes       | Not a C4 container                              |
 
 Examples of C4 containers include server applications, browser SPAs, mobile apps, databases, queues or data stores depending on modeled responsibilities. A database server may host multiple logical stores; a single application may have many runtime instances. Do not confuse the **logical Container View** with the **physical Deployment View**.
@@ -55,6 +55,8 @@ flowchart LR
 
 ## Container Example
 
+Illustrative target for a fictional ordering system:
+
 ```mermaid
 flowchart TB
   customer(["Customer<br/>[Person]"])
@@ -70,7 +72,28 @@ flowchart TB
   api -->|"Requests authorization [HTTPS]"| provider
 ```
 
-**Legend:** rounded = person; rectangle = application/external system; cylinder = data store; subgraph = owned system; directed arrows = interactions. Protocol `TBD` is an explicit unconfirmed design item and must be recorded as such if consequential.
+**Legend:** rounded = person; rectangle = application/external system; cylinder = data store; subgraph = owned system; directed arrows = interactions. `Protocol TBD` is an explicit unconfirmed design item and must be recorded as such if consequential.
+
+## Component Example
+
+A Component View decomposes **one** C4 container. The following is an illustrative target for `Order API` in the preceding Container View. Include only significant internal responsibilities, their relationships and relevant callers/dependencies. Repeat for other containers only when the decomposition explains an important architectural concern.
+
+```mermaid
+flowchart TB
+  web["Web App<br/>[Container: Browser Application]"]
+  store[("Order Store<br/>[Container: Data Store]")]
+  subgraph api["Order API — Component View"]
+    endpoint["Order Endpoint<br/>[Component]"]
+    workflow["Order Workflow<br/>[Component]"]
+    persistence["Order Repository Adapter<br/>[Component]"]
+    endpoint -->|"Delegates order acceptance"| workflow
+    workflow -->|"Persists authoritative order state"| persistence
+  end
+  web -->|"Submits order [HTTPS]"| endpoint
+  persistence -->|"Reads/writes [Protocol TBD]"| store
+```
+
+**Legend:** subgraph = the decomposed `Order API` container; internal boxes = components, not independently deployed services; external boxes = collaborating containers. `Protocol TBD` requires confirmation if material. The names and relationships must remain consistent with the Container View.
 
 ## Runtime Scenarios
 

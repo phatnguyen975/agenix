@@ -39,6 +39,8 @@ Good measures specify the viewpoint and population, a boundary, time/window and 
 
 ### Worked Scenarios
 
+These are illustrative scenarios; their targets and workloads are not project defaults.
+
 **QUA-01 — Performance Efficiency / Time Behaviour**
 
 - **Stimulus Source:** signed-in customer.
@@ -107,7 +109,7 @@ For a high-priority scenario, locate the actual constraint or failure mechanism 
 - **Modifiability and adaptability:** localize changes through cohesive responsibilities, stable interfaces, dependency direction and explicit extension points. Consider the change class, the number of elements touched and migration of existing consumers; generic layering is not automatically modifiability.
 - **Security and accountability:** identify assets, actors and trust boundaries; define authentication, authorization ownership, least privilege, information flow and audit obligations. Encryption alone does not demonstrate access control, and a successful scanner result does not establish security.
 - **Testability and diagnosability:** establish controllable boundaries, observable outcomes and reproducible failure modes; isolate nondeterministic dependencies where architecturally warranted. Logs without correlation or a diagnostic objective do not prove observability.
-- **Interoperability and deployability:** define published contracts and supported compatibility periods, version changes, independently releaseable boundaries and safe rollback. An API version label alone does not guarantee old consumers keep working.
+- **Interoperability and deployability:** define published contracts and supported compatibility periods, version changes, independently releasable boundaries and safe rollback. An API version label alone does not guarantee old consumers keep working.
 
 **Example — Choosing a Tactic:** If a new external payment provider must be added without modifying core checkout behavior, place provider-specific translation behind an owned integration boundary. Evaluate adapter contract changes against `QUA-03` and test one representative provider addition; do not assume that adding an abstraction proves the engineer-day target.
 

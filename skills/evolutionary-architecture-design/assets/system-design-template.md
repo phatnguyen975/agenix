@@ -6,7 +6,7 @@ AUTHORING INSTRUCTIONS — DELETE THIS BLOCK IN THE OUTPUT
    IDs, links and diagram nodes as well. Do not copy example statuses, dates,
    targets or values as facts. Short placeholders in tables are expanded by the
    guidance comments above them.
-2. An section that truly does not apply says 'Not applicable: <Explain why the
+2. A section that truly does not apply says 'Not applicable: <Explain why the
    requirement or view is outside scope>'. Missing necessary information instead
    says 'Unverified: <Name the missing fact>; next action: <State who must verify
    it>'. Do not use 'Not applicable' to hide an unmet requirement, unknown risk
@@ -44,9 +44,9 @@ AUTHORING INSTRUCTIONS — DELETE THIS BLOCK IN THE OUTPUT
 <!-- Select up to five leading quality goals for orientation; all quality
      scenarios remain in §10.2. Targets must come from confirmed drivers. -->
 
-| Priority | Quality Attribute        | Goal / Scenario IDs        |
-| -------- | ------------------------ | -------------------------- |
-| High     | <Name quality attribute> | <State goal; link QUA IDs> |
+| Priority              | Quality Attribute        | Goal / Scenario IDs        |
+| --------------------- | ------------------------ | -------------------------- |
+| <Set agreed priority> | <Name quality attribute> | <State goal; link QUA IDs> |
 
 ### 1.3 Stakeholders and Concerns
 
@@ -60,13 +60,16 @@ AUTHORING INSTRUCTIONS — DELETE THIS BLOCK IN THE OUTPUT
 ### 1.4 Architectural Drivers
 
 <!-- One row for every FUN/QUA/CST/CNC driver. Priority/Rank: order confirmed at
-     Gate A (e.g. '1 / High'); constraints: 'Mandatory' (unranked). Difficulty:
+     Gate A (e.g. '1 / High'); constraints: 'Mandatory' (unranked). Unknown
+     priorities remain unconfirmed rather than guessed. Difficulty:
      High/Medium/Low/Unknown. Design Status: addressed/gap/unverified/accepted-risk.
      'accepted-risk' requires explicit accountable approval and cannot bypass
      non-waivable hard constraints. Evidence kind/source goes in detailed sections;
      do not mistake an 'addressed' design for tested runtime behavior. Accepted-risk
      requires explicit human approval documented in §11. A DD is a deferred OPTION,
-     not a substitute for fulfilling the driver. -->
+     not a substitute for fulfilling the driver. For CST, design coverage
+     describes how the design accounts for it; §2 records meets/gap/unverified
+     feasibility separately. -->
 
 | ID     | Priority / Rank   | Difficulty          | Design Status         | Design / ADR          |
 | ------ | ----------------- | ------------------- | --------------------- | --------------------- |
@@ -90,7 +93,9 @@ AUTHORING INSTRUCTIONS — DELETE THIS BLOCK IN THE OUTPUT
 ### 3.1 Business Context
 
 <!-- C4 System Context diagram if relationships need a visual. State system
-     boundary, people, external systems and interaction purposes. -->
+     boundary, relevant people and external systems, and interaction purposes.
+     Replace the example with real actors, external systems and directions;
+     omit elements that do not exist or are immaterial to the current scope. -->
 
 **Diagram — System Context (<Specify As-Is, Transition or Proposed Target as appropriate>):**
 
@@ -98,7 +103,9 @@ AUTHORING INSTRUCTIONS — DELETE THIS BLOCK IN THE OUTPUT
 flowchart LR
   actor(["<Name the external user or actor and identify it as a Person>"])
   system["<Name the system in scope and identify it as a Software System>"]
+  external["<Name a relevant external Software System>"]
   actor -->|"<Label the actual purpose of this interaction>"| system
+  system -->|"<Label the external interaction purpose>"| external
 ```
 
 **Legend:** <Explain actor and system shapes, the system boundary, and what each arrow represents>
@@ -138,17 +145,21 @@ flowchart LR
      Keep evaluation rationale in the ADR; do not list routine dependencies,
      fabricate alternatives or invent versions. -->
 
-| Architectural Concern             | Choice                               | Basis                               |
-| --------------------------------- | ------------------------------------ | ----------------------------------- |
-| <Name architecture-level concern> | <Name technology or state undecided> | <Link ADR/CST/DD or as-is evidence> |
+| Architectural Concern  | Choice                   | Basis                    |
+| ---------------------- | ------------------------ | ------------------------ |
+| <Architecture concern> | <Technology / undecided> | <ADR/CST/DD or evidence> |
 
 ### 4.3 Evolution Strategy
 
-<!-- Only use migration phases for a significant existing-system transition.
-     Include compatibility, authoritative data, consumers, validation, rollback
-     or forward recovery, and retirement. For a new system, briefly explain
-     change-ready boundaries if justified by drivers; otherwise state
-     'Not applicable: No migration is required for this new design.' -->
+<!-- For an existing-system migration, replace each step with project-specific
+     phases, identifying compatibility, authoritative data, consumers,
+     verification, cutover, recovery and retirement. Adapt the number of
+     phases to the migration; do not force four stages when inappropriate.
+     For greenfield designs, remove the migration steps and briefly describe
+     change-ready boundaries if driven by requirements. Otherwise use
+     'Not applicable: No migration is required for this new design.'
+     Remove the Change Objective and all migration-step placeholders if there
+     is no migration. -->
 
 **Change Objective:** <Identify the drivers and the specific architecture change being planned>.
 
@@ -159,13 +170,17 @@ flowchart LR
 
 ### 4.4 Deferred Decisions
 
-<!-- List ONLY genuinely optional decisions. Include conditions and ownership
-     without forcing a numeric fitness function for a milestone/date. If none:
-     'Not applicable: No optional architecture choices are deferred.' -->
+<!-- List only optional architecture decisions with a viable interim design,
+     accountable owner and an observable revisit trigger. Repeat the whole H4
+     subsection for each DD row, preserving the same ID in table and details.
+     A deadline can be a latest-safe milestone or condition, not necessarily a
+     calendar date; it must be justified by the decision risk. A revisit signal
+     is not automatically an FF. If none are deferred, replace the table and
+     details with 'Not applicable: No optional architecture choices are deferred.' -->
 
-| ID    | Related Driver           | Choice Deferred                     | Revisit Condition      |
-| ----- | ------------------------ | ----------------------------------- | ---------------------- |
-| DD-01 | <Cite related driver ID> | <Describe deferred optional choice> | <State revisit signal> |
+| ID    | Related Driver        | Choice Deferred   | Revisit Condition            |
+| ----- | --------------------- | ----------------- | ---------------------------- |
+| DD-01 | <Affected driver IDs> | <Deferred choice> | <Observable revisit trigger> |
 
 #### DD-01: <Name the deferred architectural decision>
 
@@ -179,10 +194,13 @@ flowchart LR
 
 ### 5.1 Container View
 
-<!-- C4 logical containers, including application and data-store containers.
-     Describe decided major container technologies and communication styles.
-     Do not equate C4 containers with releaseable artifacts. For large systems,
-     use overview + relevant focused diagrams, not one giant flowchart. -->
+<!-- Show architecturally significant C4 applications and data stores within
+     the system boundary and relevant actors/external systems outside it.
+     Replace the example topology: add or remove nodes and relationships to
+     match the actual design. State known technologies and interaction styles;
+     mark open decisions rather than guessing. A C4 container is not necessarily
+     a separately released artifact. For large systems, use an overview and
+     focused views rather than one giant flowchart. -->
 
 **Diagram — Container View (<Specify As-Is, Transition or Proposed Target as appropriate>):**
 
@@ -205,9 +223,9 @@ flowchart TB
 
 **Legend:** <Define system boundary, container shapes, ownership and direction of interactions>
 
-| Container                | Responsibility            | Technology                      | Data Ownership            |
-| ------------------------ | ------------------------- | ------------------------------- | ------------------------- |
-| <Name logical container> | <State container purpose> | <State technology or undecided> | <Name owned data or none> |
+| Container        | Responsibility           | Technology               | Data Ownership      |
+| ---------------- | ------------------------ | ------------------------ | ------------------- |
+| <Container name> | <Primary responsibility> | <Technology / undecided> | <Owned data / none> |
 
 ### 5.2 Component View: <Name the C4 container being decomposed>
 
@@ -219,7 +237,7 @@ flowchart TB
      The diagram is a replaceable skeleton, not a required component pattern:
      keep only the components and external participants that actually matter.
      Keep component names, relationships and boundaries consistent with §5.1;
-     components within one C4 container are not necessarily deployable units. -->
+     components inside one C4 container are not separate C4 deployment units. -->
 
 **Diagram — Component View (<Specify As-Is, Transition or Proposed Target as appropriate>):**
 
@@ -240,9 +258,9 @@ flowchart TB
 
 **Legend:** <Identify the decomposed container boundary, internal components, external participants and direction/purpose of dependencies>
 
-| Component                                    | Responsibility                      | Interface / Dependency                              |
-| -------------------------------------------- | ----------------------------------- | --------------------------------------------------- |
-| <Name an architecture-significant component> | <Describe its owned responsibility> | <State its exposed contract and major dependencies> |
+| Component        | Responsibility         | Interface / Dependency                |
+| ---------------- | ---------------------- | ------------------------------------- |
+| <Component name> | <Owned responsibility> | <Exposed contract / key dependencies> |
 
 ## 6. Runtime View
 
@@ -288,9 +306,9 @@ flowchart TB
 
 **Legend:** <Explain runtime-node groups, instance shapes and represented network edges>
 
-| Node / Zone         | Container Instance       | Isolation / Scaling          | Evidence                   |
-| ------------------- | ------------------------ | ---------------------------- | -------------------------- |
-| <Name node or zone> | <Map container instance> | <Describe isolation/scaling> | <Cite evidence or unknown> |
+| Node / Zone   | Container Instance   | Isolation / Scaling   | Evidence           |
+| ------------- | -------------------- | --------------------- | ------------------ |
+| <Node / zone> | <Container instance> | <Isolation / scaling> | <Source / unknown> |
 
 ## 8. Crosscutting Concepts
 
@@ -307,13 +325,13 @@ flowchart TB
 
 ## 9. Architecture Decisions
 
-<!-- List relevant ADR files with correct relative paths, titles and status.
-     If there is no new ADR, link existing ones where relevant or state why none
-     is necessary. Do not invent accepted status. -->
+<!-- List relevant ADR files with verified relative paths, titles and status.
+     Replace the sample ADR path/ID with a real link. If no ADR is applicable,
+     explain briefly; do not invent a new record or an accepted status. -->
 
-| ADR                                       | Decision                | Status   |
-| ----------------------------------------- | ----------------------- | -------- |
-| [ADR-0001](decisions/0001-short-title.md) | <Copy actual ADR title> | proposed |
+| ADR                                       | Decision                | Status                    |
+| ----------------------------------------- | ----------------------- | ------------------------- |
+| [ADR-0001](decisions/0001-short-title.md) | <Copy actual ADR title> | <State actual ADR status> |
 
 ## 10. Quality Requirements
 
@@ -345,15 +363,18 @@ flowchart TB
 
 ### 10.3 Fitness Functions
 
-<!-- List all fitness functions in the overview table. Repeat the details
-     subsection for each fitness function using the same ID. Include only
-     checks that protect relevant architectural characteristics; do not
-     require one fitness function per driver or ADR. Mark checks as 'active'
-     only when execution evidence exists. -->
+<!-- List fitness functions in the overview table and repeat the entire H4
+     subsection for each FF ID. Include only checks guarding consequential
+     architectural characteristics, not one per driver/ADR. Execution state
+     is planned / active / suspended; active requires evidence of an operating
+     check. Record the last result separately as pass / fail / not-run / unknown.
+     For a planned check with no execution, use not-run. If no check is justified
+     or feasible, remove the table and details, state why and describe how the
+     critical property will otherwise be reviewed or validated. -->
 
-| ID    | Guards                        | Execution State | Check / Location                     |
-| ----- | ----------------------------- | --------------- | ------------------------------------ |
-| FF-01 | <List guarded driver/ADR IDs> | planned         | <Describe check and execution stage> |
+| ID    | Guards                          | Execution State       | Check / Location                     |
+| ----- | ------------------------------- | --------------------- | ------------------------------------ |
+| FF-01 | <List guarded driver / ADR IDs> | <Set execution state> | <Describe check and execution stage> |
 
 #### FF-01 — <Name the architectural characteristic being protected>
 
@@ -361,7 +382,7 @@ flowchart TB
 - **Criterion:** <Specify objective pass/fail criterion, measurement period and approved source>.
 - **Cadence and Owner:** <Define execution cadence and accountable owner role>.
 - **On Failure:** <Specify who responds and whether a failure blocks, alerts or triggers review>.
-- **Evidence or Gap:** <Link actual implementation/results or explain the work needed to activate the check>.
+- **Last Result and Evidence:** <Record pass/fail/not-run/unknown, execution date/source if available, and evidence limits or activation gap>.
 
 ## 11. Risks and Technical Debt
 
