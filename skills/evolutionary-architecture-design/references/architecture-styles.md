@@ -108,7 +108,7 @@ Do not assume the network is free, reliable or secure. For each remote dependenc
 
 ## Avoid Misleading Shortcuts
 
-- Do not equate **number of teams, users or database tables** with a required number of services. Independent release is a capability demonstrated by contracts, data ownership and delivery practice—not the number of running processes.
+- Do not equate **number of teams, users or database tables** with a required number of services. Independent release is a capability demonstrated by contracts, data ownership and delivery practice — not the number of running processes.
 - Avoid the false choice of "one monolith or hundreds of microservices". A modular application, separate batch/worker processes, coarse-grained services and selective event flows can be combined where independently justified.
 - An event broker does not guarantee decoupling: shared schemas, synchronized consumers or a required synchronous downstream response may preserve temporal or release coupling. Specify message ownership and semantics.
 - A style name is not an architectural evaluation. Describe actual responsibilities, authoritative data, communication, scaling and failure boundaries in the candidate.

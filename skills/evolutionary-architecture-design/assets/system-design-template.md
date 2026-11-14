@@ -1,43 +1,30 @@
 <!--
 AUTHORING INSTRUCTIONS — DELETE THIS BLOCK IN THE OUTPUT
 
-1. Use this template only for an end-to-end system architecture document.
-   Keep all 12 numbered H2 sections. Add H3/H4 subsections only when they
-   convey relevant content; remove unused example subsections and diagrams.
-2. Every <...> is a fill-in instruction, not final document content. Replace
-   the entire bracketed instruction (and any surrounding placeholder-only
-   backticks) with project-grounded text. Replace sample IDs, links and diagram
-   nodes as well. Do not copy example statuses, dates, targets or values as facts.
-   Short placeholders in tables are expanded by the guidance comments above them.
-3. An H2 section that truly does not apply says
-   'Not applicable: <Explain why the requirement or view is outside scope>'.
-   Missing necessary information instead says
-   'Unverified: <Name the missing fact>; next action: <State who must verify it>'.
-   Do not use "Not applicable" to hide
-   an unmet requirement, unknown risk or missing approval.
-4. State the document's scope and whether diagrams/tables show as-is,
-   transition or target. In a new system, label candidate design as proposed.
-   `addressed` means credible design coverage, not verified implementation.
-5. Keep stable IDs: FUN-nn, QUA-nn, CST-nn, CNC-nn, DD-nn, FF-nn,
-   ADR-NNNN. Reuse existing IDs in Evolve mode. Cite primary sources and link
-   to decisions/checks rather than repeating their reasoning.
-6. All headings Title Case. At most FIVE short columns per table; for detailed
-   records prefer bullets beneath a short index. Use relative links.
-7. Mermaid only where a diagram adds value. The diagrams below are editable
+1. Every <...> is a fill-in instruction, not final document content. Replace
+   the entire bracketed instruction with project-grounded text. Replace sample
+   IDs, links and diagram nodes as well. Do not copy example statuses, dates,
+   targets or values as facts. Short placeholders in tables are expanded by the
+   guidance comments above them.
+2. An section that truly does not apply says 'Not applicable: <Explain why the
+   requirement or view is outside scope>'. Missing necessary information instead
+   says 'Unverified: <Name the missing fact>; next action: <State who must verify
+   it>'. Do not use 'Not applicable' to hide an unmet requirement, unknown risk
+   or missing approval.
+3. State the document's scope and whether diagrams/tables show as-is, transition
+   or target. In a new system, label candidate design as proposed. 'addressed'
+   means credible design coverage, not verified implementation.
+4. Keep stable IDs: FUN-nn, QUA-nn, CST-nn, CNC-nn, DD-nn, FF-nn, ADR-NNNN.
+   Reuse existing IDs in Evolve mode. Cite primary sources and link to decisions
+   rather than repeating their reasoning.
+5. Mermaid only where a diagram adds value. The diagrams below are editable
    skeletons, not verified examples of the user's architecture. Every retained
    diagram needs a title, state (as-is/transition/target) and readable legend.
-   Replace placeholders inside Mermaid code BEFORE validating rendering.
-8. Link to existing or newly proposed ADRs. Do not invent or mark decisions
+6. Link to existing or newly proposed ADRs. Do not invent or mark decisions
    accepted without authorization. State FF status and evidence accurately.
-9. If the project already has an authoritative arc42 document, update relevant
-   sections rather than creating a competing document. Omit unrelated details.
 -->
 
 # System Design: <Name of the system or subsystem being designed>
-
-<!-- After replacing this instruction: briefly identify the documented system,
-     design intent (new/evolving), proposed/observed state, and evidence scope.
-     Prefer a short prose paragraph over extra metadata fields. -->
 
 ## 1. Introduction and Goals
 
@@ -72,19 +59,18 @@ AUTHORING INSTRUCTIONS — DELETE THIS BLOCK IN THE OUTPUT
 
 ### 1.4 Architectural Drivers
 
-<!-- One row for every FUN/QUA/CST/CNC driver.
-     Priority/Rank: order confirmed at Gate A (e.g. `1 / High`);
-     constraints: `Mandatory` (unranked). Difficulty: High/Medium/Low/Unknown.
-     Design Status: addressed | gap | unverified | accepted-risk.
-     `accepted-risk` requires explicit accountable approval and cannot bypass
+<!-- One row for every FUN/QUA/CST/CNC driver. Priority/Rank: order confirmed at
+     Gate A (e.g. '1 / High'); constraints: 'Mandatory' (unranked). Difficulty:
+     High/Medium/Low/Unknown. Design Status: addressed/gap/unverified/accepted-risk.
+     'accepted-risk' requires explicit accountable approval and cannot bypass
      non-waivable hard constraints. Evidence kind/source goes in detailed sections;
-     do not mistake an `addressed` design for tested runtime behavior.
-     Accepted-risk requires explicit human approval documented in §11.
-     A DD is a deferred OPTION, not a substitute for fulfilling the driver. -->
+     do not mistake an 'addressed' design for tested runtime behavior. Accepted-risk
+     requires explicit human approval documented in §11. A DD is a deferred OPTION,
+     not a substitute for fulfilling the driver. -->
 
-| Driver ID | Priority / Rank   | Difficulty          | Design Status         | Design / ADR          |
-| --------- | ----------------- | ------------------- | --------------------- | --------------------- |
-| QUA-01    | <Rank / priority> | <Assess difficulty> | <Set coverage status> | <Link element or ADR> |
+| ID     | Priority / Rank   | Difficulty          | Design Status         | Design / ADR          |
+| ------ | ----------------- | ------------------- | --------------------- | --------------------- |
+| QUA-01 | <Rank / priority> | <Assess difficulty> | <Set coverage status> | <Link element or ADR> |
 
 <!-- Explain cross-driver tensions or unresolved approvals in prose immediately
      after the table. Source of each driver is in its detailed section. -->
@@ -92,10 +78,10 @@ AUTHORING INSTRUCTIONS — DELETE THIS BLOCK IN THE OUTPUT
 ## 2. Architecture Constraints
 
 <!-- Hard constraints only; do not turn preferences into obligations.
-     Assess each as `meets`, `gap` or `unverified` and cite the evidence.
+     Assess each as 'meets', 'gap' or 'unverified' and cite the evidence.
      This obligation check is distinct from design coverage in §1.4. -->
 
-| ID     | Constraint And Source               | Assessment                       |
+| ID     | Constraint and Source               | Assessment                       |
 | ------ | ----------------------------------- | -------------------------------- |
 | CST-01 | <State fixed constraint and source> | <Record assessment and evidence> |
 
@@ -115,7 +101,7 @@ flowchart LR
   actor -->|"<Label the actual purpose of this interaction>"| system
 ```
 
-Legend: <Explain actor and system shapes, the system boundary, and what each arrow represents>
+**Legend:** <Explain actor and system shapes, the system boundary, and what each arrow represents>
 
 | External Actor / System               | Interaction                      |
 | ------------------------------------- | -------------------------------- |
@@ -126,7 +112,7 @@ Legend: <Explain actor and system shapes, the system boundary, and what each arr
 <!-- Describe architectural external interfaces, trust boundaries and known
      communication protocol/style; avoid detailed API field contracts. -->
 
-| Interface / System        | Direction And Data            | Protocol / Constraint       |
+| Interface / System        | Direction and Data            | Protocol / Constraint       |
 | ------------------------- | ----------------------------- | --------------------------- |
 | <Name external interface> | <Describe direction and data> | <State protocol or unknown> |
 
@@ -162,7 +148,7 @@ Legend: <Explain actor and system shapes, the system boundary, and what each arr
      Include compatibility, authoritative data, consumers, validation, rollback
      or forward recovery, and retirement. For a new system, briefly explain
      change-ready boundaries if justified by drivers; otherwise state
-     `Not applicable: No migration is required for this new design.` -->
+     'Not applicable: No migration is required for this new design.' -->
 
 **Change Objective:** <Identify the drivers and the specific architecture change being planned>.
 
@@ -175,18 +161,19 @@ Legend: <Explain actor and system shapes, the system boundary, and what each arr
 
 <!-- List ONLY genuinely optional decisions. Include conditions and ownership
      without forcing a numeric fitness function for a milestone/date. If none:
-     `Not applicable: No optional architecture choices are deferred.` -->
+     'Not applicable: No optional architecture choices are deferred.' -->
 
 | ID    | Related Driver           | Choice Deferred                     | Revisit Condition      |
 | ----- | ------------------------ | ----------------------------------- | ---------------------- |
 | DD-01 | <Cite related driver ID> | <Describe deferred optional choice> | <State revisit signal> |
 
-**DD-01 Details**
+#### DD-01: <Name the deferred architectural decision>
 
-- **Why And Interim Approach:** <Explain the viable interim design and the uncertainty reduced by waiting>.
-- **Owner And Next Step:** <Identify the accountable role and specific follow-up analysis or decision>.
-- **Response And Risk:** <Outline likely alternatives, change cost and reversibility limits>.
-- **Signal/FF:** <State the revisit signal and FF ID only if a real check is defined>.
+- **Reason and Interim Approach:** <Explain why the decision can be postponed and how the interim architecture remains viable>.
+- **Options and Change Risk:** <Summarize likely alternatives, reversal cost, migration implications, and risks of postponement>.
+- **Decision Deadline:** <Specify the latest safe milestone, date, or condition by which the decision must be made>.
+- **Owner and Next Step:** <Identify the accountable role and the investigation, evaluation, or action required before deciding>.
+- **Revisit Signal / Fitness Function:** <Describe the condition that triggers reconsideration and reference an FF ID only when an actual fitness function monitors it>.
 
 ## 5. Building Block View
 
@@ -201,18 +188,28 @@ Legend: <Explain actor and system shapes, the system boundary, and what each arr
 
 ```mermaid
 flowchart TB
-  subgraph sys["<Name of the system or subsystem being designed>"]
-    app["<Name a logical application container in this system>"]
-    store[("<Name a logical data-store container owned by this system>")]
-    app -->|"<State the interaction purpose and confirmed communication style/protocol>"| store
+  actor(["<Name relevant person or actor<br/>[Person]>"])
+  external["<Name external system<br/>[External System]>"]
+
+  subgraph system["<Name system in scope>"]
+    app1["<Name application container<br/>[Container: Type]>"]
+    app2["<Name another container<br/>[Container: Type]>"]
+    store[("<Name data store container<br/>[Container: Data Store]>")]
   end
+
+  actor -->|"<Interaction purpose>"| app1
+  app1 -->|"<Interaction and protocol>"| app2
+  app2 -->|"<Data interaction and protocol>"| store
+  app2 -->|"<External interaction and protocol>"| external
 ```
 
-Legend: <Define system boundary, container shapes, ownership and direction of interactions>
+**Legend:** <Define system boundary, container shapes, ownership and direction of interactions>
 
 | Container                | Responsibility            | Technology                      | Data Ownership            |
 | ------------------------ | ------------------------- | ------------------------------- | ------------------------- |
 | <Name logical container> | <State container purpose> | <State technology or undecided> | <Name owned data or none> |
+
+### 5.2 Component View: <Name the C4 container being decomposed>
 
 <!-- Add a Component View only when decomposition of a significant C4
      container clarifies architectural responsibilities, interfaces or
@@ -223,8 +220,6 @@ Legend: <Define system boundary, container shapes, ownership and direction of in
      keep only the components and external participants that actually matter.
      Keep component names, relationships and boundaries consistent with §5.1;
      components within one C4 container are not necessarily deployable units. -->
-
-### 5.2 Component View: <Name the C4 container being decomposed>
 
 **Diagram — Component View (<Specify As-Is, Transition or Proposed Target as appropriate>):**
 
@@ -254,7 +249,7 @@ flowchart TB
 <!-- Include only scenarios that explain an architecturally significant
      decision, external interaction, consistency rule or failure response.
      If none adds value at this scope, remove the illustrative H3/diagram and
-     state `Not applicable: <specific reason>. -->
+     state 'Not applicable: <specific reason>'. -->
 
 ### 6.1 <Name the runtime scenario that reveals an architectural choice or failure mode>
 
@@ -299,8 +294,8 @@ flowchart TB
 
 ## 8. Crosscutting Concepts
 
-<!-- If none, write `Not applicable: No shared architectural policy is needed
-     beyond decisions already documented.` Otherwise one H3 per concept. -->
+<!-- If none, write 'Not applicable: No shared architectural policy is needed
+     beyond decisions already documented.' Otherwise one H3 per concept. -->
 
 ### 8.1 <Name the policy shared across multiple architecture elements>
 
@@ -333,7 +328,7 @@ flowchart TB
 ### 10.2 Quality Scenarios
 
 <!-- One H4 per quality driver; write all SIX scenario parts. Require an
-     observable criterion or explicitly `Target unconfirmed` and action.
+     observable criterion or explicitly 'Target unconfirmed' and action.
      Source-of-requirement provenance is separate from stimulus source. -->
 
 #### QUA-01 — <Name the quality attribute and the distinguishing scenario condition>
@@ -353,7 +348,7 @@ flowchart TB
 <!-- List all fitness functions in the overview table. Repeat the details
      subsection for each fitness function using the same ID. Include only
      checks that protect relevant architectural characteristics; do not
-     require one fitness function per driver or ADR. Mark checks as `active`
+     require one fitness function per driver or ADR. Mark checks as 'active'
      only when execution evidence exists. -->
 
 | ID    | Guards                        | Execution State | Check / Location                     |

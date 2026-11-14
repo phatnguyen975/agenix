@@ -9,7 +9,7 @@ Start with **risk and drivers**, not with available tooling:
 1. Choose consequential scenarios, structural boundaries, contracts, ownership rules or evolution risks that can regress.
 2. Define a clear observable property, failure signal, decision owner and response.
 3. Choose a suitable method and cadence. Automate when repeatable, feasible and valuable; permit manual review when an objective protocol is possible but automation is impractical.
-4. Distinguish **proposed** checks from actually operating guardrails; do not present a plan as implemented enforcement.
+4. Distinguish proposed checks from actually operating guardrails; do not present a plan as implemented enforcement.
 
 Aim to cover critical quality goals **by one or more appropriate checks**, but avoid a ceremonial one-to-one mapping of every driver or ADR to an FF. A single FF may protect several drivers; a single driver may require several FFs. A qualitative architectural decision may be best guarded by a periodic architecture review with defined criteria and artifacts.
 
@@ -27,7 +27,7 @@ Each `FF-nn` entry should state:
 
 Where a trigger watches _headroom_, distinguish an **early-warning threshold** from the **mandatory quality target**. Choose both with stakeholder validation when they affect decisions. Define sampling, false positives and data availability where relevant. Do not silently invent a default percentage or date.
 
-**Example `FF-01` (illustrative):**
+**Example `FF-01`:**
 
 - **Purpose:** protect `QUA-01` checkout response time.
 - **Check:** load-test peak of 250 requests/s; measure p95 latency and error fraction for the checkout endpoint; include the relevant dependencies.

@@ -11,7 +11,7 @@ Use when deriving architectural drivers, comparing baseline candidates, timing c
 | Constraint | `CST`  | A genuine non-negotiable limit on viable design                            | System Design §2    |
 | Concern    | `CNC`  | A stakeholder concern demands architecture analysis not captured elsewhere | System Design §1.3  |
 
-- Give every architecturally significant driver a stable `XX-nn` ID, concise statement, stakeholder/source and applicability horizon. Do not turn every feature into a driver.
+- Give every architecturally significant driver a stable ID, concise statement, stakeholder/source and applicability horizon. Do not turn every feature into a driver.
 - A desired or preferred technology is a preference/option until a stakeholder authorizes it as a constraint. Policies, regulations and contractual requirements may contain both a constraint and a measurable quality obligation; record each without duplicating the same driver.
 - Stakeholder concerns are broader than constraints. Avoid creating a separate `CNC` entry when it merely repeats an existing `QUA` or `FUN`.
 - Quality scenarios have source, stimulus, environment, artifact, response and response measure (`quality-attributes.md`). A missing target is `unconfirmed`, not an estimated fact.
@@ -38,7 +38,7 @@ Select **up to five** top quality goals for the executive overview when practica
 
 **New system:** compare at least two _meaningfully different, viable_ candidates when a structural choice remains open. If every meaningful dimension is constrained, record the dictated baseline and assess its consequences; do not fabricate an alternative. For large systems, compare at an appropriate scope, not all possible architecture styles.
 
-Candidate evaluation procedure:
+**Candidate evaluation procedure:**
 
 1. Identify candidate style, module boundaries, C4 containers, deployable units, data ownership and cross-boundary calls.
 2. Reject violated hard constraints or escalate their conflicts; do not treat them as weighted preferences.
@@ -46,7 +46,7 @@ Candidate evaluation procedure:
 4. Compare operational burden, deployment coordination, coupling, data consistency, team skills, cost, reversibility and migration effort. Use an evidence statement, not fabricated numerical scores.
 5. Select the **least complex candidate with acceptable evidence** for the prioritized drivers and constraints. If none suffices, surface the unresolved trade-off for human approval instead of asserting an infeasible baseline.
 
-Example candidate comparison:
+**Example candidate comparison:**
 
 | Candidate                       | Strength                           | Limitation                         | Verdict                              |
 | ------------------------------- | ---------------------------------- | ---------------------------------- | ------------------------------------ |

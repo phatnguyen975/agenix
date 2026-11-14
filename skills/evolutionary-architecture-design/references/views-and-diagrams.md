@@ -26,12 +26,12 @@ Examples of C4 containers include server applications, browser SPAs, mobile apps
 
 Start with system context and container views where architecturally meaningful. Add component views only to resolve important design decisions; choose runtime scenarios that reveal communication, state and failure semantics. Draw production deployment where relevant, adding other environments only if their architectural differences matter.
 
-For a large system, split by a clear bounded domain/subsystem and keep one overview; team boundaries can influence scope but need not define system boundaries. Reuse names/IDs consistently across diagrams; show external dependencies rather than pretending they are owned by the system. Prefer diagrams that fit on a normal GitHub page; separate a crowded diagram instead of shrinking labels to unreadability.
+For a large system, split by a clear bounded domain/subsystem and keep one overview; team boundaries can influence scope but need not define system boundaries. Reuse names/IDs consistently across diagrams; show external dependencies rather than pretending they are owned by the system.
 
 ## Notation and Accuracy
 
 - Every diagram has a **title and scope**, plus a **concise legend** if shapes/lines/colors are non-obvious or custom.
-- Name each element and state its responsibility/type; include technology **only if known and decision-relevant**. Use `Not yet selected` where an open architecture-level choice exists; do not name speculative products.
+- Name each element and state its responsibility/type; include technology **only if** known and decision-relevant. Use `Not yet selected` where an open architecture-level choice exists; do not name speculative products.
 - Use directional edges with purpose and, for cross-container communication, known protocol/style. Do not fabricate a protocol from intuition.
 - Distinguish **current**, **transition** and **target** diagrams explicitly; do not merge them without a clear legend.
 - For distributed failures, represent retry/timeout and recovery in runtime text or diagrams where they materially affect a driver.
@@ -46,7 +46,7 @@ Illustrative project, not a mandated design:
 flowchart LR
   customer(["Customer<br/>[Person]<br/>Places orders"])
   ordering["Ordering System<br/>[Software System]<br/>Accepts and tracks orders"]
-  payment["Payment Provider<br/>[External System]<br/>Authorizes payments"]
+  payment["Payment Provider<br/>[Software System]<br/>Authorizes payments"]
   customer -->|"Places and tracks orders"| ordering
   ordering -->|"Requests authorization"| payment
 ```
@@ -58,7 +58,7 @@ flowchart LR
 ```mermaid
 flowchart TB
   customer(["Customer<br/>[Person]"])
-  provider["Payment Provider<br/>[External System]"]
+  provider["Payment Provider<br/>[Software System]"]
   subgraph orderSys["Ordering System"]
     web["Web App<br/>[Container: Browser Application]"]
     api["Order API<br/>[Container: Server Application]"]
@@ -66,7 +66,7 @@ flowchart TB
   end
   customer -->|"Uses"| web
   web -->|"Submits orders [HTTPS]"| api
-  api -->|"Persists orders [protocol TBD]"| store
+  api -->|"Persists orders [Protocol TBD]"| store
   api -->|"Requests authorization [HTTPS]"| provider
 ```
 
@@ -108,7 +108,7 @@ flowchart TB
     subgraph data["Managed Data Platform"]
       db[("Order Store Instance<br/>[Data Store]")]
     end
-    api -->|"Reads and writes [protocol TBD]"| db
+    api -->|"Reads and writes [Protocol TBD]"| db
   end
 ```
 

@@ -76,36 +76,31 @@ date: 2026-11-14
 
 ## Context and Problem Statement
 
-`QUA-02` requires accepting valid orders during a fulfillment outage.
-Should the checkout path wait synchronously for fulfillment?
+`QUA-02` requires accepting valid orders during a fulfillment outage. Should the checkout path wait synchronously for fulfillment?
 
 ## Decision Drivers
 
-- QUA-02: order acceptance during a 10-minute downstream outage
-- CST-01: use existing managed platform capabilities
+- **QUA-02:** order acceptance during a 10-minute downstream outage
+- **CST-01:** use existing managed platform capabilities
 
 ## Considered Options
 
 - **Synchronous Fulfillment Request:** simple flow but dependent on fulfillment uptime.
-- **Durable Asynchronous Message:** decouples acknowledgment from downstream processing;
-  introduces eventual consistency and message recovery obligations.
+- **Durable Asynchronous Message:** decouples acknowledgment from downstream processing; introduces eventual consistency and message recovery obligations.
 
 ## Decision Outcome
 
-**Proposed:** Durable Asynchronous Message. It permits acceptance
-without requiring immediate fulfillment availability, subject to
-message durability and consumer recovery being validated.
+**Proposed:** Durable Asynchronous Message. It permits acceptance without requiring immediate fulfillment availability, subject to message durability and consumer recovery being validated.
 
 ### Consequences
 
-- Benefit: checkout can acknowledge durable acceptance separately from processing.
-- Cost: eventual order status and operational reconciliation are required.
-- Risk: duplicate delivery needs idempotent processing.
+- **Benefit:** checkout can acknowledge durable acceptance separately from processing.
+- **Cost:** eventual order status and operational reconciliation are required.
+- **Risk:** duplicate delivery needs idempotent processing.
 
 ### Confirmation
 
-A planned outage/replay exercise will check QUA-02; no active fitness
-function has yet been established.
+A planned outage/replay exercise will check QUA-02; no active fitness function has yet been established.
 
 ## More Information
 

@@ -7,7 +7,7 @@ Use for **recurring, system-level architectural policies** that several elements
 Include a concept when it:
 
 - Resolves a significant driver or mandatory constraint across boundaries;
-- Establishes a rule multiple elements need to observe to avoid inconsistency; or
+- Establishes a rule multiple elements need to observe to avoid inconsistency;
 - Implements a significant architectural decision that must be understood in more than one view.
 
 Do not fill a generic checklist merely for completeness. Mention an ADR by ID instead of copying its reasoning. Distinguish a concept (system rule) from an ADR (why chosen) and a fitness function (how guarded).
@@ -40,7 +40,7 @@ In System Design §8, for each selected concept record:
 - Applies to `Web App`, `Order API`, and `Fulfillment Worker`; supports `QUA-04` (diagnosis time).
 - The entry point assigns or validates a correlation identifier and passes it along approved sync/async boundaries. No sensitive personal data is placed in that identifier.
 - If context propagation is missing, record the boundary and a diagnostic fallback; do not silently claim end-to-end trace continuity.
-- Verify with a representative request traversing all three elements. The FF is `planned` until an actual check exists.
+- Verify with a representative request traversing all three elements. The `FF` is `planned` until an actual check exists.
 
 ## Additional Example — Authorization Ownership
 
