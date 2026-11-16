@@ -1,122 +1,46 @@
 # Evaluation Criteria
 
-Full rubric behind Phase 2 of `SKILL.md`. Apply to each candidate direction — not every dimension applies equally to every idea; use judgment about which matters most for the specific context.
+Use this reference when comparing candidate directions and scoping a meaningful next experiment. Apply criteria to the actual goal and constraints; explain evidence and uncertainty rather than treating a rubric as an objective score.
 
 ## User Value
 
-The most important dimension — if the value isn't clear, nothing else matters.
+Identify who benefits, in what situation, how their current workaround falls short and what improvement matters. Ask about observed behavior and costs, not just whether someone likes an idea.
 
-**Painkiller vs. Vitamin:**
+- What outcome changes for the affected person? What observable signal would indicate success?
+- What do people do today, including doing nothing? What would motivate or prevent switching?
+- How do severity, frequency, reach and consequences combine in this context?
+- Which claims come from direct evidence, user reports or untested hypotheses?
 
-- **Painkiller:** Solves an acute, frequent problem. People actively seek a fix, have built workarounds, would pay for it, describe the problem with real emotion.
-- **Vitamin:** Nice to have. People nod politely, say "that's cool", then don't change behavior.
-
-**Questions to ask:**
-
-- Can you name 3 specific people who have this problem right now?
-- What are they doing today instead? (The real competitor is always the current workaround.)
-- Would they switch from their current approach? What would make them switch?
-- How often do they encounter this problem? (Daily problems > monthly problems)
-- Is this a "pull" problem (users are asking for this) or a "push" problem (you think they should want this)?
-
-**Red flags:**
-
-- "Everyone could use this" — if you can't name a specific user, the value isn't clear
-- "It's like X but better" — marginal improvements rarely drive adoption
-- The problem is real but rare — high intensity but low frequency rarely justifies a product
+The painkiller/vitamin metaphor can prompt discussion about urgency, but does not establish demand. Rare high-consequence needs can justify substantial work; a frequent mild inconvenience can still have little value. Avoid requiring named individuals or personal data when a well-defined user group and suitable evidence suffice.
 
 ## Feasibility
 
-Can you actually build this? Not just technically, but practically.
+Consider technical and operational dependencies, resources, skills, adoption effort, permissions and relevant compliance constraints. In an existing project, distinguish inspected capabilities from proposed additions. Verify material external claims against authoritative sources; unavailable verification remains a risk rather than a guessed fact.
 
-**Technical feasibility:**
+Ask what is hardest, what is already available, what requires another party and what can be tested independently. Record estimate assumptions and ranges where justified. Long lead time is a reason to examine smaller learning steps, not proof that an idea is bad or its minimal version must be unsafe.
 
-- Does the core technology exist and work reliably?
-- What's the hardest technical problem? Is it a known-hard problem or a novel one?
-- Are there dependencies on third parties, APIs, or data sources you don't control?
-- What's the minimum technical stack needed? (If the answer is "a lot," that's a signal.)
+## Advantage over Alternatives
 
-**Resource feasibility:**
+Compare the direction with existing solutions and current workarounds. The advantage can be improved access, trust, usability, price, reliability, a new capability or a better fit for a specific context. Differentiation is useful when it affects the outcome; novelty is not mandatory for an internal improvement or a necessary parity feature.
 
-- What's the minimum team/effort to build an MVP?
-- Does it require specialized expertise you don't have?
-- Are there regulatory, legal, or compliance requirements?
-
-**Time-to-value:**
-
-- How quickly can you get something in front of users?
-- Is there a version that delivers value in days/weeks, not months?
-- What's the critical path? What has to happen first?
-
-**Red flags:**
-
-- "We just need to solve [very hard research problem] first"
-- Multiple dependencies that all need to work simultaneously
-- MVP still requires months of work — likely not minimal enough
-
-## Differentiation
-
-What makes this genuinely _different_, not just better.
-
-**Questions to ask:**
-
-- If a user described this to a friend, what would they say? Is that description compelling?
-- What's the one thing this does that nothing else does? (If you can't name one, that's a problem.)
-- Is this differentiation durable? Can a competitor copy it in a week?
-- Is the difference something users actually care about, or just something builders find interesting?
-
-**Types of differentiation (strongest to weakest):**
-
-1. **New capability:** Does something that was previously impossible
-2. **10x improvement:** So much better on a key dimension that it changes behavior
-3. **New audience:** Brings an existing capability to people who were excluded
-4. **New context:** Works in a situation where existing solutions fail
-5. **Better UX:** Same capability, dramatically simpler experience
-6. **Cheaper:** Same thing, lower cost (weakest — easily competed away)
-
-**Red flags:**
-
-- Differentiation is entirely about technology, not user experience
-- "We're faster/cheaper/prettier" without a structural reason why
-- The feature that differentiates is not the feature users care most about
+Ask whether the affected people value the difference, what trade-offs create it and whether competitors or substitutes undermine it. There is no universal ranking in which a new capability always beats lower cost or better usability. Label unverified competitor claims rather than treating imagined gaps as facts.
 
 ## Assumption Audit
 
-For every idea direction, explicitly list assumptions in three categories:
+| Priority       | Consequence if False                                                             | Handling                                                                  |
+| -------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Must Be True   | The proposed direction cannot deliver its core outcome or proceed acceptably     | Resolve or test before relying on it for substantial dependent investment |
+| Should Be True | Value or feasibility changes materially, but adaptation may preserve the outcome | Plan a proportionate check and describe the adjustment                    |
+| Might Be True  | A secondary benefit or optimization changes                                      | Defer unless inexpensive learning would affect a near-term choice         |
 
-### Must Be True (Dealbreakers)
+Priority depends on this direction, not a predefined feature label. User sharing, for example, may be essential for a collaboration tool rather than merely a growth feature. Weigh uncertainty as well as impact when choosing which assumption to test first; an already-established constraint does not need repeated validation.
 
-Assumptions that, if wrong, kill the idea entirely. These need validation before building.
+For each material unvalidated assumption, specify available evidence, a feasible check, an observable decision signal and relevant access/safety constraints. Record an unresolved validation method as a gap. Interviews can reveal needs and objections; favorable statements alone do not demonstrate adoption. Choose observations, prototypes, technical probes or bounded pilots according to the uncertainty.
 
-**Example:** "Users will share their data with us" — if they won't, the entire product doesn't work.
+## Recommendation and Minimal Scope
 
-### Should Be True (Important)
+Compare directions under the same relevant criteria and explain trade-offs. Do not automatically endorse high-value/low-feasibility ideas or reject low-frequency needs. Recommend with the evidence available and state what could change the recommendation; declining to select pending further learning is legitimate.
 
-Assumptions that significantly impact success but don't kill the idea. You can adjust the approach if these are wrong.
+Separate a minimal useful offering from an experiment designed to reduce uncertainty. An interview, mockup or manual pilot may test an assumption before any product is built. An MVP may itself be the appropriate learning vehicle, but must retain the safety, privacy and functional integrity needed for its use.
 
-**Example:** "Users prefer self-serve over talking to a person" — if wrong, you need a different go-to-market, but the core product can still work.
-
-### Might Be True (Nice to Have)
-
-Assumptions about secondary features or optimizations. Don't validate these until the core is proven.
-
-**Example:** "Users will want to share their results with teammates" — a growth feature, not a core value proposition.
-
-## Decision Framework
-
-|                | High Feasibility | Low Feasibility |
-| -------------- | ---------------- | --------------- |
-| **High Value** | Do this first    | Worth the risk  |
-| **Low Value**  | Only if trivial  | Don't do this   |
-
-Use differentiation as the tiebreaker between options landing in the same quadrant.
-
-## MVP Scoping Principles
-
-When defining MVP scope for the chosen direction:
-
-1. **One job, done well.** The MVP should nail exactly one user job. Not three jobs done partially.
-2. **The riskiest assumption first.** The MVP's primary purpose is to test the assumption most likely to be wrong.
-3. **Time-box, not feature-list.** "What can we build and test in [timeframe]?" is better than "What features do we need?"
-4. **The 'Not Doing' list is mandatory.** Explicitly name what you're cutting and why. This prevents scope creep and forces honest prioritization.
-5. **If it's not embarrassing, you waited too long.** The first version should feel incomplete to the builder. If it doesn't, you over-built.
+Choose scope around the most decision-critical uncertainty, identify intended learning and define what is deliberately excluded and why. Time-box when useful, but do not sacrifice necessary controls to hit an arbitrary duration. Treat process pilots as work with time and operational costs, even when no software is required.

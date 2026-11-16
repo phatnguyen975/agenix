@@ -393,7 +393,7 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 helper/
   - [x] `grilling`
   - [x] `context-priming`
   - [x] `handoff`
-  - [ ] `ideation`
+  - [x] `ideation`
   - [ ] `codegraph-intelligence`
   - [ ] `autonomous-git-workflow`
   - [ ] `prd-writing`
@@ -439,6 +439,12 @@ Current capability checkpoint — `handoff` (uncommitted changes against `1af0f7
 - Changes: caller/workspace destination, reusable resume scope, safe replacement, evidence-aware output and recipient-aware redaction. Human approved removing the root-ignore helper and long example; retained focused compaction/redaction guidance. Author/version `"1.0"` preserved.
 - Checks: validator, YAML/UTF-8/resource links, JSON and `git diff --check` passed. Old helper fixture runs confirmed repeat idempotence but a negated ignore rule still produced success; an already-ignored custom location caused an unnecessary root entry. Three isolated [behavioral fixtures](../evals/handoff/scenarios.json) passed semantic review and file assertions: ignored custom destination/redaction, standalone save and preservation of another thread's target. Configuration stayed unchanged; actual snapshots were read back.
 - Follow-up: storage guidance now distinguishes `check-ignore -q` from verbose diagnostics; a negation fixture confirmed verbose exit 0 does not prove exclusion, while quiet mode returned 1. Validator/static checks passed; the three model cases were not rerun for this clarification. Local fixtures/model-assisted assessment do not establish host discovery, retention/cross-host or repeated-run reliability. [Coverage gaps](../evals/handoff/README.md#coverage) and shared P4-01 exit remain open.
+
+Current capability checkpoint — `ideation` (uncommitted changes against `bddeae4`):
+
+- Changes: retained selective lenses/frameworks and Explore/Compare/Sharpen flow; corrected universal value/differentiation/MVP claims and unsupported example assertions. Reused confirmed inputs and caller-owned output; standalone saving defaults to `docs/ideas/<idea-slug>.md` with appropriate write authority. Existing resource names, author/version `"1.0"` retained; no runtime files created/deleted.
+- Checks: external skill-creator validator, YAML/UTF-8, local routes/fences, JSON and `git diff --check` passed. HMW/JTBD/divergence/SCAMPER/pre-mortem checked against primary sources. Three isolated [behavioral cases](../evals/ideation/scenarios.json) passed coordinator semantic review: open framing, bounded caller comparison/rare consequential need and confirmed-direction default save/read-back. Fixture assertions confirmed the exact output path and no extra files.
+- Follow-up: synchronized comparison-only scope, assumption tiers versus validation priority, and example selection after comparison; static checks passed without rerunning model cases. Model-assisted evidence is not demand validation; no full multi-turn selection cycle, repeated-run/baseline or host-routing proof. [Coverage gaps](../evals/ideation/README.md#coverage) and shared P4-01 exit remain open; no capability-level blocker or CI runner added.
 
 ### P4-02 — Prove Shared Schemas, Helpers and Distribution
 

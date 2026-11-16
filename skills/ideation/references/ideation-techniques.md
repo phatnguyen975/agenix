@@ -1,8 +1,10 @@
 # Ideation Techniques
 
-Detail behind Phase 1 step 3 and Phase 2 step 3 in `SKILL.md`. Two tiers: core lenses (quick, single-question prompts for generating variations) and extended frameworks (deeper, multi-step methods). Pick what fits what's actually uncertain about the idea — running everything on every idea produces forced, shallow variations rather than real ones.
+Use during Explore to frame needs or generate alternatives, and during Compare to discover assumptions. Two tiers: core lenses (quick, single-question prompts for generating variations) and extended frameworks (deeper, multi-step methods). Pick what fits what's actually uncertain about the idea — running everything on every idea produces forced, shallow variations rather than real ones.
 
-## Core lenses
+## Core Lenses
+
+Use hypothetical lenses to explore possibilities, then bring alternatives back to real constraints. Audience shifts and relaxed constraints are proposals, not permission to change approved scope. Expert-lens insights require evidence or must remain hypotheses.
 
 - **Inversion** — _"What if we did the opposite?"_ — Flips the default assumption to reveal what's actually load-bearing in it.
 - **Constraint removal** — _"What if budget, time, or tech weren't factors?"_ — Separates what's actually wanted from what's just been accepted as a given.
@@ -12,7 +14,7 @@ Detail behind Phase 1 step 3 and Phase 2 step 3 in `SKILL.md`. Two tiers: core l
 - **Scale** — _"What would this look like at massive scale?"_ — Surfaces constraints and opportunities invisible at the scale currently being imagined.
 - **Expert lens** — _"What would a domain expert find obvious that an outsider wouldn't?"_ — Surfaces non-obvious context a first-pass framing is likely to miss.
 
-## Extended frameworks
+## Extended Frameworks
 
 Use these selectively, not as a checklist — the goal is unlocking thinking, not working through every method.
 
@@ -30,11 +32,11 @@ Seven operations for transforming an existing idea:
 
 **Best for:** Improving or reimagining something that already exists. Less useful for a genuinely greenfield idea.
 
-### How Might We, as a discipline
+### How Might We (HMW)
 
-The restatement in Phase 1 step 1 is itself a technique worth doing well, not just a formality:
+Use a question to express an opportunity when it helps open the solution space:
 
-- Narrow enough to be actionable, broad enough to allow creative solutions, and contains a real tension or constraint that forces creativity.
+- Narrow enough to be actionable, broad enough to allow creative solutions, and grounded in an actual need or relevant constraint.
 - Too broad ("How might we make users happy?"), too narrow ("...add a button to settings"), and solution-embedded ("...build a chatbot") all defeat the point.
 - Worth generating more than one HMW framing of the same problem — different framings unlock different solutions.
 
@@ -43,25 +45,25 @@ The restatement in Phase 1 step 1 is itself a technique worth doing well, not ju
 ### First Principles Thinking
 
 1. What's actually true — not assumed, not just conventional?
-2. List every assumption, even the ones that feel obvious.
+2. Identify assumptions that materially affect the problem or candidate solutions.
 3. For each, is this a hard constraint, or just how it's usually done?
-4. Rebuild from the truths alone.
+4. Explore alternatives from the supported facts, keeping uncertain premises explicit. Legal, safety and permission constraints cannot be discarded merely because they are inconvenient.
 
 **Best for:** Breaking out of incremental thinking, when every variation feels like a small tweak on the status quo.
 
 ### Jobs to Be Done (JTBD)
 
-Focus on what the user is trying to accomplish, not what they say they want:
+Explore the progress behind the request while respecting stated constraints:
 
 - **Functional job:** What task are they trying to complete?
 - **Emotional job:** How do they want to feel?
 - **Social job:** How do they want to be perceived?
 
-**Format:** "When I [situation], I want to [motivation], so I can [expected outcome]."
+**Useful framing:** "When I [situation], I want to [progress], so I can [expected outcome]." This job-story wording is a prompt, not a required JTBD standard or evidence that the need is validated.
 
-**Key insight:** People don't buy products — they hire them to do a job. The competing product isn't always in the same category. (Netflix competes with sleep, not just other streaming services.)
+**Key insight:** Examine the progress people seek in their circumstances, including current workarounds outside the same product category. Functional, emotional and social dimensions are questions to investigate, not motives to invent for the user.
 
-**Best for:** Confirming the real problem before generating solutions to it.
+**Best for:** Exploring the underlying need before generating solutions; confirm interpretations against user evidence.
 
 ### Constraint-Based Ideation
 
@@ -80,12 +82,12 @@ Deliberately impose constraints to force creative solutions:
 
 Imagine the idea has already failed. Work backwards:
 
-1. It's 12 months from now. The project shipped and flopped. What went wrong?
-2. List every plausible reason for failure — technical, market, team, timing
+1. Imagine the idea failed at a relevant future checkpoint. What might have gone wrong?
+2. Identify plausible failure reasons relevant to the idea — technical, adoption, operational, team or timing.
 3. For each failure mode: Is this preventable? Is this a signal the idea needs to change?
-4. Which failure modes are you willing to accept? Which ones would kill the project?
+4. Prioritize by consequence and uncertainty. Identify prevention or validation steps, and ask who has authority to accept residual risk. Imagined failure reasons are hypotheses, not observed causes.
 
-**Best for:** Phase 2 evaluation — stress-testing an idea that feels good but hasn't been pressure-tested yet.
+**Best for:** Convergent evaluation — stress-testing an idea that feels good but hasn't been pressure-tested yet.
 
 ### Analogous Inspiration
 
@@ -98,4 +100,4 @@ Look at how other domains solved similar problems:
 
 The key is finding _structural_ similarities, not surface-level ones. "Uber for X" is surface-level. "A two-sided marketplace that solves a trust problem between strangers" is structural.
 
-**Best for:** Phase 1 expansion, generating variations that feel genuinely different from the obvious approach.
+**Best for:** Divergent exploration, generating variations that feel genuinely different from the obvious approach.
