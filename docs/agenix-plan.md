@@ -1,8 +1,8 @@
 # Agenix Implementation Plan
 
-> **Status:** Approved  
-> **Updated:** 2026-11-16  
-> **Design:** [Agenix proposal](agenix-proposal.md)  
+> **Status:** Approved\
+> **Updated:** 2026-11-17\
+> **Design:** [Agenix proposal](agenix-proposal.md)\
 > **Scope:** Phase 3 setup and Phase 4 implementation; detailed skill content is authored in Phase 4.
 
 The [proposal](agenix-proposal.md#1-scope-and-design-principles) owns workflow behavior; this plan selects how to build it. Read Section 1 for inventory, Sections 2–3 for reuse and routing, Sections 4–6 for implementation choices, and Sections 7–9 for execution and acceptance. The proposal takes precedence if the two conflict; a design change requires a human-approved amendment before dependent implementation.
@@ -341,7 +341,7 @@ The current manifest identifies `https://github.com/phatnguyen975/agenix` as the
 | Candidate/definition helpers      | Reproducible snapshots, frozen-field fingerprints, binding checks and safe path resolution.                                 | No approval inference from a marker/file, no pre-gate commit.                        |
 | Instruction/configuration helpers | Preserve team-owned regions, validate imports/indexes and instantiate reviewed templates.                                   | No new product architecture or activation of unverified commands.                    |
 
-All mutation helpers accept an exact already-approved scope from their caller and return verified actual results. They are not an autonomous workflow engine. Read-only validators report raw blockers even when a human waiver is applicable; only workflow rules apply the specific recorded waiver.
+All mutation helpers accept an exact already-approved scope from their caller and return verified actual results. They are not an autonomous workflow engine. Read-only validators report raw blockers and recorded waivers separately; workflow pre-flight alone applies current, scoped `allow-work` or `accept-incomplete` dispositions for feature/ticket/task IDs under the proposal's [Human Override](agenix-proposal.md#human-override).
 
 ## 7. Phase 3 — Maintainer Setup Checklist
 
@@ -389,6 +389,27 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 helper/
 ### P4-01 — Correct and Validate Existing Capabilities
 
 - [ ] For all 20 capabilities, inspect the full relevant references/templates/scripts against Section 2; preserve standalone intent, license/metadata and working external-tool prerequisites. Keep existing capability `version: 1.0` during pre-release content corrections; do not bump it automatically.
+  - Per-capability tracking below supplements the shared work and exit gate in this group. Check an entry only after its detailed review, necessary corrections and applicable verification are complete; metadata/inventory inspection alone does not qualify.
+  - [ ] `grilling`
+  - [ ] `context-priming`
+  - [ ] `handoff`
+  - [ ] `ideation`
+  - [ ] `codegraph-intelligence`
+  - [ ] `autonomous-git-workflow`
+  - [ ] `prd-writing`
+  - [ ] `domain-modeling`
+  - [ ] `evolutionary-architecture-design`
+  - [ ] `database-design`
+  - [ ] `codebase-design`
+  - [ ] `work-breakdown-planning`
+  - [ ] `spec-writing`
+  - [ ] `api-contract-design`
+  - [ ] `data-impact-analysis`
+  - [ ] `incremental-implementation`
+  - [ ] `tdd`
+  - [ ] `code-simplification`
+  - [ ] `code-review`
+  - [ ] `systematic-debugging`
 - [ ] Correct Git policy/cadence/exact merge authorization and all affected command/branch/worktree references.
 - [ ] Correct incremental implementation and TDD composition, preapproved behavior, evidence destinations, default versus caller policy and method boundaries.
 - [ ] Correct breakdown immutability/status-adapter/output ownership; preserve its independent validator's supported format.
@@ -455,8 +476,8 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 helper/
 ### P4-06 — Implement Feature Specification and Planning
 
 - [ ] Complete behavior, applicable public-interface/data/UI contracts and aggregate consistency. Verify ownership, canonical examples and amendment impact; initial UI scenarios use mocks before approval and production iteration preserves historical prototype code.
-- [ ] Reuse canonical wire schemas/examples across client/provider/prototypes; validate multi-file references and compatible YAML schemas without a second editable JSON definition.
-- [ ] Complete feature delivery strategy and ticket planning: fullstack slices/declared tracks, ownership, DAG, AC coverage and no completion-ticket role.
+- [ ] Reuse canonical wire schemas/examples across client/provider/prototypes; validate multi-file references and compatible YAML schemas without a second editable JSON definition. Support production frontend development through deterministic contract-checked API-boundary mocks, keeping real client requests and strategy-selected unit/component/browser checks independent of backend readiness. Keep this support distinct from historical prototype code.
+- [ ] Complete feature delivery strategy and ticket planning: fullstack slices/declared tracks, ownership, DAG, AC coverage and no completion-ticket role. Allocate known integration work in the initial ticket set with real client/provider dependencies; detail its tasks on eligibility and integrate ready boundaries without waiting for the whole backend.
 - [ ] Complete task planning: selected verification methods/check IDs, manual leaves, immutable definitions and approval-aware additive work.
 - [ ] Implement all three tracker publication paths and partial-write checkpoints; do not create a local ticket shadow store in remote modes.
 - [ ] Prove initial local planning merge versus active-ticket additions on the existing PR; no plan/code early-merge cycle.
@@ -464,6 +485,7 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 helper/
 
 ### P4-07 — Implement Build, Review and Separate Delivery
 
+- [ ] Implement human-only `OVERRIDE <id> <action>: <reason>` for feature/ticket/task: `allow-work` permits scoped work, `accept-incomplete` accepts identified completion gaps. Verify revision/consumer binding, exact confirmation, individual child dispositions and non-waivable implementation/merge/finalization evidence; no automatic step change or publication/exposure authority.
 - [ ] Complete numeric eligible-task selection, revalidated provisional chaining and the full uncommitted batch loop; no task-level commit/approval interruption.
 - [ ] Bind real RED/GREEN/refactor or approved exception evidence to acceptance at its declared level: unit, component/integration or browser. Run relevant regressions across required lanes; a screenshot or browser replay cannot close an unverified unit/component obligation. Keep human-only results honest and iterate production frontend/current contracts after coding starts, without prototype synchronization.
 - [ ] Gate the exact checked batch, publish only after approval, reconcile native task closure and monitor real CI.
@@ -497,13 +519,13 @@ Each scenario validates observable outcomes, not merely template wording. Unit/f
 | Collaboration              | Two worktrees with independent tickets; deliberate same-file conflict, ID collision and stale plan; owner reconciliation without lost content, automatic high-status selection or premature dependent work.                                                                                                                                                                                                                     |
 | Publication                | Candidate drift/index preservation, complete batch, post-push correction, negative-CI probe, final-head checks, native required reviews, manual/exact authorized AI merge, queue submission versus confirmed merge.                                                                                                                                                                                                             |
 | Authority/session          | No next step without human invocation and `END`; approval plus `END` completes only authorized actions; fresh-session resume, wrong/missing item/step and blocked closure.                                                                                                                                                                                                                                                      |
-| Product scopes             | Frontend-only real external boundary, backend-only, fullstack mock/provider then real integration, library consumer, built CLI, infrastructure disposable target, no meaningless UI/persistence artifacts.                                                                                                                                                                                                                      |
+| Product scopes             | Frontend-only real external boundary, backend-only, fullstack mock-backed production client/provider then real integration, upfront integration coverage and dependency-based task planning, library consumer, built CLI, infrastructure disposable target, no meaningless UI/persistence artifacts.                                                                                                                                                                                                                      |
 | UI                         | Global design versus feature inheritance; requirement-linked mock scenarios and deterministic reset; browser-verified prototype before approval; mobile-first responsive layouts across declared browser viewports; rendered interactions, accessibility/visual assertions; code-only iteration after implementation begins; current written contracts versus historical prototype; no prototype-sync gate or native-app route. |
 | Frontend test lanes        | Pure logic/state/validation units; React component/hook tests with isolated providers/MSW/async states under the selected Vitest or Jest runner; meaningful RED and restored GREEN in each required harness; browser flows/responsive layout separately. DOM simulation, code coverage percentage and screenshots cannot replace each other or establish async Server Component behavior.                                       |
 | Web review                 | Applicable security/performance/user-facing axes stay required. ECC security is scoped to owned frontend sinks/session/API integration; external controls remain explicitly unverified where evidence is absent. Vercel general UI review and detailed WCAG procedures reuse one coverage record. Verify measured performance conditions and genuine manual gaps; no second verdict or auto-fix during review.                  |
 | Methods                    | Genuine failing assertion before implementation, no setup-error RED, approved test-after evidence, manual leaves, no check downgrades, in-scope repair versus new task for completed work.                                                                                                                                                                                                                                      |
 | Evolution                  | Definition fingerprints, spec amendment impact, `CANCELLED` not DONE, blocked cancelled dependency, new tickets after merges, invalidated feature acceptance and new linked feature after verified feature DONE.                                                                                                                                                                                                                |
-| Lifecycle                  | Ticket closure before feature acceptance; independent feature finalization on merged baseline; post-merge repair via new work without dependency cycles; exposure explicitly isolated/authorized.                                                                                                                                                                                                                               |
+| Lifecycle                  | Ticket closure before feature acceptance; independent feature finalization on merged baseline; post-merge repair via new work without dependency cycles; exposure explicitly isolated/authorized. Override scenarios cover all three item levels, both actions, stale/ambiguous waivers, scoped dependent-feature work, accepted incomplete completion and no silent child closure.                                                                                                                                                                                                                               |
 | Step routing and templates | Every dispatch selects its exact reference and bounded capability routes; direct-only steps, applicable specialist triggers, read-only modes and unchanged-input reuse behave correctly. Root shared templates, private assets and capability-owned resources resolve from an installed package without duplicate records. Convention files cover actual scopes beyond code structure.                                          |
 | Packaging                  | Clean installed Claude/Codex/Antigravity surfaces, explicit-only policy, local imports/scope routing, read-only helper resources, version mismatch, clean pinned CI and supported OS/UTF-8/space paths.                                                                                                                                                                                                                         |
 | Capability independence    | Each changed/new/imported capability usable outside Agenix; no workflow paths/statuses embedded, no accidental Git publication/extra gates, output adapters preserve checks and unused skills remain available. Imported resource closure, colocated licenses/source pins and conditional loading are verified.                                                                                                                 |
