@@ -24,7 +24,7 @@ Reuse context that remains available, relevant and current. A small task may nee
 
 These categories help identify relevant material. They are not an authority ranking or a fixed retrieval sequence; an error report or checkpoint may identify which source or contract to inspect next.
 
-| Category                     | Select for the current focus                                                                                           |
+| Category                     | Select for the Current Focus                                                                                           |
 | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | Instructions and constraints | Host instructions, project entry instructions and applicable ancestor/local scopes; required decisions and permissions |
 | Requirements and design      | Relevant approved behavior, acceptance criteria, contracts, architecture or conventions                                |
