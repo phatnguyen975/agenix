@@ -349,21 +349,21 @@ These tasks begin only after explicit approval of this plan. They prepare AI age
 
 ### P3-01 — Establish the Approved Baselines
 
-- [ ] Confirm proposal and plan approvals, filenames and repository state; preserve unrelated work.
-- [ ] Move the two approved files to `docs/agenix-proposal.md` and `docs/agenix-plan.md`; repair their links while preserving approval identity/history.
-- [ ] Keep unrelated `.ideas/` material and its ignore protection. Do not delete the directory or remove ignore rules wholesale.
-- [ ] Validate that capability/source links still resolve from `docs/`; both temporary/current and final directories have the same depth.
-- [ ] Exit: both approved baselines are readable at canonical paths; no scratch/credentials entered the tracked set.
+- [x] Confirm proposal and plan approvals, filenames and repository state; preserve unrelated work.
+- [x] Move the two approved files to `docs/agenix-proposal.md` and `docs/agenix-plan.md`; repair their links while preserving approval identity/history.
+- [x] Preserve unrelated working material. Remove `.ideas/` and its ignore entry only with explicit human authorization after confirming no unrelated material remains.
+- [x] Validate that capability/source links still resolve from `docs/`; both temporary/current and final directories have the same depth.
+- [x] Exit: both approved baselines are readable at canonical paths; no scratch/credentials entered the tracked set.
 
 ### P3-02 — Write Maintainer Instructions
 
-- [ ] Create root `AGENTS.md` with concise context, baseline links, repository layout, Phase 4 order and ownership boundaries.
-- [ ] Carry over the proposal's [Content and Reference Rules](agenix-proposal.md#content-and-reference-rules): English default, standard terminology, verified claims, no hidden assumptions, newcomer-readable context, bounded duplication, relevant section references and full affected-context reread after edits.
-- [ ] State capability independence, explicit workflow authority, no existing-skill deletion, no implementation before the relevant task is authorized and no proposal changes hidden inside implementation fixes.
-- [ ] Add the existing-capability correction gate before capability creation/vendoring and workflow authoring. Explain how to work before consuming-project `agx-*` skills exist; do not invoke imaginary commands.
-- [ ] Create `CLAUDE.md` as the local `@AGENTS.md` adapter, preserving any separately owned host instructions rather than duplicating all shared rules.
-- [ ] Add an instruction scope index; add deeper maintainer entries only for real runtime/test/packaging constraints, not every skill folder.
-- [ ] Exit: a fresh agent can identify what it may change, which baseline owns behavior and how to validate its current work.
+- [x] Create root `AGENTS.md` with concise context, baseline links, repository layout, Phase 4 order and ownership boundaries.
+- [x] Carry over the proposal's [Content and Reference Rules](agenix-proposal.md#content-and-reference-rules): English default, standard terminology, verified claims, no hidden assumptions, newcomer-readable context, bounded duplication, relevant section references and full affected-context reread after edits.
+- [x] State capability independence, explicit workflow authority, no existing-skill deletion, no implementation before the relevant task is authorized and no proposal changes hidden inside implementation fixes.
+- [x] Add the existing-capability correction gate before capability creation/vendoring and workflow authoring. Explain how to work before consuming-project `agx-*` skills exist; do not invoke imaginary commands.
+- [x] Create `CLAUDE.md` as the local `@AGENTS.md` adapter, preserving any separately owned host instructions rather than duplicating all shared rules.
+- [x] Add an instruction scope index; add deeper maintainer entries only for real runtime/test/packaging constraints, not every skill folder.
+- [x] Exit: a fresh agent can identify what it may change, which baseline owns behavior and how to validate its current work.
 
 ### P3-03 — Establish Maintainer Working Context
 
@@ -382,7 +382,7 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 runtime
 
 ### P4-01 — Correct and Validate Existing Capabilities
 
-- [ ] For all 20 capabilities, inspect the full relevant references/templates/scripts against Section 2; preserve standalone intent, license/metadata and working external-tool prerequisites.
+- [ ] For all 20 capabilities, inspect the full relevant references/templates/scripts against Section 2; preserve standalone intent, license/metadata and working external-tool prerequisites. Keep existing capability `version: 1.0` during pre-release content corrections; do not bump it automatically.
 - [ ] Correct Git policy/cadence/exact merge authorization and all affected command/branch/worktree references.
 - [ ] Correct incremental implementation and TDD composition, preapproved behavior, evidence destinations, default versus caller policy and method boundaries.
 - [ ] Correct breakdown immutability/status-adapter/output ownership; preserve its independent validator's supported format.
@@ -475,7 +475,7 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 runtime
 - [ ] Test the plugin from an installed/distributed directory, not only a source checkout; test clean CI with the same pinned helper revision.
 - [ ] Verify distinct sequential review passes, finding verification and coverage reporting on every supported host.
 - [ ] Run the complete product/tracker/host matrix in Section 9, including real public-boundary, browser and selected-service scenarios. Mark unsupported/unrun targets honestly; do not claim release readiness while a required target is unverified.
-- [ ] Update root README/install/invocation/tracker/credential/version/support documentation and skill index from actual implemented behavior.
+- [ ] Update root README/install/invocation/tracker/credential/version/support documentation and skill index from actual implemented behavior. Review and revise maintainer `AGENTS.md`, `CLAUDE.md` and affected docs after Phase 4 implementation and before the first release; keep them distinct from consuming-project instruction templates.
 - [ ] Complete the `skills/README.md` source index and verify a colocated `LICENSE` for each imported skill, required copyright/notices and redistributed-resource licensing. Root MIT alone is not proof of third-party permission; do not create a separate notes/report file.
 - [ ] Build an explicit release allowlist excluding `.ideas/`, private credentials/scratch, host-local `.agents/` state and development-only artifacts. Verify maintainer guidance does not leak into consumer policy.
 - [ ] Human reviews the concrete release candidate, evidence and limitations. Publishing a release/tag remains a separate explicitly authorized action; this checklist does not authorize it now.
