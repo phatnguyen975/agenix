@@ -390,7 +390,7 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 helper/
 
 - [ ] For all 20 capabilities, inspect the full relevant references/templates/scripts against Section 2; preserve standalone intent, license/metadata and working external-tool prerequisites. Keep existing capability `version: 1.0` during pre-release content corrections; do not bump it automatically.
   - Per-capability tracking below supplements the shared work and exit gate in this group. Check an entry only after its detailed review, necessary corrections and applicable verification are complete; metadata/inventory inspection alone does not qualify.
-  - [ ] `grilling`
+  - [x] `grilling`
   - [ ] `context-priming`
   - [ ] `handoff`
   - [ ] `ideation`
@@ -421,6 +421,12 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 helper/
 - [ ] Validate every changed resource route and metadata entry. Run changed helpers in isolated fixtures, including failure paths; do not execute capability scripts against the real project as a substitute for tests.
 - [ ] Forward-test standalone and composed scenarios: default independent Git/TDD behavior; explicit deferred publication; exact merge authorization; no repeated gate for already-approved inputs; no permission expansion.
 - [ ] Exit: existing capabilities work independently and have no unresolved invariant conflict blocking the Section 3 mapping. Freeze this reviewed batch before creating or importing skills.
+
+Current capability checkpoint — `grilling` (uncommitted changes against `575d117`):
+
+- Changes: dependency-ordered questioning, prior-decision reuse, caller-owned summaries and authority/evidence handling. Rechecked against the original skill; removed obsolete invocation commentary, clarified interview applicability and aligned neutral questioning, rounds and verification. Standalone scope and author/version `"1.0"` preserved.
+- Checks: `git diff --check`, UTF-8, local links/fences, JSON case structure and both YAML files passed; external skill-creator `quick_validate.py skills/grilling` passed with PyYAML 6.0.3. Ten isolated read-only [behavioral cases](../evals/grilling/scenarios.json), delivered turn by turn without grading rubrics, passed coordinator semantic review on their latest runs. One visibility-summary expansion was corrected and passed a fresh targeted replay.
+- Follow-up: validator/static checks passed after the wording review. A fresh read-only calendar interview deferred timing until channels were resolved and returned the three confirmed decisions after stop; an additional recipient question was excluded by the user. Earlier ten-case results were not rerun in full. Model-assisted evidence is not human approval or a CI runner; [coverage gaps](../evals/grilling/README.md#coverage) and the shared P4-01 exit remain open.
 
 ### P4-02 — Prove Shared Schemas, Helpers and Distribution
 

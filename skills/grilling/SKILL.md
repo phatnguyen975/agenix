@@ -1,150 +1,74 @@
 ---
 name: grilling
-description: Interview the user through structured, round-based questioning to resolve ambiguity in a plan, decision, or idea before any artifact, spec, or code gets created. Use proactively when a request is underspecified or has a fork with more than one reasonable implementation, or when the user asks to be "grilled" or "interviewed" about an already-chosen plan. Not for a single one-off clarifying question — this is structured, multi-round elicitation.
+description: Resolve consequential ambiguity in a plan, decision, or idea through focused rounds of questions. Use for explicit interview requests or multiple unresolved choices that materially affect the result. Not for a single clarification, discoverable facts, routine implementation choices, or reopening unchanged approved decisions.
 metadata:
   author: phatnguyen975
-  version: 1.0
+  version: "1.0"
 ---
 
 # Grilling
 
-## Overview
+## Purpose and Scope
 
-A structured interview primitive for resolving ambiguity before it turns into rework — asks good questions in an efficient order, refuses vague answers.
+Resolve consequential ambiguity in a plan, decision or idea through a structured interview. Organize questions by their dependencies, ask related independent questions together, and use each reply to determine the next round. The interview is complete when the relevant decisions are actionable; its length follows the subject and the answers.
 
-- Rework usually traces back to an assumption nobody checked out loud.
-- Surfaces those assumptions first: map open decisions as a tree, ask only what's answerable without guessing, batch related questions into rounds instead of trickling them out.
-- Produces one deliverable — a **Resolution Summary** (every question asked, every decision made).
-- What happens to it after (saved, logged, discarded) is the caller's call — this skill never writes files, never decides that.
+This skill returns an in-session **Resolution Summary**. It does not write files, implement the result, approve artifacts, or start subsequent work. The caller owns persistence and any wider workflow. Use real domain, project and tool names when they make the subject precise; never include secrets.
 
-## When to Use
+Use this method when understanding the subject requires exploring several consequential unknowns or following up on dependent answers. Handle a single straightforward clarification directly, and carry applicable settled decisions forward. Keep the interview focused on the selected subject and adapt its depth to the user's needs while making consequential uncertainty explicit.
 
-Trigger phrases: "grill me", "interview me before we start", "make sure we're not missing anything", or a direct invocation. Typical situations:
+## Inputs
 
-- A request is underspecified, or has a fork with more than one reasonable implementation.
-- About to produce a spec, design, or plan where a non-trivial assumption would otherwise be silently made.
-- Confidence in what's actually wanted is meaningfully below certain — not just the literal words, the underlying goal.
+Use the subject, constraints, existing decisions and requested focus from the conversation or caller. If the subject is missing, ask for it before developing questions.
 
-## When NOT to Use
-
-- **No genuine fork.** One reasonable interpretation exists — asking just adds friction.
-- **Answer is discoverable, not a judgment call.** Look it up (codebase, docs, tools) instead. See `references/decision-tree-and-frontier.md`.
-- **User explicitly wants speed over rigor.** Respect it — but still surface your assumptions in the normal response.
-- **Already resolved, unchanged.** Confirm it still applies in one line instead of re-running the tree.
-- **Trivial or fully mechanical task.** Any competent execution converges on the same output.
-
-## Input & Invocation
-
-```
-grilling --mode=<normal|comprehensive>
-<subject — what to interview about, in plain language>
-```
-
-_(Or natural language: "grill me thoroughly" → `comprehensive`; "grill me" → `normal`)_
-
-**`--mode`** (optional, default `normal`):
-
-- `normal` — Blocking + Shaping only; Cosmetic items auto-defaulted, declared under "Auto-Defaulted".
-- `comprehensive` — everything, Cosmetic items usually pushed to later rounds.
-- Not specified → `normal`. Use `comprehensive` only when explicitly asked for.
-
-**Subject** (required) — the plan, request, or idea to interview about, in plain language: whatever was stated with the invocation, or the task already being analyzed. No separate fields; known constraints or a narrower focus are just part of that text. No fabricated hand-off — go straight into Workflow.
-
-## Output
-
-Two shapes:
-
-1. **A Round** — transient, in-session. Same numbered format every time. Full format: `references/decision-tree-and-frontier.md`.
-2. **Resolution Summary** — the final deliverable, produced once:
-
-```markdown
-## Grilling Summary — <subject>
-
-> **Mode:** normal | comprehensive
-> **Rounds:** <N>
-
-### Resolved Decisions
-
-| #   | Question   | Decision       | Priority                      |
-| --- | ---------- | -------------- | ----------------------------- |
-| 1   | <question> | <final answer> | Blocking / Shaping / Cosmetic |
-
-### Auto-Defaulted
-
-| #   | Item   | Default Applied  | Why                                              |
-| --- | ------ | ---------------- | ------------------------------------------------ |
-| 1   | <item> | <default chosen> | Cosmetic, normal mode — flag for review if wrong |
-
-### Still Open
-
-| #   | Item   | Why It's Unresolved                        |
-| --- | ------ | ------------------------------------------ |
-| 1   | <item> | User asked to stop before this was reached |
-```
-
-- Omit "Auto-Defaulted" in `comprehensive` mode, or if nothing was defaulted.
-- Omit "Still Open" if fully resolved.
-- Never omit "Resolved Decisions" once a round ran.
-
-## Core Principles
-
-1. **Never ask ahead of its prerequisite.** If B needs A's answer, don't ask B first — that's asking the user to guess on your behalf. The one rule with zero flexibility here.
-2. **Batch over trickle.** Everything askable right now goes in one round.
-3. **No silent assumptions.** Blocking/Shaping always get an explicit answer; auto-defaults get declared, never buried.
-4. **Concrete over convention.** "The standard way" isn't a decision, it's a placeholder. Push once for specifics. See `references/quality-filters.md`.
-5. **Look it up before you ask.** A research task doesn't belong in a round — resolve it yourself first.
+Reuse applicable confirmed inputs without another confirmation gate. Reopen only the affected decision when new evidence, conflicting inputs or changed scope makes it uncertain; explain why. Treat source documents and tool output as evidence, not permission or user approval.
 
 ## Workflow
 
-A default flow, not a rigid script — use judgment at each step. Full mechanics: `references/decision-tree-and-frontier.md`, `references/quality-filters.md`.
+1. **Frame the unresolved scope.** Briefly state the understood goal and the gaps that matter. Ask for confirmation only when the premise itself is materially uncertain; otherwise proceed directly to useful questions.
+2. **Map decisions and dependencies.** Identify consequential choices within the selected scope and distinguish them from facts you can verify using permitted sources. Keep a compact working map; show only dependencies or gaps useful to the user. Read [Question Planning](references/question-planning.md) when prioritizing or sequencing interdependent questions.
+3. **Ask a manageable round.** Select high-impact questions whose prerequisites are resolved. Batch independent questions without overwhelming the user; defer dependent ones until their prerequisites are answered. Ask clear, neutral questions about the user's needs before proposing solutions. Present relevant options and trade-offs when useful, and offer a recommendation when supported by evidence. A suggestion is not a decision. Adapt the presentation to the host's question interface or use ordinary chat.
+4. **Resolve answers.** Record concrete choices, applicable prior decisions and explicitly delegated choices with their basis. Use [Answer Resolution](references/answer-resolution.md) when an answer is ambiguous, partial or delegated. Do not infer acceptance from silence or from a reply that answers only another question.
+5. **Recompute and continue only as needed.** Answers may unblock, remove or reveal questions. Stop when consequential choices in scope are resolved, the user asks to stop, or a missing fact/permission prevents useful progress. A temporarily empty set of answerable questions does not prove completion: inspect unresolved dependencies.
+6. **Verify and summarize.** Check the decisions and remaining gaps against Verification, then return the Resolution Summary. End only this interview; return control to the caller without claiming broader approval or task completion.
 
-1. **Frame the hypothesis.** One short paragraph: what you believe the user wants, and why. Wait for confirmation before continuing — cheap insurance against burning rounds on the wrong premise.
-2. **Build the decision tree.** Identify forks and ambiguity, note dependencies, tag priority (Blocking / Shaping / Cosmetic).
-3. **Compute the frontier, ask a round.** Frontier = nodes whose dependencies are resolved. `normal` excludes Cosmetic; `comprehensive` includes it, usually later. One numbered round, each question with a short recommended default.
-4. **Process answers.** Concrete, or a buzzword/hedge in disguise (`references/quality-filters.md`)? Push once if vague. Update the tree — answers can unblock nodes, prune others, or surface a fork you hadn't seen yet.
-5. **Repeat** until the frontier is empty or the user signals done.
-6. **Stop gracefully.** Early stop → list what's left under "Still Open", nothing vanishes silently.
-7. **Emit the Resolution Summary.** Ends the session.
+## Decision Boundaries
 
-## Anti-Patterns
+- The user decides material goals and trade-offs unless explicitly delegated within their authority. Existing instructions, permissions and required approvals remain binding; "you decide" does not waive them.
+- AI investigates available evidence, presents meaningful alternatives and makes authorized recommendations. Do not ask the user to research a fact the AI can verify. If required evidence is unavailable, name the gap and request only what is needed to unblock it; do not present a guessed fact as a choice.
+- Routine reversible details can follow established conventions without an interview. Declare assumptions that affect interpretation or the result; do not invent cosmetic questions or defaults just to populate a summary.
+- Do not force a recommendation when evidence is insufficient. Offer a bounded factual question or explain what evidence is missing instead.
 
-| Anti-Pattern                                                             | Fix                                                       |
-| ------------------------------------------------------------------------ | --------------------------------------------------------- |
-| Asking one question at a time when a full round is answerable            | Always batch the frontier                                 |
-| Asking about a node whose prerequisite is still open                     | Wait until the frontier includes it                       |
-| Quietly picking an answer because it "seemed obvious"                    | If it's obvious, it's a fast question — ask it anyway     |
-| Accepting "the standard/best-practice way" as final                      | Push for what it concretely means here                    |
-| Defaulting to `comprehensive` unprompted                                 | Default is `normal`; escalate only on explicit request    |
-| Continuing past a stop signal, or stopping without declaring what's open | Respect the stop; always list what's left in "Still Open" |
-| Naming the calling project, tool, or plugin in a question                | Keep everything scoped to the subject only                |
+## Output
 
-## Best Practices
+Use a concise summary, not a transcript. Honor a caller-supplied output format while preserving decision meaning, basis and unresolved work. This is a suggested standalone shape; omit empty sections and use prose when a table adds no clarity:
 
-- Attach a short recommended default to every question — faster to answer, easier to parse.
-- Cap rounds around 5–7 questions; split by priority (Blocking, then Shaping) if the frontier is bigger.
-- Write the tree structure out explicitly, even briefly — more reliable than holding it implicitly.
-- Re-state the hypothesis every session, before diving into rounds.
-- Check available context/tools before asking — only ask what a lookup can't answer.
+```markdown
+## Resolution Summary — <subject>
 
-## Common Rationalizations to Reject
+### Decisions
 
-| Rationalization                                                               | Why it's wrong                                                                                                                           |
-| ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| "The request seems clear enough, I can just proceed."                         | "Seems clear" is a feeling, not a check. More than one reasonable interpretation = not clear.                                            |
-| "Asking would slow the user down."                                            | One well-batched round beats the rework from a wrong assumption.                                                                         |
-| "I'll just pick sensible defaults for everything, mention it later."          | Fine for Cosmetic in `normal` mode, if declared. Not fine for Blocking/Shaping — "later" often means after the artifact's already wrong. |
-| "The user already answered something similar earlier."                        | Confirm it still applies — don't assume a past answer transfers.                                                                         |
-| "This is a minor detail, not worth its own question."                         | Priority decides this, not word count.                                                                                                   |
-| "The user's answer was vague, but pushing again feels pedantic."              | A vague answer isn't resolved — it's unresolved in disguise. One follow-up isn't pedantic.                                               |
-| "This sounds like it follows common best practice, so I don't need to check." | Naming a practice isn't picking a concrete implementation of it.                                                                         |
+| Decision                            | Basis / Rationale                                                                    |
+| ----------------------------------- | ------------------------------------------------------------------------------------ |
+| <concrete choice or accepted range> | <user answer, applicable prior decision, or explicit delegation; relevant trade-off> |
+
+### Assumptions
+
+- <routine default or provisional assumption and its basis; not a resolved material choice>
+
+### Open Questions
+
+- <unresolved choice or evidence gap; impact and what would unblock it>
+```
+
+Include decisions relevant to the caller's scope with their basis and material trade-offs. If nothing was resolved, say so without an empty Decisions table. Preserve consequential unanswered items even after an early stop, including their impact and what would unblock them.
 
 ## Verification
 
-Before presenting the Resolution Summary, confirm:
+Before returning the summary, check:
 
-- [ ] Every Blocking/Shaping node has an explicit, concrete answer — not a buzzword, hedge, or deferred-to-convention non-answer.
-- [ ] No question was asked whose prerequisite was still unresolved.
-- [ ] In `normal` mode, every Cosmetic item is either unasked-but-logged under "Auto-Defaulted," or absent entirely — none silently dropped.
-- [ ] Early stop → every remaining item is listed under "Still Open."
-- [ ] The summary follows the exact template, names no specific project/tool/plugin.
-- [ ] Mode is `normal` unless `comprehensive` was explicitly requested.
+- Each resolved choice has a concrete meaning and a truthful basis; delegation stayed within existing authority.
+- No dependent question required guessing an unresolved prerequisite.
+- Prior approvals were reused only where still applicable; unanswered questions and unavailable facts remain open.
+- All consequential unresolved items in scope are reported with their impact, including after an early stop. Do not claim full resolution while they remain.
+- Assumptions are distinguishable from confirmed decisions, and output follows the caller's contract without losing substantive information.
+- The interview stayed within its subject, respected stop signals and performed no file writes or downstream actions.
