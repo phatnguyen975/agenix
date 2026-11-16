@@ -616,7 +616,7 @@ Instructions define policy; host permissions, CI and branch protection enforce a
 
 ### Helper Ownership and Execution
 
-Reusable Agenix helpers are packaged and versioned with the plugin. Setup verifies and binds them to the project; it does not copy helper source into the consumer repository, regenerate it with AI or create a second editable implementation. Project-owned application/test/service scripts remain in the repository when required by its approved design; they are distinct from reusable Agenix helpers.
+Reusable Agenix helpers are packaged and versioned with the plugin. Shared workflow helpers live in root `scripts/`; a skill's own `scripts/` contains its private logic or thin launchers that call shared helpers without duplicating them. Reusable capability scripts stay with their capability. Setup verifies and binds them to the project; it does not copy helper source into the consumer repository, regenerate it with AI or create a second editable implementation. Project-owned application/test/service scripts remain in the repository when required by its approved design; they are distinct from reusable Agenix helpers.
 
 Local workflow execution resolves the actual bundled helper path from the installed skill/plugin resource location and passes an explicit absolute project root. Helpers validate that root before resolving project configuration, metadata, drafts or credentials. Never infer the target repository from the helper's own directory or assume a plugin-root environment variable is available in every host/tool context. Treat the plugin installation as read-only; generated files, evidence and secrets belong to their declared project/private locations. Dependencies use a declared tool environment, without implicitly modifying plugin files or the application environment. Execution remains subject to host permissions; denied access is not a reason to bypass controls by copying code elsewhere.
 
@@ -955,7 +955,7 @@ Shared contract definitions and wire schemas live under `docs/contracts/` with p
 | Codex       | Root `plugin.json`, including `extensions.com.openai` | `$agx-build FEAT-003-T01 run`; skill `agents/openai.yaml` sets `policy.allow_implicit_invocation: false` | `AGENTS.md`                                                      |
 | Antigravity | `.antigravity-plugin/plugin.json`                     | `/agx-build FEAT-003-T01 run`; `disable-model-invocation: true`                                          | `AGENTS.md`                                                      |
 
-V1 has fixed manifest locations: root `plugin.json` is the portable manifest and contains `extensions.com.openai`; Claude Code reads `.claude-plugin/plugin.json`; Antigravity reads `.antigravity-plugin/plugin.json`. No `.codex-plugin/plugin.json` compatibility manifest is shipped. Shared identity/version metadata must agree across these three manifests; use the same `skills/` content. Validate each manifest against its vendor schema.
+The v1 package uses the three manifest locations above with consistent identity/version metadata and shared `skills/` content. OpenAI supports `.codex-plugin/plugin.json` as a compatibility fallback when `extensions.com.openai` is absent; an inline OpenAI extension replaces that overlay rather than merging with it. Agenix selects the portable root layout and omits the overlay from its v1 package. Validate each selected manifest against its vendor schema.
 
 The workflow contract does not prescribe an execution topology. Phase 2 evaluates whether hooks, subagents or custom-agent profiles improve enforcement, context isolation or independent checks, then defines their responsibilities and supported-host behavior. They are neither required nor prohibited by this proposal. Verify actual host capabilities, permissions, packaging/distribution constraints and portability before selecting them; do not assume equivalent APIs across hosts.
 
@@ -965,7 +965,7 @@ Any selected automation must preserve explicit step invocation, human-only `END`
 
 Keep portable root `plugin.json` plus the selected Claude/Antigravity manifests consistent. Workflow and independently reusable capability skills share `skills/` content; named-step routing loads only relevant instructions. Phase 2 decides concrete helper/template/reference layouts, capability composition and any justified hook/subagent integration.
 
-Maintainer instructions govern building Agenix, not consuming-project policy. Exclude scratch, credentials and development-only context from distributables. Per-host tests must verify discovery, explicit invocation, argument routing, resource paths and scoped instruction loading; vendor documentation alone is not runtime proof.
+Maintainer instructions govern building Agenix, not consuming-project policy. Exclude scratch, credentials and development-only context from distributables. A repository marketplace catalog describes discovery and distribution separately from plugin manifests; verify both on the selected host surfaces. Per-host tests must verify discovery, explicit invocation, argument routing, resource paths and scoped instruction loading; vendor documentation alone is not runtime proof.
 
 ### Capability Selection Boundary and Third-Party Reuse
 
@@ -979,12 +979,12 @@ The maintainer lifecycle builds Agenix itself; it is distinct from the consuming
 
 | Phase                   | Responsibility and Exit Condition                                                                                                                                                                                                 |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1 — Proposal            | Analyze and revise this design in `.ideas/agenix-proposal.md`. Keep it a draft until explicit human approval; completing an edit or review does not close Phase 1.                                                                |
+| 1 — Proposal            | Analyze and revise workflow scope, contracts, gates and responsibilities. Obtain explicit human approval; completing an edit or review does not close Phase 1.                                                                    |
 | 2 — Implementation plan | Analyze capability coverage and select components, resource ownership, implementation approaches, dependencies, order, validation and packaging. Obtain explicit plan approval; reopen the proposal if a design change is needed. |
 | 3 — Maintainer setup    | After proposal and plan approval, move them to `docs/agenix-proposal.md` and `docs/agenix-plan.md`, then prepare maintainer `AGENTS.md`, `CLAUDE.md` and supporting build guidance against those baselines.                       |
 | 4 — Implementation      | Build the workflow components and complete templates; create, reuse or improve independent capabilities where required by the plan. Test integration/host compatibility, document and package the plugin.                         |
 
-Until Phase 3, `.ideas/` remains ignored working material: do not commit/push it, move it or delete it. Any later cleanup must preserve unrelated working material and follow explicit authorization; moving the approved references is not permission to remove the directory wholesale. Maintainer instructions govern building Agenix; consuming-project instruction templates govern projects using Agenix. Keep those responsibilities separate.
+Approved baselines live at `docs/agenix-proposal.md` and `docs/agenix-plan.md`. Maintainer instructions govern building Agenix; consuming-project instruction templates govern projects using Agenix. Final setup approval and authorization to start implementation are human decisions.
 
 ### Required Implementation Validation
 
