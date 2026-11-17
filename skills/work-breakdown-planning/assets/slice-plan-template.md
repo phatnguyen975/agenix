@@ -6,20 +6,18 @@
 
 > **Source:** <Work Item reference>  
 > **Mode:** <Flat or Recursive>  
-> **Created:** <YYYY-MM-DD>  
-> **Last synced:** <YYYY-MM-DD>
+> **Last Updated:** <YYYY-MM-DD>
 
 <!-- comment:
 Source: the Work Item's own reference exactly as the project identifies it (identifier, link or file path). For a Slice taken from another Slice Plan, give that plan's path and the Slice ID. If the Work Item was given only as text in the request, write one line stating where it came from.
-Mode: exactly one of Flat or Recursive, as chosen with the human.
-Created: date the plan was first saved. Never changed afterwards.
-Last synced: date of the most recent Sync. Equal to Created until the first Sync.
+Mode: Flat or Recursive, from the requested planning depth.
+Last Updated: date of the most recent update.
 Format: one field per line in one blockquote; field name and colon bold, value after. Two trailing spaces on all but the last line.
 -->
 
 ## Work Item
 
-<!-- comment: Describe the Work Item so that a reader who has never seen the original understands the plan on its own. Every statement here must come from the Work Item or from answers the human confirmed (Step 2, or the Sync flow for added scope). Nothing may be inferred. -->
+<!-- comment: Describe the Work Item so that a reader who has never seen the original understands the plan on its own. Use the Work Item, applicable authoritative sources and confirmed decisions (Step 2 or added scope at Sync). Use verified source facts and confirmed decisions; resolve material gaps rather than inventing requirements. -->
 
 **Outcome:** <One paragraph: what the Work Item delivers once fully done, stated as observable results for whoever uses or operates it.>
 
@@ -40,7 +38,7 @@ Registers every document outside this plan (specification, design, convention, d
 Document: the document's own title.
 Location: repository path or link, verified accessible.
 Defines: names precisely which aspects of the Work Item the document governs, so each Slice can point to the narrowest relevant part instead of the whole document.
-Only list documents the human provided or confirmed (Step 2, or the Sync flow for added scope).
+List relevant authoritative supplied or discovered sources, with their applicable sections verified.
 -->
 
 **Contract:** <Only when applicable (Contract-first): the agreed interface between independent parties, stated precisely enough that each party can implement and verify against it alone. Omit this entry otherwise.>
@@ -66,18 +64,21 @@ Assign every node to exactly one class matching its Status: ready, blocked, inPr
 flowchart TD
     S01["S01 · <Title>"]
     S02["S02 · <Title>"]
+    S03["S03 · <Title>"]
     S01 --> S02
+    S01 --> S03
     classDef ready fill:#d4edda,stroke:#2e7d32,color:#000
     classDef blocked fill:#f8d7da,stroke:#c62828,color:#000
     classDef inProgress fill:#fff3cd,stroke:#b8860b,color:#000
     classDef done fill:#d1e7ff,stroke:#1565c0,color:#000
     class S01 ready
     class S02 blocked
+    class S03 blocked
 ```
 
 ## Execution Order
 
-<!-- comment: Derived. A Slice is in Wave 1 when it has no Dependencies; otherwise in the Wave that is 1 plus the highest Wave among its Dependencies. Slices in the same wave can run in parallel; write them in one cell separated by <br>. Within a wave, list Risk-first Slices first (when that technique applies), otherwise by ID. -->
+<!-- comment: Derived. A Slice is in Wave 1 when it has no Dependencies; otherwise in the Wave that is 1 plus the highest Wave among its Dependencies. Slices in the same wave are graph-independent, but parallel execution also requires compatible ownership/resources; write them in one cell separated by <br>. Within a wave, list Risk-first Slices first (when that technique applies), otherwise by ID. -->
 
 | Wave | Slices                         |
 | ---- | ------------------------------ |
@@ -90,19 +91,19 @@ flowchart TD
 
 ### S01 · <Title>
 
-<!-- comment: ID is permanent and never reused. Title is a verb followed by one single outcome; it must not join two behaviors with "and" or "or". -->
+<!-- comment: ID is permanent and never reused. Title is a verb followed by one single outcome; use conjunctions when needed to describe one coherent outcome. -->
 
-| Field         | Value                                 |
-| ------------- | ------------------------------------- |
-| Status        | <READY, BLOCKED, IN-PROGRESS or DONE> |
-| Granularity   | <Atomic or Coarse>                    |
-| Coarse reason | <Unmet Scope Signal or guard reached> |
-| Depends on    | <S00 — reason; S00 — reason> or —     |
+| Field         | Value                                              |
+| ------------- | -------------------------------------------------- |
+| Status        | <READY, BLOCKED, IN-PROGRESS or DONE>              |
+| Granularity   | <Atomic or Coarse>                                 |
+| Coarse reason | <Concrete complexity or refinement budget reached> |
+| Depends on    | <S00 — reason; S00 — reason> or —                  |
 
 <!-- comment:
 Status: exactly one of the four values, following the Status Rules below.
 Granularity: Atomic when the Slice meets the full Slice Quality Bar. Coarse otherwise.
-Coarse reason: include this row only when Granularity is Coarse; omit the row otherwise. Name the unmet Scope Signal (by number and wording) or the guard reached (G3 or G4). In Flat mode state that no further Split was attempted.
+Coarse reason: include this row only for Coarse items. State the remaining complexity and why no useful valid cut was found, or the reached budget and remaining complexity. For Flat, state that no further Split was attempted. Report unresolved material decisions separately; Coarse does not resolve them.
 Depends on: entries separated by semicolons, each formatted "S0n — why this Slice cannot start or be verified without it". Hard prerequisites only. Write — when there are none.
 -->
 
@@ -136,22 +137,22 @@ Acceptance Criteria must agree with the referenced part. If they conflict, stop 
 One condition per line. Each states a precondition (when relevant) and the expected observable result, so it can only be judged pass or fail.
 Use concrete values, thresholds and named outcomes. Avoid vague words such as "properly", "fast", "correctly", "appropriate", "etc.".
 Together the criteria must cover everything in "In scope" and nothing from "Out of scope".
-A Slice meeting the Quality Bar normally has no more than 5.
+Use as many criteria as needed to specify the outcome; count alone does not determine size.
 -->
 
 **Verification:**
 
 - <Command or manual step> → <expected observation>
 
-<!-- comment: Prefer the verification commands defined by the project (test, build, lint, type-check). If none applies, write a manual check with exact steps and the exact observation that counts as passing. Every Acceptance Criterion must be covered by at least one line. -->
+<!-- comment: Prefer the verification commands defined by the project (test, build, lint, type-check). For required human judgment, specify the observer, exact steps and passing observation; retain applicable automated checks. Every Acceptance Criterion must be covered by at least one line. -->
 
 ## Slicing Log
 
 <!-- comment:
-Append-only. One row per Split.
+Append-only. One row per Split, or an explicit no-split result when the input already meets the bar.
 Parent: "Work Item" for the first Split and for scope added at Sync; otherwise the ID of the Slice that was split, or its title when it is an intermediate Slice that was split further and therefore has no ID in this plan.
 Technique: the catalog name exactly as written in the skill. When the Work Item, or the scope added at Sync, already met the Slice Quality Bar and was not split, write "None (already meets the Quality Bar)".
-Result: IDs of the final Slices produced; titles for intermediate Slices that were split further. Log only Splits that actually happened.
+Result: IDs of the final Slices produced; titles for intermediate Slices that were split further. Do not invent intermediate Splits.
 -->
 
 | #   | Date         | Parent    | Technique   | Result   |
@@ -176,7 +177,7 @@ Allowed status changes and the event that triggers each one:
 | From        | To          | When                                                               |
 | ----------- | ----------- | ------------------------------------------------------------------ |
 | BLOCKED     | READY       | The last Dependency becomes DONE.                                  |
-| READY       | BLOCKED     | A Dependency that is not DONE is added to the Slice.               |
+| READY       | BLOCKED     | An authorized correction makes a prerequisite unmet.               |
 | READY       | IN-PROGRESS | Work begins.                                                       |
 | IN-PROGRESS | DONE        | Every Acceptance Criterion is checked and Verification has passed. |
 | IN-PROGRESS | READY       | Work is stopped before completion.                                 |

@@ -1,19 +1,19 @@
 # Dependencies, Order and Status
 
-Used in Step 4 of the Create flow and throughout the Sync flow.
+Read when constructing/updating dependencies or standalone statuses. Graph rules apply across output formats. The four-state model, Sxx notation and derived tables below belong to the standalone [Slice Plan Template](../assets/slice-plan-template.md); a caller-owned format uses its own lifecycle/completion resolver. Status text is not execution evidence.
 
 ## Dependency Rules
 
-- An edge `A → B` exists only when B cannot start, or cannot be verified, until A is `DONE`.
+- An edge `A → B` exists only when B cannot start, or cannot be verified, until A meets the owning prerequisite-completion rule (`DONE` in the standalone model).
 - A preferred order that is not a hard prerequisite does not create an edge.
-- Omit edges implied by transitivity: if `A → B` and `B → C` exist, do not add `A → C`.
+- Prefer omitting edges implied by transitivity unless the direct edge captures a distinct contract obligation: for example, `A → B` and `B → C` already enforce A before C.
 - No self-dependency. Every referenced ID must exist.
-- A part shared by several Slices belongs to the first Slice that needs it. Later Slices depend on that Slice. Do not create a separate foundation Slice.
+- Give shared work one owner: usually the first Slice that needs it. A separate prerequisite is valid when it has an independently verifiable contract; later Slices depend on that contract, not on mere shared file ownership.
 - Record the reason for each edge in the dependent Slice's `Depends on` field.
 
 ## Cycle Check
 
-Mandatory in Step 4 and at every Sync. The method is a topological sort by in-degree (Kahn's algorithm). It runs in time proportional to the number of Slices plus Dependencies.
+Mandatory in Step 4 and at every Sync. The method is a topological sort by in-degree (Kahn's algorithm). With adjacency lists and in-degree tracking its traversal is `O(V+E)`. Sorting for deterministic display may add overhead.
 
 1. List every Slice as a node and every Dependency as an edge from prerequisite to dependent.
 2. Compute each node's in-degree (number of prerequisites).
@@ -26,8 +26,8 @@ Mandatory in Step 4 and at every Sync. The method is a topological sort by in-de
 
 Resolving a cycle:
 
-1. Test each edge in the cycle against the Dependency Rules. Delete every edge that is not a hard prerequisite.
-2. If a cycle remains, merge the Slices in the cycle into one and Split it again with a different technique. The merged Slice inherits every Dependency that enters or leaves the cycle.
+1. Test each edge against the Dependency Rules. Correct unsupported edges in the proposed work. Existing approved edges require an explicit amendment decision.
+2. For new, unapproved work, if a cycle remains, merge the Slices in the cycle into one and Split it again with a different technique. The merged Slice inherits every Dependency that enters or leaves the cycle.
 3. In the Sync flow, existing Slices are never merged or changed. Resolve the cycle by changing only new Slices and new edges.
 4. If it still cannot be resolved, stop and report the Slices involved to the human.
 
@@ -37,7 +37,7 @@ Do not save the plan while a cycle exists.
 
 - A Slice's Wave is 1 when it has no Dependencies; otherwise it is 1 plus the highest Wave among its Dependencies.
 - This equals the layer in which step 3 of the Cycle Check removes the Slice.
-- Slices in one Wave have no dependency path between them and can be carried out in parallel.
+- Slices in one Wave have no dependency path between them and are candidates for parallel execution. Check shared files/resources, ownership and external prerequisites before scheduling; graph independence alone does not grant concurrency.
 - Within a Wave: Risk-first Slices first when that technique applies, otherwise by ID.
 
 **Example:** edges `S01→S02`, `S01→S03`, `S02→S04`, `S03→S04`.
@@ -63,14 +63,14 @@ Do not save the plan while a cycle exists.
 | `IN-PROGRESS` | Work has started.                                                    |
 | `DONE`        | Every acceptance criterion is checked and Verification has passed.   |
 
-**Initial status:** a Slice with no Dependencies is `READY`; every other Slice is `BLOCKED`. No Slice starts as `IN-PROGRESS` or `DONE`.
+**Initial status for new work:** `READY` when every prerequisite is already `DONE` (or none exist), otherwise `BLOCKED`. Preserve existing completion evidence; planning does not set `IN-PROGRESS` or `DONE`.
 
 **Transitions:**
 
 | From          | To            | When                                                               | Set by                                         |
 | ------------- | ------------- | ------------------------------------------------------------------ | ---------------------------------------------- |
 | `BLOCKED`     | `READY`       | The last Dependency becomes `DONE`.                                | Derived (Sync or the person updating the plan) |
-| `READY`       | `BLOCKED`     | Sync adds a Dependency that is not `DONE`.                         | Sync                                           |
+| `READY`       | `BLOCKED`     | An explicitly authorized correction makes a prerequisite unmet.    | Owner of the authorized correction             |
 | `READY`       | `IN-PROGRESS` | Work begins.                                                       | Whoever does the work                          |
 | `IN-PROGRESS` | `DONE`        | Every acceptance criterion is checked and Verification has passed. | Whoever does the work                          |
 | `IN-PROGRESS` | `READY`       | Work is stopped before completion.                                 | Whoever does the work                          |
@@ -95,5 +95,9 @@ Check these when reading a plan and report any violation.
 - Existing Slices keep ID, content, acceptance criteria and Dependencies.
 - In the Work Item section, only the parts the added scope requires change (Outcome, Boundary, References). All other text stays as written.
 - New Slices may depend on existing Slices.
-- A new Slice may become a prerequisite of an existing Slice only if the existing Slice is `READY` or `BLOCKED`. A `READY` Slice that gains an unfinished Dependency becomes `BLOCKED`.
+- A newly discovered prerequisite of an existing Slice requires an explicit amendment decision, not ordinary Sync. Preserve the definition and report affected readiness until its owner resolves the correction.
 - A defect found after `DONE` is recorded as a new Slice.
+
+## Evidence and Limits
+
+Sync reconciles recorded facts; it does not run product verification, certify completion or grant delivery authority. If a completed item's evidence is stale or contradicted, report the conflict and block dependent readiness under the owning rules. Retain history and obtain a disposition rather than silently trusting `DONE` or rewriting it. External prerequisites and resource availability must be recorded alongside the graph; `READY` in this standalone model describes dependency readiness only.
