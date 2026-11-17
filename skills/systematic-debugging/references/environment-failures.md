@@ -5,12 +5,12 @@
 ## Method
 
 1. Define the two environments: working and failing.
-2. Capture the same fingerprint in both, with identical commands.
+2. Capture the same allowlisted, redacted fingerprint in both, with identical safe commands. Do not dump the complete environment, copy secret files or reveal credential values.
 3. Diff the fingerprints.
 4. In a safe, controlled copy, change or transfer one difference at a time toward the failing conditions until the failure moves. Do not modify production or shared state for this experiment without explicit approval.
-5. The last difference moved is the candidate cause; confirm it as any other hypothesis (`diagnosis.md`).
+5. The last difference moved is the candidate cause; confirm it as any other hypothesis ([Diagnosis](diagnosis.md)).
 
-## Fingerprint checklist
+## Fingerprint Checklist
 
 - Operating system, version, architecture; path separators and case sensitivity; line endings; locale, encoding, timezone, clock.
 - Runtime and tool versions; dependency versions actually installed, not only declared.

@@ -1,6 +1,6 @@
 # Performance Regressions
 
-## Define before measuring
+## Define Before Measuring
 
 - **Metric:** latency percentile, throughput, memory, CPU, startup time, size.
 - **Workload:** fixed input and size.
@@ -18,9 +18,9 @@
 
 - Profile (CPU, memory and allocation, I/O, locks and contention) instead of guessing.
 - Differential profile: profile the known-good and the current version and compare.
-- Bisect history with the benchmark as the feedback loop and the threshold as the verdict (`isolation.md`).
+- Bisect history with the benchmark as the feedback loop and the threshold as the verdict ([Isolation](isolation.md)).
 
-## Hypothesis classes
+## Hypothesis Classes
 
 - Algorithmic complexity growth.
 - Repeated work: missing or invalidated cache, N+1 queries, redundant I/O.
@@ -30,7 +30,7 @@
 - Dependency version change.
 - Data growth.
 
-## Fix and guard
+## Fix and Guard
 
 - Change only the measured hotspot, then measure again with the same method and report before and after with the spread.
 - Guard level 3: a benchmark with a threshold set above the measured noise.

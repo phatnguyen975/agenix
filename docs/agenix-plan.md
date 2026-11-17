@@ -409,7 +409,7 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 helper/
   - [ ] `tdd`
   - [x] `code-simplification`
   - [x] `code-review`
-  - [ ] `systematic-debugging`
+  - [x] `systematic-debugging`
 - [ ] Correct Git policy/cadence/exact merge authorization and all affected command/branch/worktree references.
 - [ ] Correct incremental implementation and TDD composition, preapproved behavior, evidence destinations, default versus caller policy and method boundaries.
 - [ ] Correct breakdown immutability/status-adapter/output ownership; preserve its independent validator's supported format.
@@ -481,6 +481,12 @@ Current capability checkpoint - `code-review` (uncommitted changes against `8f5d
 - Changes: retained eleven axes and resource ownership; corrected scoped authority/output, sequential/delegated routing, bounded concurrency/retry, stable candidates, source IDs and tooling evidence. Human approved Inconclusive for material uncertainty; synchronized findings/report. Consolidated duplicated routing/handoff rules, verified internal links/anchors and clarified path resolution and configuration versus execution evidence. Five axis guides received targeted corrections; other guides and UI remain unchanged, author/version "1.0" preserved.
 - Checks: validator, YAML/JSON, UTF-8, resource links/fences and axis/prefix consistency passed. Three read-only [behavioral cases](../evals/code-review/scenarios.json) passed semantic review: sequential composed deduplication/AC-7, current-file uncertainty and missing target. Material security/accessibility/performance reference claims were checked against official sources.
 - Limits: inherited model settings, supplied immutable excerpts; no live delegated fan-out, candidate drift, retry, saving, renderer or installed-host proof. Final clarity edits received static checks without replay. [Coverage](../evals/code-review/README.md#coverage) records gaps; no capability blocker, shared P4-01 exit remains open.
+
+Current capability checkpoint - `systematic-debugging` (uncommitted changes against `90b8107`):
+
+- Changes: empirical diagnosis/guard requirements retained with scope-aware repair/output authority, consistent manual fallback and unresolved-known-cause handling; removed the redundant anti-pattern table while retaining its safeguards at their owning steps. Added approved Markdown report, removed approved renderer and the human-removed HTML after Markdown review. Corrected Windows quoted checker invocation in find-polluter; repeat-run, UI and author/version "1.0" preserved.
+- Checks: validator, UTF-8, Markdown routes/anchors/fences, YAML/JSON/Python syntax and whitespace passed; ten isolated [helper tests](../evals/systematic-debugging/check_helpers.py) passed. Three supplied-evidence behavioral cases assessed diagnosis-only, preauthorized repair and missing reproduction. Claim-versus-check-result confusion required a contract clarification and targeted corrective follow-up, which passed.
+- Limits: Windows/Python 3.14.10, inherited model settings; no full autonomous repair, report save, mitigation, descendant-termination failure, POSIX, renderer or installed-host proof. Final clarity edits received static checks without replay. [Coverage](../evals/systematic-debugging/README.md#coverage) records gaps; shared P4-01 exit remains open.
 
 ### P4-02 — Prove Shared Schemas, Helpers and Distribution
 

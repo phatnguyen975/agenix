@@ -10,33 +10,33 @@
 4. When boundaries are many, binary-search the pipeline: check the middle stage first, then the half that contains the divergence.
 5. **Tools:** debugger, existing logs, tracing, network inspection, temporary tagged logs.
 
-## Reduce (how small)
+## Reduce (how Small)
 
 Delta-debugging approach:
 
 1. List what can be removed: input data, request fields, configuration entries, callers, steps, dependencies, test setup.
 2. Remove half (or one item) at a time and run the feedback loop.
 3. Keep the removal if the feedback loop stays red; undo it if the feedback loop turns green.
-4. Stop when every remaining element is necessary: removing any one makes the failure disappear.
+4. Stop when no tested single-element removal preserves the exact symptom. This is minimal under those reductions, not proof of the globally smallest failing input. Keep invalid/setup failures distinct from the target symptom.
 5. Record the result as the minimal reproduction; Phase 4 turns it into the regression guard.
 
 Keep a copy of the full scenario; Phases 5 and 7 rerun it.
 
-## Bisect (since when)
+## Bisect (since When)
 
 | Dimension                            | Method                                                                                                                                                 |
 | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | History                              | Version-control bisection with the feedback loop as the test (for example `git bisect run COMMAND`; other version-control systems offer an equivalent) |
 | Input                                | Halve the input until the smallest failing slice remains                                                                                               |
 | Configuration or dependency versions | Halve the differences between the working and failing states                                                                                           |
-| Test order                           | See `nondeterministic-failures.md`                                                                                                                     |
+| Test order                           | See [Nondeterministic Failures](nondeterministic-failures.md)                                                                                          |
 
 History bisection details:
 
 - Verify first that the feedback loop passes on the known-good revision and fails on the known-bad one.
 - Exit code 0 marks a revision good, 125 skips an untestable revision, other codes from 1 to 127 mark it bad, and codes above 127 abort. A missing command that returns 127 is treated as a bad revision, not as a setup error; verify that the runner starts successfully before invoking the bisect, or every tested revision may be mislabeled bad.
 - Skip revisions that do not build.
-- A flaky feedback loop gives wrong verdicts: pin its reproduction rate first (`nondeterministic-failures.md`).
+- A flaky feedback loop gives wrong verdicts: pin its reproduction rate first ([Nondeterministic Failures](nondeterministic-failures.md)).
 - Cache builds and narrow the test target when builds are slow.
 
 The first bad revision or smallest differing setting shows what changed; Phase 3 explains why.

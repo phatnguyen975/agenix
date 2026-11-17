@@ -1,6 +1,6 @@
 # Hardening
 
-**Purpose:** make the same class of bug harder to reintroduce or quicker to detect. Hardening is a separate change with its own verification, applied only after the human approves it; it is never part of the fix (G5).
+**Purpose:** make the same class of bug harder to reintroduce or quicker to detect. Hardening is a separate change with its own verification, applied only after the human approves it; it is additional to the bounded repair (G5). A check necessary to correct the confirmed defect belongs to the fix, not to optional hardening.
 
 ## Process
 
@@ -20,7 +20,7 @@
 - Prefer designs in which invalid states cannot be represented (types, constructors) when the language and project support it.
 - Error messages state what was received, what was expected, and where.
 
-## Observability additions
+## Observability Additions
 
 - Structured errors with context.
 - Metrics or alerts for the failure signature.

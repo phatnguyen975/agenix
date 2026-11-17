@@ -129,7 +129,11 @@ def main():
     check = None
     if args.check_command:
         try:
-            check = shlex.split(args.check_command, posix=(os.name != "nt"))
+            check = (
+                args.check_command.strip()
+                if os.name == "nt"
+                else shlex.split(args.check_command)
+            )
         except ValueError as exc:
             parser.error(f"invalid --check-command: {exc}")
         if not check:
