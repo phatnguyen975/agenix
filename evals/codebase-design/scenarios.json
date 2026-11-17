@@ -1,0 +1,39 @@
+{
+  "skill": "codebase-design",
+  "execution": {
+    "isolation": "Give a fresh context one raw case input and the runtime skill path. Hide other cases and the rubric.",
+    "permissions": "Allow skill resource reads only. Prohibit writes, network, product execution, Git, credentials and delegation.",
+    "assessment": "Assess actual responses semantically using the supplied facts and the criteria below. Distinguish check plans from execution evidence."
+  },
+  "cases": [
+    {
+      "id": "review-module-cycle-at-correct-granularity",
+      "input": "Give a focused read-only structural review in chat. Approved DR-07 forbids cycles between architectural modules on the production source-import graph. `orders/export` imports `billing/public`, and `billing/reconcile` imports `orders/public`. The two public files do not import anything. A file-level cycle scan passed. Separately the billing runtime sends notifications to orders through a published callback; that callback entails no inspected source import. Only these production files and imports were inspected; the generated clients and rest of the repository were not. No prior review is available. Prioritize what to do next without choosing or implementing a new architecture.",
+      "expected": [
+        "Map the supplied imports to the two module edges and establish the DR-07 violation despite the passing file-level scan.",
+        "Exclude the runtime callback from the selected static graph. Limit conclusions to examined evidence and identify a check at the relevant granularity.",
+        "Prioritize follow-up based on coverage and consumer impact. Keep redesign a proposal for later decision."
+      ],
+      "prohibited": [
+        "Reclassify the callback itself as a static dependency or use the file scan to clear DR-07",
+        "Claim repository-wide coverage, a prior trend, new check execution, or authority to redesign or edit"
+      ],
+      "quality": "The finding shows why both the supplied scan result and the observed module cycle can be true. The follow-up asks for evidence that could guide a structural decision."
+    },
+    {
+      "id": "composed-preserve-contract-and-rule-id",
+      "input": "Return exactly three sections in chat called Placement, Consumer Boundaries, and Evidence. We have approved one repository with independently released `web` and `service` units and provider-owned client generation. The web currently imports an internal helper from `service/orders/storage`; that helper also embeds a business rule. We need a structural proposal improving this boundary without changing the published service contract or reapproving existing decisions. Public service operations already cover the web use case. No conventional test paths or structural checks were supplied. Use rule ID BND-4 for preventing service implementation imports. Give a concrete proposal pending any decision needed, with verification and limits. Do not move files, build a full document, generate clients, or design wire schemas.",
+      "expected": [
+        "Use the three supplied sections and BND-4, and retain existing unit and contract ownership decisions.",
+        "Keep one owner for the business rule and replace the implementation dependency through the existing supported contract. Treat adoption of the new rule separately from writing a proposal.",
+        "Describe concrete passing and failing checks for the boundary and compatibility across releases. Identify coverage gaps and keep evidence status accurate."
+      ],
+      "prohibited": [
+        "Redesign the contract, require duplicate approval, or expand to a full design artifact",
+        "Invent existing tools, test paths, or observed execution results",
+        "Move code, generate clients, or claim new rule adoption"
+      ],
+      "quality": "The proposal states how to preserve independently released consumers and detect direct or disguised imports of service internals."
+    }
+  ]
+}

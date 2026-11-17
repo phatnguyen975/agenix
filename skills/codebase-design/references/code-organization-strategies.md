@@ -2,7 +2,7 @@
 
 ## Purpose and Scope
 
-Choose **how code is grouped within each affected release unit** and **how each architectural module is structured internally**. A multi-unit repository may use different languages, frameworks, and patterns in different units. These are separate, composable decisions. Repository layout, build targets, release units, modules, and runtime deployment boundaries are not interchangeable; use `repository-layout.md` and `module-design.md` for their definitions and ownership.
+Choose **how code is grouped within each affected release unit** and **how each architectural module is structured internally**. These choices can vary across units and stacks. See [Release Unit Placement](repository-layout.md#release-unit-placement) for unit boundaries and [Public Interfaces](module-design.md#information-hiding-and-public-interfaces) for module visibility.
 
 - **Primary organization:** the dominant way developers locate code — by capability/feature, component, technical layer, or use case/operation.
 - **Module-internal pattern:** an optional way to separate responsibilities within a module — simple, layered, ports and adapters, vertical slices, pipes and filters, or presentation-state separation.
@@ -16,7 +16,7 @@ These options **overlap** — a capability may be packaged as a component, conta
 2. **Choose the simplest viable primary grouping.** Compare an existing or minimal structure against alternatives using change locality, cohesion, public-consumer needs, navigation cost, and coordination cost — not folder counts or arbitrary complexity scores.
 3. **Add internal separation only where it protects a decision.** Select a pattern for an identifiable use case, invariant, I/O boundary, transformation sequence, or UI-state concern. Different modules and operations may use different patterns.
 4. **Specify the real boundary.** Identify owned paths, authorized consumers, intended public surface (or `Internal only`), allowed **static** imports, and the compiler/build/visibility or review mechanism that can maintain those rules. If a rule cannot be enforced, state the gap; a diagram is not enforcement.
-5. **Present consequential trade-offs.** Show a representative proposed tree, important dependency edges, the strongest practical alternative, and costs introduced by abstraction. Submit material, previously unapproved choices to the `SKILL.md` **Decision Checkpoint** before treating them as adopted.
+5. **Present consequential trade-offs.** Show a representative proposed tree, important dependency edges, a practical alternative, and abstraction costs. Use the [Decision Checkpoint](../SKILL.md#2-follow-the-applicable-path) before adoption.
 
 | Observed Driver                                           | Consider                                   | Countercheck                                              |
 | --------------------------------------------------------- | ------------------------------------------ | --------------------------------------------------------- |
@@ -110,7 +110,7 @@ These are illustrative **source dependencies**, not the sequence of runtime call
 
 ### Ports and Adapters (Hexagonal)
 
-Define core interactions as **purposeful ports** and translate technologies at adapters. Driving/inbound adapters invoke core entry points; driven/outbound adapters satisfy capabilities required by the core. The core does not statically import concrete adapters; composition connects implementations at the application boundary.
+In [Ports and Adapters](https://alistair.cockburn.us/hexagonal-architecture), ports express purposeful application interactions and adapters translate technologies. Driving adapters invoke application entry points. Driven adapters satisfy capabilities required by the application. Composition connects concrete adapters without making the core import them.
 
 - **Use when:** independent core testing, varied entry mechanisms, or volatile external integrations justify the extra seams.
 - **Reconsider when:** wrappers merely rename SDK operations and create no useful isolation.
@@ -185,4 +185,4 @@ profile/
 - **Make static dependencies unambiguous.** Identify the source/build graph, public imports, adapter-to-port direction, and actual check. Runtime calls, events, and data flow are different graphs; avoid conflicting policies.
 - **Expose the cost of structure.** Include new interfaces, indirection, build complexity, coupling, and consumer migration where relevant. Record an alternative for material decisions; retain an existing working layout absent a demonstrable reason to change it.
 
-**Worked decision:** `Orders` has independently evolving `place-order` and `cancel-order` operations, one owner of order invariants, and a payment provider likely to change. A capability module containing two slices, shared core rules, and **one payment port where isolation is useful** is a reasonable candidate. A global `controllers/services/repositories` split scatters changes; a port per helper over-engineers the boundary. Show `place-order → orders/core`, `payment-adapter → orders/core/payment-port`, and **no** `orders/core → payment-adapter` static import. Treat this as a **proposal**, not an approved or observed tree; apply the Human Gate when required by `SKILL.md`.
+**Worked decision:** `Orders` has independently evolving `place-order` and `cancel-order` operations, one owner of order invariants, and a payment provider likely to change. A capability module containing two slices, shared core rules, and one payment port is a reasonable proposal. Show `place-order → orders/core` and `payment-adapter → orders/core/payment-port`. The core's dependency stops at the port.

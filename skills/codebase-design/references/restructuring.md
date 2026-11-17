@@ -54,12 +54,12 @@ A proposed new rule is not an approved violation criterion: document the risk fi
 
 ## Target Design and Delta
 
-When the user requests a structural redesign or migration, enter the **Design Path** in `SKILL.md`:
+When the user requests a structural redesign or migration, use the [Design Path](../SKILL.md#2-follow-the-applicable-path):
 
 1. Describe the smallest target responsibility, module boundary, public surface, and permitted static graph that addresses the approved objective.
 2. Compare observed and proposed paths/edges; distinguish internal-only changes from consumer-visible imports, contracts, build/release boundaries, and ownership changes.
 3. Identify supported consumers, existing exceptions, and compatibility obligations. If external consumers cannot be inventoried fully, clarify the required support and compatibility policy with the human; do not assume unknown clients are safe to break.
-4. Resolve any material target-design ambiguity with the human, then present concrete choices, consequences, and alternatives at the Human Gate before adoption; existing approvals need not be repeated.
+4. Resolve material ambiguity and apply the Decision Checkpoint before adopting a new choice.
 5. Link relevant findings to target `DR`/`CV` rules and `EN` checks. A new constraint is not proof the current code violates an already-accepted rule.
 
 ```text
@@ -84,7 +84,7 @@ Do not use migration patterns as mandatory recipes. Branch by Abstraction and Pa
 
 ## Migration Planning and Acceptance
 
-Plan small, dependency-ordered and recoverable steps; use the **Design Template**'s optional migration section for a full persistent plan. Each step records:
+Plan small, dependency-ordered and recoverable steps. Use the [Migration Plan](../assets/codebase-design-template.md#10-migration-plan) for a full standalone design. Each step records:
 
 - **Preconditions:** affected consumers, known baseline, approvals, build/test ability, and required compatibility window.
 - **Change:** exact ownership/public-surface or static-graph delta, plus generated artifacts and manifest updates where relevant.
@@ -98,7 +98,4 @@ A passing local test cannot prove compatibility with unknown external consumers;
 
 ## Approval and Change Classification
 
-- **Review** reports findings without a Human Gate. Approval of a _proposed structural direction_ is needed for material new Design choices, except already approved/mandated choices.
-- **Documents versus code:** permission to write a design report is separate from accepting its architecture; accepting architecture is separate from permission to edit source. Check exact execution scope before destructive or consumer-impacting changes.
-- **Administrative:** documentation clarification without consumer effects. **Additive:** change preserving established consumers. **Potentially Breaking:** any change to consumed paths, contract semantics, dependency permissions, ownership, or build/release boundaries; unknown consumer effect is not assumed additive.
-- **Late discoveries:** return only materially changed decisions to the Human Gate. Preserve stable `DR`/`CV`/`EN` IDs in the living design; retire/supersede rather than repurpose.
+Use [Decisions, Changes, and Exceptions](../SKILL.md#decisions-changes-and-exceptions) for adoption authority, impact classification, and late changes. Classify the effect on supported consumers before planning removal of a consumed path.

@@ -60,7 +60,7 @@ In the design document:
 1. Map every **substantive** module or reusable package to its primary test location, or state why its behavior is tested through a larger boundary. Avoid manufacturing an empty test directory for a purely declarative module.
 2. Record integration tests at the point that owns each meaningful external adapter.
 3. State where application/end-to-end tests live **when applicable**; a library with no executable user flow need not have end-to-end tests.
-4. For independently evolving contracts, identify the verification approach and which participants are responsible. In consumer-driven contract testing, consumer expectations and provider verification form one workflow; a generated contract file alone is insufficient. Not every internal function or package needs consumer-driven contract files.
+4. Map the applicable [contract verification responsibilities](dependency-rules.md#compatibility-and-versioning) to actual test locations and participants.
 5. Record packaging and execution constraints: tests must not leak into shipping artifacts unintentionally, and slow/external tests should have an intentional CI stage.
 
 ## Test Boundaries by Organization

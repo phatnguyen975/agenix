@@ -61,7 +61,7 @@ Do not reject established names such as `src`, `packages`, or framework-required
 - Document review responsibility and enforcement **separately**: ownership metadata routes reviewers; it does not restrict imports or automatically require approval.
 - When platform support exists, map ownership to paths; require owner approval only if repository protection/rules explicitly enable it.
 - If confidentiality differs, do not assume a directory inside a shared repository provides the same read-access barrier as a separate repository.
-- When a unit spans repositories or packages, make the contract's owner and compatibility policy explicit (`dependency-rules.md`).
+- When a unit spans repositories or packages, apply [Contracts Across Release Units](dependency-rules.md#contracts-across-release-units) to any independently evolving boundary.
 
 ## Layout Hierarchy
 

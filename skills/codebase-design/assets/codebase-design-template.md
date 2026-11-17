@@ -1,8 +1,8 @@
 <!--
 OUTPUT TEMPLATE — Full Codebase Design
 
-Use when a full, persistent design document is explicitly requested. This is a
-living description of the proposed or approved source-code structure.
+Use for a full standalone design document. This is a living description of the
+proposed or approved source-code structure.
 
 Filling Rules
 1. Keep the ten numbered top-level sections. Include relevant subsections;
@@ -16,8 +16,8 @@ Filling Rules
    documented authorities. Distinguish Observed current state, Specified project
    constraints, Proposed target choices, and Unverified claims. Record the
    decision status separately: Proposed, Pending Approval, Approved, Superseded.
-4. Obtain the Human Gate described in SKILL.md for material discretionary design
-   choices. Approval of a design does not authorize source changes.
+4. Obtain approval before adopting material discretionary choices. A design
+   proposal may detail those choices and their consequences for review.
 5. Use stable, unique DR-xx / CV-xx / EN-xx IDs throughout this living document;
    link every DR/CV rule to at least one EN entry (including an explicit gap).
    Use G-xx for observed migration gaps and link to findings when applicable.
@@ -47,9 +47,9 @@ Filling Rules
      paths/names; if a release boundary needs a longer explanation, add a brief
      paragraph below the table for that specific unit. -->
 
-| Unit        | Role        | Ships              | Owner   |
-| ----------- | ----------- | ------------------ | ------- |
-| <Unit name> | <Unit role> | <Release boundary> | <Owner> |
+| Unit        | Root Path   | Role        | Release Boundary     | Owner   |
+| ----------- | ----------- | ----------- | -------------------- | ------- |
+| <Unit name> | <Unit root> | <Unit role> | <What ships and how> | <Owner> |
 
 ### 1.2 Design Forces
 
@@ -155,6 +155,7 @@ Filling Rules
      governed shared package. The group owner is the default; mark exceptions
      explicitly. Allowed dependencies are DIRECT permitted static source/type
      imports or declared build edges, not observed imports or runtime calls.
+     Label the graph type and reference rule IDs for binding allowlists.
      Use short module names or dependency-group IDs inside cells; write
      'Internal only' when no cross-module surface exists. -->
 
@@ -191,8 +192,10 @@ flowchart LR
 **Boundary Notes:**
 
 <!-- Include only details not adequately represented by the catalog or diagram,
-     such as protected implementation boundaries, ownership exceptions, or special
-     public-surface constraints. Remove this subsection when unnecessary. -->
+     such as protected implementation boundaries, ownership exceptions, special
+     public-surface constraints, or scoped contributor instructions when needed.
+     For scoped instructions, identify the directory and rules it owns. Remove
+     this subsection when unnecessary. -->
 
 - **<Module or boundary name>:** <Specific boundary constraint, affected consumers, or ownership exception>.
 
@@ -203,32 +206,37 @@ flowchart LR
      scope, dependency type, constraint, enforcement, and approval status
      for each rule. Repeat one record per rule. Do not duplicate dependency
      diagrams or allowed edges from Section 4. If module allowlists are
-     sufficient, state that no additional rules are needed and reference
-     their enforcement in Section 9. -->
+     sufficient, reference their rule IDs and Section 9 enforcement without
+     restating the allowed edges. -->
 
 **DR-01 — <Short, descriptive name of the dependency rule>**
 
 - **Scope:** <Release units, modules, or dependency boundaries governed by this rule>.
 - **Dependency Type:** <Static source/type imports, declared build dependencies, or other explicitly defined dependency relationships>.
 - **Constraint:** <Required or forbidden dependency directions, visibility restrictions, cycle policies, or other enforceable conditions>.
-- **Enforcement:** <Related EN IDs from Section 9, or an explicit enforcement gap if no check exists>.
+- **Enforcement:** <Related EN IDs from Section 9, including IDs for any enforcement gaps>.
 - **Status / Authority:** <Approval status and the decision or authority supporting it>.
 - **Exception:** <Affected scope, justification, responsible owner, and review or expiry condition; omit if none>.
 
 ## 6. Shared Code and Contract Policy
 
-### 6.1 Shared Modules and Packages
+### 6.1 Shared Code and Contracts
 
-<!-- Repeat one record for each intentionally shared module or package.
+<!-- Repeat one record for each intentionally shared module, package, or
+     independently evolving contract.
      Record its owner, users, intended public access, and release obligations.
      Independently published shared libraries also appear in Section 1.1.
-     Omit this subsection when there is no cross-boundary shared code. -->
+     Omit this subsection when neither shared code nor contracts apply. -->
 
-**<Shared module or package name>**
+**<Shared module, package, or contract name>**
 
 - **Responsibility / Owner:** <Single responsibility and accountable owner>.
 - **Consumers / Public Surface:** <Intended consumers and exposed API or contract path>.
 - **Compatibility / Release Policy:** <Compatibility, versioning, and release obligations, or Not applicable>.
+
+<!-- For independently evolving contracts, also record the contract source,
+     artifact or discovery path, owner, consumers, and compatibility and
+     verification responsibilities. Include contracts without a shared source package. -->
 
 ### 6.2 Ownership and Compatibility Policies
 
@@ -299,8 +307,8 @@ flowchart LR
 
 ## 10. Migration Plan
 
-<!-- Use only when changing an existing structure. For greenfield or unchanged
-     design, state 'Not applicable — ...' and omit subsections. A proposal may
+<!-- Use when an existing structure needs a migration plan in the requested
+     scope. Otherwise state 'Not applicable — ...' and omit subsections. A proposal may
      contain planned steps without implying permission to execute them. The
      Review Template contains recommendations, not a detailed migration plan. -->
 

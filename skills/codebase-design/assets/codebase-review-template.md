@@ -1,8 +1,8 @@
 <!--
 OUTPUT TEMPLATE — Full Codebase Review
 
-Use only when a full, persistent structural review report is explicitly
-requested. This is an evidence-backed snapshot, not a target design approval.
+Use for a full standalone structural review report. This is an evidence-backed
+snapshot of an examined revision.
 
 Filling Rules
 1. Keep the five numbered sections. Text inside <...> describes the
@@ -103,9 +103,9 @@ Filling Rules
      long, replace that row with a keyed record. Do not present a planned tool
      as an actual executed result. -->
 
-| Check   | Result   | Scope   | Source         |
-| ------- | -------- | ------- | -------------- |
-| <Check> | <Result> | <Scope> | <Evidence ref> |
+| Check   | Result                                | Scope            | Source               |
+| ------- | ------------------------------------- | ---------------- | -------------------- |
+| <Check> | <Passed, Failed, Not Run, or Blocked> | <Examined scope> | <Evidence or reason> |
 
 - **Blind Spots:** <Dynamic or generated edges, unknown consumers, and uninspected areas>.
 - **Follow-Up Evidence:** <Specific additional inspections or evidence needed to verify tentative findings, or None>.

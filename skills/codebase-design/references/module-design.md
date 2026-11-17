@@ -31,7 +31,7 @@ Do not turn the Single Responsibility Principle into "one class/function/folder 
 
 ## Information Hiding and Public Interfaces
 
-**Parnas' criterion:** organize modules around decisions likely to change rather than runtime processing steps. A useful module allows a consumer to rely on a stable concept without knowing its storage, algorithm, or integration details.
+**Information hiding:** [Parnas's decomposition criterion](https://doi.org/10.1145/361598.361623) groups knowledge of design decisions likely to change. A useful module allows a consumer to rely on a stable concept without knowing its storage, algorithm, or integration details.
 
 For each module record:
 
@@ -94,7 +94,7 @@ Inspect actual edges and strongly connected components; a cycle at function/runt
 
 ## Boundary Confirmation
 
-Before confirming a consequential boundary, clarify uncertain responsibility, ownership, consumers, or constraints with the human. At the structural decision checkpoint, present **proposed modules, consumers, visibility, important allowed edges, and the trade-off against a plausible merge/split**. Confirm the choice before deriving detailed `DR-xx` constraints or assuming proposed paths are exported. Clarify newly discovered material ambiguities and return changed approved choices for targeted confirmation. An internal-only module needs no invented cross-module API.
+For a consequential boundary, bring the proposed modules, consumers, visibility, important allowed edges, and the trade-off against a plausible merge or split to the [Decision Checkpoint](../SKILL.md#2-follow-the-applicable-path). Identify dependency rules and paths as proposed until adopted.
 
 ## Boundary Review Questions
 

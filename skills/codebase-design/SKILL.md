@@ -1,9 +1,9 @@
 ---
 name: codebase-design
-description: Design and maintain source-code structure or review codebase structural health. Use for initial repository design, architecture-aware feature changes, module/dependency conventions, code organization, ongoing maintenance, focused or periodic codebase reviews, and incremental restructuring plans in any language or framework. Covers repository and release-unit layout, module boundaries, public surfaces, shared code, test placement, and structural enforcement. Not for detailed system deployment architecture, domain modeling, API/database schema design, or general feature implementation.
+description: Design, evolve, or review source-code structure. Use for repository and release-unit layout, module boundaries and public surfaces, dependency rules, shared code ownership, test placement, structural enforcement, and restructuring plans. Apply project-specific language, framework, and build constraints. Not for general feature implementation, deployment topology, domain modeling, or API/database schema design.
 metadata:
   author: phatnguyen975
-  version: 1.0
+  version: "1.0"
 ---
 
 # Codebase Design
@@ -21,7 +21,7 @@ Design, maintain, and assess **source-code organization** across a repository or
 - **Design:** establish or evolve a target codebase structure. Includes initial design, structure-aware implementation guidance, focused design updates, and migration planning for approved structural changes. Preserve unaffected boundaries; a routine code change does not trigger a full redesign.
 - **Review:** assess current structural health and return evidence-backed findings, priorities, and proposed improvements. Includes focused, repository-wide, continuous, and periodic assessments. Read-only review does not authorize changing code or adopting new architecture.
 
-A Review may identify work that warrants a subsequent Design decision. Do not silently convert a recommendation into an approved design or an implementation task. The user determines scope and whether an output is conversational, a persistent document, or authorized code changes. **Neither mode creates files by default.** A periodic review is performed only when invoked; this skill does not schedule itself.
+A Review may identify work that warrants a subsequent Design decision. Keep recommendations proposed unless adopted by the decision owner. Return the result in the conversation by default. Create or update a document or source only when authorized for that artifact and scope.
 
 ## Evidence and Terminology
 
@@ -60,18 +60,18 @@ For **repository-wide** work, identify _all relevant release units_, shared pack
 
 Read **only** the material needed for the current decision. Start with this file; open a reference when its subject is relevant, not merely because it exists. Use paths relative to the skill root.
 
-| Trigger                                                                     | Load                                         |
-| --------------------------------------------------------------------------- | -------------------------------------------- |
-| Repository grouping, build/release units, monorepo roots, ownership         | `references/repository-layout.md`            |
-| Feature/component/layer/use-case grouping, internal patterns and fit        | `references/code-organization-strategies.md` |
-| Module candidates, public surfaces, cohesion, split/merge, cycles           | `references/module-design.md`                |
-| Allowed dependencies, shared packages, contracts, compatibility             | `references/dependency-rules.md`             |
-| Structural naming, composition, configuration, error/state/asset ownership  | `references/conventions.md`                  |
-| Test locations, integration/contract seams, test support                    | `references/test-layout.md`                  |
-| Rule checks, CI/review coverage, legacy baselines                           | `references/enforcement.md`                  |
-| Evidence-backed health review, findings, prioritization, migration planning | `references/restructuring.md`                |
-| Explicit full design document                                               | `assets/codebase-design-template.md`         |
-| Explicit full structural review report                                      | `assets/codebase-review-template.md`         |
+| Trigger                                                                     | Load                                                                       |
+| --------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Repository grouping, build/release units, monorepo roots, ownership         | [Repository Layout](references/repository-layout.md)                       |
+| Feature/component/layer/use-case grouping, internal patterns and fit        | [Code Organization Strategies](references/code-organization-strategies.md) |
+| Module candidates, public surfaces, cohesion, split/merge, cycles           | [Module Design](references/module-design.md)                               |
+| Allowed dependencies, shared packages, contracts, compatibility             | [Dependency Rules](references/dependency-rules.md)                         |
+| Structural naming, composition, configuration, error/state/asset ownership  | [Structural Conventions](references/conventions.md)                        |
+| Test locations, integration/contract seams, test support                    | [Test Layout](references/test-layout.md)                                   |
+| Rule checks, CI/review coverage, legacy baselines                           | [Structural Enforcement](references/enforcement.md)                        |
+| Evidence-backed health review, findings, prioritization, migration planning | [Review and Restructuring](references/restructuring.md)                    |
+| Full standalone design document                                             | [Design Template](assets/codebase-design-template.md)                      |
+| Full standalone structural review report                                    | [Review Template](assets/codebase-review-template.md)                      |
 
 **Examples:** reviewing a dependency cycle commonly needs `module-design.md` and `dependency-rules.md`, plus `restructuring.md` for findings; creating a complete health report also needs the review template. A routine module placement decision need not load either full template.
 
@@ -81,15 +81,15 @@ Read **only** the material needed for the current decision. Start with this file
 
 - Determine **Design** or **Review**, the affected repository/units/modules, task depth, output format, and whether document or source edits are explicitly authorized. Reuse accepted project decisions and prior findings when accessible.
 - Inspect relevant requirements, actual code/build boundaries, consumers, constraints, and applicable tests/checks. For repository-wide scope, cover the unit inventory and cross-unit interactions before narrowing.
-- Identify decisive design forces or review criteria and their evidence. After inspecting available inputs, ask the human to resolve missing or conflicting requirements, ownership, consumers, and constraints that affect Design. Do not proceed with an affected design decision until clarified; revisit clarification if new ambiguity emerges. A read-only Review may instead record evidence limits.
+- Identify decisive design forces or review criteria and their evidence. Ask only about missing or conflicting inputs that could materially change a design decision. Leave the affected choice open, continue unaffected work, and report coverage limits in Review.
 
 ### 2. Follow the Applicable Path
 
 **Design Path**
 
 1. **Propose:** choose relevant repository/build/release boundaries, modules, primary grouping, internal patterns, public surfaces, intended static edges, and significant alternatives. Show a small annotated structure and consequences; preserve unaffected parts.
-2. **Decision Checkpoint (Human Gate):** for a full discretionary design or a material new boundary, ownership, dependency-policy, or consumer-impacting choice, present the proposal, decisive forces, meaningful alternative, trade-offs, affected consumers, and unanswered questions. **Stop for explicit approval, revision, or rejection before treating the choice as adopted.** Do not repeat approval for an equivalent already-approved choice or a structure mandated by authoritative project instructions. A narrow non-material change needs no gate.
-3. **Specify:** after approval, detail only applicable module rules, conventions, tests, enforcement, contract governance, and optional migration. Mark rules as proposed until accepted; link structural rules to real checks, explicit review, or gaps. If late evidence materially changes the approved choice, return only the changed decision to the gate.
+2. **Decision Checkpoint:** for a material new boundary, ownership, dependency policy, or consumer-impacting choice, present the proposal, decisive forces, meaningful alternative, trade-offs, affected consumers, and unresolved questions. Obtain approval before adoption. Reuse equivalent prior approval or binding project decisions. A narrow non-material change needs no checkpoint.
+3. **Specify:** detail applicable module rules, conventions, tests, enforcement, contract governance, and migration. A requested proposal may include this detail before adoption. Keep unapproved choices and dependent rules provisional, and link structural rules to specific checks, explicit review, or gaps. Return only a materially changed decision for reconsideration.
 4. **Execute only when authorized:** permission to approve a design, write a document, and change source are separate. Before destructive/consumer-impacting edits, confirm the exact execution scope and compatibility/recovery plan unless already explicitly authorized at that level. For routine authorized edits, maintain existing rules and verify affected boundaries without an additional gate.
 
 **Review Path**
@@ -97,12 +97,12 @@ Read **only** the material needed for the current decision. Start with this file
 1. **Assess:** map current units/modules, public/internal surfaces, static dependencies, ownership, structural conventions, test placement, enforcement, and existing exceptions against accepted constraints. Broaden the scan only as evidence requires; label partial coverage.
 2. **Classify:** distinguish verified violations from risks, hypotheses, and optional improvements. Give findings `G-xx` IDs within the report, paths/edges and authority, severity, confidence, affected consumers, and impact. Do not assert a preference is a violation without a binding rule or evidence of harm.
 3. **Recommend:** prioritize by impact, urgency, feasibility, and dependencies. Offer the smallest appropriate improvement and trade-offs, with **high-level sequence** when useful. Keep recommendations **Proposed**, not automatically approved. Compare previous review findings when an accessible baseline exists; otherwise state no baseline.
-4. **Handoff:** end read-only review with findings. If a material target redesign or detailed migration is requested, enter the Design Path and apply its Human Gate and execution-authorization rules; do not produce an adopted target or modify code just because review found issues.
+4. **Handoff:** end read-only review with findings. If a target redesign or detailed migration was also requested, use the Design Path for that scope and keep its decisions and authority distinct from the findings.
 
 ### 3. Deliver and Verify
 
-- Return the requested outcome in the conversation unless a persistent document or source update was explicitly requested. An explicitly requested **full design document** uses the design template; a **full structural review report** uses the review template. Use the requested path, otherwise the project's documentation convention or `docs/codebase-design.md` / `docs/codebase-review.md` respectively. For dated review history, use distinct report paths when requested; never overwrite historical reports silently.
-- For focused work, deliver only relevant findings or decisions; do not populate a full template. A review's improvement plan is **not** a detailed executable migration plan. Keep detailed migration in the Design deliverable when needed.
+- Follow the [Output Contract](#output-contract) for the requested scope and format. For an authorized document, use the supplied path, the project's documentation convention, or the standalone defaults `docs/codebase-design.md` / `docs/codebase-review.md`. Preserve unrelated content and historical review snapshots.
+- Deliver recommendations at the level requested. A detailed migration plan belongs with its target design.
 - Check scope and evidence; intended versus observed graphs; rule/check mappings; change authority; consumer compatibility; and applicable tests. State what was **Passed / Failed / Not Run / Blocked** with actual evidence. Do not claim whole-repository coverage from sampling or claim a proposal was implemented.
 - Run the **Verification Checklist** for affected scope. Report blocked actions, unverified facts, and unavailable checks rather than inventing a pass.
 
@@ -116,8 +116,9 @@ Read **only** the material needed for the current decision. Start with this file
 
 ## Output Contract
 
-- **Design document:** living description of the approved or explicitly proposed target structure. Use `assets/codebase-design-template.md` only for full-document requests; migration is optional. If clarification is unavailable, pause the affected Design work and ask in the conversation rather than issuing an incomplete document. A fully specified proposal may retain `Pending Approval` status without implying acceptance.
-- **Review report:** time-scoped snapshot of examined current structure, findings, evidence, confidence, coverage, and improvement recommendations. Use `assets/codebase-review-template.md` only for requested full reports; findings are not accepted architecture decisions.
+- **Format:** use the caller's format, destination, and stable IDs when supplied. For focused work, return only the applicable decision or findings. Use the corresponding template in [Reference Routing](#reference-routing) for a full standalone deliverable.
+- **Design document:** living description of the target structure and the status of each material choice. Record approved decisions and distinguish proposals, approval pending, and open inputs. If a material input is unavailable, report the supported design and which choice is blocked. Reserve implementation-ready status for work with the required inputs, approval, and verification.
+- **Review report:** time-scoped snapshot of examined current structure, findings, evidence, confidence, coverage, and proposed improvements.
 - **Templates:** follow their section-level fill instructions. Replace all `<...>` instructional placeholders with real content and remove instructional comments. Use `Not applicable — <Why this section does not apply>` for a required non-applicable section; never invent evidence to fill rows.
 - **Identifiers:** `DR-xx` (dependency rules), `CV-xx` (boundary conventions/shared-code and contract policies), `EN-xx` (checks, explicit reviews, or enforcement gaps), `G-xx` (observed findings/gaps). Preserve IDs within a living design; report IDs are unique within each review snapshot. Every `DR`/`CV` links to one or more `EN` entries or an explicit enforcement gap; never invent check results.
 - **Contract scope:** describe external contract owners, locations, consumers, compatibility, and verification responsibilities — not unrequested API/schema contents. Respect the project's documentation language and actual language/framework/build conventions. Verify version-sensitive claims against authoritative current sources rather than hardcoding versions here.
@@ -125,8 +126,8 @@ Read **only** the material needed for the current decision. Start with this file
 ## Verification Checklist
 
 - [ ] Scope includes all relevant release units and cross-unit boundaries, or explicitly lists excluded/unexamined units.
-- [ ] Material design inputs were clarified with the human or established by authoritative project evidence; no unresolved design questions remain in the design output.
-- [ ] Every important choice has forces, ownership/consumer context, trade-offs, and accurate approval status; Human Gate applied where warranted.
+- [ ] Material inputs are established for implementation-ready decisions. Open inputs identify the affected choice and next decision needed.
+- [ ] Every important choice has forces, ownership/consumer context, trade-offs, and accurate approval status. Material choices have approval before adoption.
 - [ ] Review findings separate observation, evidence, applicable authority, severity, confidence, priority, and proposal; previous-review comparisons are grounded.
 - [ ] Public/internal surfaces and allowed versus observed static edges are distinct; no unverified claim of cycle freedom or check compliance.
 - [ ] Shared-code and independent-release compatibility obligations have owners/consumers where applicable.

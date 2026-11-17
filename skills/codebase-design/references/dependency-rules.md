@@ -17,7 +17,7 @@ Record the following when material:
 | Cycle policy         | Which architectural graph must be acyclic; separately handle cycles within one module if useful                                                       |
 | Scope and exceptions | Who may bypass a rule, why, and when the exception will be revisited                                                                                  |
 
-An architecture module may span multiple language packages; tools that only inspect package-level imports cannot automatically prove a higher-level assertion without a package-to-module mapping.
+An architecture module may span multiple language packages. Map artifacts to modules and aggregate edges at the rule's granularity before checking it. Reciprocal imports between two modules can form a module cycle even when no individual file import chain returns to its starting file.
 
 ## Rules and Identifiers
 
@@ -35,7 +35,7 @@ Names in examples are illustrative, never required naming conventions. For a non
 ## Module Dependency Policy
 
 - **Default:** one module may use another module only through the other's intended public surface. An internal-only module can be consumed only by its declared owner or composition scope.
-- List **permitted direct** cross-module dependencies in the Module Catalog when the set is manageable; for an existing codebase, do not treat permission as proof the edge currently exists. For large graphs, use allowed dependency groups and explicit exceptions; define the allowed graph in one canonical place.
+- Record **permitted direct** cross-module dependencies in one place, such as the Module Catalog or a policy referenced by it. Use groups for large graphs. Give binding allowlists rule IDs and link their enforcement. Record observed edges separately.
 - Do not list same-module imports as cross-module dependencies. Distinguish external third-party packages from internal modules; define third-party restrictions only where useful to boundary integrity.
 - An orchestrator can depend on several module APIs; participants need not depend on the orchestrator.
 - An outbound adapter can import a core-owned port; the core need not import the adapter. Runtime execution may still call the adapter via the port.
@@ -90,10 +90,10 @@ Record **owner, consumers, source location, artifact or discovery path, compatib
 
 ## Compatibility and Versioning
 
-- For independently published packages using **Semantic Versioning**, first declare the public API: `MAJOR` for incompatible changes, `MINOR` for backward-compatible additions/deprecations, and `PATCH` for compatible bug fixes. A released version is immutable.
+- For independently published packages using [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html#semantic-versioning-specification-semver), declare the public API. For stable releases, increment `MAJOR` for incompatible changes, `MINOR` for compatible public additions or deprecations, and `PATCH` for compatible bug fixes. A released version is immutable.
 - For `0.y.z` packages, Semantic Versioning treats the public API as unstable; do not present `MAJOR`/`MINOR` guarantees as binding in that phase.
 - **Do not automatically apply SemVer to every service protocol or monorepo-internal module.** Use the project's actual protocol compatibility and release strategy; schema compatibility may have different rules for reads/writes or asynchronous consumers.
-- Prefer compatible-first evolution of published interfaces: expand support, migrate consumers, remove the old behavior after compatibility is verified (parallel change).
+- Use [parallel change](https://martinfowler.com/bliki/ParallelChange.html) when consumers cannot move together. Expand support, migrate consumers, then remove obsolete behavior after verifying migration and compatibility obligations.
 - Shared-repository changes may be atomically committed, but independently deployed/released consumers can still require a compatibility window.
 - For consumer-driven contracts, the consumer captures expectations and the provider verifies the same contract; a consumer-only test does not prove provider compatibility. Contract verification is **selected by risk and consumer/provider arrangement**, not universally mandated for every boundary. Consumer-driven contract testing is suitable for independently changing API providers and consumers; published libraries may be better served by public API tests, compatibility checks, and downstream build/tests.
 
@@ -105,7 +105,4 @@ For a proposed exception, present the forbidden edge, reason, affected paths/con
 
 ## Enforcement and Exceptions
 
-- Prefer build/visibility enforcement; then architecture/import graph checks; use documented review policy where automation is infeasible.
-- Each rule identifies node mapping and edge kind; enforcement must actually inspect its scope.
-- Temporary exceptions specify affected paths, rationale, reviewer/owner, and retirement condition. A grandfathered violation baseline should block new violations while existing ones are removed.
-- Avoid exemptions that mask new violations globally; track each exception individually.
+Use [Enforcement Selection](enforcement.md#enforcement-selection) to map dependency rules to checks and [Legacy Violation Baselines](enforcement.md#legacy-violation-baselines) to distinguish existing violations from authorized exceptions.

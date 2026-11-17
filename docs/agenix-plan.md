@@ -400,7 +400,7 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 helper/
   - [x] `domain-modeling`
   - [x] `evolutionary-architecture-design`
   - [x] `database-design`
-  - [ ] `codebase-design`
+  - [x] `codebase-design`
   - [x] `work-breakdown-planning`
   - [x] `spec-writing`
   - [ ] `api-contract-design`
@@ -523,6 +523,12 @@ Current capability checkpoint - `database-design` (uncommitted changes against `
 - Changes: retained initial SQL/document scope and both templates. Clarified target-version checks, caller-owned output, tenant and uniqueness scopes, and concurrency-safe enforcement. Preserved author/version "1.0".
 - Checks: skill validator, YAML/JSON, links/anchors, Markdown, UTF-8 and whitespace passed. Checked PostgreSQL 18, MongoDB and Mermaid documentation. Both [read-only cases](../evals/database-design/scenarios.json) passed on their latest runs, including the MongoDB replay after clarifying deduplication retention.
 - Limits: inherited model settings and design reasoning only. See [coverage](../evals/database-design/README.md#coverage). Shared P4-01 exit remains open.
+
+Current capability checkpoint - `codebase-design` (uncommitted changes against `b31d8f4`):
+
+- Changes: retained Design and Review and both templates. Clarified draft versus adoption, caller-owned output, graph granularity, and traceability from allowlists to enforcement. Preserved author/version "1.0".
+- Checks: skill validator, YAML/JSON, local routes/anchors, template structure, UTF-8, and whitespace passed. Reviewed information hiding, ports and adapters, and interface evolution against primary sources. Two [read-only cases](../evals/codebase-design/scenarios.json) passed for module-cycle review and caller-composed design.
+- Limits: supplied evidence and inherited model settings. See [coverage](../evals/codebase-design/README.md#coverage). Shared P4-01 exit remains open.
 
 ### P4-02 — Prove Shared Schemas, Helpers and Distribution
 
