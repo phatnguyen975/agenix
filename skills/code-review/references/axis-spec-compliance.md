@@ -7,7 +7,7 @@ Verify that the change satisfies the applicable, explicit requirements and non-g
 ## Method
 
 1. Identify authoritative Spec sources supplied by the user or clearly associated with the change. Record source path, section, version/commit, and precedence when sources conflict.
-2. Extract atomic, testable requirements: behaviors, acceptance criteria, constraints (including security, performance, compatibility, and operational constraints), and explicit non-goals. Assign stable IDs `R1`, `R2`, etc.
+2. Extract atomic, testable requirements: behaviors, acceptance criteria, constraints (including security, performance, compatibility, and operational constraints), and explicit non-goals. Preserve source requirement IDs; for sources without IDs, assign local IDs `R1`, `R2`, etc. once in the shared input package so partitioned reviews do not reuse IDs for different requirements.
 3. Map each requirement to changed code, relevant unchanged code, and tests. Do not infer a requirement from implementation, a commit message alone, or a function name.
 4. Trace acceptance criteria and examples through the implementation, including boundary values, error behavior, permissions, and state transitions.
 5. Classify each requirement using the status vocabulary below.

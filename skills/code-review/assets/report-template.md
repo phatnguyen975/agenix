@@ -1,6 +1,6 @@
-<!-- Complete every section in order. Use `N/A: <reason>` where a section does not apply. Remove this comment from the final report. -->
+<!-- Default full report; adapt to caller output. Replace placeholders; use meaningful empty states, not dummy entries. Omit optional observation/remediation sections when empty. Remove this comment. -->
 
-# Code Review Report: <change title>
+# Code Review: <Change Title>
 
 ## 1. Metadata
 
@@ -12,11 +12,12 @@
 | Commits           | <count and short list, or N/A with reason>                                 |
 | Change size       | <files> files; +<added> / -<removed> lines, or unavailable                 |
 | Change assessment | <cohesive / acceptable / split recommended>; <mixed concerns or none>      |
+| Execution method | <sequential / delegated / mixed; isolation and groups> |
 | Report scope      | <all applicable axes / selected focus / partial scope>                     |
 
 ## 2. Summary and Verdict
 
-**Verdict:** <Request changes | Approve with comments | Approve>
+**Verdict:** <Request changes | Inconclusive | Approve with Comments | Approve>
 
 **Rationale:** <one or two sentences grounded in findings and unresolved material questions>
 
@@ -31,7 +32,7 @@
 
 - <finding ID>: <one-line impact>
 
-**Merge-blocking findings:** <Critical/High IDs, or `None`>
+**Critical/High findings:** <Critical/High IDs, or `None`>
 
 **Unresolved material questions:** <Q-IDs, or `None`>
 
@@ -48,7 +49,7 @@
 | Change description             | <source/text or none>                                            |
 | Spec sources                   | <paths/sections or none available>                               |
 | Standards sources              | <paths/sections or none found>                                   |
-| Tooling-enforced rules skipped | <linters/formatters/compiler/static analysis or none identified> |
+| Tooling configuration | <applicable tools/rules and configuration sources; execution outcomes belong in Verification Results> |
 | Verification commands          | <documented/user-supplied commands or none available>            |
 | Focus                          | <requested axes or all applicable axes>                          |
 
@@ -76,15 +77,15 @@ Allowed status values: `Completed`, `Partial`, `Failed`, `Skipped — not applic
 
 ## 4. Verification Results
 
-| Command   | Status                      | Summary                         |
+| Command / Candidate | Status                      | Summary                         |
 | --------- | --------------------------- | ------------------------------- |
-| <command> | <passed / failed / not run> | <key output, or reason not run> |
+| <command and checked revision/state> | <passed / failed / not run> | <key output, or reason not run> |
 
 Do not include commands that were not actually run as if they passed.
 
 ## 5. Findings
 
-<Order by severity (Critical, High, Medium, Low), then primary axis. Use one block per root cause and the exact schema below.>
+<If none, state "None" and remove the example block. Order by severity (Critical, High, Medium, Low), then primary axis. Use one block per root cause and the exact schema below.>
 
 ### <ID>: <Title>
 
@@ -116,15 +117,17 @@ Do not include commands that were not actually run as if they passed.
 
 | ID   | Axis   | Location                                                  | Uncertainty                | Needed to Settle It             |
 | ---- | ------ | --------------------------------------------------------- | -------------------------- | ------------------------------- |
-| Q-01 | <axis> | <path:lines, path@base:lines for deleted content, or n/a> | <what cannot be confirmed> | <specific evidence or decision> |
+| <Q-ID> | <axis> | <path:lines, path@base:lines for deleted content, or n/a> | <what cannot be confirmed> | <specific evidence or decision> |
+
+<If there are no questions, state "None" and remove the table rows.>
 
 ## 7. Spec Traceability
 
-<N/A if no applicable spec source was available; omit the table and behavior list in that case.>
+<N/A if no applicable spec source was available; if the axis was skipped/failed, state that explicitly; omit the table and behavior list in that case.>
 
 | Req | Atomic Requirement                                  | Status                                                                    | Evidence                                             |
 | --- | --------------------------------------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------- |
-| R1  | <quoted or paraphrased requirement (file, section)> | <Implemented / Partial / Missing / Incorrect / Not verifiable / Violated> | <changed path:lines, test, or reason not verifiable> |
+| <source ID> | <quoted or paraphrased requirement (file, section)> | <Implemented / Partial / Missing / Incorrect / Not verifiable / Violated> | <changed path:lines, test, or reason not verifiable> |
 
 **Behavior not covered by the spec:**
 

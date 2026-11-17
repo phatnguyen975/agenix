@@ -84,4 +84,4 @@ Treat each item as **possible <smell>**; report only when the changed code shows
 - Documented naming/comment/structure rule violations belong to standards-compliance.
 - Module boundaries, dependency direction, and architecture-level complexity belong to design.
 - Runtime behavior defects belong to correctness.
-- Dead code or style already enforced by tooling is excluded unless the change bypasses the enforcement.
+- Avoid duplicating actual low-level tooling diagnostics under the findings contract; configured checks alone are not proof of a pass.

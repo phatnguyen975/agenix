@@ -29,7 +29,7 @@ Severity and confidence are independent. A potentially Critical issue with Low c
 
 Each finding must contain all fields below. Use `N/A: <reason>` only when a field truly cannot apply.
 
-| Field              | Required content                                                                                                                                                                                                                                                                                  |
+| Field              | Required Content                                                                                                                                                                                                                                                                                  |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ID                 | Axis prefix and sequential number, e.g. `COR-01`; assigned by the main agent after deduplication                                                                                                                                                                                                  |
 | Title              | Concise, defect-oriented statement of the problem; avoid vague wording such as "Improve security"                                                                                                                                                                                                 |
@@ -108,31 +108,32 @@ The main agent assigns IDs sequentially by primary axis only after findings have
 
 Do not report:
 
-- Pre-existing problems that the change does not introduce, touch, expose, or materially affect.
-- Issues already enforced by configured compiler/linter/formatter/static-analysis tooling, unless the change disables or bypasses that enforcement.
+- For diff-based reviews, pre-existing problems the change does not introduce, touch, expose or materially affect. For an explicit current-file review, existing defects within the supplied files are in scope; do not claim they are new.
+- Duplicate low-level diagnostics already captured in actual tooling output. Summarize those failures in Verification instead. Do not assume configured tooling ran or passed; substantive behavior/security defects remain reportable even if a tool could detect them.
 - Personal preference, speculative future needs, or style polish without a documented rule or concrete engineering impact.
 - Behavior explicitly allowed by an authoritative requirement or project rule.
 - A theoretical vulnerability without a credible attacker-controlled path and impact.
-- Unchanged code outside the review boundary, except as evidence/context for a changed defect.
+- Code outside the selected review boundary, except as evidence/context for an in-scope defect.
 - A missing test as a duplicate production-code defect; report the production defect on its owning axis and the test gap only when it is a distinct testing finding.
 
 ## Calibration Rules
 
 - Apply severity consistently across axes: equal impact and likelihood receive equal severity.
-- A hard documented-rule violation is High when it protects security, correctness, privacy, or an architecture boundary; otherwise Medium unless impact warrants a different level.
+- Calibrate documented-rule violations by credible impact and likelihood, not mandatory wording alone. Explain the protected invariant and consequence; advisory wording does not reduce a proven high-impact defect.
 - Advisory-rule deviation is normally Low unless a concrete material impact is established.
 - Raise severity for broad exposure, irreversible effects, security/data-integrity risk, or many affected users; lower it for contained, reversible impact.
 - Do not use severity as a proxy for confidence or for the importance of the axis.
 
 ## Verdict
 
-| Verdict               | Condition                                                                    |
-| --------------------- | ---------------------------------------------------------------------------- |
-| Request changes       | At least one Critical or High finding remains                                |
-| Approve with comments | No Critical/High findings remain, but one or more Medium/Low findings remain |
-| Approve               | No findings remain                                                           |
+| Verdict               | Condition                                                                                                       |
+| --------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Request changes       | At least one Critical or High finding remains                                                                   |
+| Inconclusive          | No Critical/High finding, but unresolved material questions or coverage gaps could change the scoped conclusion |
+| Approve with Comments | No Critical/High findings remain, but one or more Medium/Low findings remain                                    |
+| Approve               | No findings remain                                                                                              |
 
-The verdict/counts include verified findings returned by `Completed` and `Partial` axes. A `Partial` axis contributes its substantiated findings, but an absence of findings does not imply full coverage. `Failed` and skipped axes are not assessed. Always disclose every non-Completed status and its scope. Questions do not change the finding count/verdict, but material unresolved Questions must be called out in the rationale/limitations.
+The verdict/counts include verified findings returned by `Completed` and `Partial` axes. A `Partial` axis contributes its substantiated findings, but an absence of findings does not imply full coverage. `Failed` and skipped axes are not assessed. Always disclose every non-Completed status and its scope. Questions do not add findings or counts. Evaluate verdicts in table order: confirmed Critical/High findings take precedence; otherwise material uncertainty makes the result Inconclusive. Approve/Approve with Comments require sufficient coverage of the requested applicable scope. Requested exclusions narrow the verdict scope; unavailable material evidence within that scope cannot be treated as a pass. A verdict is a review recommendation, not merge/release authorization.
 
 ## Question Entries
 

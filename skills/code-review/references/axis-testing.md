@@ -47,7 +47,7 @@ Verify that tests exercise the changed behavior and would detect meaningful regr
 ## Severity Guidance
 
 - No effective tests for new core, security-sensitive, or data-affecting behavior — High; Critical only when a proven severe failure is otherwise unmitigated.
-- Missing regression test for a confirmed bug fix — High.
+- Missing regression test for a confirmed bug fix — severity follows regression risk, impact and alternative verification; not automatically High.
 - Tests that cannot detect the asserted defect, or tests removed/weakened to hide a failure — High.
 - Material edge/error/concurrency coverage gap — Medium.
 - Flaky, order-dependent, or brittle test with realistic maintenance cost — Medium.

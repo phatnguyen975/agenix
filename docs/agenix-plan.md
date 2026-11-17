@@ -408,7 +408,7 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 helper/
   - [ ] `incremental-implementation`
   - [ ] `tdd`
   - [x] `code-simplification`
-  - [ ] `code-review`
+  - [x] `code-review`
   - [ ] `systematic-debugging`
 - [ ] Correct Git policy/cadence/exact merge authorization and all affected command/branch/worktree references.
 - [ ] Correct incremental implementation and TDD composition, preapproved behavior, evidence destinations, default versus caller policy and method boundaries.
@@ -475,6 +475,12 @@ Current capability checkpoint — `code-simplification` (uncommitted changes aga
 - Changes: bounded authorization/caller output, contextual signals, incremental preservation checks and precise recovery. Added the approved optional Markdown report; consolidated overlapping summary/assessment/plan sections into five focused sections. Removed the HTML template after human approval of Markdown. UI metadata remains accurate; author/version `"1.0"` preserved.
 - Checks: skill-creator validator, YAML/JSON, UTF-8, routes/fences and whitespace passed. Two standalone [behavioral cases](../evals/code-simplification/scenarios.json) correctly stopped on absent coverage/failing baseline; the former saved/read back the authorized report. A fresh composed patch-delivery variant passed semantic review and seven tests before/after; fixture assertions preserved tests, unrelated files and content outside the selected function.
 - Limits: autonomous write attempts were host-permission blocked; composed verification used coordinator-applied model output, not an autonomous-write pass. Windows/Python 3.14.10 with inherited model settings; latest report consolidation received editorial/static checks without model replay; no rollback, repeated-run, renderer or installed-host proof. [Coverage](../evals/code-simplification/README.md#coverage) records gaps; shared integration and P4-01 exit remain open.
+
+Current capability checkpoint - `code-review` (uncommitted changes against `8f5d06b`):
+
+- Changes: retained eleven axes and resource ownership; corrected scoped authority/output, sequential/delegated routing, bounded concurrency/retry, stable candidates, source IDs and tooling evidence. Human approved Inconclusive for material uncertainty; synchronized findings/report. Consolidated duplicated routing/handoff rules, verified internal links/anchors and clarified path resolution and configuration versus execution evidence. Five axis guides received targeted corrections; other guides and UI remain unchanged, author/version "1.0" preserved.
+- Checks: validator, YAML/JSON, UTF-8, resource links/fences and axis/prefix consistency passed. Three read-only [behavioral cases](../evals/code-review/scenarios.json) passed semantic review: sequential composed deduplication/AC-7, current-file uncertainty and missing target. Material security/accessibility/performance reference claims were checked against official sources.
+- Limits: inherited model settings, supplied immutable excerpts; no live delegated fan-out, candidate drift, retry, saving, renderer or installed-host proof. Final clarity edits received static checks without replay. [Coverage](../evals/code-review/README.md#coverage) records gaps; no capability blocker, shared P4-01 exit remains open.
 
 ### P4-02 — Prove Shared Schemas, Helpers and Distribution
 
