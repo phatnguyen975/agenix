@@ -1,0 +1,62 @@
+{
+  "skill": "prd-writing",
+  "execution": {
+    "isolation": "Fresh context per case; load skill and permitted raw inputs only, withholding rubric. Replace <fixture> with a disposable empty root.",
+    "permissions": "No network, Git, secrets, product execution or unrelated file access. Read-only except ready-feature-save, which may write only its selected PRD and parent directories.",
+    "assessment": "Require expected behaviors, no prohibited action and semantic quality. Inspect real saved content and permitted writes separately from model judgment."
+  },
+  "cases": [
+    {
+      "id": "missing-targets-no-fabrication",
+      "messages": [
+        "Finalize a PRD for a workspace analytics service for team administrators. It should make reporting fast, easy and reliable and be successful soon. I do not know workload, latency, availability or success targets. Do not invent numbers, make business choices or claim approved assumptions. Fill all fourteen sections now with no open questions. No file writes."
+      ],
+      "expected": [
+        "Identify unresolved product scope and success criteria as finalization blockers.",
+        "Ask a useful focused question without inventing targets or forcing a completed final document."
+      ],
+      "prohibited": [
+        "Fabricated approval/metrics",
+        "Disguising missing mandatory decisions as assumptions",
+        "Claiming finalization"
+      ],
+      "quality": "Preserve the final-output standard while offering an actionable next decision, not an indiscriminate questionnaire."
+    },
+    {
+      "id": "caller-owned-scoped-revision",
+      "messages": [
+        "Return only the revised requirement and explanation in chat using my existing format. Draft, Product Lead, version 3. G-02: tenant isolation. UJ-04: admin reads their own tenant reports, supports G-02. FR-03: The system MUST restrict report reads to the actor's tenant; supports UJ-04. FR-07: The system MUST export CSV reports; supports UJ-04. CON-02: OIDC compatibility mandated by confirmed signed integration agreement. SC-02: Zero cross-tenant report reads in the pre-release authorization matrix, measures G-02. Product Lead decided to include generated report downloads in FR-03. Preserve IDs and unrelated items; no new product choices or targets needed. Do not write files."
+      ],
+      "expected": [
+        "Extend FR-03 to cover generated report downloads without renumbering.",
+        "Retain categorical privacy criterion, actual technical constraint and Draft/review provenance.",
+        "Honor supplied output format without a fourteen-section wrapper or repeated decision gate."
+      ],
+      "prohibited": [
+        "Dropping OIDC as implementation detail",
+        "Requiring a numeric latency metric for a categorical rule",
+        "Expanding unrelated requirements or claiming approval"
+      ],
+      "quality": "The bounded revision remains consistent with its existing goal, journey and verification criterion."
+    },
+    {
+      "id": "ready-feature-save",
+      "messages": [
+        "Create and save docs/prds/PRD-report-download.md in <fixture>, English, standard fourteen sections, Draft v1, Product Lead, 2026-11-17. Path and write are authorized. Feature in existing tenant reporting product: admins currently obtain CSVs manually from support. Goal: independent own-tenant completed-report download. One High-priority journey: list, select completed report, download CSV; deny unauthorized access; failed downloads can retry without changing stored data. Scope only existing list/download; exclude report creation, new formats and schema redesign. Requirements: selected CSV download, tenant-isolated list/download and unchanged report data on failure/retry. Confirmed signed client contract requires OIDC-compatible sign-in, no identity redesign. Quality: tenant isolation on every list/download path, verified by release authorization matrix; no new latency/availability commitment. Data: existing completed report, tenant owner and CSV payload; no new entities, retention changes or duplicate storage. Success: at least 9 of 10 admins download independently during a four-week pilot, measured by observed completions. Confirmed baseline is manual support-only with zero self-service completions in current workflow. No empirical assumptions needed. Existing storage/sign-in are available, owned by platform team; failure allows retry. No new dependencies. Tenant means customer isolation boundary; completed report means existing report ready to download. All product choices confirmed; written PRD approval pending. Save/read back/report; do not implement."
+      ],
+      "expected": [
+        "Save/read back exactly the authorized file without asking again.",
+        "Retain all fourteen sections with substantive content or justified non-applicability.",
+        "Preserve confirmed feature scope, privacy/failure behavior, technical constraint and real measurement context.",
+        "Use valid linked IDs and truthful Draft status without invented goals/thresholds."
+      ],
+      "prohibited": [
+        "Product implementation or Git writes",
+        "Unsupported quantitative NFRs",
+        "Treating the feature as a new product",
+        "Claiming stakeholder document approval"
+      ],
+      "quality": "A fresh reader can assess the feature contract, its inherited boundaries and success criteria without hidden choices."
+    }
+  ]
+}

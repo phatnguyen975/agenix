@@ -1,40 +1,36 @@
 # Elicitation Flow
 
-A single round of questions produces a thin, generic PRD. Run a structured, persistent interview until every section in `prd-template.md` has concrete, specific content. The rules below are grouped by where they apply during that interview.
+Resolve the decisions needed for a usable PRD, not a predetermined number of interview rounds. The human supplies product authority and trade-offs; the AI organizes evidence, exposes contradictions and proposes options without inventing agreement.
 
-## 1. Interview Order
+## 1. Identify Gaps and Dependencies
 
-- **Skip what's already answered.** Only interrogate the gaps and vague points found while mapping the input against the template. Never re-ask what the input material already states clearly.
-- **Follow the template's dependency order:** Problem → Goals → Target Users → Journeys → Scope → Functional / Non-Functional Requirements → Constraints → Data → Success Metrics → Assumptions → Dependencies → Glossary. Each later section depends on decisions already locked earlier — journeys need known users, requirements need known journeys, metrics need known goals — so asking out of order produces answers that have to be redone.
-- **Root-cause check on Problem Statement and Goals.** Before accepting a stated problem or goal as final, ask one follow-up along the lines of "why does that matter?" or "what happens if this isn't addressed?" to confirm it's the actual driver, not a symptom or a restated feature request. Stop as soon as the answer stops changing the scope of the PRD — usually one or two levels deep, not an exhaustive chain.
+Map the supplied material to [PRD coverage](prd-template.md#coverage-and-applicability). Reuse explicit decisions and reliable evidence. Ask only where information is absent, ambiguous, inconsistent or materially stale. Do not repeat root-cause or confirmation questions whose answers are already known.
 
-## 2. Question Sequence Per Gap — Open Before Closed
+Usually establish the problem and intended outcomes, users and context, journeys and boundaries, then capabilities, qualities, constraints and success measures. This is a dependency guide, not a fixed questionnaire: an existing legal constraint or deadline may shape scope first. Revisit an earlier decision only when new evidence exposes an actual conflict or impact.
 
-For each remaining gap, move through these stages in order:
+## 2. Choose the Question
 
-1. **Open.** Ask one open-ended question in the user's own words — "What should happen when a check-in fails?" — so they can volunteer context the interview didn't anticipate.
-2. **Probing.** If the answer comes back vague or partial, sharpen it along whichever of these dimensions is actually missing, rather than a generic "can you clarify?": **Who** (actor), **What** (capability), **When** (trigger/timing), **Where** (context/channel), **Why** (goal), **How** (mechanism/condition).
-3. **Closed.** If a concrete decision is still unresolved after probing, close with 2-4 suggested options grounded in the input material or common patterns for that type of system, plus an explicit "something else" option — e.g. "Expected traffic — (a) under 100 req/s, (b) 100-1,000 req/s, (c) over 1,000 req/s, (d) something else?" This gives the user a concrete answer to react to instead of a blank page, without skipping the chance for them to say something unexpected first.
+- Use an open question when discovering needs: ask about a concrete incident, current workaround, affected user and consequence. Probe why the problem matters if the motivation is unclear.
+- Use a focused probe when a dimension is missing: actor, trigger, outcome, boundary, frequency, failure consequence or evidence. For a new capability, future product-policy decisions are necessary; distinguish them from predictions of demand.
+- Use neutral alternatives or a direct confirmation when the decision is already bounded. Explain consequential trade-offs, allow an alternative and avoid framing a speculative number as an industry default.
+- Ask one dependent question at a time. A small batch is useful for independent facts the human can answer together; do not send the entire template as a question dump.
 
-One question at a time throughout — each answer shapes the next question; never dump a checklist on the user at once.
+Distinguish a stated preference from an observed user need. Reflect material interpretations and trade-offs concisely; a clear direct answer does not require another approval round before proceeding.
 
-## 3. Wording
+## 3. Resolve Priorities and Quality Targets
 
-- **Ask about the concrete present, not a hypothetical future.** Prefer "what happens today when X?" or "how do you currently handle Y?" over "would you want X?" or "do you think X is a good idea?" — a question about an imagined future tends to produce an optimistic, unreliable answer rather than a usable decision.
-- **Keep questions and options neutral.** Don't phrase a question so it implies the expected answer (not "don't you think this should be fast?"). Order suggested options along a neutral axis — magnitude, chronology — not by which one seems preferable.
+Connect journeys and capabilities to goals. Discuss impact, urgency, dependencies and feasible scope when prioritizing. Ask a trade-off question if everything is marked essential without rationale; equal priority is valid when justified. A priority label alone does not make scope feasible or authorize deferring an obligation.
 
-## 4. Convergence
+For quality attributes, establish applicable conditions and a verification basis: latency needs a workload and percentile; availability needs a service boundary and measurement window; accessibility or compliance needs a defined applicable criterion. Check relevant security, privacy, accessibility, reliability and operational failure needs selectively rather than assuming every category applies.
 
-- **No vague answer is final.** A generic response ("make it fast", "for all users") goes back through the probing/closed stages in Section 2.
-- **Follow-up cap.** After at most two follow-ups on the same point, stop repeating the question. Propose a concrete working decision drawn from context and ask for a yes/no confirmation instead. This guarantees the interview converges rather than looping.
-- **"I don't know" triggers the same fallback** — a proposed working decision to confirm, never a blank.
+For success measures, establish the outcome, population, target, window and measurement method. Reuse real baselines; absence of history is not a measured zero. Missing baseline evidence can have an explicitly agreed collection plan, but success targets and mandatory acceptance criteria must still be decided before finalization. Do not manufacture a numerical target to end the interview.
 
-## 5. Prioritization
+## 4. Converge Without Fabrication
 
-- **Force a real trade-off for each journey's Priority.** Don't accept a default "High" for everything. Once two or more journeys are captured, ask a forced-choice question across them — "If only one of these could ship first, which is it?" — so Priority reflects an actual decision, not an unconsidered label.
+If repeated probing adds no evidence, change approach: summarize the unresolved decision, why it matters and concrete options with consequences. A proposed working decision needs human agreement. A follow-up count cannot guarantee a valid resolution, and silence is not acceptance.
 
-## 6. Throughout
+Resolve each material gap through an explicit decision, an accepted bounded empirical assumption with a validation plan, an approved scope exclusion, or an agreed measurement plan. Do not move a missing mandatory requirement into Assumptions to evade a decision. If no acceptable disposition is available, stop dependent finalization and request the specific missing input. Independent drafting can continue when useful, but do not deliver it as final.
 
-- **Contradictions are surfaced immediately** — not carried silently into the draft (e.g. a stated goal that conflicts with a declared Out-of-Scope item).
-- **Answers are reflected back for confirmation** before moving to the next section ("So the primary user is X, and Y is explicitly out of scope — confirm?"), catching misunderstandings early rather than at final review.
-- **Drafting starts only once every section is concrete.** The output step never runs against a partially-answered interview.
+## 5. Check Readiness
+
+Before final delivery, review the whole affected document for contradictions, ungrounded claims, unaddressed failure outcomes and orphaned references. Verify that proposed choices were actually accepted and existing approvals were not silently changed. Final content contains resolved decisions and explicit accepted uncertainty, not an Open Questions section or hidden guesses.

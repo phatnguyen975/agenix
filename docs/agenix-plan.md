@@ -396,7 +396,7 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 helper/
   - [x] `ideation`
   - [x] `codegraph-intelligence`
   - [x] `autonomous-git-workflow`
-  - [ ] `prd-writing`
+  - [x] `prd-writing`
   - [ ] `domain-modeling`
   - [ ] `evolutionary-architecture-design`
   - [ ] `database-design`
@@ -457,6 +457,12 @@ Current capability checkpoint — `autonomous-git-workflow` (uncommitted changes
 - Changes: preserved all Git/PR/recovery/release scopes; synchronized scoped authority, caller commit cadence, handed-over worktrees and exact protected merge routing. Fixed mixed-index staging, cleanup/data-loss hazards and release target/version consistency. Existing resource names/UI metadata and author/version `"1.0"` retained.
 - Checks: official Git/Conventional Commits/SemVer references reviewed; `python evals/autonomous-git-workflow/check_git.py` passed eleven isolated command success/failure tests on Git 2.56.0.windows.4. Four fresh [behavioral cases](../evals/autonomous-git-workflow/scenarios.json) passed semantic assessment; both local cases also passed commit/path/index/working/ignored-data preservation assertions. Skill validator and static checks passed.
 - Limits: model runs used inherited host settings; follow-up sync/push/snapshot/hook/conflict/backport/bisect clarifications and Title Case received static/command checks without rerunning model cases. [Coverage](../evals/autonomous-git-workflow/README.md#coverage) excludes real hosting merge, repeated-run/multi-OS and installed-host proof. No capability blocker; shared Git/implementation/TDD integration and P4-01 exit remain open.
+
+Current capability checkpoint — `prd-writing` (uncommitted changes against `8325af6`):
+
+- Changes: human selected product and feature scope; retained fourteen default sections and all three named resources. Corrected elicitation, final readiness, verifiable wording, traceability and caller-owned revisions; retained real technical constraints. Removed the separate system scope, restored concise core principles and separated template fields/entry headings for readable Markdown. Blockquote metadata now uses Revision and Last Updated with explicit field order/separation. UI covers revisions; author/version `"1.0"` preserved.
+- Checks: NASA Appendix C, RFC 2119/8174, GOV.UK interview guidance and product/feature PRD usage reviewed. Validator, YAML/JSON, UTF-8, Markdown/routes, template coverage and whitespace checks passed. Three fresh [behavioral cases](../evals/prd-writing/scenarios.json) passed semantic assessment: missing-target blocker, caller-scoped revision and real feature PRD save/read-back. Artifact assertions verified the sole authorized path, fourteen sections and twelve unique/resolving IDs; an initial assertion omitted journey-heading definitions and was corrected.
+- Limits: inherited model/settings; single runs, not full product/multi-turn, host discovery, collision or repeated-run proof. Final readiness, terminology, principles and presentation changes received source/static checks only; no model replay or renderer/browser preview. No executable runtime changes or per-skill static runner added. [Coverage](../evals/prd-writing/README.md#coverage) records gaps; no capability blocker, shared P4-01 exit remains open.
 
 ### P4-02 — Prove Shared Schemas, Helpers and Distribution
 

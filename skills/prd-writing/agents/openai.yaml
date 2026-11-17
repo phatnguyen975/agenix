@@ -1,4 +1,4 @@
 interface:
   display_name: "PRD Writing"
-  short_description: "Turn an idea into a product requirements document"
-  default_prompt: "Use $prd-writing to clarify this idea and draft a product requirements document."
+  short_description: "Define or revise product and feature requirements"
+  default_prompt: "Use $prd-writing to clarify the supplied context and create or revise a product requirements document."

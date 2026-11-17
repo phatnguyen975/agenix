@@ -1,148 +1,151 @@
 # PRD Template
 
-Fill this exact structure end to end. Every `<...>` placeholder must be replaced with concrete, specific content before the file is written. None may remain in the output — an unresolved placeholder means elicitation isn't finished yet.
+Use these fourteen numbered sections for a fresh standalone PRD. Replace all instructions/placeholders, keep only real entries and apply [Writing Conventions](writing-conventions.md). Do not copy sample counts as requirements. Use a caller-supplied template when provided, preserving equivalent coverage. Metadata describes actual authorship/review state; it does not grant approval.
+
+## Coverage and Applicability
+
+Keep all fourteen headings in the default format so coverage is visible. A genuinely inapplicable section can contain one specific reason (for example, no external dependency beyond the already defined parent-product services). Do not fill a gap with "None" unless established; unknown is not inapplicable. Scale detail rather than dropping goals, users, constraints or success measures for a small feature.
+
+For a feature, identify the parent product/version and inherited requirements by precise reference, state changed versus unchanged behavior and avoid duplicating the parent baseline. For a whole product, cover end-to-end roles and major capabilities. Data Overview applies whenever data meaning, sensitivity, retention or lifecycle affects scope, not only for data-heavy systems or new entities. Expand applicable safety/compliance constraints with qualified input; do not invent obligations or claim certification. Glossary is brief when terminology is already unambiguous.
+
+## Document Structure
 
 ```markdown
-# PRD: <System or Feature Name>
+# PRD: <Product or Feature Name>
 
-> **Status:** Draft | Approved
-> **Owner:** <name>
-> **Date:** <YYYY-MM-DD> — v<N>
+> **Status:** <actual document review state, normally Draft initially>
+> **Owner:** <responsible person or role>
+> **Revision:** <document revision under project convention, initially 1>
+> **Last Updated:** <YYYY-MM-DD for this document revision>
+> **Context:** <product boundary or feature and parent-product reference>
 
 ## 1. Executive Summary
 
-<One paragraph: what the system/feature is, who it serves, the core value it
-delivers, current status.>
+<Problem, intended users, proposed capability and expected value in one
+short paragraph. State whether this covers a product or feature.>
 
 ## 2. Problem Statement
 
-<The user/business problem being solved, current situation and relevant
-context, why this is being addressed now.>
+<Current situation, affected users, consequence and why now. Separate
+observed evidence from stakeholder hypotheses; cite relevant sources.>
 
 ## 3. Goals
 
-<Bulleted, numbered business and system-level goals this PRD exists to satisfy.>
-
-- **G-01:** <goal>
-- **G-02:** <goal>
+- **G-01:** <intended outcome and affected population; related context>
 
 ## 4. Target Users
 
-<Primary and secondary user segments — role, context, need, pain point. Not a
-full persona deep-dive.>
+### <Role or Segment>
 
-- **<segment> (Primary):** <context, need, pain point>
-- **<segment> (Secondary):** <context, need, pain point>
+- **Role:** <primary or secondary, where relevant>
+- **Context and Need:** <situation, intended outcome and pain point>
+- **Access Conditions:** <relevant access or operational conditions>
 
 ## 5. User Journeys
 
-<Each journey uses this exact format, ordered by priority — High first.
-Narrative flow, not acceptance-test detail: that belongs to a feature spec.
-Priority is set by a forced trade-off across journeys, not a default — see
-elicitation-flow.md, Section 5.>
-
 ### UJ-01: <Journey Name>
 
-- **Actor:** <primary user/persona>
-- **Priority:** High | Medium | Low
-- **Supports:** <Goal ID(s), e.g. G-01>
-- **Goal:** <what the user wants to accomplish>
-- **Trigger:** <what starts this journey>
-- **Flow:**
-  1. <step>
-  2. <step>
-  3. <step>
-- **Outcome:** <end state / value delivered>
+- **Actor:** <role or segment from Target Users>
+- **Priority:** <agreed priority and brief rationale>
+- **Supports:** <G-ID(s)>
+- **Goal:** <user outcome>
+- **Trigger:** <initiating event and relevant precondition>
+- **Main Flow:**
+  1. <initiating user action or event>
+  2. <meaningful interaction and system response>
+  3. <completion step>
+- **Success Outcome:** <observable end state and delivered value>
+- **Failure or Recovery:** <material alternative outcome and recovery;
+  use a separate short numbered flow when branching needs explanation>
 
 ## 6. Scope
 
 ### In Scope
 
-<Capabilities explicitly delivered by this system/version.>
-
-- <capability>
+- <included capability and boundary for this release/change>
 
 ### Out of Scope
 
-<Capabilities explicitly excluded, to prevent scope creep.>
-
-- <capability>
+- <explicit exclusion and relevant boundary/rationale>
 
 ## 7. Functional Requirements
 
-<Numbered, capability-level requirements using MUST / SHALL / MUST NOT,
-grouped by capability area, each tied back to the journey it supports. See
-writing-conventions.md for phrasing rules.>
-
 ### <Capability Area>
 
-- **FR-01:** The system MUST <capability>. _(supports: UJ-01)_
-- **FR-02:** Users MUST be able to <action>. _(supports: UJ-01)_
+#### FR-01: <Short Requirement Name>
 
-### <Capability Area>
+<Subject> MUST <observable behavior under relevant condition>.
 
-- **FR-03:** The system SHALL <behavior>. _(supports: UJ-02)_
-- **FR-04:** The system MUST NOT <restricted behavior>. _(supports: UJ-02)_
+- **Supports:** <UJ-ID(s), or G/CON-ID and rationale for a cross-cutting need>
+- **Verification Basis:** <observable outcome or assessment criterion;
+  not a full downstream test procedure>
 
 ## 8. Non-Functional Requirements
 
-<Quality attributes — performance, scalability, security, reliability,
-accessibility, compliance — each a measurable target under a stated
-condition.>
+### NFR-01: <Quality Attribute>
 
-- **NFR-01:** The system MUST <attribute> within <threshold> under <condition>.
-- **NFR-02:** The system SHALL <attribute> within <threshold> under <condition>.
+<Subject> MUST <verifiable quality criterion under stated conditions>.
+
+- **Source/Need:** <goal, journey or constraint>
+- **Verification:** <measurement, test, inspection or analysis basis>
 
 ## 9. Constraints
 
-<External limitations the system must operate within, with type.>
+### CON-01: <Constraint Name>
 
-- **CON-01:** <constraint> — **type:** technical | budget | timeline | legal | organizational
+<Confirmed limitation>.
+
+- **Type:** <technical, budget, timeline, legal or organizational>
+- **Source/Rationale:** <authority and reason for the limitation>
 
 ## 10. Data Overview
 
-<Only if the system is data-heavy. Core domain entities — no implementation-level schema.>
+### <Concept>
 
-- **<entity>:** <description> | **key attributes:** <...> | **relates to:** <other entity>
+<Business meaning and relevant information>.
+
+- **Relationships:** <relevant domain relationships>
+- **Lifecycle/Sensitivity:** <applicable ownership, access, retention,
+  deletion or migration obligations; reference requirements rather than
+  defining a second copy of the rule>
 
 ## 11. Success Metrics
 
-<Numbered, measurable outcomes, each with a baseline, a target, and a
-measurement window, tied back to the goal it measures.>
+### SC-01: <Outcome Measure>
 
-- **SC-01:** <metric> — **baseline:** <value or "N/A, new capability">, **target:** <value>, **by:** <timeframe>. _(measures: G-01)_
-- **SC-02:** <metric> — **baseline:** <value>, **target:** <value>, **by:** <timeframe>. _(measures: G-02)_
+- **Measures:** <G-ID(s)>
+- **Baseline:** <observed value/source, or agreed collection plan>
+- **Target:** <agreed concrete success threshold or observable criterion>
+- **Population:** <users, events or other units included in the measure>
+- **Measurement Method:** <data source and calculation or observation method>
+- **Measurement Window:** <duration and start/end condition>
 
 ## 12. Assumptions
 
-<Beliefs taken as true about users, environment, or existing systems — and
-the impact if wrong.>
+### A-01: <Assumption Name>
 
-- **A-01:** <assumption> — **if false:** <impact>
+<Accepted empirical assumption and its basis>.
+
+- **If False:** <scope/feasibility impact>
+- **Validation Owner:** <responsible role>
+- **Validation Plan:** <method and decision point>
 
 ## 13. Dependencies
 
-<External systems, teams, services, or infrastructure this system relies on.>
+### D-01: <Dependency Name>
 
-- **D-01:** <dependency> — **type:** internal | external — **if unavailable:** <impact>
+<External/internal system, team or service and required capability>.
+
+- **Owner:** <responsible party>
+- **Readiness:** <required condition and timing>
+- **If Unavailable:** <impact and agreed response>
 
 ## 14. Glossary
 
-<Optional. Domain-specific terms used in this document that a reader would
-need defined to avoid misreading a requirement.>
-
-- **<term>:** <definition>
+- **<Term>:** <one precise meaning used throughout; authoritative reference
+  when a shared definition already exists>
 ```
 
-## Section Applicability by System Type
+## Completion
 
-Not every section applies to every case — select the right subset instead of forcing all of them every time:
-
-| System type                                              | Sections to include                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Full new system / platform                               | Every section in the template.                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| New feature added to an existing system                  | Executive Summary, Problem Statement, a minimal Goals (1-2 feature-level goals, still with `G-01`-style IDs — Success Metrics must reference one), User Journeys, Scope, Functional Requirements, relevant Non-Functional Requirements, Success Metrics, Assumptions, Dependencies. Target Users may be folded into the Executive Summary if already established at the system level — nothing else references a Target User by ID. Include Data Overview only if new entities are introduced. |
-| Internal tool / small utility                            | Executive Summary, Problem Statement, a lightweight User Journeys, Scope, Functional Requirements, minimal Success Metrics.                                                                                                                                                                                                                                                                                                                                                                    |
-| Data- or API-heavy system                                | Always include Data Overview in full.                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| Compliance- or safety-sensitive system                   | Expand Non-Functional Requirements and Constraints; every related decision is resolved during elicitation, never deferred.                                                                                                                                                                                                                                                                                                                                                                     |
-| Any system with domain-specific or ambiguous terminology | Include Glossary; omit it for plain, self-explanatory systems.                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+Final content has no instruction placeholders, unanswered questions or unapproved product choices. An agreed plan is a concrete decision, not proof its future measurement or dependency is already satisfied. Success targets must be resolved before finalization; a promise to choose them later does not satisfy this requirement. Use the document's actual review state, not "Approved" merely because all sections are populated.

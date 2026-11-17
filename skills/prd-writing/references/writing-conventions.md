@@ -1,48 +1,46 @@
 # Requirement Writing Conventions
 
-## ID Scheme
+Write a usable product contract: necessary, clear, consistent, feasible, traceable and verifiable. The [NASA requirements checklist, Appendix C](https://www.nasa.gov/reference/system-engineering-handbook-appendix/) is a useful quality reference, not a requirement to adopt NASA's lifecycle or claim standards compliance. A PRD is not automatically a complete engineering requirements specification.
 
-Every traceable item is numbered and never renumbered once assigned:
+## IDs and Traceability
 
-| Prefix   | Used for                    |
-| -------- | --------------------------- |
-| `G-01`   | Goals                       |
-| `UJ-01`  | User Journeys               |
-| `FR-01`  | Functional Requirements     |
-| `NFR-01` | Non-Functional Requirements |
-| `CON-01` | Constraints                 |
-| `SC-01`  | Success Metrics             |
-| `A-01`   | Assumptions                 |
-| `D-01`   | Dependencies                |
+| Prefix   | Item                       |
+| -------- | -------------------------- |
+| `G-01`   | Goal                       |
+| `UJ-01`  | User journey               |
+| `FR-01`  | Functional requirement     |
+| `NFR-01` | Non-functional requirement |
+| `CON-01` | Constraint                 |
+| `SC-01`  | Success metric             |
+| `A-01`   | Assumption                 |
+| `D-01`   | Dependency                 |
 
-## Structural Rules
+Allocate unique sequential IDs per prefix within the document. On revision retain existing IDs, never recycle retired IDs and use the next unused number for additions; gaps are valid. Identify the source document as well when referring to inherited IDs so two PRDs' `FR-01` entries cannot be confused.
 
-- **Normative keywords, capitalized**: `MUST`, `MUST NOT`, `SHALL`, `SHOULD`, `MAY`. `MUST` / `SHALL` for mandatory, `SHOULD` only for a genuine recommendation (not a disguised mandatory item), `MAY` for truly optional. Example: `FR-01: The system MUST allow a user to reset their password.`
-- **One capability per line.** No chaining multiple capabilities into a single requirement; "and" / "or" joining two separate testable conditions is a sign the line should be split into two IDs.
-- **Capability-level granularity.** A requirement describes a capability or behavior area, not every validation rule or error state — that depth belongs to a downstream feature spec, not this document.
-- **Traceability annotations.** A functional requirement references the journey(s) it supports; a success metric references the goal(s) it measures. This keeps Goals → Journeys → Requirements → Metrics as one connected chain, not four disconnected lists.
-- **Journeys, not acceptance criteria.** Narrative flows using the format in `prd-template.md`, not Given/When/Then test cases.
-- **No placeholders in output.** A value that can't be quantified yet is pushed back to the user during elicitation, never written as "TBD".
+Journeys support goals; functional requirements normally support journeys; success metrics measure goals. Cross-cutting obligations can reference a goal or constraint directly with a short rationale rather than inventing a user journey. Link quality requirements to the relevant need/source. Check both directions: no unexplained requirement, uncovered in-scope journey, or goal without a success measure. Traceability is a set of justified relationships, not a mandatory linear chain.
 
-## Clarity Rules
+## Requirement Strength and Structure
 
-Correct structure alone doesn't prevent ambiguity — the wording itself has to be unambiguous and testable.
+Use the project's normative convention consistently. By default use capitalized `MUST` / `MUST NOT` for mandatory obligations, `SHOULD` / `SHOULD NOT` for genuine recommendations and `MAY` for optional capability. `SHALL` is equivalent to `MUST` if the project uses it; do not imply different strengths. These meanings follow [RFC 2119, Sections 1-5](https://www.rfc-editor.org/rfc/rfc2119.html#section-1); [RFC 8174, Section 2](https://www.rfc-editor.org/rfc/rfc8174.html#section-2) clarifies uppercase usage. This is an adopted document convention, not a claim that a PRD is an Internet protocol standard.
 
-These rules apply to every formal, numbered line: Goals, Functional and Non-Functional Requirements, Constraints, and Success Metrics — the lines that commit to something testable. They do not apply to narrative prose (Executive Summary, Problem Statement, Target Users, journey descriptions), where plain language describing a need or pain point is fine — e.g. "members need a fast way to check in" is acceptable context in Target Users, even though "fast" would be rejected inside NFR-01 itself.
+Define the chosen meanings in the generated PRD, for example in Glossary. Goals, metrics and descriptive context need not be forced into normative sentences. A recommendation needs an understandable exception/trade-off; an optional capability must not conceal a mandatory dependency.
 
-- **Active voice, explicit subject.** "The system MUST send a confirmation email" — not "A confirmation email MUST be sent" (unclear what performs the action).
-- **Quantify instead of qualifying.** Replace a subjective adjective with a number, threshold, or concrete condition. A requirement that can't be quantified gets pushed back to the user rather than written as-is.
-- **One term per concept, used identically everywhere.** If the document calls something "account" in one place, it isn't called "profile" or "user record" elsewhere. Domain-specific terms are defined once in the Glossary.
-- **No dangling scope words** ("etc.", "and so on", "among others") — either enumerate the full list, or state the exact rule that decides inclusion.
+Write each requirement as an explicit subject, obligation, observable behavior and relevant condition. Keep one cohesive obligation per ID. Split independently changeable obligations, but do not split a condition from its outcome merely because it contains "and" or "or". Requirements should be individually assessable at PRD depth without expanding into exhaustive downstream test cases.
 
-### Banned Words and Replacements
+## Clarity and Verification
 
-| Avoid                                             | Problem                                       | Write instead                                                           |
-| ------------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------- |
-| fast, quick, slow                                 | subjective, unverifiable                      | a quantified threshold, e.g. "within 200ms"                             |
-| user-friendly, intuitive, easy to use             | not testable                                  | a concrete, observable behavior, e.g. "completable in 3 steps or fewer" |
-| robust, reliable, flexible, scalable (used alone) | vague                                         | a quantified NFR, e.g. "99.9% uptime", "handles 1,000 concurrent users" |
-| as appropriate, as needed, if necessary           | defers the actual decision                    | the specific rule or condition that applies                             |
-| should (for a mandatory item)                     | understates required strength                 | `MUST`                                                                  |
-| and / or joining two requirements                 | hides two separate testable items in one line | split into two separate requirement IDs                                 |
-| TBD, to be determined                             | unresolved placeholder                        | resolved during elicitation before the file is written                  |
+- Use active voice, consistent domain terms and bounded actor/state scope. Define ambiguous terms once; distinguish user goals from system obligations.
+- Replace vague qualifiers with observable criteria. Verification can use test, demonstration, inspection or analysis; not every valid requirement needs a number. A privacy rule such as "The system MUST prevent one tenant from reading another tenant's records" is categorical, not a latency target.
+- For numerical qualities, specify the unit, population, operating conditions and measurement window/percentile where relevant. A latency target without workload or a reliability percentage without a service boundary is incomplete.
+- Do not invent targets, feasibility evidence, legal obligations or benchmark claims. Distinguish measured baselines, agreed targets and hypotheses. A new capability has no historical baseline; it does not automatically have a baseline of zero.
+- Avoid unbounded lists such as "etc." and subjective terms such as "fast", "intuitive" or "robust" when they replace a criterion. Evaluate meaning rather than banning substrings in identifiers, quotations or explanatory context.
+- Keep rationale, evidence and verification notes distinct from the obligation. Reference a constraint once rather than creating competing versions of it across sections.
+- Describe required outcomes rather than selecting architecture or a technology by default. Retain a mandated external interface, compatibility condition or implementation constraint when genuinely applicable, stating its authority and rationale.
+
+## Scope and Revision Quality
+
+Keep important exception, denial, recovery and misuse outcomes when they affect product expectations. Avoid exhaustive field validation, API/schema definitions and implementation tasks. PRD-level acceptance/success criteria are appropriate; complete executable scenario suites are outside this document's default depth.
+
+In a feature PRD, identify inherited obligations and the delta. In a revision, assess affected journeys, metrics, assumptions, dependencies and incoming/outgoing references; preserve unrelated wording and IDs. Do not silently reinterpret a previously approved requirement or inherit approval for changed content. Follow project revision metadata conventions and distinguish AI checks from the responsible human's approval.
+
+Use accepted assumptions only for real empirical uncertainty, with impact and validation responsibility. Missing policy choices and mandatory acceptance thresholds cannot be disguised as assumptions. If the required decision cannot be made, report the blocker rather than delivering an apparently complete final document.
