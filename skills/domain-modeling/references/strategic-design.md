@@ -1,6 +1,6 @@
 # Strategic Design
 
-Use when identifying business capabilities and subdomains, assessing strategic importance, or defining bounded contexts. These are separate decisions: subdomains describe the business problem space; bounded contexts bound coherent solution models. Consult `ubiquitous-language.md` when meanings are ambiguous; use `context-mapping.md` when dependencies need classification.
+Use when identifying business capabilities and subdomains, assessing strategic importance, or defining bounded contexts. These are separate decisions: subdomains describe the business problem space; bounded contexts bound coherent solution models. Consult [Ubiquitous Language](ubiquitous-language.md) when meanings are ambiguous; use [Context Mapping](context-mapping.md) when dependencies need classification.
 
 ## Domain, Subdomain, and Bounded Context
 
@@ -62,7 +62,7 @@ A single homonym is **not sufficient** to justify two contexts, and a shared bus
 3. Record which subdomains the context serves. Explain meaningful splits or overlaps; do not force a one-to-one map.
 4. Walk an end-to-end scenario, noting information it needs from other contexts and where ownership would become unclear.
 5. Compare alternatives when a boundary would cause significant shared change, duplicated decisions, or cross-boundary consistency needs.
-6. Refine using `context-mapping.md` and `model-validation.md`; confirm material semantic, ownership, and boundary consequences with responsible humans before delivering the design.
+6. Refine using [Context Mapping](context-mapping.md) and [Model Validation](model-validation.md); confirm material semantic, ownership, and boundary consequences with responsible humans before delivering the design.
 
 **Example:** In `Catalog`, `Product` could mean a sellable commercial offering, including descriptions and availability for selection. In `Warehouse`, the related concept might be a `Stock Item`, with storage and allocation rules. Separate models are useful when their rules and lifecycles genuinely differ; a translation or identifier may connect them without creating one shared `Product` entity.
 

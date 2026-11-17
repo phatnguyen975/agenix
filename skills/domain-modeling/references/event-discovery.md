@@ -27,23 +27,26 @@ A state predicate (`OrderIsOverdue`) describes a condition; an event (`OrderBeca
 
 **Time:** A deadline or elapsed period may prompt a decision or transition; neither requires inventing an event called `TimeElapsed`. Clarify whether expiration is an explicit business occurrence, a derived status, or an action scheduled after a condition is detected.
 
+An event type in a proposed model names a business occurrence that would be a fact when it happens; it need not already have occurred in production. Distinguish this scenario/model description from an observed event instance. Business evidence must support its meaning, not necessarily a historical execution log.
+
 ## Discover the Big Picture
 
 1. Extract meaningful **completed business outcomes** from each source scenario, using the words domain experts employ. Preserve references to requirements or evidence.
 2. Place them on a rough timeline; keep alternative, parallel, and optional branches instead of enforcing one straight success path.
 3. Identify actors, collaborators, key information handoffs, and pivotal events where business responsibility or meaning changes substantially.
 4. Mark hotspots where definitions, decisions, exceptions, or timings conflict or are unknown. Prioritize by their business impact.
-5. Propose capability or context boundaries only as **hypotheses**. Validate them with `strategic-design.md`, language, and real scenarios.
+5. Propose capability or context boundaries only as **hypotheses**. Validate them with [Strategic Design](strategic-design.md), language, and real scenarios.
 6. Ask the responsible experts to resolve significant hotspots as they appear. Keep unanswered items in working discovery notes only; do not export them into the final domain model or invent an outcome to eliminate them.
 
 **Illustrative event timeline:**
 
 ```text
 A customer requests a reservation.
-  → ReservationRequested     [only if requests are recorded as business facts]
-  → StockReserved            [success branch]
-  → ReservationRefused       [only if recorded and meaningful]
-  → ReservationExpired       [only if expiry is an observed business occurrence]
+  ReservationRequested [only if requests are recorded as business facts]
+  Alternative outcomes:
+    Success: StockReserved
+    Refusal: ReservationRefused [only if recorded and meaningful]
+  Later: ReservationExpired [only if expiry is a recognized occurrence on an applicable successful/pending path]
 Hotspot: Who decides when a pending reservation stops reserving stock?
 ```
 
@@ -59,7 +62,7 @@ For each material scenario, record:
 4. **Decision:** Relevant business rule, invariant, or policy and the authority responsible for its outcome.
 5. **Outcome:** State/decision result, meaningful event(s) where warranted, or refusal. **Do not require an event for every command or transition.**
 6. **Reaction:** What happens afterward, under which condition, by which actor or context. A policy can be manual, delayed, or automated.
-7. **Cross-boundary exchange:** Distinguish the local event from any published business notification; consult `context-mapping.md` when another context's model is involved.
+7. **Cross-boundary exchange:** Distinguish the local event from any published business notification; consult [Context Mapping](context-mapping.md) when another context's model is involved.
 
 **Example:** `OrderPlaced` might lead to the policy "if fulfillment is necessary, request stock reservation". Whether that reaction is automatic, can be refused, or needs compensation is a **business question**, not an assumption.
 
@@ -68,7 +71,7 @@ For each material scenario, record:
 For design-level discovery:
 
 - Group behavior and decisions around concepts with coherent responsibility. Identify which rules must hold across a successful operation.
-- Distinguish a **candidate aggregate** from an event flow: a sequence of events is not itself a consistency boundary. Use `aggregate-design.md` to test the candidate.
+- Distinguish a **candidate aggregate** from an event flow: a sequence of events is not itself a consistency boundary. Use [Aggregate Design](aggregate-design.md) to test the candidate.
 - Check conflicting actions, concurrent requests, stale information, and partial process completion when the business rule depends on them.
 - Represent external observations and inter-context notifications without assuming every event originates from an aggregate.
 - Preserve the original business language even if it does not map directly to code classes or a messaging system.

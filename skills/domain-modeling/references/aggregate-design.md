@@ -43,7 +43,7 @@ If the business explicitly tolerates temporary divergence, establish what must e
 
 - **Within an aggregate:** Members are governed by the root's rules. Internal objects do not independently break root invariants.
 - **Between aggregates:** Reference identities and describe permitted collaborations; do not assume an operation can atomically update all participants.
-- **Between bounded contexts:** Each context owns its model and terms. Integration facts, translations, and business-level timing requirements must be explicit; consult `context-mapping.md`.
+- **Between bounded contexts:** Each context owns its model and terms. Integration facts, translations, and business-level timing requirements must be explicit; consult [Context Mapping](context-mapping.md).
 - **Across a business process:** A policy or process may coordinate multiple distinct decisions. Avoid labeling this coordinator an Aggregate solely because it initiates several actions.
 
 **Warning signs:** An Aggregate that copies an entire object graph, a root that owns unrelated business capabilities, or a Domain Service that mutates several roots to hide an unspecified transaction boundary.

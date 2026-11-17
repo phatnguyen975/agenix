@@ -11,7 +11,7 @@ Identify the stated scope, source requirements, scenario references, relevant hu
 - **Agent proposal:** a candidate rule, boundary, policy, or guarantee inferred during modeling. It must never be passed off as authorized business policy.
 - **Conflicting sources:** do not arbitrarily pick the most recent file or most detailed implementation. Ask the appropriate human to reconcile material differences before finalizing the affected design.
 
-**Materiality test:** Would a different answer change an in-scope business outcome or exception, key term, responsibility/authority, context boundary with business impact, non-negotiable consistency rule, cross-context obligation, or acceptance scenario? If yes, it is a **material clarification**. Ask as soon as discovered, including during intake — not merely at the end. The agent can select a defensible modeling pattern without human approval when it does not invent or change business meaning.
+For which decisions require confirmation, apply [Business Evidence and Human Confirmation](../SKILL.md#business-evidence-and-human-confirmation). The agent may choose a defensible representation that preserves confirmed semantics; a new business obligation or authority needs an authoritative decision.
 
 ## Clarification and Confirmation Protocol
 
@@ -24,6 +24,8 @@ Identify the stated scope, source requirements, scenario references, relevant hu
 **Example:** If `OrderConfirmed` can be reached before a stock-reservation reply, ask: "Is confirmation allowed while reservation is pending, or must stock first be reserved? Which outcome is required if stock is refused?" The chosen answer determines the process, refusal behavior, and possibly context responsibilities. Do not invent a compensation policy.
 
 ## Scenario Coverage
+
+A scenario walkthrough checks whether the proposed model can explain the required outcome without contradiction. Its Pass/Fail result is model-level reasoning, not proof of implemented behavior, executed tests, real workshop participation or stakeholder approval. Identify the evidence type; claim execution only when it actually occurred on an identified candidate.
 
 Select cases that exercise **distinct business decisions and risks**, proportionate to the requested scope. Do not turn every type into a mandatory diagram.
 
@@ -74,11 +76,11 @@ The scenario is illustrative only. A working `Blocked` trace belongs in analysis
 | **Behavior**               | Missing or invented refusal, exception, deadline, event, or reaction            |
 | **Evolution**              | Updated rule contradicts unaffected terms, messages, or regression scenarios    |
 
-For domain-specific corrections, load only the relevant guide: `ubiquitous-language.md`, `event-discovery.md`, `strategic-design.md`, `context-mapping.md`, `tactical-design.md`, or `aggregate-design.md`.
+For domain-specific corrections, load only the relevant guide: [Ubiquitous Language](ubiquitous-language.md), [Event Discovery](event-discovery.md), [Strategic Design](strategic-design.md), [Context Mapping](context-mapping.md), [Tactical Design](tactical-design.md), or [Aggregate Design](aggregate-design.md).
 
-## Final Design Release Gate
+## Final Model Readiness
 
-Release a final model for the agreed scope only when **all** applicable gates pass:
+Finalize the model for the agreed scope only when all applicable criteria hold:
 
 1. **Business authorization:** all material in-scope ambiguities and conflicting evidence have been resolved by an appropriate human or explicit prior approved requirement; important decisions have traceable confirmation.
 2. **Model correctness:** required capabilities, rules, ownership, meanings, and boundaries reflect that authority. Proposed modeling choices do not smuggle in new business policies.
@@ -86,14 +88,14 @@ Release a final model for the agreed scope only when **all** applicable gates pa
 4. **Consistency:** known cross-context exchanges reconcile with both sides; actual hard guarantees survive relevant concurrency/failure reasoning; optional patterns are not added for completeness.
 5. **Completeness of meaning:** the delivered model represents agreed business semantics with no unresolved material question, pending approval, tentative rule, or fictitious example. Keep the working validation record separate from the business model and retain traceability to authoritative sources where important.
 
-**If a gate fails:** clarify the missing decision or correct the evidenced model defect, then rerun affected checks. Do **not** publish an incomplete final design or overwrite an accepted model with an unconfirmed change. Keep provisional hypotheses separate from finalized business claims. If a preview is requested, identify its provisional nature and limits; never present it as the completed design.
+**If a criterion fails:** clarify the missing decision or correct the evidenced model defect, then rerun affected checks. Do **not** publish an incomplete final design or overwrite an accepted model with an unconfirmed change. Keep provisional hypotheses separate from finalized business claims. If a preview is requested, identify its provisional nature and limits; never present it as the completed design.
 
 **Acceptance is scoped, not permanent:** a new or changed business rule can affect previous design decisions. Evolution rechecks those parts and regression scenarios; unrelated confirmed material remains intact.
 
 ## Review and Evolution Results
 
 - **Review-only:** return findings ordered by impact. For each give **location → finding → supporting evidence → impact/severity → correction or decision needed**. A review may identify unresolved issues; its findings do not establish that the assessed model is correct. Do not edit without authorization.
-- **Evolve:** inspect the original, establish changed business intent, trace impact, confirm material decisions, test affected and regression scenarios, then update the file only after the release gate passes. If blocked, leave the existing file untouched and request clarification.
+- **Evolve:** inspect the original, establish changed business intent, trace impact, confirm material decisions, test affected and regression scenarios, then update the file only after the readiness criteria pass. If blocked, leave the existing file untouched and request clarification.
 - **Focused:** validate the requested slice and its material dependencies. Do not treat the entire domain as accepted merely because one aggregate or terminology change passes.
 
 At handoff, briefly communicate the checked scope, major evidence, scenario results, and meaningful limitations **separately from the domain model**. Validation results and review findings describe the assessment, not the business design itself.

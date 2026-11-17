@@ -54,7 +54,7 @@ When contexts exchange business meanings:
 
 1. Identify each context's **own term and definition**, including differences in lifecycle, precision, or authority.
 2. State which concepts can be translated and what information or meaning may be lost. Do not assume fields with the same name have identical semantics.
-3. Decide who interprets incoming meaning; use `context-mapping.md` when a model-protecting translation or a shared published vocabulary is material.
+3. Decide who interprets incoming meaning; use [Context Mapping](context-mapping.md) when a model-protecting translation or a shared published vocabulary is material.
 4. Record translation in the dependency description or terminology notes. Internal renames do **not automatically** change published message meaning or external contracts.
 
 **Illustrative translation:** Warehouse's `Available Units` may exclude reserved inventory, while Ordering's `Sellable Quantity` may also consider sales restrictions. Treating these counts as identical would silently move business decisions across contexts.

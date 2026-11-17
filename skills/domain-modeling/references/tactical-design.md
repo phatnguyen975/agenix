@@ -13,6 +13,8 @@ Use to model meaningful **business decisions, identities, behaviors, and rules w
 | **Domain Event**   | Business-significant fact that has occurred                                     | Is the occurrence meaningful in the context's business language?             |
 | **Policy**         | Conditional business reaction                                                   | When a condition/occurrence is recognized, what action follows and why?      |
 
+Policy entries here describe process/reaction policies. A pricing, eligibility or other decision policy can instead be captured in Business Rules and its owning behavior; it need not trigger a follow-up action.
+
 **Command** denotes business intent; **query** denotes a request for information; **result/refusal** describes the outcome. These are useful descriptions even if the eventual implementation does not use command classes or event buses.
 
 ## Entity or Value Object
@@ -36,7 +38,7 @@ Write every material rule in business language with its condition, constraints, 
 | **Process / Reaction Rule** | Policy or explicitly responsible human process                  | After approval, notify the applicant if required        |
 | **External Constraint**     | Outside authority plus the receiving context's response         | An external payer may refuse an authorization           |
 
-**Invariant** means a condition required to hold at an aggregate's defined consistency boundary after each successful state-changing operation. A precondition or eligibility check is not always an invariant; a global requirement spanning aggregates is not automatically enforceable locally. See `aggregate-design.md`.
+An **invariant** is a condition that must remain true within a defined model boundary. Value Objects can enforce their own validity constraints; an aggregate protects consistency across state under its root after each successful state-changing operation. A precondition or eligibility check is not always an invariant; a global requirement spanning aggregates is not automatically enforceable locally. See [Aggregate Design](aggregate-design.md).
 
 **Example distinction:** "An application needs a valid license to be approved" may be an approval precondition. "Every approved application references an accepted license record" may become an aggregate invariant **if** the owning model can actually guarantee it. Neither should be stated without business evidence.
 
@@ -46,7 +48,7 @@ Write every material rule in business language with its condition, constraints, 
 - **Domain event:** `ApplicationApproved` asserts that approval occurred. Record it when this occurrence matters in the model. It is not automatically an event message sent to other contexts.
 - **Query / information:** `CheckEligibility` seeks relevant facts or a decision result. A query does not intend to change business state, and it is not automatically a domain service.
 - **Policy:** `When ApplicationApproved, if notification is required, notify applicant` expresses a conditional response. A policy may be manual or delayed; it need not always create another command or event.
-- **Cross-context message:** Name the business meaning communicated across boundaries and any translation; do not expose an internal event or model wholesale by default. Consult `context-mapping.md`.
+- **Cross-context message:** Name the business meaning communicated across boundaries and any translation; do not expose an internal event or model wholesale by default. Consult [Context Mapping](context-mapping.md).
 
 **Illustrative trace:**
 
@@ -98,7 +100,7 @@ Strategic type (`Core`, `Supporting`, `Generic`) helps prioritize **investment**
 
 - Is every material published rule grounded in confirmed business evidence and assigned an appropriate authority?
 - Do entity identity and value equality follow actual business needs, not an ORM or database structure?
-- Does the proposed aggregate protect a real consistency rule? If uncertain, consult `aggregate-design.md`.
+- Does the proposed aggregate protect a real consistency rule? If uncertain, consult [Aggregate Design](aggregate-design.md).
 - Are preconditions, invariants, process reactions, and external constraints distinguishable?
 - Does each material action/trigger have supported decision ownership, outcomes/refusals, and applicable rules, independently of whether an Aggregate is modeled?
 - Are commands intents, events established facts, and refusals outcomes unless the business explicitly treats them as facts?

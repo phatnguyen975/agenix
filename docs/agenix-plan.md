@@ -397,7 +397,7 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 helper/
   - [x] `codegraph-intelligence`
   - [x] `autonomous-git-workflow`
   - [x] `prd-writing`
-  - [ ] `domain-modeling`
+  - [x] `domain-modeling`
   - [ ] `evolutionary-architecture-design`
   - [ ] `database-design`
   - [ ] `codebase-design`
@@ -505,6 +505,12 @@ Current capability checkpoint - `work-breakdown-planning` (uncommitted changes a
 - Changes: retained Flat/Recursive depth and standalone template/status model; caller-owned output/lifecycle routing, immutable Sync dependencies, contextual scope assessment and safe slicing. Human authorized removal of the format-specific parser and its development fixtures; substantive coverage/reference/DAG checks remain. Author/version "1.0" preserved.
 - Checks: skill validator, YAML/JSON, UTF-8, local links/anchors, Markdown and whitespace passed. Two read-only [behavioral cases](../evals/work-breakdown-planning/scenarios.json) passed semantic assessment for Flat composition/amendments and recursive safeguards/cycle reasoning before parser removal; subsequent routing/consistency and explicit recursive stopping/progress criteria received static review only.
 - Limits: inherited model settings; no final behavioral replay, full generated-plan save, live tracker/host/renderer or repeated-run proof. [Coverage](../evals/work-breakdown-planning/README.md#coverage) records gaps; shared integration and P4-01 exit remain open.
+
+Current capability checkpoint - `domain-modeling` (uncommitted changes against `886db16`):
+
+- Changes: retained operations/scopes, seven references and full template; clarified caller output precedence, scenario-reasoning evidence, event types/instances, invariants and process policies. Corrected the event branching example and direct resource links; UI metadata remains accurate, author/version "1.0" preserved.
+- Checks: skill validator, YAML/JSON, resource paths/anchors, Markdown, UTF-8 and whitespace passed. Source review used [Fowler](https://martinfowler.com/bliki/BoundedContext.html), [Vernon](https://www.dddcommunity.org/wp-content/uploads/files/pdf_articles/Vernon_2011_1.pdf) and official EventStorming material. Two read-only [behavioral cases](../evals/domain-modeling/scenarios.json) passed semantic assessment for credit/concurrency review and caller-composed terminology/context mapping.
+- Limits: inherited model settings, supplied-context single runs; no full document save, evolution writes, workshop, installed-host/renderer or repeated-run proof. Evans PDF access returned 403; final narrow clarifications received static checks without replay. [Coverage](../evals/domain-modeling/README.md#coverage) records gaps; shared P4-01 exit remains open.
 
 ### P4-02 — Prove Shared Schemas, Helpers and Distribution
 

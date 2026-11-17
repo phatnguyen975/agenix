@@ -2,6 +2,8 @@
 Domain Model Template — Authoring Guide
 
 Completion Rules
+- Use this structure for a complete document when no caller-owned format takes
+  precedence. Focused outputs include only relevant content and dependencies.
 - Replace each <...> instruction with confirmed project content. Remove this
   guide, other authoring comments, and unused illustrative rows or diagrams.
 - Complete only the agreed scope using approved requirements and authoritative
@@ -146,7 +148,7 @@ flowchart LR
 - **Root:** <Root Entity and business identity>
 - **Consistency Boundary:** <State the hard rules that must hold together>
 - **Internal Concepts:** <Relevant Entities and Value Objects, or None>
-- **Invariants:** <Invariant IDs, precise guarantees, and supporting rule IDs>
+- **Invariants:** <Invariant IDs, precise guarantees, and supporting rule IDs; include required cross-aggregate coordination or references to its owning policy when relevant>
 - **References:** <Other Aggregates referenced by identity, or None>
 
 #### Lifecycles
