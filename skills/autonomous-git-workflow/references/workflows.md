@@ -1,147 +1,152 @@
 # Workflows
 
-Each workflow: **Trigger → Steps → Done when**. Workflows tied to the branch lifecycle point to its stages in `branching-and-pr.md` instead of repeating them. Command permissions are defined in `command-policy.md`.
+Select the matching workflow and stop at the requested result. Steps that commit, publish, merge or clean up apply only when authorized. [Command Policy](command-policy.md) owns permissions; [Branching and Pull Requests](branching-and-pr.md#3-branch-lifecycle) owns lifecycle checks. Read only the relevant workflow plus W1's applicable entry checks.
 
-## W1 Session start
+## W1 Session Start
 
-**Trigger:** the first git-related action in a session.
+**Trigger:** the first Git action, or resuming after material state changes.
 
-1. Take the snapshot (read-only):
-   | Need                                           | Command or source                                                                                                                                  |
-   | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-   | Working tree state                             | `git status --short --branch`                                                                                                                      |
-   | Current branch                                 | `git branch --show-current`                                                                                                                        |
-   | Primary remote                                 | `git remote -v` (usually `origin`)                                                                                                                 |
-   | Trunk                                          | `git symbolic-ref --short refs/remotes/<remote>/HEAD` (prints `<remote>/<trunk>`); fallback `git remote show <remote>`; if both fail, ask the user |
-   | Existing worktrees                             | `git worktree list`                                                                                                                                |
-   | Recent history and message pattern             | `git log --oneline -10`                                                                                                                            |
-   | Existing stashes                               | `git stash list`                                                                                                                                   |
-   | Hooks and commit lint                          | hooks directory, lint config files                                                                                                                 |
-   | Verify commands (test, lint, typecheck, build) | project docs, CI configuration                                                                                                                     |
-   | Merge method (merge commit, squash, rebase)    | project docs; ask the user when it matters and is unknown                                                                                          |
-   | Tag format in use                              | `git tag --list --sort=-creatordate`                                                                                                               |
-2. Identify changes that existed before the session (dirty tree rule in `SKILL.md`).
-3. If `git status` reports a merge, rebase, cherry-pick, or bisect in progress, start no new work: treat it as W13.
+1. Inspect the facts needed for this operation:
+   | Need                                      | Command or Source                                                                                                                                    |
+   | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+   | Repository and worktree identity          | `git rev-parse --show-toplevel`; `git worktree list --porcelain`                                                                                     |
+   | Branch, staged/unstaged/untracked changes | `git status --short --branch`; `git diff`; `git diff --staged`                                                                                       |
+   | Selected remote                           | `git remote -v`; verify fetch/push destinations without exposing embedded credentials                                                                |
+   | Trunk when relevant                       | `git symbolic-ref --short refs/remotes/<remote>/HEAD`; corroborate project policy; `git remote show <remote>` queries the remote unless `-n` is used |
+   | Conventions and active operation          | Project instructions, hooks/lint config, `git status`, recent `git log`                                                                              |
+   | Existing stashes, tags or release line    | `git stash list`; `git tag --list`; inspect only when relevant                                                                                       |
+   | Verification and merge method             | Project documentation, CI configuration and platform policy                                                                                          |
+2. Record pre-existing changes and ownership, including ignored data before cleanup. Missing local remote-HEAD metadata does not prove the remote has no trunk; consult applicable evidence or ask if the action depends on an unresolved base.
+3. If a merge, rebase, cherry-pick, revert or bisect is active, do not start an unrelated operation. Inspect under W13 or resume the specifically handed-over operation after establishing ownership.
+4. Distinguish local cached facts from current remote facts; fetch only within the permitted network/ref scope. A local history question does not require network access.
 
-**Done when:** trunk, conventions, verify commands, and pre-existing changes are known, and no operation is left in progress.
+**Done when:** the selected operation's identity, ownership, prerequisites and existing state are known; unrelated operations are preserved.
 
-## W2 Start task
+## W2 Start or Resume a Task
 
-**Trigger:** a new task that will change code.
+**Trigger:** authorized local changes or branch preparation.
 
-1. Run stage 1 (Create) of the branch lifecycle.
-2. If the working tree holds changes that are not the agent's, apply the dirty tree rule: use a worktree (`worktrees.md`) or ask.
+1. Apply lifecycle Create / Resume checks. Use an explicitly handed-over branch/worktree when suitable; a new task does not always require a new branch.
+2. For a new branch, verify the intended base and refresh if authorized. Use `git switch --no-track -c <name> origin/<trunk>` or [Worktrees](worktrees.md#create-or-resume) when isolation is required.
+3. Preserve existing staged/unstaged contents. If ownership is mixed or the requested operation would overwrite them, isolate the task or resolve the specific missing decision. Do not require an unrelated tree to be cleaned, committed or stashed.
 
-**Done when:** on a new branch based on the latest trunk tip, working tree clean.
+**Done when:** the correct owned checkout/base is ready and existing work is preserved.
 
-## W3 Develop loop
+## W3 Develop Loop
 
-**Trigger:** implementing a task.
+**Trigger:** implementing an authorized change.
 
-1. Split the task into slices: the smallest change that can be verified on its own.
-2. Implement one slice.
-3. Verify with the project's commands.
-4. Run the pre-commit checks and commit (`commit-convention.md` section 7).
-5. Repeat for the next slice.
+1. Work in increments small enough to reason about and verify.
+2. Implement the increment, inspect the diff and run applicable project checks.
+3. If verification fails, diagnose and fix it. Discard only known task-owned content when authorized; whole-file restore is unsafe when a file contains earlier or other-worker changes.
+4. Follow the caller's commit cadence. If committing is authorized at this point, use [Staging and Pre-commit Checks](commit-convention.md#7-staging-and-pre-commit-checks). Otherwise retain the verified batch uncommitted.
+5. Repeat until the bounded result is ready; later publication follows W8 only if requested.
 
-If verification fails, fix the cause, or restore only the files the agent just changed: `git restore --source=HEAD --staged --worktree -- <path>`. Never use `reset --hard` to recover.
+**Done when:** requested changes are verified and in the authorized local/committed state, with genuine limitations reported.
 
-**Done when:** all slices are committed and verified.
+## W4 Fix a Bug
 
-## W4 Fix bug
+1. Reproduce the defect, preferably with a failing regression test.
+2. Fix the cause and verify the regression plus relevant surrounding behavior.
+3. Keep the fix and its test in the same logical change. When a commit is authorized, use `fix:` and explain the root cause and affected behavior in the body.
 
-1. Reproduce the bug, preferably with a failing test.
-2. Fix it; confirm the test passes.
-3. Commit as `fix:` with the fix and its regression test together. The body states the root cause and the affected scope.
-
-**Done when:** the bug no longer reproduces and a regression test exists (or the commit states why none is possible).
+**Done when:** the defect no longer reproduces and regression evidence is available, or an unavoidable verification gap is explicitly reported. Do not claim an unavailable test ran.
 
 ## W5 Refactor
 
-1. Confirm existing tests cover the area; if not, add tests first in a separate commit.
-2. Commit as `refactor:` with no behavior change; keep it out of feature or fix commits, ideally out of the same PR.
-3. Confirm behavior is unchanged by running the verify commands.
+1. Establish existing behavior and relevant test coverage. Add characterization coverage first when needed; follow the authorized commit cadence.
+2. Change structure without intended behavior changes. Keep unrelated feature, formatting and bug-fix work separate.
+3. Run verification before any authorized `refactor:` commit. Prefer a separate reviewable change when separation helps; tightly coupled corrections need not be split artificially.
 
-**Done when:** tests pass before and after, and the diff contains no behavior change.
+**Done when:** behavior-preservation evidence and a bounded diff support the result; only authorized commits exist.
 
-## W6 Organize a messy working tree
+## W6 Organize a Messy Working Tree
 
-**Trigger:** the user explicitly asks to organize/commit a set of existing uncommitted changes. Do not infer permission to commit pre-existing user changes merely because the tree is dirty.
+**Trigger:** an explicit request to organize or commit identified existing changes.
 
-1. Read `git status` and `git diff`.
-2. Group changes by logical intent.
-3. Stage each group by explicit path. When one file mixes concerns, write a patch containing only the intended hunks and apply it with `git apply --cached <patch>`.
-4. Commit each group with a conventional message.
-5. Confirm the tree is clean and nothing was left behind.
+1. Inspect both unstaged and staged diffs and identify which changes are included. Preserve unrelated staged entries as well as working files.
+2. Group by logical intent. Stage explicit paths only when all changes in them belong to the group; otherwise prepare and inspect a selective patch with `git apply --cached --check "<patch>"` before applying it.
+3. Confirm the proposed commit contains exactly the intended group, accounting for every existing staged entry. Use a suitable scoped operation from the commit reference; if included/excluded hunks cannot be separated safely, resolve that specific decision. Never silently include or discard unrelated work.
+4. Run relevant verification and create the authorized atomic commits with meaningful headers/bodies.
+5. Read back each commit and compare remaining staged/unstaged changes to the starting state.
 
-**Done when:** `git status` is clean and every commit is atomic.
+**Done when:** the requested groups are organized/committed and excluded work is intact. A clean entire repository is required only if the request includes all its changes.
 
-## W7 Sync with trunk and resolve conflicts
+## W7 Sync and Resolve Conflicts
 
-**Trigger:** trunk has new commits in a relevant area, or a sync produced conflicts.
+1. Identify the incoming ref: updated trunk or the remote counterpart of this topic branch. Apply [Sync Rules](branching-and-pr.md#2-sync-rules) on the owned branch. For remote topic advancement, fetch/inspect that exact branch and merge it with `git merge --no-edit origin/<name>`; syncing trunk alone does not incorporate those commits. Preserve starting state and inspect incoming changes before writing.
+2. For conflicts, read both intents and their introducing commits. Resolve minimally; do not select `--ours` or `--theirs` wholesale without understanding the result. Stage only resolved in-scope paths with `git add -- <paths>`. Finish the original operation rather than starting another: a conflicted merge can be completed with `git commit --no-edit`; a rebase/cherry-pick uses its own `--continue`, with a verified non-blocking editor configuration scoped to that command when necessary. Inspect the active operation again before continuing; hooks and signing requirements still apply.
+3. Inspect the combined result and run relevant checks. A successful textual merge is not behavioral verification.
+4. If intent is unclear, preserve the conflict state and ask about that decision. Abort only after W13's preservation and permission checks; do not throw away a human's partial resolution.
 
-1. Apply the sync rules (`branching-and-pr.md` section 2).
-2. For each conflict: read both sides and the commit that introduced each; resolve minimally while keeping the intent of both; never take `--ours` or `--theirs` wholesale without understanding the files.
-3. Run the verify commands.
-4. If a conflict is semantic and the intent is unclear, preserve the conflict state, explain the unresolved decision, and ask the user. Do not abort until the relevant state is preserved and the abort is confirmed as the safe next step under W13.
+**Done when:** the intended integration is verified, or a specific unresolved conflict/permission is reported safely. Do not publish a changed candidate on stale approval.
 
-**Done when:** the branch contains the latest trunk and verification passes.
+## W8 Push and Prepare a Pull Request
 
-## W8 Push and open PR
+1. Establish exactly which actions are authorized: branch push, PR creation/update or both. Read lifecycle Publish and the [Pull Request Rules](branching-and-pr.md#4-pull-request-rules).
+2. Check remote/base/head, intended commits and current verification. Inspect effective push settings/refspecs for unexpected mirroring or additional publication. Push the exact topic ref, for example `git push --no-follow-tags -u origin HEAD:refs/heads/<name>` after checking the current branch and destination. `--no-follow-tags` prevents configured automatic tag publication. Confirm the remote head matches the verified candidate; unexpected advancement requires reconciliation, not a force retry.
+3. Create/update only the requested matching PR using the supported hosting interface. If unavailable, supply requested text and report that no PR was created. A push-only request stops after push verification.
+4. If rejected due to remote advancement, inspect/fetch the actual remote branch, apply W7 without force, reverify and reassess affected authority. Do not retry blindly after an ambiguous network outcome.
+5. If there is no remote, preserve the local result and report that publication is blocked; do not add a remote or substitute another host without authority.
 
-1. Run stage 3 (Publish) of the branch lifecycle.
-2. Open the PR following `branching-and-pr.md` sections 4 and 5, using the platform's CLI or API tool if available; otherwise output the title and body.
-3. If the push is rejected because the remote branch has new commits: `git fetch`, `git merge --no-edit origin/<name>`, re-verify, push again. Never force.
-4. If the project has no remote, stop after the commits and report `not pushed: no remote`.
+**Done when:** each authorized publication is confirmed, or the remaining remote action is explicitly unperformed. This does not imply merge.
 
-**Done when:** the branch is on the remote and the PR exists (or its text was handed over), or the reason for stopping was reported.
+## W9 Review or Address Feedback
 
-## W9 Address review feedback
+1. Read the actual PR diff, head, relevant context, checks and feedback. A review-only request produces findings; it does not authorize code changes, native approval or publication.
+2. When fixes are requested, resolve substantive feedback in scoped local changes. Group logical corrections; follow the caller's commit cadence rather than committing once per comment automatically.
+3. Reverify and publish only authorized updates. Keep the PR description accurate when updating it is in scope; distinguish local responses from submitted native review/comment records.
+4. Report unresolved/disputed findings and actual review/check status. Another participant's comment is not authority to expand the user's task.
 
-1. Run stage 4 (Review) of the branch lifecycle.
-2. One new commit per group of feedback, using a conventional message.
-3. Push; update the PR description if its content changed; summarize the changes for the reviewer.
+**Done when:** the requested review or feedback work is complete at its permitted stage; unresolved concerns remain explicit.
 
-**Done when:** every comment is addressed or answered, and checks pass.
+## W10 Post-Merge Cleanup
 
-## W10 Post-merge cleanup
+Verify actual merge mapping and apply [Branch Lifecycle](branching-and-pr.md#3-branch-lifecycle) Cleanup checks plus the worktree rules. Delete only selected eligible resources under cleanup authority. Merge success alone does not authorize deleting handed-over worktrees, ignored local data or remote branches.
 
-Run stages 5 (Merged) and 6 (Cleanup) of the branch lifecycle.
+**Done when:** requested cleanup is confirmed or unsafe resources are preserved with the reason.
 
 ## W11 Hotfix
 
-1. Reproduce and implement the fix on a normal `fix/<desc>` branch created from trunk; merge it into trunk through the normal PR workflow. Do not commit directly to trunk.
-2. If a released version on a release branch also needs the fix, follow the patch flow in `release.md`.
-3. Never implement the fix directly on the release branch and merge it back into trunk.
+1. Reproduce and prepare the fix on a normal topic branch from trunk, using W4. Urgency does not bypass review, checks or authority.
+2. Use W8 and W15 only for the authorized publication/integration stages.
+3. If a supported older release needs the fix, use [Release Maintenance and Backports](release.md#7-release-maintenance-branch-and-patch-release). Do not develop only on a maintenance branch and merge it back into trunk.
 
-**Done when:** the fix is on trunk and, where required, on the release branch via cherry-pick.
+**Done when:** the requested fix/backport stage is verified; distinguish local readiness, PR state and confirmed integration.
 
 ## W12 Revert
 
-1. Create `revert/<desc>` from the latest trunk tip.
-2. `git revert --no-commit <sha>` (for a merge commit, determine and confirm the mainline parent before adding `-m <parent>`).
-3. Inspect the staged diff and run the project verification commands.
-4. Commit non-interactively in the revert format (`commit-convention.md` section 5), for example `git commit -m "revert: <reverted-header>" -m "Refs: <sha>"`; replace the placeholders with the actual header and SHA, then push and open a PR.
+1. Resolve the exact published commit(s), intended effect and target base. Create an owned `revert/<description>` branch from the verified target.
+2. Use `git revert --no-commit <sha>` in a suitable clean checkout. For a merge commit, determine the intended mainline parent and resolve any ambiguity before `-m <parent>`; understand how reverting a merge affects later merges.
+3. Inspect the staged inverse and run project verification; later changes may mean a mechanical inverse is not the correct fix.
+4. When authorized, commit non-interactively using the [Revert Format](commit-convention.md#5-revert-format). Publish only through the requested W8 actions.
 
-Never delete published commits with `reset` or a force push.
+Never delete published history with reset or force push.
 
-**Done when:** the revert PR is open and verification passes.
+**Done when:** the inverse is verified at the requested local/commit/PR stage, without hidden history rewriting.
 
 ## W13 Recovery
 
-**Trigger:** lost changes, a wrong operation, or an unexpected repository state.
+**Trigger:** lost changes, an unexpected operation or repository state.
 
-1. Stop write operations and inspect `git status`, the current operation state, and `git reflog`.
-2. Before any restore/abort that could overwrite content, preserve the current diff and any potentially valuable untracked files in a safe snapshot outside the affected working tree; inspect the exact paths and intended effect. Do not overwrite or discard user data.
-3. Distinguish lost commits/ref movement from uncommitted file contents: reflog can help locate earlier ref/commit positions but is not a backup of arbitrary uncommitted bytes. If uncommitted content is missing, check editor local history, backups, snapshots, or file-recovery options; do not promise Git can recover it.
-4. Report the observed state and proposed recovery action to the user before any uncertain or potentially destructive step. Ask for clarification when intent or impact is unclear, and obtain any authorization required by `command-policy.md`.
-5. Once the recovery path is clear and permitted, recover a commit by creating a branch at the verified SHA (`git branch chore/recover-<desc> <sha>`) or restore only a specified path from a verified source (`git restore --source=<sha> -- <path>`). Abort an unfinished merge/rebase/cherry-pick only after checking and preserving the current state and confirming that aborting is appropriate.
+1. Stop unrelated writes. Inspect status, active operation, refs and `git reflog`; distinguish the user's recovery goal from the apparent error.
+2. Before a restore/abort that could overwrite content, preserve relevant staged and unstaged diffs and valuable untracked/ignored files in a safe snapshot outside the affected tree. Know which source/index/worktree the command changes.
+3. Reflog locates previous local ref/commit positions; it is not a backup of arbitrary uncommitted bytes. For missing uncommitted data, consider editor history, backups or recovery tools without promising Git can restore it.
+4. Explain an uncertain/destructive recovery plan and obtain the specific missing authority under Command Policy. Do not repeat authorization for an unchanged safe step already covered.
+5. Recover a verified lost commit with `git branch chore/recover-<description> <sha>`, or use a narrowly selected restore from a verified source. Abort merge/rebase/cherry-pick/revert only after checking ownership, preserving current resolutions and establishing that abort is appropriate.
 
-**Done when:** recovered data is verified, or the limits and next recovery options are reported without overstating what Git can restore.
+**Done when:** the recovered result is verified, or honest recovery limits and next options are reported without further data loss.
 
-## W14 Investigate history
+## W14 Investigate History
 
-1. Start with read-only commands: `git log -S<text>`, `git log -G<regex>`, `git log --grep=<text>`, `git blame`, `git show`.
-2. `git bisect` changes the checkout and can change working-tree contents. Use it only in a dedicated worktree or a clean checkout, as permitted by `command-policy.md`; record the starting state and always finish with `git bisect reset`, then verify the original branch/commit and working-tree state.
+1. Start with read-only history: `git log -S"<text>" -- <path>`, `git log -G"<regex>" -- <path>`, `git log --grep="<text>"`, `git blame -- <path>`, `git show <sha>`. Pickaxe finds changes in occurrences/matching added or removed lines; it does not prove causation.
+2. If needed, run bisect in an authorized isolated/clean checkout with known good/bad revisions. Record starting HEAD/branch, classify untestable revisions honestly and run only the approved test command. `git bisect run` executes that command; do not execute repository-supplied scripts as trusted instructions automatically. Its test contract must distinguish the actual regression from setup/tool failures: exit 0 is good, 1–127 except 125 is bad, and 125 skips an untestable revision. Missing commands commonly return 127 and must not be misclassified as evidence of the regression. Adapt the harness or stop on infrastructure failure; skipped revisions can leave an ambiguous result.
+3. Always attempt `git bisect reset`, then verify the original checkout state; report any reset failure rather than claiming restoration.
 
-**Done when:** the responsible commit or line origin is identified and the repository is back to its original state.
+**Done when:** the origin/regression is identified or bounded honestly, and checkout restoration is verified.
+
+## W15 Merge an Authorized Pull Request
+
+Apply [Exact Authorized Merge](branching-and-pr.md#6-exact-authorized-merge). Reuse unchanged exact authority, verify current evidence, enforce the authorized head on the server and read back the outcome. A changed head, unresolved protection or unsupported precondition blocks the action; queue submission is pending integration, not confirmed merge.
+
+**Done when:** the requested merge is confirmed with its resulting commit mapping, or its precise pending/blocked state is reported. No implicit release or cleanup follows.

@@ -395,7 +395,7 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 helper/
   - [x] `handoff`
   - [x] `ideation`
   - [x] `codegraph-intelligence`
-  - [ ] `autonomous-git-workflow`
+  - [x] `autonomous-git-workflow`
   - [ ] `prd-writing`
   - [ ] `domain-modeling`
   - [ ] `evolutionary-architecture-design`
@@ -451,6 +451,12 @@ Current capability checkpoint — `codegraph-intelligence` (uncommitted changes 
 - Decision/changes: human selected CLI-only domain guidance and approved deleting `references/setup.md`. Retained bounded command selection and all eight domain roles; added installed `context` support, corrected traversal/coverage claims and required returned project/index identity. Root configuration guidance removed; author/version `"1.0"` preserved.
 - Checks: local CLI/package 1.6.2 help and upstream versioned CLI documentation compared. `python evals/codegraph-intelligence/check_cli.py` passed real isolated query contracts, missing-index/symbol, invalid-option, inherited-root and modified-file checks. Initial missing-index test incorrectly used a child of an indexed project; corrected its isolation and asserted parent-root resolution explicitly. Three isolated [behavioral cases](../evals/codegraph-intelligence/scenarios.json) passed semantic review: enabled refactor/test candidates, disabled literal-search applicability and stale/mismatched-index review. Validator/static checks passed; no repository indexing or tool installation performed.
 - Limits: Windows/simple JavaScript fixtures, not all domains/frameworks or worktree/deletion edge cases; identity wording received static/fixture checks after model runs. [Coverage](../evals/codegraph-intelligence/README.md#coverage) does not establish host discovery, multi-OS or repeated-run reliability. No capability blocker; shared P4-01 exit remains open.
+
+Current capability checkpoint — `autonomous-git-workflow` (uncommitted changes against `564d3a9`):
+
+- Changes: preserved all Git/PR/recovery/release scopes; synchronized scoped authority, caller commit cadence, handed-over worktrees and exact protected merge routing. Fixed mixed-index staging, cleanup/data-loss hazards and release target/version consistency. Existing resource names/UI metadata and author/version `"1.0"` retained.
+- Checks: official Git/Conventional Commits/SemVer references reviewed; `python evals/autonomous-git-workflow/check_git.py` passed eleven isolated command success/failure tests on Git 2.56.0.windows.4. Four fresh [behavioral cases](../evals/autonomous-git-workflow/scenarios.json) passed semantic assessment; both local cases also passed commit/path/index/working/ignored-data preservation assertions. Skill validator and static checks passed.
+- Limits: model runs used inherited host settings; follow-up sync/push/snapshot/hook/conflict/backport/bisect clarifications and Title Case received static/command checks without rerunning model cases. [Coverage](../evals/autonomous-git-workflow/README.md#coverage) excludes real hosting merge, repeated-run/multi-OS and installed-host proof. No capability blocker; shared Git/implementation/TDD integration and P4-01 exit remain open.
 
 ### P4-02 — Prove Shared Schemas, Helpers and Distribution
 

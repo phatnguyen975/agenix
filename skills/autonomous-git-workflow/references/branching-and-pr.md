@@ -1,136 +1,85 @@
 # Branching and Pull Requests
 
-## 1. Branch naming
+## 1. Branch Naming
 
-**Format:** `<type>/<kebab-description>` or `<type>/<ticket-id>-<kebab-description>`.
+Default to `<type>/<kebab-description>` or `<type>/<ticket-id>-<kebab-description>` using the project's commit types. Prefer a descriptive short name; retain the tracker ID's spelling. Release-metadata branches default to `chore/release-<version>`; optional maintenance lines use `release/<MAJOR>.<MINOR>` as described in [Release](release.md).
 
-| Rule                                              | Detail                                                                                                                                                                                                                                              |
-| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `type`                                            | Same set as commit types: `feat`, `fix`, `refactor`, `perf`, `docs`, `test`, `build`, `ci`, `chore`, `style`, `revert`                                                                                                                              |
-| Description                                       | Lowercase `a-z`, digits, `-`; ≤ ~50 characters; describes the purpose, not file names. Version numbers may contain `.` (for example `release-1.4.0`)                                                                                                |
-| Ticket id                                         | Add when the task is tied to an issue; keep the tracker's id format; place it right after `type/`                                                                                                                                                   |
-| Release PR branch (short-lived)                   | `chore/release-<version>` — one branch per release PR. For a standard release, create it from trunk; for a patch release, create it from the corresponding release maintenance branch (see `release.md`).                                           |
-| Release maintenance branch (long-lived, optional) | `release/<MAJOR>.<MINOR>` — use only when the project explicitly maintains a released version line for future patch releases (for example, `release/1.4` for the `1.4.x` line). Create it from the exact released tag or commit (see `release.md`). |
-| Forbidden characters                              | Spaces, uppercase letters (the ticket id is the only exception), `~ ^ : ? * [ \`, `..`, `@{`; no trailing `.lock`, `/`, or `.` (per `git check-ref-format`)                                                                                         |
-| Trunk                                             | Never name a branch the same as the trunk                                                                                                                                                                                                           |
+Validate with `git check-ref-format --branch "<name>"`; this verifies Git syntax, not the project's naming policy. Lowercase descriptions are a style default, not a Git restriction. Never reuse an existing ref or checkout path without inspecting ownership and intent.
 
-**Examples:** `feat/user-export`, `fix/PROJ-142-duplicate-orders`, `refactor/auth-token-parsing`, `ci/cache-dependencies`, `chore/release-1.4.0`, `release/1.4`, `fix/cache-timeout-release-1.4`.
+## 2. Sync Rules
 
-The project's own branch naming convention, when it exists, takes precedence.
+Resolve the actual remote/trunk and refresh them when the action permits network/ref writes. On an owned branch:
 
-## 2. Sync rules
+| Branch-only Commits                                                  | Method                                                          |
+| -------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Agent-authored and confirmed never published, with rewrite authority | `git rebase origin/<trunk>` after preserving the starting state |
+| Published, other-authored or uncertain                               | `git merge --no-edit origin/<trunk>`; no history rewrite        |
 
-| Branch-only commit state | Sync with trunk                                                                                                              |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| Confirmed unpublished    | `git fetch`, then `git rebase origin/<trunk>`                                                                                |
-| Published or uncertain   | `git fetch`, then `git merge --no-edit origin/<trunk>` (no rebase, no rewrite); the merge commit keeps Git's default message |
+A missing upstream does not prove unpublished history. Preserve unrelated index/worktree changes before sync; if they prevent a safe operation, isolate or resolve ownership rather than automatically stashing them. Compare the actual base/candidate and incoming changes. Conflicts or integration changes need their relevant verification; material candidate drift may invalidate prior approval.
 
-A branch may exist on a remote without a configured local upstream, and a commit may have been pushed through a different ref; missing upstream information is not proof of unpublished history. Treat branch-only commits as confirmed unpublished only when the agent has reliable session-level evidence that they have never been pushed. Refresh the relevant remote-tracking refs, but if publication status remains uncertain, use the published-or-uncertain sync path and add a new commit instead of rewriting history. Sync before the first push, before opening a PR, and whenever trunk changed in an area the branch touches.
+A local trunk can be fast-forwarded to its verified remote with `git merge --ff-only origin/<trunk>` in a clean, authorized checkout. This is not a remote PR merge or authority to push trunk. Do not switch another worker's checkout to do it.
 
-## 3. Branch lifecycle
+## 3. Branch Lifecycle
 
-Every branch the agent creates passes through these stages in order and ends at **Cleanup** or **Abandon**.
+Stages describe eligibility, not automatic execution. Resume an explicitly owned existing branch when appropriate rather than recreating it from trunk.
 
-| Stage          | Entry condition                                                        | Actions                                                                                                                                                                                                                                                           | Exit condition                                    |
-| -------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| **1. Create**  | Session-start snapshot done; working tree clean, or a worktree is used | `git fetch` → `git switch --no-track -c <name> origin/<trunk>` (or `git worktree add --no-track -b <name> <path> origin/<trunk>`) → confirm branch and base                                                                                                       | Branch exists; base is the latest trunk tip       |
-| **2. Develop** | Branch created                                                         | Develop loop (W3); sync per section 2. At the configured branch-lifetime limit (2 days by default): stop, tell the user, and propose splitting the finished part into its own PR                                                                                  | Task complete and verified                        |
-| **3. Publish** | Verification passes; synced with trunk                                 | `git push -u origin <name>`                                                                                                                                                                                                                                       | Branch exists on the remote                       |
-| **4. Review**  | PR opened (section 4)                                                  | Address feedback with new commits; sync by merging trunk; never rewrite; update the PR description when content changes                                                                                                                                           | A human merges the PR, or it is closed unmerged   |
-| **5. Merged**  | A human merged the PR                                                  | `git fetch`, then confirm the PR state on the platform; if unavailable, identify and verify the corresponding change/commit on `origin/<trunk>`. Do not rely on a commit-message search alone; if merge status or the resulting commit is uncertain, ask the user | Merge confirmed                                   |
-| **6. Cleanup** | Stage 5 complete                                                       | Deletion conditions and order below                                                                                                                                                                                                                               | Local branch gone; remote branch handled as below |
-| **6. Abandon** | PR closed unmerged, task cancelled, or branch replaced by split PRs    | Ask the user to confirm abandoning; record the tip sha; delete per the Cleanup rules using `-D` (R4)                                                                                                                                                              | Local branch gone; remote branch handled per R6   |
+| Stage             | Preconditions and Action                                                                                                                                                                   | Observable Result                                                                       |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| Create / Resume   | Inspect ownership, base, operation state and working changes. For a new branch use `git switch --no-track -c <name> origin/<trunk>` or the worktree equivalent after an authorized refresh | Intended branch/worktree at the verified base; existing changes preserved               |
+| Develop           | Execute verified local increments using the caller's commit cadence                                                                                                                        | Checked candidate or authorized commits; no implied push                                |
+| Publish           | Exact candidate/ref and publication actions authorized; checks current                                                                                                                     | Push the explicit branch, then read remote head; create/update only the requested PR    |
+| Review            | Inspect actual feedback and candidate                                                                                                                                                      | Findings or approved feedback changes, new verification and authorized publication      |
+| Merge             | Section 6 authority and preconditions hold                                                                                                                                                 | Confirmed platform merge, or explicitly pending/blocked result                          |
+| Cleanup / Abandon | Confirmed merge or exact abandonment disposition, owned resources and authorized cleanup                                                                                                   | Only selected safe refs/worktrees removed, or preserved with an explicit pending action |
 
-**Deletion conditions** (all must hold):
+**Before deletion:** record the branch tip, verify actual merge mapping or abandonment, check unpushed/divergent work and pending follow-up, and inspect `git worktree list`. Never delete a branch checked out anywhere. Squash/rebase integration may not preserve source-commit ancestry; verify platform mapping and final content rather than relying only on ancestor tests.
 
-1. The PR is merged and the merge is confirmed (stage 5), or the user confirmed abandoning the branch.
-2. No uncommitted changes or unpushed commits remain outside what was merged.
-3. No reviewer follow-up is pending on this branch.
-4. No worktree has the branch checked out.
+For an eligible worktree, inspect `git -C "<path>" status --short --ignored` and preserve valuable local/untracked/ignored data before removal. A Git-clean tracked tree is not proof of disposable local content. Remove only the exact authorized path. Move to an owned checkout not on the topic branch before `git branch -d <name>`.
 
-**Cleanup order:**
+As documented in Git's [branch deletion options](https://git-scm.com/docs/git-branch#_options), `branch -d` checks merging relative to its upstream, or HEAD when no upstream is set. Success is not independent proof of integration into trunk. If it refuses after a confirmed squash merge, retain the branch or use R4 only after exact deletion authority and preserved evidence. Remote deletion, forced worktree removal and metadata pruning each require their own policy checks. A closed PR alone is not authority to abandon local work.
 
-1. For any worktree the agent created, inspect `git -C <path> status --short --ignored` before removal. Preserve user-owned, non-reproducible, or otherwise valuable untracked/ignored data outside the worktree; do not assume ignored files are disposable. Remove the worktree with `git worktree remove <path>` only after this check, and never use `--force` without the explicit authorization required by R9.
-2. Move to the checkout that holds trunk (`git switch <trunk>` if no worktree holds it), then `git fetch --prune` and `git merge --ff-only origin/<trunk>`.
-3. `git branch -d <name>` (never while standing on that branch).
+## 4. Pull Request Rules
 
-**`git branch -d` is not proof of merge.** It checks the branch against its upstream (or against HEAD when no upstream is set), not against trunk. Stage 5 is the only merge confirmation.
+Use the hosting platform's supported CLI or API interface. Detect actual authentication, repository identity, PR lookup/create/update/review capabilities and relevant permissions; consult its help rather than inventing commands. If unavailable, prepare the requested title/body and report the remote action as unperformed. Reconcile an uncertain create/update result before retrying.
 
-**When `git branch -d` refuses** (for example the upstream is gone after `fetch --prune` following a squash or rebase merge, or the branch holds commits its upstream lacks): re-confirm stage 5, record the tip sha, and ask the user before using `git branch -D` (R4).
+Follow the project's title/body template and conventions. By default use a Conventional Commit title with a specific description, bounded to the relevant change. Choose the real target base (trunk or the maintained release line), and identify source branch/head. Reuse the existing matching PR; do not create duplicates or a PR when only push was requested.
 
-**Remote branch:** the platform deletes it on merge, or a human does. The agent deletes its own remote branch only when the user asks (R6).
+After local checks, present the actual scope and publication actions when required by the caller. Native review submission is itself a remote write: submit only the authorized comment/review, distinguish analysis from native approval, and never invent an approver. Resolve findings or prepare authorized fixes without treating review feedback as a new broad implementation mandate.
 
-## 4. Pull request rules
+Use non-closing issue references unless complete issue closure is intended and authorized; platform auto-close semantics vary. Update a stale PR title/body to describe the final change when authorized. Do not modify labels, reviewers or other metadata beyond the applicable scope.
 
-| Item                       | Rule                                                                                                                                                  |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Title                      | Conventional Commit header, ≤ 72 characters; release PR titles follow the release-specific format defined in `release.md` and `commit-convention.md`. |
-| Scope                      | One logical change; size limits as in `SKILL.md`                                                                                                      |
-| Base                       | Trunk for standard release PRs; `release/<MAJOR>.<MINOR>` for patch-release PRs targeting a maintained release line.                                  |
-| Merge method               | Follows the project; keep commits and the PR title both conventional so any method yields correct history                                             |
-| When to open               | After local verification passes and the branch is synced with trunk                                                                                   |
-| Description                | Written for the reviewer and understandable on its own: context or problem first, then what and why; no pasted diffs or long logs                     |
-| Issue links                | Closing keyword per platform (`Closes #n`) when the PR fully resolves the issue; `Refs #n` when it only contributes                                   |
-| Labels, reviewers          | Assign when the project requires them and a tool supports it                                                                                          |
-| After pushing more commits | Update the description so it matches the PR                                                                                                           |
-| Project PR template        | Use it and fill every required section from section 5; add any section the template lacks                                                             |
-| No platform tool available | Output the title and body for the user to submit                                                                                                      |
+## 5. Pull Request Template
 
-## 5. Pull request template
-
-**Required sections:** `Summary`, `Related issues` (when an issue exists), `Changes`, `Not touched`, `Verification`, `User-facing impact`, `Checklist`. Conditional sections appear only when they apply; never leave a section empty.
+Prefer the project's template. Otherwise use the following reviewer-oriented shape, omitting irrelevant sections and stating limitations honestly:
 
 ```markdown
 <type>[(scope)][!]: <description>
 
 ## Summary
 
-<Context or problem, then the solution: what changed and why. 2–5 sentences.>
-
-## Related issues
-
-Closes #<n> <!-- or: Refs #<n> when the PR only partly addresses the issue -->
+<problem, resulting behavior and why the change is needed>
 
 ## Changes
 
-- `<path or module>`: <what changed>
-
-## Not touched (intentional)
-
-- `<path or module>`: <why it is out of scope>
+<bounded scope and relevant issue/contract references>
 
 ## Verification
 
-- `<command>`: <result>
-- Manual: <steps and outcome>
+<actual local checks, tested candidate, CI state and genuine manual gaps>
 
-## User-facing impact
+## Impact and Risks
 
-<None | behavior change | breaking change with migration steps | release note>
-
-## Screenshots / output
-
-<!-- conditional: UI or CLI output changes -->
-
-<before / after>
-
-## Rollout & rollback
-
-<!-- conditional: feature flag, migration, config -->
-
-<how it is enabled, how to revert>
-
-## Reviewer notes
-
-<!-- conditional -->
-
-<where to focus, known limitations, planned follow-ups>
-
-## Checklist
-
-- [ ] Reviewed my own diff
-- [ ] Tests added or updated and passing
-- [ ] Docs and changelog updated where needed
-- [ ] No secrets and no unrelated changes
-- [ ] Commits and title follow Conventional Commits
+<compatibility, user-facing impact and any applicable rollout/rollback>
 ```
+
+Use screenshots, migration notes or reviewer focus only when they help assess the change. Required checks remain required even when a template section is omitted. Do not mark an unchecked checklist item complete or call a review approved merely to fill a format.
+
+## 6. Exact Authorized Merge
+
+A human may merge directly, or explicitly authorize the agent for an identified repository, PR, target base and head revision. Applicable previous authority can be reused while those conditions remain unchanged. Artifact approval, requested review, green CI and ordinary publication authority do not authorize merge or auto-merge.
+
+Before merging, verify the live PR is the intended open candidate, its head matches the authorized SHA, the target base/merge method comply with project policy, required final-head checks and native reviews actually passed, dependencies/blockers are resolved and relevant base drift has been assessed. A missing, skipped or pending required check is not a pass. Material integration changes require updated verification and any affected approval before publication.
+
+Use the platform's supported expected-head/compare-and-swap merge precondition with the exact SHA. A client-side read followed by an unconditional merge leaves a race; if the interface cannot enforce the authorized head, stop the agent merge and let the human use an appropriate supported route. Never bypass protections or substitute a local merge-and-push to trunk. Honor the project-selected merge method rather than imposing one globally.
+
+Read back actual merged state and resulting commit/base mapping, accounting for squash/rebase/merge methods. Queue submission or enabled auto-merge is not confirmed merge; changed heads require new assessment and authority. Unknown outcomes must be reconciled before retry. Release/deployment and cleanup remain separate actions after merge.
