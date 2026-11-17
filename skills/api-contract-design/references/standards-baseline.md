@@ -2,7 +2,7 @@
 
 ## Scope
 
-Use this file only when selecting or verifying a contract format, protocol standard, binding, profile, or draft. Project-pinned versions and compatibility requirements take precedence when still supported and safe. For new contracts, use the baseline below unless the project's toolchain cannot support it; record the fallback, reason, and omitted features in the hand-off report; persist durable project decisions in an ADR or project configuration.
+Use this file only when selecting or verifying a contract format, protocol standard, binding, profile, or draft. Project-pinned versions and compatibility requirements take precedence when still supported and safe. For new contracts, consider the reference editions below and select the newest suitable edition supported end to end by the project; record the fallback, reason, and omitted features in the hand-off report; persist durable project decisions in an ADR or project configuration.
 
 ## Version Selection Rules
 

@@ -13,8 +13,10 @@
 //      visibility is a compile-time import rule, not runtime authorization.
 //   7. Delete the "COVERAGE" section at the end and all comments that start with "TEMPLATE" before delivery.
 //   8. For Edition 2024, change the declaration to `edition = "2024";` and remove Edition 2026-only feature
-//      settings. For proto3, use `syntax = "proto3";`, add `optional` where scalar presence is needed, quote
-//      names in `reserved`, and remove Edition-only constructs (features, `export`, `local`, `import option`).
+//      settings while preserving Edition 2024 features the project uses. For proto3, use `syntax = "proto3";`,
+//      add `optional` where scalar presence is needed, quote names in `reserved`, and remove Edition-only
+//      constructs (features, `export`, `local`, `import option`).  Recheck presence, defaults, JSON mapping
+//      and import visibility before adopting the result.
 edition = "2026";            // use Edition 2024 or proto3 only when required by the project toolchain
 
 package company.orders.v1;   // major version in the package

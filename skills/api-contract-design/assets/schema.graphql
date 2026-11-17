@@ -1,6 +1,7 @@
 # GraphQL SDL contract template. Baseline: GraphQL specification September 2025 edition; fallback October 2021.
 #
 # HOW TO FILL
+#   Select the applicable operations and types, then validate the assembled schema.
 #   1. Replace placeholder names (types, fields, scopes, limits) with project values.
 #   2. Give public types, fields, arguments, and enum values useful descriptions using
 #      GraphQL description strings.

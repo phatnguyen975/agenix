@@ -403,7 +403,7 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 helper/
   - [x] `codebase-design`
   - [x] `work-breakdown-planning`
   - [x] `spec-writing`
-  - [ ] `api-contract-design`
+  - [x] `api-contract-design`
   - [ ] `data-impact-analysis`
   - [x] `incremental-implementation`
   - [x] `tdd`
@@ -529,6 +529,12 @@ Current capability checkpoint - `codebase-design` (uncommitted changes against `
 - Changes: retained Design and Review and both templates. Clarified draft versus adoption, caller-owned output, graph granularity, and traceability from allowlists to enforcement. Preserved author/version "1.0".
 - Checks: skill validator, YAML/JSON, local routes/anchors, template structure, UTF-8, and whitespace passed. Reviewed information hiding, ports and adapters, and interface evolution against primary sources. Two [read-only cases](../evals/codebase-design/scenarios.json) passed for module-cycle review and caller-composed design.
 - Limits: supplied evidence and inherited model settings. See [coverage](../evals/codebase-design/README.md#coverage). Shared P4-01 exit remains open.
+
+Current capability checkpoint - `api-contract-design` (uncommitted changes against `c72766d`):
+
+- Changes: clarified owned versus external contracts, caller output, review-only behavior, supported edition selection, and format-specific schema semantics. Kept all four example catalogs and corrected the AsyncAPI application perspective. Preserved author/version "1.0".
+- Checks: skill validator, metadata, UTF-8, local links and references, YAML duplicate keys, selected example checks and whitespace passed. Two [read-only cases](../evals/api-contract-design/README.md#coverage) passed semantic assessment for external compatibility and broker-independent publisher design.
+- Limits: full format validators and the Protobuf compiler were unavailable locally. Selected examples were checked structurally. Host routing and runtime conformance were not exercised. Shared P4-01 exit remains open.
 
 ### P4-02 — Prove Shared Schemas, Helpers and Distribution
 

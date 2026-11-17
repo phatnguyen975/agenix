@@ -7,7 +7,7 @@
 
 ## Edition Rules
 
-- `edition = "2026";` is the current baseline and replaces `syntax = "proto3";`; editions preserve Protobuf wire-format compatibility when the same field numbers and types are used. Edition 2026 requires `protoc` 36.0 or later; Edition 2024 requires 32.0 or later. Confirm runtime and generated-code support too.
+- `edition = "2026";` is the current baseline and replaces `syntax = "proto3";`; the edition declaration selects feature defaults. Check effective encoding, presence, enum handling, generated APIs and ProtoJSON when changing editions, even when field numbers and declared types are unchanged. Edition 2026 requires `protoc` 36.0 or later; Edition 2024 requires 32.0 or later. Confirm runtime and generated-code support too.
 - Behaviors are controlled by features:
   | Feature                              | Values                                                  | Controls                                        |
   | ------------------------------------ | ------------------------------------------------------- | ----------------------------------------------- |

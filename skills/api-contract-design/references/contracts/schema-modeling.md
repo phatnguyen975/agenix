@@ -89,7 +89,7 @@ Order: # response: open, fields may be added later
 ## Composition
 
 - `allOf`: combine a base and an extension; avoid inheritance deeper than two levels.
-- `oneOf`: exactly one alternative; pair with `discriminator` (`propertyName`, `mapping`) so consumers can select the branch.
+- `oneOf`: exactly one alternative; define mutually exclusive validation constraints. In OpenAPI, an optional discriminator can guide branch selection but does not change the validation result. AsyncAPI's native Schema Object uses a string discriminator, not the OpenAPI object.
 - `anyOf`: at least one alternative; avoid for polymorphic payloads because matching is ambiguous.
 - `not`: exclusion rules; use sparingly.
 - `if`/`then`/`else`: conditional requirements when the host dialect supports them.
@@ -161,7 +161,7 @@ User:
 - Unbounded strings, arrays, and maps.
 - Optional meaning "may be null" and vice versa.
 - Enums mirroring internal numeric codes.
-- `oneOf` without discriminator for payloads that need branch selection.
+- Overlapping `oneOf` branches, or relying on a discriminator to make overlapping branches valid.
 - `format` used as the only validation of important inputs.
 - `additionalProperties: true` on request schemas by default.
 

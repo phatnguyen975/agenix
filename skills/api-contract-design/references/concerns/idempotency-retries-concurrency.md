@@ -7,7 +7,7 @@
 
 ## Method Semantics
 
-- HTTP (RFC 9110): GET, HEAD, OPTIONS, PUT, DELETE are idempotent; POST and PATCH are not by default.
+- HTTP: safe methods (GET, HEAD, OPTIONS, TRACE in RFC 9110 and QUERY in RFC 10008), PUT and DELETE are idempotent. POST and PATCH are not idempotent by default.
 - Idempotent means repeating the request has the same intended effect on the server as one request; responses may differ.
 - Design PUT and DELETE to be idempotent; design POST and PATCH that clients may retry to be made idempotent with a key or a natural unique constraint.
 - Safe methods change no state.

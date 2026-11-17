@@ -94,7 +94,7 @@ Link: <https://example.com/docs/migrate-v2>; rel="deprecation"; type="text/html"
 
 ## Per-Format Rules
 
-- **OpenAPI:** compare documents; changes to `required`, types, enums, status codes, parameters, and security are the main breaking vectors; new optional properties are additive.
+- **OpenAPI:** compare documents; changes to `required`, types, enums, status codes, parameters, and security are the main breaking vectors; new optional response properties require checking whether consumers accept unknown fields.
 - **JSON payloads:** closed request schemas make new client fields rejected by old servers; response schemas stay open.
 - **Protobuf:**
   - Never renumber or reuse fields; `reserved` removed numbers and names.

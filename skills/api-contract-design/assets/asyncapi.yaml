@@ -9,7 +9,7 @@
 #   3. Keep every field marked (R); delete every optional section the API does not use.
 #   4. Define each message and schema once under components and reference it with $ref
 #      from channels and operations.
-#   5. Perspective: `send` means the described application sends; `receive` means it receives.
+#   5. Describe one application's perspective: `send` means it sends; `receive` means it receives.
 #   6. For broker channels, state delivery guarantee, ordering scope, retention, and
 #      dead-letter policy; for live sessions, state ordering, replay, and reconnect behavior.
 #   7. Give every message a stable name and at least one example; define a payload schema and
@@ -48,7 +48,7 @@ servers: # (O)
   broker:
     host: broker.example.com:9092 # (R) host and optional port
     protocol: kafka # (R)
-    protocolVersion: "4.4.0" # (O) illustrative current Kafka version; replace with the deployed broker/protocol version
+    protocolVersion: "4.4.0" # (O) illustrative Kafka version; replace with the deployed broker/protocol version
     pathname: / # (O)
     title: Event broker # (O)
     summary: Production broker # (O)

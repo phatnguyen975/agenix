@@ -31,13 +31,13 @@
 
 ## Directives
 
-| Directive                     | Use                                                                                                                                             |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@deprecated(reason: String)` | Mark fields, enum values, arguments, and input fields as deprecated; always give a reason naming the replacement                                |
-| `@specifiedBy(url: String!)`  | Link a custom scalar to its specification                                                                                                       |
-| `@oneOf`                      | Input object where exactly one field must be provided (September 2025 edition; remove for October 2021 fallback)                                |
-| `@skip`, `@include`           | Execution directives for operations, not used in SDL                                                                                            |
-| Custom directives             | Allowed; define them explicitly, list locations, and document their consumer-visible semantics where applied; ensure runtime enforcement exists |
+| Directive                     | Use                                                                                                                                                                                                                                                                       |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@deprecated(reason: String)` | Mark fields, enum values, arguments, and input fields as deprecated; always give a reason naming the replacement                                                                                                                                                          |
+| `@specifiedBy(url: String!)`  | Link a custom scalar to its specification                                                                                                                                                                                                                                 |
+| `@oneOf`                      | Input object where exactly one field must be provided with a non-null value. All member fields must be nullable and have no defaults in SDL. See [September 2025](https://spec.graphql.org/September2025/#sec-OneOf-Input-Objects). Remove for the October 2021 fallback. |
+| `@skip`, `@include`           | Execution directives for operations, not used in SDL                                                                                                                                                                                                                      |
+| Custom directives             | Allowed; define them explicitly, list locations, and document their consumer-visible semantics where applied; ensure runtime enforcement exists                                                                                                                           |
 
 ```graphql
 type Order {

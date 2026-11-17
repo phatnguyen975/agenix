@@ -1,9 +1,9 @@
 ---
 name: api-contract-design
-description: Designs, reviews, and evolves technology-neutral API contracts from requirements or existing contract artifacts. Covers interaction modeling, protocol selection, schemas, behavior, security, reliability, compatibility, and validation across synchronous and asynchronous communication patterns. Use whenever a consumer-visible API interaction or contract must be created, reviewed, or changed, regardless of protocol or format. Do not use for API implementation, test generation, database design, or internal architecture with no consumer-visible API effect.
+description: Designs, reviews, and evolves technology-neutral API contracts from requirements or existing contract artifacts. Covers interaction modeling, protocol selection, schemas, behavior, security, reliability, compatibility, and validation across synchronous and asynchronous communication patterns. Use whenever a consumer-visible API interaction or contract must be created, reviewed, or changed, for HTTP APIs, SSE, webhooks, WebSocket, messaging, gRPC, or GraphQL. Do not use for API implementation, test generation, database design, or internal architecture with no consumer-visible API effect.
 metadata:
   author: phatnguyen975
-  version: 1.0
+  version: "1.0"
 ---
 
 # API Contract Design
@@ -28,6 +28,7 @@ Turn requirements or an existing contract into an explicit, reviewable, machine-
 ## When NOT to Use
 
 - Implementing handlers, clients, SDKs, middleware, or infrastructure.
+- Public interfaces such as CLI commands or package exports that have no supported network or message contract.
 - Writing or generating automated tests.
 - Reviewing or debugging an implementation without assessing or changing its contract.
 - Designing database schemas, UI behavior, deployment topology, or internal service architecture that has no consumer-visible API effect.
@@ -41,14 +42,14 @@ Turn requirements or an existing contract into an explicit, reviewable, machine-
 | Consumers and trust boundaries                          | No       | Infer from project context where possible; identify human, browser, partner, internal service, broker, and third-party consumers.                                                                                                |
 | Constraints                                             | No       | Capture compatibility, latency, throughput, payload size, availability, privacy, residency, regulatory, and toolchain constraints when relevant.                                                                                 |
 
-Ask only when missing information materially changes the contract and cannot be resolved safely from project context. Otherwise make the least-surprising defensible choice, record the assumption in the hand-off, and continue. Never invent domain facts, permissions, limits, guarantees, or business states; mark genuinely unknown items as unresolved.
+Ask only when missing information materially changes the contract and cannot be resolved safely from project context. Continue on unaffected interactions while a material choice is unresolved. Record routine assumptions in the hand-off. Never invent domain facts, permissions, limits, guarantees, or business states; mark genuinely unknown items as unresolved.
 
 ## Output
 
-1. **Contract artifact(s)** for every distinct interaction and protocol when creation or changes are in scope. Follow the project's established file organization. A project may keep a contract in one file or organize it into multiple files. When no convention exists, choose a clear location such as `docs/api-contracts/`, state the chosen path, and proceed. For review-only work, do not rewrite files unnecessarily; provide actionable findings with severity, evidence, and recommended changes.
+1. **Contract artifact(s)** for every distinct interaction and protocol when creation or changes are in scope. Use the caller's format and destination where provided, and follow the project's established file organization. For a consumed external contract, identify the authoritative source and pinned edition or revision; record consumer expectations and unresolved gaps without editing the provider's definition. A project may keep a contract in one file or organize it into multiple files. When no convention exists, choose a clear location such as `docs/api-contracts/`, state the chosen path when a file deliverable is requested. For review-only work, do not rewrite files unnecessarily; provide actionable findings with severity, evidence, and recommended changes.
 2. **Hand-off report** with artifact paths, format versions, protocol decisions where relevant, unresolved assumptions, notable design choices, changes and compatibility classification, validation performed, warnings, review findings, and approvals still required.
 
-Do not include secrets, production credentials, internal hostnames, or sensitive personal data in examples or consumer-facing descriptions. Start from the matching template in `assets/` when supported, but remove its guide comments and unused illustrative coverage sections before delivery.
+Do not include secrets, production credentials, internal hostnames, or sensitive personal data in examples or consumer-facing descriptions. Use a matching template only when its format and edition fit. The assets are example catalogs. Copy applicable fragments, retain their dependencies, and remove unrelated examples and guide comments before delivery.
 
 ## Core Principles
 
@@ -72,39 +73,40 @@ Read only the references required by the interaction and triggered concerns. Do 
 **Routing rules**
 
 - Load the relevant protocol reference, contract reference, and baseline concerns; load only concern files triggered by the interaction or requirements.
-- Read `references/protocols/protocol-selection.md` only when the protocol choice is open or needs review. Do not revisit an explicit, still-valid project decision without a reason.
-- Read `references/standards-baseline.md` only when a version, draft, binding, profile, or current standards claim needs selection or verification. Project-pinned versions and toolchain constraints take precedence when still supported and safe.
+- Read [protocol-selection.md](references/protocols/protocol-selection.md) only when the protocol choice is open or needs review. Do not revisit an explicit, still-valid project decision without a reason.
+- Read [standards-baseline.md](references/standards-baseline.md) only when a version, draft, binding, profile, or current standards claim needs selection or verification. Project-pinned versions and toolchain constraints take precedence when still supported and safe.
 - Load a template only when creating or substantially restructuring a contract. For review-only tasks, inspect the existing artifact and its configured validators first.
+- Table A gives default format routes. Follow a compatible project format when it differs. For HTTP webhooks already documented in AsyncAPI, use the webhook behavior reference and the AsyncAPI contract reference, with the selected HTTP binding. For messaging payloads authored in Protobuf, use the Protobuf reference for the payload and retain the messaging contract for channels and operations.
 
 **Table A — interaction → protocol, contract, template**
 
-| Interaction                             | Protocol                            | Contract                                                                      | Template                |
-| --------------------------------------- | ----------------------------------- | ----------------------------------------------------------------------------- | ----------------------- |
-| Resource-oriented HTTP API (REST-style) | `references/protocols/rest.md`      | `references/contracts/openapi.md`, `references/contracts/schema-modeling.md`  | `assets/openapi.yaml`   |
-| Server-Sent Events (SSE)                | `references/protocols/sse.md`       | `references/contracts/openapi.md`, `references/contracts/schema-modeling.md`  | `assets/openapi.yaml`   |
-| Webhook / Callback                      | `references/concerns/webhooks.md`   | `references/contracts/openapi.md`, `references/contracts/schema-modeling.md`  | `assets/openapi.yaml`   |
-| WebSocket                               | `references/protocols/websocket.md` | `references/contracts/asyncapi.md`, `references/contracts/schema-modeling.md` | `assets/asyncapi.yaml`  |
-| Broker / Message-driven                 | `references/protocols/messaging.md` | `references/contracts/asyncapi.md`, `references/contracts/schema-modeling.md` | `assets/asyncapi.yaml`  |
-| gRPC                                    | `references/protocols/grpc.md`      | `references/contracts/protobuf.md`                                            | `assets/service.proto`  |
-| GraphQL                                 | `references/protocols/graphql.md`   | `references/contracts/graphql-sdl.md`                                         | `assets/schema.graphql` |
+| Interaction                             | Protocol                                          | Contract                                                                                                       | Template                                |
+| --------------------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| Resource-oriented HTTP API (REST-style) | [rest.md](references/protocols/rest.md)           | [openapi.md](references/contracts/openapi.md), [schema-modeling.md](references/contracts/schema-modeling.md)   | [openapi.yaml](assets/openapi.yaml)     |
+| Server-Sent Events (SSE)                | [sse.md](references/protocols/sse.md)             | [openapi.md](references/contracts/openapi.md), [schema-modeling.md](references/contracts/schema-modeling.md)   | [openapi.yaml](assets/openapi.yaml)     |
+| Webhook / Callback                      | [webhooks.md](references/concerns/webhooks.md)    | [openapi.md](references/contracts/openapi.md), [schema-modeling.md](references/contracts/schema-modeling.md)   | [openapi.yaml](assets/openapi.yaml)     |
+| WebSocket                               | [websocket.md](references/protocols/websocket.md) | [asyncapi.md](references/contracts/asyncapi.md), [schema-modeling.md](references/contracts/schema-modeling.md) | [asyncapi.yaml](assets/asyncapi.yaml)   |
+| Broker / Message-driven                 | [messaging.md](references/protocols/messaging.md) | [asyncapi.md](references/contracts/asyncapi.md), [schema-modeling.md](references/contracts/schema-modeling.md) | [asyncapi.yaml](assets/asyncapi.yaml)   |
+| gRPC                                    | [grpc.md](references/protocols/grpc.md)           | [protobuf.md](references/contracts/protobuf.md)                                                                | [service.proto](assets/service.proto)   |
+| GraphQL                                 | [graphql.md](references/protocols/graphql.md)     | [graphql-sdl.md](references/contracts/graphql-sdl.md)                                                          | [schema.graphql](assets/schema.graphql) |
 
-**Table B — signal → concern** (in `references/concerns/`)
+**Table B — signal → concern** (in [concerns](references/concerns/))
 
-| Signal                                                                                                                                                                                      | Read                                       |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
-| Every contract                                                                                                                                                                              | `errors.md`, `payload-conventions.md`      |
-| List, search, filtering, sorting, cursor, or bulk selection                                                                                                                                 | `collections.md`                           |
-| Mutation with side effects, retries, duplicate delivery, or concurrent writers                                                                                                              | `idempotency-retries-concurrency.md`       |
-| Authenticated users, tenants, roles, scopes, or service identities                                                                                                                          | `authentication-authorization.md`          |
-| Public, partner, or cross-boundary exposure; browser clients; untrusted input, sensitive data, uploads, or third-party dependencies                                                         | `api-security.md`                          |
-| Public, partner, or multi-tenant consumption; quotas or abuse controls                                                                                                                      | `rate-limiting-quotas.md`                  |
-| HTTP requests/responses support multiple representations or media types; `Accept`/`Content-Type` negotiation; localization; compression; range requests; upload, download, or file transfer | `content-negotiation-and-file-transfer.md` |
-| Cacheable reads, conditional requests, validators, or lost-update prevention                                                                                                                | `caching-and-conditional-requests.md`      |
-| Latency, payload size, deadlines, reliability, or service objectives                                                                                                                        | `performance-and-reliability.md`           |
-| Tracing, correlation, audit events, or telemetry requirements                                                                                                                               | `observability.md`                         |
-| Provider-initiated HTTP callback                                                                                                                                                            | `webhooks.md`                              |
-| Contract changed, deprecated, versioned, or retired                                                                                                                                         | `versioning-compatibility.md`              |
-| Long-running work, batch processing, import/export, or asynchronous job resources                                                                                                           | `long-running-bulk-operations.md`          |
+| Signal                                                                                                                                                                                      | Read                                                                                                             |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Every contract                                                                                                                                                                              | [errors.md](references/concerns/errors.md), [payload-conventions.md](references/concerns/payload-conventions.md) |
+| List, search, filtering, sorting, cursor, or bulk selection                                                                                                                                 | [collections.md](references/concerns/collections.md)                                                             |
+| Mutation with side effects, retries, duplicate delivery, or concurrent writers                                                                                                              | [idempotency-retries-concurrency.md](references/concerns/idempotency-retries-concurrency.md)                     |
+| Authenticated users, tenants, roles, scopes, or service identities                                                                                                                          | [authentication-authorization.md](references/concerns/authentication-authorization.md)                           |
+| Public, partner, or cross-boundary exposure; browser clients; untrusted input, sensitive data, uploads, or third-party dependencies                                                         | [api-security.md](references/concerns/api-security.md)                                                           |
+| Public, partner, or multi-tenant consumption; quotas or abuse controls                                                                                                                      | [rate-limiting-quotas.md](references/concerns/rate-limiting-quotas.md)                                           |
+| HTTP requests/responses support multiple representations or media types; `Accept`/`Content-Type` negotiation; localization; compression; range requests; upload, download, or file transfer | [content-negotiation-and-file-transfer.md](references/concerns/content-negotiation-and-file-transfer.md)         |
+| Cacheable reads, conditional requests, validators, or lost-update prevention                                                                                                                | [caching-and-conditional-requests.md](references/concerns/caching-and-conditional-requests.md)                   |
+| Latency, payload size, deadlines, reliability, or service objectives                                                                                                                        | [performance-and-reliability.md](references/concerns/performance-and-reliability.md)                             |
+| Tracing, correlation, audit events, or telemetry requirements                                                                                                                               | [observability.md](references/concerns/observability.md)                                                         |
+| Provider-initiated HTTP callback                                                                                                                                                            | [webhooks.md](references/concerns/webhooks.md)                                                                   |
+| Contract changed, deprecated, versioned, or retired                                                                                                                                         | [versioning-compatibility.md](references/concerns/versioning-compatibility.md)                                   |
+| Long-running work, batch processing, import/export, or asynchronous job resources                                                                                                           | [long-running-bulk-operations.md](references/concerns/long-running-bulk-operations.md)                           |
 
 ## Workflow
 
@@ -135,7 +137,7 @@ Read only the references required by the interaction and triggered concerns. Do 
 6. **Validate**
    - Run the validators and linters the project already uses for each format.
    - Without project validators, walk the verification checklist in the relevant contract and protocol references.
-   - Fix and re-run until no errors remain; report warnings and unverified areas in the hand-off.
+   - Fix errors within authorized edits and re-run applicable checks. In Review, report defects without modifying the contract unless requested. Record remaining warnings, unavailable checks and what was verified manually. Stop with explicit blockers when validation cannot be completed. Do not report implementation or future conformance as verified.
 7. **Hand off**
    - Summarize artifacts, paths, protocol decisions, format versions/fallbacks and reasons, notable consumer-visible rules, compatibility classifications, review findings, validation commands/results, unresolved assumptions, and approvals still required.
 

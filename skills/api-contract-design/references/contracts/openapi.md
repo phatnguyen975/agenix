@@ -3,12 +3,12 @@
 ## Scope
 
 - Authoring rules for OpenAPI documents describing REST, SSE, and webhooks.
-- Baseline 3.2.1; fallback 3.1.2. Fields marked (3.2) exist only in 3.2.x documents.
+- Reference examples target [3.2.1](https://spec.openapis.org/oas/v3.2.1.html); use the project's supported edition, including [3.1.2](https://spec.openapis.org/oas/v3.1.2.html) when appropriate. Fields marked (3.2) exist only in 3.2.x documents.
 - Field types and constraints inside schemas follow the schema-modeling rules.
 
 ## Version Rules
 
-- `openapi: 3.2.1` for new documents; keep the project's version for existing documents.
+- `openapi: 3.2.1` for examples in this skill. Keep the project's supported version for existing documents and verify toolchain support before choosing a version for new documents.
 - Patch versions fix errors and clarify text; tooling treats all 3.2.x documents as the same feature set.
 - Upgrading 3.1 to 3.2 is a version change plus optional adoption of new fields; the Schema Object stays a superset of JSON Schema 2020-12.
 - `info.version` is the API contract version, not the OpenAPI version.
@@ -33,7 +33,7 @@
 ## Operations
 
 - Path item methods: `get`, `put`, `post`, `delete`, `options`, `head`, `patch`, `trace`; (3.2) `query`; (3.2) `additionalOperations` for other HTTP methods.
-- Operation fields: `tags`, `summary`, `description`, `externalDocs`, `operationId`, `parameters`, `requestBody`, `responses` (required), `callbacks`, `deprecated`, `security`, `servers`.
+- Operation fields: `tags`, `summary`, `description`, `externalDocs`, `operationId`, `parameters`, `requestBody`, `responses`, `callbacks`, `deprecated`, `security`, `servers`.
 - `operationId`: unique across the document, stable, `camelCase`; code generators use it, so renaming is breaking for generated clients.
 - `summary` is one line; `description` states behavior, preconditions, side effects, and idempotency.
 - Mark deprecated operations with `deprecated: true` and name the replacement in the description.
@@ -173,7 +173,7 @@ webhooks:
 
 - Do not expose `TRACE` by default; it can reflect sensitive request information. Use it only for a justified requirement with explicit security review and no credential or secret reflection.
 - Use `info.summary` and `info.description` for a concise consumer-facing API overview when useful; omit redundant metadata. Put behavioral details in the relevant operation, parameter, request/response, or schema descriptions.
-- Give each operation a stable unique `operationId` and a useful `summary`; use tags consistently when they improve navigation. `responses` is required by OpenAPI. Define effective security at the root and override it only where needed; an operation inherits root security unless it explicitly overrides it.
+- Give each operation a stable unique `operationId` and a useful `summary`; use tags consistently when they improve navigation. Document `responses` for each applicable operation so consumers can identify supported outcomes. This is an authoring rule even where the selected edition makes the field optional. Define effective security at the root and override it only where needed; an operation inherits root security unless it explicitly overrides it.
 - Reuse over repetition: schemas, parameters, responses, and headers live in `components`.
 - Nullable values use type arrays (`type: [string, "null"]`), not `nullable`.
 - Unused components are removed.

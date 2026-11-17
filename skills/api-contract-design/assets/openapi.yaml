@@ -1,6 +1,8 @@
 # OpenAPI contract template (REST, SSE, webhooks). Baseline: OpenAPI 3.2.1; fallback 3.1.2.
 #
 # HOW TO FILL
+#   Copy only the applicable operations and their referenced components. Each sample uses
+#   synthetic data and policies; verify these against project requirements.
 #   1. Write a concise API overview in info.description only when it adds consumer-facing
 #      context; describe individual behavior at the relevant operation, parameter, or response.
 #   2. Replace every placeholder (names, URLs, hosts, scopes, identifiers) with project values.
