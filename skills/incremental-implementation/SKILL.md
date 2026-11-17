@@ -1,155 +1,131 @@
 ---
 name: incremental-implementation
-description: Breaks a unit of work into small vertical slices and drives each one through test-driven development (Red-Green-Refactor) before committing it. Use when implementing a non-trivial change, or picking up a unit of work already broken into slices by a prior planning step — especially when the work is large enough that writing it in one pass risks producing untested, unreviewable code. Not for trivial single-location edits (a label, a comment, a config value, a formatting change) or for a pure investigation/spike that isn't meant to produce kept code.
+description: Implement nontrivial changes through small verified increments. Use when executing an existing breakdown or organizing bounded work that is too risky to implement in one pass. Respect dependencies, selected verification methods and caller-defined commit cadence; report evidence and blockers for each increment.
 metadata:
   author: phatnguyen975
-  version: 1.0
+  version: "1.0"
 ---
 
 # Incremental Implementation
 
-## Overview
+## Purpose and Scope
 
-Implementing a unit of work as a sequence of small, independently verifiable vertical slices — each committed before the next begins — keeps every increment of work provably correct and reviewable on its own, with nothing considered finished until a test demonstrates it works.
+Coordinate implementation as a sequence of small, reviewable increments with observable outcomes. Prefer vertical slices that exercise a coherent behavior across the assigned boundary. A slice can build on verified predecessors; it must not depend on unfinished work to demonstrate its own outcome.
 
-## When to Use
-
-- A change spanning more than one file or more than one part of the system.
-- Implementing a unit of work broken down from a larger plan — whether or not it has already been broken into slices.
-- Modifying or extending existing behavior where side effects are a real risk.
-
-## When Not to Use
-
-- A trivial, single-location change with no distinct behavior to verify (a label, a comment, a config value, a formatting-only change, a dependency bump with no behavior change).
-- A change with no outcome a test can observe (a purely visual or manual-only adjustment).
-- A pure exploratory spike or investigation that isn't meant to produce kept code.
+Use this skill to execute a supplied breakdown or select a manageable next increment within authorized work. It does not replace broader delivery planning, decide new product behavior or authorize publication. A simple edit that needs no incremental coordination or a purely exploratory investigation can be handled directly.
 
 ## Input
 
-- A description of the unit of work (required).
-- Access to the codebase and the ability to run its test command, plus whichever of build, lint, and type-check the project defines (required).
-- An existing slice breakdown from a prior planning step (optional; if absent, this skill produces one).
+- **Outcome and boundary:** expected behavior, acceptance criteria, owned code/artifacts and applicable constraints. Resolve material unknowns before dependent implementation.
+- **Project context:** relevant code, conventions, actual verification commands and required services/environments. Missing prerequisites block the affected work, not unrelated eligible increments.
+- **Existing breakdown, when supplied:** item definitions, dependencies, selected verification methods and available completion evidence.
+- **Execution policy, when supplied:** permitted operations, commit cadence, exposure requirements and output/evidence destination. Reuse existing authority; ask only for consequential unresolved choices.
 
 ## Output
 
-- The unit of work fully implemented as a sequence of separate commits, one per slice.
-- Each commit leaves the test suite passing and, where the project has a build step, still building successfully.
-- Each slice's behavior is covered by at least one test introduced specifically for it.
+Produce scoped code/artifact changes, relevant tests and verification evidence. Use the caller's record and output format when provided; do not create a competing plan or tracking file. Otherwise report progress in the conversation using the format below. Save a separate record only when requested or needed for continuity at an authorized location.
+
+```markdown
+## Implementation Summary
+
+- **Outcome:** <completed / partial / blocked, within the requested boundary>
+- **Candidate:** <commit or identifiable working-tree state; verification context>
+
+| Increment       | Result                         | Evidence                                                                      | Remaining / Blocker |
+| --------------- | ------------------------------ | ----------------------------------------------------------------------------- | ------------------- |
+| <ID or outcome> | <verified / partial / blocked> | <method, command/procedure and actual result; evidence location if available> | <gap or none>       |
+
+- **Final verification:** <combined checks, results and unavailable checks>
+- **Delivery:** <local changes or actual authorized Git actions and IDs>
+- **Decisions needed:** <specific unresolved choices, or none>
+```
+
+Keep detailed cycle evidence in its owning record and reference it here. A verified increment is not proof that the entire change is integrated, accepted or deployed. Do not claim completion while required checks or human-only judgments remain outstanding.
 
 ## Core Principles
 
-1. **Vertical slice, defined precisely.** A slice crosses the full depth of its unit of work — never stopping partway through — and produces an outcome verifiable on its own. Full depth is set by the boundary of that unit of work, not a fixed, named list of parts.
-2. **One strategy, two kinds of technique.** Vertical slicing is the only strategy. Some techniques perform the actual cut; others only reorder or coordinate around slices already cut, and apply only when their specific condition holds — never as a substitute for a real cut.
-3. **Slicing is recursive.** A slice still too large to implement safely in one pass is split again, narrowed to whatever is making it too large.
-4. **TDD drives each slice from the inside.** A slice is built behavior by behavior through Red-Green-Refactor; it isn't complete until every behavior it needs has gone through that cycle.
-5. **Discover before assuming.** Verification commands, the unit-of-work boundary, and existing conventions are read from the project itself, never assumed by default.
+1. **Honor the supplied breakdown.** Preserve approved outcomes, dependencies and verification obligations. Smaller implementation steps inside an item do not redefine its acceptance criteria.
+2. **Verify at the owned boundary.** Choose observable outcomes, not layers or file counts. A provider double cannot establish real integration outside that boundary.
+3. **Test first by default.** Use short Red-Green-Refactor cycles for behavior changes; honor a caller-selected test-after or manual method with explicit expected results and evidence.
+4. **Keep progress recoverable.** Preserve user work, record actual results as obtained and leave each increment reviewable. Verification does not require a commit after every increment.
+5. **Stay within authority.** Do routine implementation and checks under existing permission. New behavior, ownership changes, destructive operations and publication require applicable authority.
 
 ## Workflow
 
-### Step 1 — Discover Boundary, Commands, Baseline, and Existing Slicing
+### Step 1 — Establish Scope and Baseline
 
-Before doing anything else, establish:
+1. Read the relevant requirements, code and instructions. Identify the owned checkout and pre-existing staged, unstaged and untracked work; preserve it.
+2. Discover actual test, build, lint, type-check and other required commands. Separate focused cycle checks from increment-level and combined final checks, including CI-only requirements. Establish services, fixtures and permissions before using them.
+3. Run the applicable baseline checks. Record pre-existing failures and unavailable checks; assess whether they prevent trustworthy verification. Do not silently repair unrelated failures or treat them as passing. Continue independent work only where its results remain interpretable.
+4. Read the supplied breakdown and evidence, if any. Confirm dependency readiness against the caller's actual completion rules rather than trusting a status label. Resolve missing, conflicting or cyclic dependencies before affected work.
 
-- **Unit-of-work boundary** — the part of the system this task is responsible for, and therefore what "full depth" means for it. Infer it from the task description and the codebase's own structure; ask only if it cannot be determined from them.
-- **Verification commands** — the test, build, lint, and type-check commands the project actually defines. Read its configuration/manifest files; never assume a default command exists.
-- **Baseline health** — run the existing test suite once. It must be green before any new slice starts; if it is not, fixing it is a prerequisite, not one of this task's own slices.
-- **Existing slicing** — check whether the work is already broken into slices by an earlier step. If so, skip Step 2 and take each given slice, in order, into Step 3. If not, proceed to Step 2.
+### Step 2 — Select the Next Eligible Increment
 
-### Step 2 — Identify the Next Slice
+With an existing breakdown, choose the next authorized item whose prerequisites are satisfied, respecting the supplied order. Do not reslice or reorder approved items merely to match a preferred technique. Internal implementation steps may be smaller; changes to approved outcomes or dependencies need a decision from their owner.
 
-Skip this step entirely if Step 1 found an existing breakdown. Otherwise, apply a default-tier technique (see Slicing Techniques) to pick the smallest next slice that still crosses the full depth of the unit-of-work boundary and meets the Slice Quality Bar. Apply a conditional-tier technique alongside this step only if its condition holds. Re-apply this step recursively if the candidate slice still fails the quality bar.
+Without a breakdown, identify a small observable outcome and its required checks within the requested scope. Prefer a vertical cut and apply the [Slice Quality Bar](#slice-quality-bar). Read [Slicing Techniques](references/slicing-techniques.md) only when the next cut, ordering or coordination boundary is unclear. Select one relevant technique rather than applying the whole catalog.
 
-### Step 3 — Implement the Slice Through TDD Micro-Cycles
+Select or confirm the increment's verification method and expected results before editing. Reuse existing approval. If the work needs a broader design or scope decision, present that specific issue and pause dependent work instead of inventing a larger plan.
 
-For each behavior the slice needs:
+### Step 3 — Implement and Check Locally
 
-1. **Red** — write one test for the behavior; run it; confirm it fails for the expected reason.
-2. **Green** — write the minimum code to make that test pass; run it; confirm it passes.
-3. **Refactor** — clean up only while all tests stay green; introduce no new behavior here.
+Use the selected method without changing its evidence requirements:
 
-Repeat for the next behavior until the slice's scope is fully covered.
+| Method               | Execution                                                                                                                                                                                                             |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Test-first (default) | Write one behavior-focused check, observe its intended assertion failure, add the minimum implementation, then refactor with checks passing. Repeat for the next behavior. Setup/import/service failures are not RED. |
+| Test-after           | Establish expected results first, implement in small steps, then add/run the agreed automated checks before calling the increment verified. Do not claim test-first provenance.                                       |
+| Manual               | Establish the procedure, expected result and responsible observer in advance. Perform all applicable automated checks as well; leave human-only judgments pending until actually supplied.                            |
 
-### Step 4 — Verify the Slice
+Use independent expectations from the accepted behavior. Preserve existing coverage; never weaken checks just to reach green. Characterization or already-supported examples may pass initially: record that honestly rather than breaking working code to manufacture RED.
 
-Run the project's own verification commands from Step 1 and confirm the slice works end-to-end within its boundary:
+Keep changes cohesive and limited to the increment, including necessary tests, configuration and documentation. Refactor only within the owned scope while preserving behavior. Record checks, failures and decisions as they occur; do not reconstruct evidence from memory at the end.
 
-- The full test suite passes, not just the new slice's tests.
-- The project builds successfully, if it has a build step.
-- Type-checking passes, if the project has a type-checking step.
-- Linting/formatting passes, if the project enforces one.
-- The new behavior is confirmed working, via its test and a manual/exploratory check where relevant.
+### Step 4 — Verify and Review the Increment
 
-### Step 5 — Commit
+- Run the required increment checks, including relevant regressions, build, type-check and lint where applicable. Confirm the intended checks actually executed and record commands/procedures, results and candidate identity.
+- Demonstrate the outcome through its actual boundary. Mocks or local checks do not replace required provider, persistence, browser or other real-boundary verification. Keep required CI checks visible when local execution is unavailable.
+- Review the diff against acceptance criteria and project conventions. Check error paths, compatibility, unintended exposure and unrelated edits. Apply in-scope corrections and rerun affected checks on the corrected candidate.
+- Compare with the baseline. Distinguish new failures, pre-existing failures and checks not run. If required evidence is missing, report the increment as partial or blocked; do not advance dependent work unless the caller's dependency rules explicitly permit it.
 
-Commit the slice with a message that accurately describes the one behavior it adds. Follow the project's existing commit convention where one is already established; otherwise, an accurate, specific description is sufficient. One slice corresponds to one commit.
+When a problem exceeds scope, preserve the candidate and evidence, state what is blocked and request the specific decision needed. Other already-authorized, independent increments may proceed; do not turn the issue into silent new obligations.
 
-### Step 6 — Move to the Next Slice
+### Step 5 — Record Progress and Continue
 
-If slices were already defined in Step 1, move to the next one and return to Step 3. If not, return to Step 2. Build on completed slices; never redo them.
+Update the owning record with the increment's actual result, evidence and remaining gaps. Commit only under the supplied cadence and authority; several verified increments may remain as one uncommitted batch. Push, PR creation, merge and exposure each require their own applicable authority.
 
-## Slicing Techniques
+Return to Step 2 for the next eligible increment until the requested work is exhausted or no eligible work remains. On resume, reread the record and inspect the actual candidate; revalidate affected evidence after changes or drift instead of replaying already-valid work blindly.
 
-All of the following exist to find a valid vertical cut (Principle 1) or to work with slices already cut that way (Principle 2) — never to replace the cut itself. "Depth" means every distinct part of the unit of work that has to cooperate to produce the slice's outcome; what those parts actually are depends entirely on the codebase being worked in, not on a fixed list. The example beside each technique illustrates one instance of it, not a required shape. See `references/slicing-techniques.md` for further variants, additional worked examples across different kinds of work, and a full worked walkthrough of recursive slicing.
+### Step 6 — Verify the Combined Result
 
-### Default tier — techniques that perform the cut
+Run required final checks against the combined candidate, including interactions between increments and applicable full-suite or CI checks. Increment checks alone do not establish combined correctness. Preserve passing evidence and report failures or unavailable verification truthfully; do not downgrade checks to make the batch appear complete.
 
-- **Selection rule:** pick the one technique that best fits the current source of size — do not run through the whole catalog for every unit of work.
-- **Recursion rule:** after producing a slice, check it against the Slice Quality Bar; if it still fails, split it again using whichever technique fits what is making it too large.
-
-| Technique                   | Fits when…                                                                   | Example                                                                                                                                                                               |
-| --------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Workflow step               | The unit of work is a multi-step process.                                    | A checkout process → slice 1: add an item to the cart; slice 2: apply a discount code; slice 3: confirm payment.                                                                      |
-| Operation boundary          | The unit of work exposes several distinct operations on the same thing.      | A "manage notes" feature → slice 1: create a note; slice 2: list notes; slice 3: edit a note; slice 4: delete a note.                                                                 |
-| Happy path / rule variation | The unit of work has one main success case plus several rules or edge cases. | A "transfer money" feature → slice 1: transfer between two valid accounts with sufficient balance; slice 2: reject insufficient balance; slice 3: enforce a daily transfer limit.     |
-| Data / input variation      | The unit of work handles more than one kind or source of data.               | An "import contacts" feature → slice 1: add a contact through a form; slice 2: import contacts from a file.                                                                           |
-| Tracer bullet               | The connection between the parts of the current boundary is unproven.        | Before building a full messaging feature, first prove one hardcoded message can travel from the entry point through to storage and back. Still a full-depth cut — only a minimal one. |
-
-### Conditional tier — techniques that order or coordinate, never cut
-
-| Technique      | Condition to apply                                                                                                                     | What it actually does                                                                                                                                                                                                                                                                                                       |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Risk-first     | Several valid vertical slices are already identified, and uncertainty is concentrated in one of them.                                  | Changes the _order_ in which already-cut slices are implemented — the one that resolves the greatest uncertainty goes first. It does not define a new kind of cut; the prioritized slice still has to meet the full Slice Quality Bar on its own.                                                                           |
-| Contract-first | The same unit of work is being built by more than one independent party at the same time, each responsible for a different part of it. | Defines the interface between the parties as an explicit, agreed artifact before either side implements against it. Each party still produces its own vertical slice within its own boundary using the default tier — this technique only removes the need for both sides to be built together before either can be tested. |
+Provide the [Implementation Summary](#output) and stop at the requested boundary. Unfinished items, human-only judgments, required CI results and publication remain explicit when outstanding.
 
 ## Slice Quality Bar
 
-A slice is ready to implement — and a split can stop — once it satisfies all of:
+Use this bar to select new increments or assess supplied work without silently changing approved definitions:
 
-- **Vertical** — crosses the full depth of the unit-of-work boundary; does not stop partway through it.
-- **Testable** — at least one test can express its behavior through the project's test mechanism.
-- **Verifiable** — its outcome can be confirmed without any other unfinished slice existing.
-- **Shippable** — it can be tested and merged on its own; the project still builds, where it has a build step, and every existing test still passes after it lands.
-- **Small** — completable within one focused run of TDD micro-cycles, without an extended stretch of code written ahead of a running test.
+- **Coherent:** one observable outcome across the assigned boundary, including the parts required for that outcome.
+- **Verifiable:** expected results can be checked using the selected method; prerequisites exist or are explicitly resolved before execution.
+- **Dependency-aware:** builds on verified predecessors and does not require an unfinished successor to demonstrate its own outcome.
+- **Safe to integrate:** preserves required behavior and compatibility; incomplete behavior is isolated before exposure where necessary.
+- **Small:** limits the amount of unverified change and can be reviewed and checked without a long gap in feedback.
+
+A technical prerequisite can be a valid increment when it has its own verifiable contract; do not rename a layer-only change as a completed user outcome. Local verifiability and production readiness are different claims.
 
 ## Implementation Rules
 
-- **Simplicity first.** Build the simplest version that satisfies the behavior's test — not one that anticipates requirements the test doesn't yet demand. Afterward, check it: could it be shorter, is each abstraction already earning its complexity at this one use, would a reviewer reasonably ask "why not just do it directly?" Prefer a few duplicated lines over a shared abstraction introduced before a third real use case demands it.
-- **Footprint discipline.** Touch only the files and lines the current slice's behavior requires. Do not clean up, reformat, refactor, or modernize anything adjacent just because it's nearby, and do not add behavior the slice's tests don't call for. If something outside the slice looks worth improving, note it instead of fixing it inline, and raise it as a separate decision.
-- **One thing at a time.** Each slice, and each commit within it, changes exactly one logical thing. A change that adds new behavior, reshapes unrelated existing code, and edits configuration all at once is several changes wearing one commit — split it into one commit per change instead.
-- **Keep it green.** After every slice, not only at the end of the whole unit of work, the project is left in a state where it builds (where it has a build step) and every existing test passes — nothing is committed in a state the next slice would have to work around.
-- **Feature flags for incomplete work.** When a slice is correct and tested but the unit of work it belongs to isn't ready to be user-visible, merge it behind a flag defaulted off rather than holding the commit back. Add that flag with the first such slice, not after several have already landed unflagged.
-- **Safe defaults.** New behavior defaults to off, or to its most conservative option, unless a test specifically requires otherwise; anything riskier or more user-facing is opt-in, not opt-out.
-- **Rollback-friendly.** Prefer additive changes — new files, functions, fields — over modifying existing ones, since additive changes revert cleanly on their own. Where existing code must change, keep the change minimal and isolated. Where the unit of work includes a reversible operation (e.g., a data or schema migration), give it a corresponding rollback path. Never delete something and replace it with its successor in the same commit — land the replacement first, remove the old path in a later, separate commit.
-
-## Common Rationalizations to Reject
-
-| Rationalization                                                                 | Reality                                                                                                                                                                                                                                      |
-| ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| "I'll write the test after — the logic is already right."                       | A test written after the code is no longer an independent check; it stops functioning as the constraint that TDD depends on.                                                                                                                 |
-| "This test is just wrong, I'll loosen or remove the assertion."                 | A known failure mode under TDD: weakening or deleting a failing test instead of fixing the implementation behind it. Only acceptable if the test is demonstrably incorrect, and that reasoning must be stated explicitly before changing it. |
-| "This needs to work end-to-end, so I'll touch parts outside what was assigned." | Vertical means full depth within the current unit-of-work boundary — not more than what that boundary includes.                                                                                                                              |
-| "I'll write several tests, then implement all of them together."                | Breaks the micro-cycle and reintroduces code-first risk inside a slice that is nominally test-driven.                                                                                                                                        |
-| "This slice is basically done, I'll skip re-running the full suite."            | A slice is not verified until Step 4 actually runs; skipping it is how regressions slip between slices unnoticed.                                                                                                                            |
-| "These changes are too small to commit separately."                             | Small commits are free. Large commits hide bugs and make rollbacks painful.                                                                                                                                                                  |
+- **Simplicity:** implement current requirements, not speculative flexibility. Introduce abstractions for demonstrated clarity or consistency needs, not an arbitrary number of uses.
+- **Cohesion:** include code, tests, configuration and documentation needed for the same outcome together. Defer unrelated cleanup; file type alone does not determine a split.
+- **Exposure:** preserve the agreed visibility and defaults. Use an appropriate isolation mechanism when incomplete behavior must remain inaccessible; feature flags are one option, not mandatory for every increment.
+- **Recovery:** assess compatibility, data and operational effects before risky changes. Use staged replacement when consumers need coexistence. For irreversible operations, establish an authorized recovery/roll-forward approach; a source revert does not undo data loss.
 
 ## Verification
 
-Before presenting the work as complete, check all of the following:
-
-- [ ] Every slice went through Red before any implementation code for it existed.
-- [ ] No failing test was weakened or deleted to make it pass; every fix addressed the implementation instead.
-- [ ] Every slice independently satisfies the Slice Quality Bar.
-- [ ] Every slice has its own commit, and each commit message accurately describes what it does.
-- [ ] The full test suite, build, lint, and type-check (whichever the project defines) all pass after the final slice.
-- [ ] No file or part was touched outside the unit-of-work boundary established in Step 1.
-- [ ] None of the Common Rationalizations above were used to justify skipping a step.
+- Each implemented increment matches the authorized outcome, dependency order and selected method.
+- Required checks actually ran on the reported candidate; test-first claims have genuine RED/GREEN evidence and refactoring retains passing checks.
+- No user work or substantive coverage was discarded to obtain a passing result.
+- Increment and combined verification cover required boundaries; gaps and pre-existing failures remain explicit.
+- Progress and evidence are retained in the owning record or summary; no duplicate tracking system is required.
+- Commits and external actions match actual authority and cadence; local verification is not publication or product acceptance.

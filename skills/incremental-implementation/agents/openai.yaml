@@ -1,4 +1,4 @@
 interface:
   display_name: "Incremental Implementation"
-  short_description: "Implement a change in tested vertical slices"
-  default_prompt: "Use $incremental-implementation to deliver this change in small, tested vertical slices."
+  short_description: "Implement changes in small verified increments"
+  default_prompt: "Use $incremental-implementation to implement this change in small verified increments, respecting dependencies and the selected verification methods."

@@ -405,7 +405,7 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 helper/
   - [x] `spec-writing`
   - [ ] `api-contract-design`
   - [ ] `data-impact-analysis`
-  - [ ] `incremental-implementation`
+  - [x] `incremental-implementation`
   - [x] `tdd`
   - [x] `code-simplification`
   - [x] `code-review`
@@ -493,6 +493,12 @@ Current capability checkpoint - `tdd` (uncommitted changes against `74a2fd4`):
 - Changes: retained four reference owners and six design techniques; corrected prior authorization/record ownership, scope-aware test levels, contractual interaction assertions, first-run-green coverage and reasoning-versus-executed sensitivity evidence. Preserved RED/GREEN/refactor checks, user work and durable evidence; author/version "1.0" preserved. Removed standalone planning wording and aligned the UI prompt with TDD execution.
 - Checks: validator, YAML/JSON, UTF-8, routes/anchors/fences and whitespace passed. Three [behavioral cases](../evals/tdd/scenarios.json) passed semantic review for composed CI coverage, outward effects and already-green examples. Coordinator fixtures observed two real RED/GREEN increments and checked boundary oracles, decision-table equivalence and transition counts against source-reviewed definitions.
 - Limits: inherited model settings, read-only model cases and Windows/Python 3.14.10 fixtures; no autonomous feature cycle, resume, real CI/provider/mutation run or installed-host proof. Final cross-file synchronization clarified final checks and immediate evidence recording; static/example checks passed without model replay. [Coverage](../evals/tdd/README.md#coverage) records gaps; shared integration and P4-01 exit remain open.
+
+Current capability checkpoint - `incremental-implementation` (uncommitted changes against `0cd5f6d`):
+
+- Changes: execution-first routing, supplied-breakdown/dependency reuse, selected verification methods, candidate-bound evidence and caller-owned commit cadence. Retained the selective slicing reference, correcting safety, integration and recovery claims; author/version "1.0" preserved.
+- Checks: skill validator, YAML/JSON, local paths/anchors, Markdown fences, UTF-8 and whitespace passed. Three independent read-only [behavioral cases](../evals/incremental-implementation/scenarios.json) passed semantic assessment for composed CI blockers/deferred commits, resume/baseline/manual evidence and standalone slicing with safeguards.
+- Limits: inherited model settings and single supplied-context cases; no autonomous implementation, live services/CI, persistence, publication or installed-host proof. Final editorial clarifications received static review without replay. [Coverage](../evals/incremental-implementation/README.md#coverage) records gaps; shared Git/TDD/planning integration and P4-01 exit remain open.
 
 ### P4-02 — Prove Shared Schemas, Helpers and Distribution
 

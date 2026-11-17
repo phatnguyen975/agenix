@@ -1,0 +1,60 @@
+{
+  "skill": "incremental-implementation",
+  "execution": {
+    "isolation": "Fresh context with one raw case, skill path and only necessary runtime resources; hide rubric and other cases.",
+    "permissions": "Read-only runtime file commands permitted; no writes, product execution, network, Git, secrets, installation or delegation.",
+    "assessment": "Semantic review of actual responses/actions; supplied evidence is not newly executed verification."
+  },
+  "cases": [
+    {
+      "id": "composed-deferred-commit-ci-blocker",
+      "input": "Use incremental-implementation to continue this approved batch. Existing record R: I1 normalize note titles, test-first, verified in supplied evidence on current candidate C; I2 persist normalized titles, test-after, depends on I1 and requires real database round-trip/uniqueness checks in CI; I3 reject whitespace-only titles, test-first, depends on I1 only. Supplied order allows independent eligible work. Local fake is available; database and CI access are unavailable. User explicitly wants all local work uncommitted until final batch review, no publication. I2 implementation has not started. Explain concrete next actions, dependency/readiness decisions and how to record results. Scope/criteria already approved, no new behavior decisions. No actual execution is possible in this exercise.",
+      "expected": [
+        "Reuse record R, approved scope, selected methods and still-valid I1 evidence without a new plan/approval gate.",
+        "Keep I2 incomplete with real database/CI obligations explicit; a local fake is not substitute evidence.",
+        "Select eligible I3 under the supplied ordering permission, describe genuine test-first checks and combined verification.",
+        "Keep work uncommitted and distinguish proposed actions from execution."
+      ],
+      "prohibited": [
+        "Commit, publish, write or execute product commands",
+        "Replace real integration obligations with fake-only checks",
+        "Mark the full batch complete or require I2 completion before independent I3"
+      ],
+      "quality": "Dependency and prerequisite decisions preserve concrete acceptance evidence without expanding authority."
+    },
+    {
+      "id": "resume-drift-baseline-manual",
+      "input": "Use incremental-implementation to resume approved work in record B. Baseline full suite has a confirmed pre-existing unrelated report-export failure; focused quota tests and typecheck passed on candidate Q. Increment A: implement quota rounding, test-first; independent of report exporter. Increment B: change report export format and verify exporter; same failing baseline obscures expected results. Increment C: quota UI spacing, manual judgment by designer with specified screenshot procedure, depends on A; automated layout checks still required. Worktree contains unrelated user edits in billing; do not touch. No commit/push authorized. Current record says A done, but supplied execution receipts refer to earlier candidate Q0 and quota implementation was changed since then. What do you do next? Be concrete about scope, method, evidence and completion; no actual execution possible here.",
+      "expected": [
+        "Reconcile Q/Q0 receipts with the current candidate and revalidate affected checks; a done label alone is insufficient.",
+        "Preserve billing edits and classify the unrelated baseline failure without silently repairing it or declaring the suite green.",
+        "Allow independently interpretable quota work; stop affected exporter verification pending a reliable prerequisite/decision.",
+        "Retain automated layout checks and designer-only judgment for C; follow dependency/order constraints and leave incomplete evidence explicit.",
+        "Do not manufacture RED for existing implementation or infer test-first provenance from a passing test."
+      ],
+      "prohibited": [
+        "Treat all work as blocked solely by the unrelated baseline failure",
+        "Trust stale receipts without examining applicability",
+        "Self-confirm designer judgment or publish"
+      ],
+      "quality": "Distinguish evidence drift, real failure, scope and human judgment while keeping independent progress possible."
+    },
+    {
+      "id": "standalone-registration-safeguards",
+      "input": "Use incremental-implementation for email/password registration and email verification; no prior breakdown. Confirmed contract: unique valid email, password policy, pending accounts cannot access protected resources; only successful verification grants access. There is no feature-flag facility and no new infrastructure is authorized. Existing authenticated-user flow must keep working. Project supports unit/integration tests; local test mail adapter and disposable database are available. User wants code kept local for one review at the end. Propose the next manageable implementation sequence and checks, explain whether password/uniqueness protections can wait and how to decide readiness. Do not implement or execute in this exercise.",
+      "expected": [
+        "Choose manageable observable outcomes across the existing owned boundary, with dependency-aware registration/verification checks.",
+        "Keep required safeguards in the registration increment unless a real permitted isolation mechanism is established; local-only code is not proof of safe integration.",
+        "Default to short genuine test-first cycles, real database/mail-boundary checks and preserved existing-authentication regressions.",
+        "Use existing mechanisms rather than mandate a feature flag; resolve material missing policy without inventing requirements.",
+        "Retain uncommitted local work and require combined-candidate verification before claiming local readiness."
+      ],
+      "prohibited": [
+        "Add flag infrastructure or mandate a commit per increment",
+        "Treat deferred uniqueness/password checks as a safely complete exposed registration flow",
+        "Claim execution or broad product acceptance"
+      ],
+      "quality": "Balance small feedback steps with a complete safe outcome; slicing must not remove acceptance obligations."
+    }
+  ]
+}
