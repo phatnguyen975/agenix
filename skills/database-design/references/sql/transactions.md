@@ -11,7 +11,7 @@ Define atomic write boundaries, concurrency protection, isolation, and retry beh
 
 ## Isolation and Anomalies
 
-Choose isolation based on the anomaly the invariant must prevent, not on a generic preference for stronger isolation.
+Choose isolation based on the anomaly to prevent. The table describes [PostgreSQL 18 behavior](https://www.postgresql.org/docs/18/transaction-iso.html). Verify defaults, visibility and locking in the selected engine before mapping the same isolation label to it.
 
 | Level                    | Relevant Behavior                                                                                                                           | Design Guidance                                                                                                                                      |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -54,12 +54,12 @@ Protect a single-row withdrawal with one conditional statement rather than a sep
 ```sql
 UPDATE accounts
 SET balance = balance - $1
-WHERE id = $2 AND balance >= $1
+WHERE id = $2 AND $1 > 0 AND balance >= $1
 RETURNING id, balance;
 ```
 
-No returned row means the account was absent or the balance predicate failed; the application must distinguish those outcomes only if the domain requires it. A transfer between two accounts needs a transaction and a consistent lock order.
+With authorized account access and a correctly typed amount, no row means the account was absent or the amount/balance predicate failed. Distinguish the business outcomes when required. A transfer between two accounts needs a transaction and a consistent lock order.
 
 ## Output Mapping
 
-In `Transactions and Concurrency`, record each write operation's `AP-nn`, invariant/atomic boundary, isolation level, concurrency control, retry/idempotency, and client-visible failure. Omit read-only operations from this section.
+In `Transactions and Concurrency`, record each write operation's `AP-nn`, invariant/atomic boundary, isolation level, concurrency control, retry/idempotency, and client-visible failure. For reads, add a row only when an explicit snapshot or isolation guarantee affects the design.

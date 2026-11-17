@@ -33,23 +33,23 @@ Define consistent naming, identifier, data type, and value representation conven
 
 ## Data Types
 
-| Domain Meaning     | Prefer Type                                      | Convention                                                                                                                  |
-| ------------------ | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| Text               | String (`string`)                                | Define normalization, case sensitivity, and encoding where relevant.                                                        |
-| Whole number       | Integer (`int32` or `int64`)                     | Choose according to expected value range.                                                                                   |
-| Approximate number | Floating-point (`double`)                        | Use only when approximation is acceptable.                                                                                  |
-| Exact decimal      | Decimal (`decimal128`)                           | Use for decimal arithmetic requiring exact decimal representation.                                                          |
-| Money              | Integer minor units plus currency code (`int64`) | Store monetary amounts as integer minor units (e.g. cents, đồng where applicable) to avoid floating-point precision errors. |
-| Boolean            | Boolean (`bool`)                                 | Use actual boolean values, not strings or magic numbers.                                                                    |
-| Instant            | Date/time instant (`date`)                       | Represent an unambiguous point in time, preferably UTC.                                                                     |
-| Calendar date      | Date-only (`string` or explicit components)      | Use canonical `YYYY-MM-DD` representation when using strings.                                                               |
-| Enumerated value   | Enum or string (`string`)                        | Use stable, descriptive values rather than positional numbers.                                                              |
-| Nested structure   | Object (`object`)                                | Represent structured, related values as nested objects.                                                                     |
-| Ordered collection | Array (`array`)                                  | Keep element types consistent within the same logical array.                                                                |
-| Binary content     | Binary (`binData`)                               | Use only for appropriately sized binary values.                                                                             |
-| Null value         | Null (`null`)                                    | Use only when explicit null has defined semantics.                                                                          |
-| Identifier         | Identifier (`objectId`, `string`, or `binData`)  | Use one consistent representation for each logical identifier.                                                              |
-| Geospatial value   | Geographic geometry (GeoJSON)                    | Use the target database's supported geospatial representation.                                                              |
+| Domain Meaning     | Prefer Type                                             | Convention                                                                                               |
+| ------------------ | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Text               | String (`string`)                                       | Define normalization, case sensitivity, and encoding where relevant.                                     |
+| Whole number       | Integer (`int32` or `int64`)                            | Choose according to expected value range.                                                                |
+| Approximate number | Floating-point (`double`)                               | Use only when approximation is acceptable.                                                               |
+| Exact decimal      | Decimal (`decimal128`)                                  | Use for decimal arithmetic requiring exact decimal representation.                                       |
+| Money              | Integer minor units or `decimal128`, plus currency code | Choose exact representation and rounding from domain requirements. Integer units need an explicit scale. |
+| Boolean            | Boolean (`bool`)                                        | Use actual boolean values, not strings or magic numbers.                                                 |
+| Instant            | Date/time instant (`date`)                              | Represent an unambiguous point in time, preferably UTC.                                                  |
+| Calendar date      | Date-only (`string` or explicit components)             | Use canonical `YYYY-MM-DD` representation when using strings.                                            |
+| Enumerated value   | Enum or string (`string`)                               | Use stable, descriptive values rather than positional numbers.                                           |
+| Nested structure   | Object (`object`)                                       | Represent structured, related values as nested objects.                                                  |
+| Ordered collection | Array (`array`)                                         | Keep element types consistent within the same logical array.                                             |
+| Binary content     | Binary (`binData`)                                      | Use only for appropriately sized binary values.                                                          |
+| Null value         | Null (`null`)                                           | Use only when explicit null has defined semantics.                                                       |
+| Identifier         | Identifier (`objectId`, `string`, or `binData`)         | Use one consistent representation for each logical identifier.                                           |
+| Geospatial value   | Geographic geometry (GeoJSON)                           | Use the target database's supported geospatial representation.                                           |
 
 ## Value Semantics and Consistency
 
@@ -70,12 +70,12 @@ Define consistent naming, identifier, data type, and value representation conven
 const invoice = {
   _id: ObjectId("65a000000000000000000001"),
   customerId: ObjectId("65a000000000000000000002"),
-  fullName: "Nguyen Van A",
+  fullName: "Example Customer",
   isActive: true,
   birthDate: "2000-05-20",
   createdAt: ISODate("2026-11-04T08:30:00Z"),
   totalAmount: Decimal128("1250.50"),
-  currencyCode: "VND",
+  currencyCode: "USD",
   tags: ["premium", "verified"],
   shippingAddress: {
     city: "Ho Chi Minh City",
@@ -87,4 +87,4 @@ const invoice = {
 ## Output Mapping
 
 - `Design Summary`: identify the target DBMS/version and source requirements.
-- `Collections > <database.collection_name>`: apply project naming/identifier/date-time/money/document-bound conventions consistently; list each field path, BSON type, requiredness, validation rule, and meaning.
+- `Collections > <database.collection_name>`: apply project naming/identifier/date-time/money/document-bound conventions consistently; list each field path, selected-engine type, requiredness, validation rule, and meaning.

@@ -14,6 +14,8 @@ Use normalization to make relational facts unambiguous, reduce avoidable redunda
 
 ## Normal Forms
 
+The definitions and decomposition properties follow [Database System Concepts, Chapter 7](https://www.db-book.com/slides-dir/PDF-dir/ch7.pdf). Use project business rules to establish the dependencies.
+
 | Form | Core Condition                                                                                                                                         | Typical Issue                                                                                                                                           | Typical Treatment                                                                                                         |
 | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | 1NF  | Each attribute value is atomic with respect to its defined domain; no repeating groups or delimited sets representing independently meaningful values. | `customer.phones = '555-0101,555-0102'` when phone numbers are independently meaningful facts.                                                          | Represent independently meaningful phone numbers as separate rows in a related relation.                                  |
@@ -85,10 +87,11 @@ The product name is determined by product identity, not by the order or order li
 Keep product identity and current product information in `products`, and reference it from `order_items`. Store a purchase-time product description separately only when it is an intentional historical snapshot.
 
 ```sql
+-- Assumes customers(id) is an existing eligible bigint key.
 CREATE TABLE orders (
   id bigint PRIMARY KEY,
-  customer_id bigint NOT NULL,
-  placed_at timestamp NOT NULL
+  customer_id bigint NOT NULL REFERENCES customers(id),
+  placed_at timestamptz NOT NULL
 );
 
 CREATE TABLE products (

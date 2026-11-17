@@ -46,7 +46,7 @@ db.orders.aggregate([
 ]);
 ```
 
-Define how summaries for customers with no remaining orders are removed and how often the pipeline runs; `$merge` alone does not define the complete refresh lifecycle.
+The example assumes a single currency across the source orders. Group by currency or use an agreed conversion rule when currencies differ. Define how summaries for customers with no remaining orders are removed and how often the pipeline runs; `$merge` alone does not define the complete refresh lifecycle.
 
 ## Output Mapping
 

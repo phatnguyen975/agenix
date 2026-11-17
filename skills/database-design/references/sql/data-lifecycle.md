@@ -36,7 +36,7 @@ Choose the smallest mechanism that preserves the required history semantics.
 
 - Derive retention periods and deletion obligations from confirmed requirements or applicable policy. Mark unknown periods `Not specified`; never invent a legal retention period.
 - Soft deletion does not remove foreign-key references or automatically hide rows. Define which queries exclude deleted records and whether children remain visible.
-- A uniqueness rule for active records may require a partial unique index, for example `UNIQUE (email) WHERE deleted_at IS NULL` in PostgreSQL.
+- A uniqueness rule for active records may require a partial unique index, such as a PostgreSQL partial index created with `CREATE UNIQUE INDEX ... WHERE deleted_at IS NULL`.
 - Anonymization must cover history, archives, JSON payloads, derived tables, and downstream copies within the stated scope. Do not claim that pseudonymization is anonymization.
 - Prefer partition detach/drop for eligible high-volume time-based retention only when partitioning already matches the workload and retention boundary. It is not a universal replacement for deletion.
 - Distinguish logical deletion from physical erasure in backups and replicas; state any operational delay as an explicit requirement or limitation.

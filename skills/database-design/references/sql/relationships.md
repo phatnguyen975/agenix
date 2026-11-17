@@ -1,6 +1,6 @@
 # SQL Relationships
 
-Translate logical relationships into relational keys and constraints. Index design is covered in `indexing.md`; referential actions and constraint details are in `constraints.md`.
+Translate logical relationships into relational keys and constraints. Index design is covered in [Indexing](indexing.md); referential actions and constraint details are in [Constraints](constraints.md).
 
 ## Foreign Key Placement
 
@@ -9,7 +9,7 @@ Translate logical relationships into relational keys and constraints. Index desi
 - A foreign key references a primary key or eligible unique key. Use a composite foreign key when the relationship is scoped by tenant or another parent key.
 - A reference between relational tables should normally be represented by a foreign key, not only by a similarly named column.
 - Choose `ON DELETE` behavior from ownership and lifecycle rules. Do not default every relationship to cascade. Choose `ON UPDATE` deliberately; immutable surrogate keys commonly use `NO ACTION`.
-- A foreign key does not automatically create an index on its referencing columns in PostgreSQL. Evaluate the child-side index from joins, child lookup patterns, and the cost of parent deletes/updates (`indexing.md`).
+- A foreign key does not automatically create an index on its referencing columns in PostgreSQL. Evaluate the child-side index from joins, child lookup patterns, and the cost of parent deletes/updates ([Indexing](indexing.md)).
 
 ## One-to-Many
 
@@ -22,7 +22,7 @@ The child holds one foreign key to the parent. Record whether the relationship i
 ## One-to-One
 
 - Use a unique foreign key in the dependent table, or a shared primary key when the child identity is the parent identity.
-- A foreign key alone enforces at most one child per parent when unique, but cannot always enforce mandatory participation on both sides. Merge the tables or design a reliable deferred/transactional enforcement strategy when that invariant is real.
+- A unique foreign key enforces at most one referencing child for each non-null parent key. It cannot require every parent to have a child. Merge the tables or design a reliable deferred/transactional enforcement strategy when that invariant is real.
 - Keep the tables separate only when lifecycle, access, size, ownership, or sensitivity differs.
 
 ## Many-to-Many

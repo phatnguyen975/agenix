@@ -2,15 +2,17 @@
 
 <!-- Authoring contract: Replace every <...> placeholder and remove every authoring comment. Use confirmed requirements and project conventions. Mark non-blocking unknowns 'Not specified' only in the affected field. Omit any section, subsection, table, or row that has no applicable content. Repeat the Table block once per table and the row pattern once per item. -->
 
+<!-- Use this template for a standalone full relational design. When adapting an applicable section to a caller's format, follow that format. PostgreSQL syntax in examples is illustrative. Use an em dash for an inapplicable cell in an otherwise relevant row. -->
+
 ## Design Summary
 
-| Property                           | Value                                                       |
-| ---------------------------------- | ----------------------------------------------------------- |
-| System / Feature                   | <System or feature name>                                    |
-| Scope                              | <In-scope and out-of-scope items>                           |
-| DBMS / Version                     | <DBMS name and supported target version>                    |
-| Source Requirements                | <Requirement IDs or source document paths>                  |
-| Required Extensions / Capabilities | <Extensions/features required by this design, with version> |
+| Property                           | Value                                                                    |
+| ---------------------------------- | ------------------------------------------------------------------------ |
+| System / Feature                   | <System or feature name>                                                 |
+| Scope                              | <In-scope and out-of-scope items>                                        |
+| DBMS / Version                     | <Selected DBMS and target version; deployment constraints when relevant> |
+| Source Requirements                | <Requirement IDs or source document paths>                               |
+| Required Extensions / Capabilities | <Extensions/features required by this design, with version>              |
 
 ### Design Intent
 
@@ -28,17 +30,17 @@
 
 <!-- Repeat one row per confirmed invariant. Each rule needs one authoritative enforcement mechanism; mention additional defense-in-depth only when its responsibility is distinct. -->
 
-| ID    | Rule                         | Enforcement                                                    | Source                       |
-| ----- | ---------------------------- | -------------------------------------------------------------- | ---------------------------- |
-| BR-01 | <Precise business invariant> | <Constraint/transaction/application rule and failure behavior> | <Requirement or decision ID> |
+| ID    | Rule                                       | Enforcement                                                    | Source                       |
+| ----- | ------------------------------------------ | -------------------------------------------------------------- | ---------------------------- |
+| BR-01 | <Precise business invariant and its scope> | <Constraint/transaction/application rule and failure behavior> | <Requirement or decision ID> |
 
 ## Entity Model
 
-<!-- Show logical entities and cardinalities only. Use Mermaid crow's-foot markers: o| zero-or-one, || exactly-one, o{ zero-or-many, |{ one-or-many. Keep physical details in later sections. -->
+<!-- Use a logical ER diagram or a relationship table if the format cannot render diagrams. For Mermaid markers, o| and o{ are right-side markers. Mirror the notation at the left end and use an identifying edge only when parent identity is part of child identity. Keep physical details in later sections. -->
 
 ```mermaid
 erDiagram
-    EntityA ||--o{ EntityB : "relationship verb"
+    EntityA ||..o{ EntityB : "relationship verb"
 ```
 
 ### Entity Definitions
@@ -65,9 +67,9 @@ erDiagram
 
 <One-sentence purpose and source logical entity>
 
-| Column        | Type                    | Null            | Default / Generation              | Constraint / Rule                       | Meaning            |
-| ------------- | ----------------------- | --------------- | --------------------------------- | --------------------------------------- | ------------------ |
-| <column_name> | <Target-DBMS data type> | <NULL/NOT NULL> | <Expression/identity/generated/—> | <PK/UK/FK/CHECK or BR-nn; omit if none> | <Business meaning> |
+| Column        | Type                    | Null            | Default / Generation              | Constraint / Rule                            | Meaning            |
+| ------------- | ----------------------- | --------------- | --------------------------------- | -------------------------------------------- | ------------------ |
+| <column_name> | <Target-DBMS data type> | <NULL/NOT NULL> | <Expression/identity/generated/—> | <PK/UK/FK/CHECK or BR-nn; — if inapplicable> | <Business meaning> |
 
 #### Table-Level Constraints
 
@@ -109,7 +111,7 @@ erDiagram
 
 ## Transactions and Concurrency
 
-<!-- Include Transactions and Concurrency only when writes exist. One row per operation or group sharing the same invariant and transaction boundary. -->
+<!-- Include Transactions and Concurrency when writes exist or reads require an explicit isolation guarantee. Group operations only when their boundary and correctness requirements match. -->
 
 | Operation            | Invariant / Atomic Boundary                  | Isolation                          | Concurrency Control                                           | Retry / Failure                                       |
 | -------------------- | -------------------------------------------- | ---------------------------------- | ------------------------------------------------------------- | ----------------------------------------------------- |

@@ -2,15 +2,17 @@
 
 <!-- Authoring contract: Replace every <...> placeholder and remove every authoring comment. Use confirmed requirements and project conventions. Mark non-blocking unknowns 'Not specified' only in the affected field. Omit any section, subsection, table, or row that has no applicable content. Repeat the Collection block once per collection and the row pattern once per item. -->
 
+<!-- Use this template for a standalone full document design. When adapting an applicable section to a caller's format, follow that format. MongoDB notation is illustrative. Use an em dash for an inapplicable cell in an otherwise relevant row. -->
+
 ## Design Summary
 
-| Property            | Value                                                             |
-| ------------------- | ----------------------------------------------------------------- |
-| System / Feature    | <System or feature name>                                          |
-| Scope               | <In-scope and out-of-scope items>                                 |
-| DBMS / Version      | <Document DBMS name and supported target version>                 |
-| Source Requirements | <Requirement IDs or source document paths>                        |
-| Required Features   | <Only non-default features required by this design, with version> |
+| Property            | Value                                                                                          |
+| ------------------- | ---------------------------------------------------------------------------------------------- |
+| System / Feature    | <System or feature name>                                                                       |
+| Scope               | <In-scope and out-of-scope items>                                                              |
+| DBMS / Version      | <Selected document DBMS and target version; topology and compatibility settings when relevant> |
+| Source Requirements | <Requirement IDs or source document paths>                                                     |
+| Required Features   | <Only non-default features required by this design, with version>                              |
 
 ### Design Intent
 
@@ -28,17 +30,17 @@
 
 <!-- Repeat one row per confirmed invariant. Identify the authoritative mechanism; distinguish database validation from application and transaction enforcement. -->
 
-| ID    | Rule                         | Enforcement                                                                                  | Source                       |
-| ----- | ---------------------------- | -------------------------------------------------------------------------------------------- | ---------------------------- |
-| BR-01 | <Precise business invariant> | <Validator/unique index/conditional write/transaction/application rule and failure behavior> | <Requirement or decision ID> |
+| ID    | Rule                                       | Enforcement                                                                                  | Source                       |
+| ----- | ------------------------------------------ | -------------------------------------------------------------------------------------------- | ---------------------------- |
+| BR-01 | <Precise business invariant and its scope> | <Validator/unique index/conditional write/transaction/application rule and failure behavior> | <Requirement or decision ID> |
 
 ## Entity Model
 
-<!-- Show logical entities and cardinalities only. Do not imply that MongoDB references are foreign keys. -->
+<!-- Use a logical ER diagram or a relationship table. For Mermaid, use an identifying edge only when parent identity is part of child identity. A document reference has its own enforcement policy. -->
 
 ```mermaid
 erDiagram
-    EntityA ||--o{ EntityB : "relationship verb"
+    EntityA ||..o{ EntityB : "relationship verb"
 ```
 
 ### Entity Definitions
@@ -61,15 +63,17 @@ erDiagram
 
 ### <database.collection_name>
 
-<Purpose, represented aggregate, _id type/generation, expected document size, and embedded-array growth bounds; keep ordinary documents below 16 MiB and time-series measurements below 4 MB>
+<Purpose, represented aggregate, identifier type and generation, worst-case expected document size and array growth bounds. Compare against the selected engine and collection type limits>
 
-| Field Path   | BSON Type   | Required | Rule / Meaning                                       |
-| ------------ | ----------- | -------- | ---------------------------------------------------- |
-| <field.path> | <BSON type> | <Yes/No> | <Allowed values, bounds, business meaning, or BR-nn> |
+| Field Path   | Type          | Required | Rule / Meaning                                       |
+| ------------ | ------------- | -------- | ---------------------------------------------------- |
+| <field.path> | <Engine type> | <Yes/No> | <Allowed values, bounds, business meaning, or BR-nn> |
 
 #### Example Document
 
-<!-- Provide one realistic, internally consistent document using representative BSON values. It must match the field definitions and validation rules. Use Extended JSON or clearly label shell constructors such as ObjectId() and ISODate(). -->
+<!-- Provide one realistic, internally consistent document with synthetic data that matches the field types, requiredness, bounds and validation rules. For MongoDB, label Extended JSON or shell syntax explicitly. For other engines, use their supported representation. -->
+
+**Example representation:** <State the selected encoding or shell notation. MongoDB shell notation is illustrated below>.
 
 ```javascript
 {
@@ -80,7 +84,7 @@ erDiagram
 
 #### Validation
 
-<Validator summary; validationLevel strict/moderate/off/constraint; validationAction error/errorAndLog/warn; same-document rules, collection-type limitations, and legacy-data migration plan when applicable>
+<Shape and value rules, enforcement mode and invalid-write behavior. State target-version requirements, collection-type limits and trusted write-path controls for rules the engine cannot enforce>
 
 ## Indexes
 
@@ -100,11 +104,11 @@ erDiagram
 
 ## Transactions and Concurrency
 
-<!-- Include Transactions and Concurrency only when writes exist. Prefer single-document atomicity. -->
+<!-- Include Transactions and Concurrency when writes exist or an explicit read-consistency guarantee affects design. Record the smallest suitable atomic write boundary and any cross-document conflict protocol. -->
 
-| Operation            | Invariant / Atomic Boundary                            | Read / Write Concern                        | Concurrency Control                                                                  | Retry / Failure                                       |
-| -------------------- | ------------------------------------------------------ | ------------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------- |
-| <Operation or AP-nn> | <BR-nn and single-document or multi-document boundary> | <Required readConcern/writeConcern and why> | <Conditional update/version check/unique index/shared conflict document/transaction> | <Retry and idempotency rule; client-visible conflict> |
+| Operation            | Invariant / Atomic Boundary                            | Consistency / Durability                           | Concurrency Control                                                                  | Retry / Failure                                       |
+| -------------------- | ------------------------------------------------------ | -------------------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------- |
+| <Operation or AP-nn> | <BR-nn and single-document or multi-document boundary> | <Required consistency/durability settings and why> | <Conditional update/version check/unique index/shared conflict document/transaction> | <Retry and idempotency rule; client-visible conflict> |
 
 ## Security and Data Protection
 
@@ -112,9 +116,9 @@ erDiagram
 
 ### Roles and Privileges
 
-| Role        | Principal          | Allowed Scope / Actions                            | Enforcement Boundary                         |
-| ----------- | ------------------ | -------------------------------------------------- | -------------------------------------------- |
-| <Role name> | <Service or actor> | <Database/collection and read/write/admin actions> | <MongoDB RBAC and application authorization> |
+| Role        | Principal          | Allowed Scope / Actions                            | Enforcement Boundary                                |
+| ----------- | ------------------ | -------------------------------------------------- | --------------------------------------------------- |
+| <Role name> | <Service or actor> | <Database/collection and read/write/admin actions> | <Database privileges and application authorization> |
 
 ### Sensitive Data
 
@@ -141,17 +145,17 @@ erDiagram
 | Decision                 | Design                                                               |
 | ------------------------ | -------------------------------------------------------------------- |
 | Isolation Model          | <Shared collections/database per tenant/dedicated deployment/hybrid> |
-| Trusted Tenant Context   | <Authenticated source and BSON type>                                 |
+| Trusted Tenant Context   | <Authenticated source and identifier type>                           |
 | Tenant Keys / References | <Tenant-scoped unique indexes and reference checks>                  |
 | Enforcement              | <Application authorization and physical isolation boundary>          |
 
 ## Collection Options
 
-<!-- Include only for non-default collection semantics, such as time-series. For time-series, capture the 4 MB document cap, absent schema validation/default _id index/unique indexes, unsupported transactional writes, restricted updates/indexes, and any sharding limitations that affect the design. -->
+<!-- Include only for non-default collection semantics, such as time-series. For time-series, record applicable limits on size, validation, indexes, updates, transactions and sharding for the selected engine/version. -->
 
-| Collection        | Type / Options                                                             | Validation Limitation                                          | Transaction / Index Limitation                                           | Retention                                          |
-| ----------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------- |
-| <collection_name> | <Time-series: timeField, metaField, granularity; or other special options> | <Applicable validation support or application validation path> | <Only relevant restrictions for this collection type and target version> | <expireAfterSeconds or confirmed lifecycle policy> |
+| Collection        | Type / Options                                                             | Validation Limitation                                          | Transaction / Index Limitation                                           | Retention                                         |
+| ----------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------- |
+| <collection_name> | <Time-series: timeField, metaField, granularity; or other special options> | <Applicable validation support or application validation path> | <Only relevant restrictions for this collection type and target version> | <Confirmed retention setting or lifecycle policy> |
 
 ## Sharding
 

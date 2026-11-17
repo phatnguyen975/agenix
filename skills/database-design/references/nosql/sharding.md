@@ -24,19 +24,21 @@ Before selecting a shard key, define:
 
 ## Strategies
 
-| Strategy | Properties                                                                     | Use When                                                       |
-| -------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------- |
-| Ranged   | Range queries on the key stay local. Risk of hot spots                         | Range queries on the key are core and values are spread evenly |
-| Hashed   | Even distribution, including for monotonic values. No range queries on the key | Monotonic or low-entropy key with equality lookups             |
-| Compound | Raises cardinality (`tenantId` plus a high-cardinality field)                  | A single field has too few distinct values                     |
+| Strategy | Properties                                                                                            | Use When                                                             |
+| -------- | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Ranged   | Shard-key ranges target matching chunks, which may span shards. Monotonic writes can create hot spots | Range reads are important and writes are spread across the key space |
+| Hashed   | Helps spread distinct monotonic values. Original-value ranges generally lose shard targeting          | Monotonic, sufficiently high-cardinality key with equality lookups   |
+| Compound | Raises cardinality (`tenantId` plus a high-cardinality field)                                         | A single field has too few distinct values                           |
 
 ## Unique Index Constraints
 
-- In a sharded collection, a unique index generally must include the full shard key as a prefix. A unique index that omits the shard key cannot enforce global uniqueness across shards.
+- In a sharded collection, cluster-wide uniqueness from a unique index requires the shard key or an index with the full shard key as its prefix, subject to the supported index types and collation. A unique index that omits the shard key cannot enforce global uniqueness across shards.
 - If `_id` is not the shard key, the `_id` uniqueness constraint is enforced per shard, not necessarily across the whole sharded cluster. Ensure IDs are globally unique by generation or use a compatible uniqueness design.
 - Unique hashed indexes are not supported. Verify all unique-index and shard-key restrictions for the actual server version before committing the model.
 - A per-tenant unique key often takes the form `{ tenantId: 1, businessKey: 1 }`, but it is valid for cluster-wide enforcement only when compatible with the collection's shard key.
-- Time-series collections have a separate, restricted shard-key contract. Only the `metaField`, its subfields, and (deprecated since MongoDB 8.0) the `timeField` are eligible; zone sharding and sharding administration commands are unsupported. Avoid `timeField` shard keys and verify target-version restrictions before selecting a sharded time-series design.
+- Time-series collections have a separate, restricted shard-key contract. Only the `metaField`, its subfields, and (deprecated since MongoDB 8.0) the `timeField` are eligible; zone sharding is unsupported and administrative operations have version-specific restrictions. Avoid `timeField` shard keys and verify target-version restrictions before selecting a sharded time-series design.
+
+Hashing gives identical values the same hash, so it cannot distribute traffic concentrated on one low-cardinality key by itself. Verify the design against [MongoDB sharded uniqueness](https://www.mongodb.com/docs/manual/core/index-unique/#sharded-clusters-and-unique-indexes) and [time-series sharding limits](https://www.mongodb.com/docs/manual/core/timeseries/timeseries-limitations/#sharding).
 
 ## Example
 

@@ -1,6 +1,6 @@
 # SQL Modeling Patterns
 
-Use these patterns only when the domain shape or access patterns justify them. Core relationship placement is covered in `relationships.md`.
+Use these patterns only when the domain shape or access patterns justify them. Core relationship placement is covered in [Relationships](relationships.md).
 
 ## Subtype Modeling
 

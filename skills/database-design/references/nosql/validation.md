@@ -1,10 +1,10 @@
 # NoSQL Validation
 
-Use database validation to enforce document shape and field-level value rules. State which invariants remain application- or transaction-enforced.
+Use the selected engine's validation to enforce document shape and field-level value rules. The syntax and modes below describe MongoDB. State which invariants remain application- or transaction-enforced.
 
 ## Structural Validation
 
-- Define a `$jsonSchema` validator for collections with a stable document contract.
+- For MongoDB collections with a stable document contract, define a `$jsonSchema` validator. For another engine, map the rules to its supported validation or the trusted write path.
 - Specify required fields, BSON types, allowed values, numeric bounds, string length/pattern, array bounds, and nested object shape when part of the domain contract.
 - Use `additionalProperties: false` only for intentionally closed objects; include `_id` and every allowed field. Keep variable attributes open where intended.
 - Set `maxItems` for bounded arrays. If no credible bound exists, reconsider embedding rather than inventing a maximum.
@@ -46,6 +46,8 @@ db.createCollection("orders", {
 
 ## Validation Modes
 
+See MongoDB's [validation levels](https://www.mongodb.com/docs/manual/core/schema-validation/specify-validation-level/) and [validation actions](https://www.mongodb.com/docs/manual/core/schema-validation/handle-invalid-documents/) for the target version.
+
 | Setting            | Option                       | Design meaning                                                                                             |
 | ------------------ | ---------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | `validationLevel`  | `strict`                     | Validate all inserts and updates against the rules; preferred for a new collection with a defined contract |
@@ -57,18 +59,18 @@ db.createCollection("orders", {
 |                    | `warn`                       | Accept invalid writes and log; observation/migration mode, not enforcement                                 |
 
 - Before enabling stricter validation on an existing collection, inspect and remediate legacy documents. Changing validation policy does not repair existing records.
-- Use `constraint` only with MongoDB 9.0+ and a controlled schema-change process; it prevents bypass and prevents changing the validator while active.
+- MongoDB 9.0 introduced `constraint`. Existing documents must satisfy validation, and the action must be `error` or `errorAndLog`. To edit the rules, change the level to `strict` first.
 - MongoDB time-series collections do not support schema validation. Enforce their shape and value rules in a trusted application write path and record the limitation.
 
 ## Cross-Field and Business Rules
 
 - `$jsonSchema` validates fields and structure. Use `$expr` in the validator for supported same-document comparisons, such as `endAt > startAt`.
 - Unique values require unique indexes, not schema validation.
-- References and target existence are not enforced by a normal reference field; validate in the trusted write path or use a transaction when atomic cross-document integrity is required.
+- References and target existence are not enforced by a normal reference field; design a race-safe trusted write path when existence or same-tenant membership must hold under concurrent changes. See [Reference Integrity](relationships.md#reference-integrity).
 - Previous-state transitions require conditional updates (match the expected current state in the update filter); a validator cannot inspect the prior value.
-- Invariants spanning documents require a model that puts the invariant in one document, an explicit transaction, or another concurrency-safe design.
+- Invariants spanning documents require a model that puts the invariant in one document, a transaction with an explicit conflict protocol, or another concurrency-safe mechanism.
 - Authorization is not field validation. Enforce permissions using database roles and the application authorization boundary.
 
 ## Output Mapping
 
-In each `Collections > <database.collection_name> > Validation` block, record the validator shape, closed/open object policy, validation level/action, same-document rules, and collection-type limitations. Include a migration approach only when changing an existing collection is in scope. In `Business Rules`, identify the enforcement layer and failure behavior for each rule.
+In each `Collections > <database.collection_name> > Validation` block, record the validator shape, closed/open object policy, validation level/action, same-document rules, and collection-type limitations. Record the intended initial write behavior and failure outcome. In `Business Rules`, identify the enforcement layer and failure behavior for each rule.

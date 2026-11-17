@@ -4,7 +4,7 @@ Prefer single-document atomic writes when the aggregate and invariant fit one do
 
 ## Atomicity Boundaries
 
-- MongoDB writes are atomic at the single-document level, including updates to multiple fields and embedded values in that document.
+- MongoDB writes are atomic at the single-document level, including updates to multiple fields and embedded values. Multi-document transactions require a supported replica set or sharded cluster and compatible collections. Check the selected engine, topology, and driver. See [MongoDB transaction prerequisites](https://www.mongodb.com/docs/manual/core/transactions-production-consideration/).
 - Design an aggregate boundary around data that must be read/updated together and whose growth remains bounded.
 - Use a multi-document transaction when multiple documents/collections must commit or abort together and a schema redesign cannot reasonably place the invariant in one document.
 - Do not confuse atomic commit or snapshot reads with serializable predicate enforcement. Concurrent transactions can read the same condition and update disjoint documents; a transaction alone does not guarantee that every cross-document invariant is preserved.
@@ -47,7 +47,7 @@ db.teamRoster.updateOne(
 
 - Choose read and write concern from durability, staleness, causal ordering, and latency requirements; state the required guarantee.
 - `majority` write concern waits for majority acknowledgement and is the usual durability choice for critical committed data, subject to deployment replication configuration.
-- `local` reads may include data later rolled back; `majority` reads return majority-committed data; snapshot reads provide a consistent snapshot in supported transaction contexts.
+- `local` reads may include data later rolled back; `majority` reads return majority-committed data; snapshot reads use a point-in-time view in supported contexts. For MongoDB transactions, commit with majority write concern when relying on the documented majority-committed snapshot guarantee. Check the [snapshot read concern rules](https://www.mongodb.com/docs/manual/reference/read-concern-snapshot/) for the actual operation and topology.
 - Causally consistent sessions with appropriate majority read/write concern can provide read-your-own-writes and related causal guarantees across operations.
 - State visibility separately from durability. A majority read does not guarantee that no newer write exists.
 
@@ -60,4 +60,4 @@ db.teamRoster.updateOne(
 
 ## Output Mapping
 
-In `Transactions and Concurrency`, record each write operation's `AP-nn`, invariant/atomic boundary, read/write concern, concurrency control, retry/idempotency, and client-visible failure. Omit read-only operations. Do not assign writes to time-series collections inside multi-document transactions.
+In `Transactions and Concurrency`, record each write operation's `AP-nn`, invariant/atomic boundary, read/write concern, concurrency control, retry/idempotency, and client-visible failure. For reads, include only operations whose explicit snapshot or read concern affects the design. Do not assign writes to time-series collections inside multi-document transactions.

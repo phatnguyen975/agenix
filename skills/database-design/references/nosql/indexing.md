@@ -18,25 +18,27 @@ Design indexes based on explicit access patterns, query predicates, sorting, uni
 - Use Equality-Sort-Range (ESR) as a starting heuristic: equality fields first, followed by sort fields, then range fields.
 - Consider Equality-Range-Sort (ERS) when a selective range predicate is more beneficial than index-provided sorting.
 - Follow the leftmost-prefix principle. An index on `{ tenantId: 1, status: 1, createdAt: -1 }` generally supports queries beginning with `tenantId`, but not queries filtering on `status` alone.
-- Consider sort direction and collation compatibility when designing compound indexes.
+- Consider sort direction and collation compatibility when designing compound indexes. Use a stable tie-breaker for cursor pagination.
 - Avoid redundant prefix indexes unless uniqueness, partial filters, collation, or measured workload justifies them.
 
 ## Specialized Indexes
 
-| Index         | Use When                                     | Considerations                                                                     |
-| ------------- | -------------------------------------------- | ---------------------------------------------------------------------------------- |
-| Unique        | Enforcing uniqueness of one or more fields   | Define uniqueness scope, null/missing behavior, and collation.                     |
-| Partial       | Indexing only documents matching a condition | Queries must imply the partial filter for index eligibility.                       |
-| Sparse        | Excluding documents without indexed fields   | Understand missing-field and uniqueness behavior.                                  |
-| Multikey      | Querying array elements in MongoDB           | A compound multikey index cannot index multiple array fields in the same document. |
-| TTL           | Automatically expiring documents             | MongoDB TTL deletion is asynchronous, not an exact-time scheduler.                 |
-| Geospatial    | Geographic and spatial queries               | MongoDB GeoJSON `2dsphere` coordinates use `[longitude, latitude]`.                |
-| Text / Search | Full-text search and relevance ranking       | Distinguish MongoDB text indexes from MongoDB Search or external search engines.   |
-| Hash          | Equality-based lookups                       | Does not support ordered or range queries through the hashed key.                  |
-| Vector        | Similarity search over embeddings            | Define vector dimensions, distance metric, and filtering requirements.             |
+| Index         | Use When                                     | Considerations                                                                                                                                                                        |
+| ------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unique        | Enforcing uniqueness of one or more fields   | Define uniqueness scope, null/missing behavior, and collation. A unique multikey index restricts key collisions across documents. It can allow repeated values within the same array. |
+| Partial       | Indexing only documents matching a condition | Queries must imply the partial filter for index eligibility.                                                                                                                          |
+| Sparse        | Excluding documents without indexed fields   | Understand missing-field and uniqueness behavior.                                                                                                                                     |
+| Multikey      | Querying array elements in MongoDB           | A compound multikey index cannot index multiple array fields in the same document.                                                                                                    |
+| TTL           | Automatically expiring documents             | MongoDB TTL deletion is asynchronous, not an exact-time scheduler.                                                                                                                    |
+| Geospatial    | Geographic and spatial queries               | MongoDB GeoJSON `2dsphere` coordinates use `[longitude, latitude]`.                                                                                                                   |
+| Text / Search | Full-text search and relevance ranking       | Distinguish MongoDB text indexes from MongoDB Search or external search engines.                                                                                                      |
+| Hash          | Equality-based lookups                       | Does not support ordered or range queries through the hashed key.                                                                                                                     |
+| Vector        | Similarity search over embeddings            | Define vector dimensions, distance metric, and filtering requirements.                                                                                                                |
 
 - Verify that the target database supports the selected index type and its specific restrictions.
 - For MongoDB time-series collections, do not assume ordinary collection behavior: there is no default `_id` index, unique indexes are unsupported, and some secondary index types have `metaField` restrictions. Check the target MongoDB version.
+
+See [MongoDB unique indexes](https://www.mongodb.com/docs/manual/core/index-unique/) and [multikey limitations](https://www.mongodb.com/docs/manual/core/indexes/index-types/index-multikey/) for engine-specific semantics.
 
 ## Example
 

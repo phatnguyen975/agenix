@@ -30,7 +30,7 @@ A table larger than physical memory is a PostgreSQL rule of thumb for considerin
 
 ## Constraints and Operations
 
-- In PostgreSQL, a primary key or unique constraint on a partitioned table must include every partition-key column. This can prevent a globally unique business key that omits the partition key.
+- In [PostgreSQL 18](https://www.postgresql.org/docs/18/ddl-partitioning.html#DDL-PARTITIONING-DECLARATIVE-LIMITATIONS), a primary key or unique constraint on a declaratively partitioned table must include every partition-key column, and the partition key cannot contain expressions for such a constraint. If that prevents enforcing the business key at its required scope, reconsider the partitioning or design an authoritative uniqueness mechanism.
 - Keep partition count moderate. Too many partitions increase planning and per-session metadata overhead, especially when queries touch many partitions.
 - Define partition creation cadence, boundary handling, late-arriving data, default-partition policy, and retention/drop workflow.
 - Detaching/dropping a whole partition can be substantially cheaper than deleting large volumes row by row, but only if the partition boundaries match the retention policy.

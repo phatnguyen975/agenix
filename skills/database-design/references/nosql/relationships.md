@@ -50,7 +50,7 @@ Choose embedding or references from query patterns, cardinality, lifecycle, grow
 ## Reference Integrity
 
 - Document source of truth, target type, identifier type, requiredness, delete behavior, and orphan-repair policy for every reference.
-- Because references are not foreign keys, enforce existence/lifecycle rules in a trusted service, or in a multi-document transaction when atomicity is required and supported.
+- Enforce existence and lifecycle rules through the trusted write path. If dangling references are forbidden, make creation of a reference and deletion or reassignment of its target contend on common state, or use a model where the invariant is atomic. A transaction that only reads the target and inserts a child may see a stale snapshot while a concurrent delete modifies a different document. Follow the [conflict protocol](transactions.md#atomicity-boundaries) across all writers.
 - Use unique indexes for cardinality that must be enforced (for example, one profile per user).
 - Avoid DBRefs as the default; explicit application-level references make access patterns and consistency rules clearer.
 

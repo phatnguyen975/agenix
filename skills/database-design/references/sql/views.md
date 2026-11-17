@@ -56,14 +56,14 @@ For an expensive aggregate that is read frequently, a materialized view may be a
 ```sql
 CREATE MATERIALIZED VIEW monthly_order_summary AS
 SELECT
-  DATE_TRUNC('month', created_at) AS order_month,
+  DATE_TRUNC('month', created_at, 'UTC') AS order_month,
   COUNT(*) AS order_count,
   SUM(total_amount) AS total_revenue
 FROM orders
-GROUP BY DATE_TRUNC('month', created_at);
+GROUP BY DATE_TRUNC('month', created_at, 'UTC');
 ```
 
-A qualifying unique index can support concurrent refresh when its requirements are satisfied:
+This example assumes `created_at` is `timestamptz`, UTC business months, and one currency across input rows. For several currencies, group and index by currency as well, or design an authorized conversion rule. A qualifying unique index can support concurrent refresh:
 
 ```sql
 CREATE UNIQUE INDEX idx_monthly_order_summary_month

@@ -7,7 +7,7 @@ Build the logical domain model before translating it into tables or documents. T
 - **Entity:** a business concept with identity, lifecycle, or relationships that the system must record (for example, `Customer`, `Order`, or `Subscription`).
 - **Attribute:** a fact that describes an entity (for example, `Order.placedAt`). Keep attributes that share the same identity and lifecycle together unless access, sensitivity, or size justifies separation.
 - Promote an attribute or repeating value to an entity when it has its own identity/lifecycle, its own attributes, an independent relationship, or an independently managed set of values.
-- A derived value is a rule over source facts. Store it only when it represents a separate business fact (such as a price snapshot) or when a justified read model requires it.
+- A derived value is computed from source facts. Store it only when a justified read model or write-time invariant needs it. An agreed price captured at purchase is a distinct historical fact with its own lifecycle.
 - Distinguish current state from event-time facts and valid-time facts. A value captured at purchase time is not automatically the same fact as the current product value.
 - Name entities with singular nouns during analysis. Final names follow the paradigm conventions.
 
@@ -36,7 +36,7 @@ For every relationship, derive and record:
 - Derive rules from requirements and domain semantics, not sample counts or example payloads.
 - A many-to-many relationship with attributes or its own lifecycle is an associative entity (for example, `Enrollment` with `grade` and `enrolledAt`).
 - A relationship among more than two entities is a distinct association when the combination itself has meaning (for example, a supplier supplies a part to a project).
-- A one-to-one relationship is a merge candidate. Keep entities separate only when lifecycle, access pattern, ownership, size, or sensitivity justifies separation.
+- Review a one-to-one relationship for shared identity and lifecycle before merging. Distinct business concepts may remain separate even when their cardinality is one-to-one.
 - Name relationships with a clear verb phrase.
 
 ## Dependent Entities
@@ -62,7 +62,7 @@ Choose the physical mapping in the selected paradigm's reference. Do not create 
 
 An entity may relate to itself (for example, an employee reports to an employee, or a category has a parent category).
 
-- **Tree:** each non-root node has at most one parent.
+- **Tree:** each non-root node has exactly one parent, cycles are forbidden, and every node is reachable from the root. Several independent roots form a forest.
 - **Directed Acyclic Graph (DAG):** a node may have several parents, but cycles are forbidden.
 - **Graph:** cycles may be meaningful and allowed.
 - Record whether roots are allowed, maximum depth if bounded, cycle policy, and common ancestor/descendant access patterns.
@@ -80,7 +80,7 @@ For periods, define whether endpoints are inclusive/exclusive, whether open-ende
 
 ## ER Diagram Notation
 
-Use Mermaid `erDiagram` with crow's-foot notation for the logical entity model. Keep diagrams readable; split large domains into subject-area diagrams.
+Use [Mermaid ER notation](https://mermaid.js.org/syntax/entityRelationshipDiagram.html) when the output format supports it, or a relationship table preserving both ends of each relationship. Keep diagrams readable; split large domains into subject-area diagrams.
 
 | Marker (left) | Marker (right) | Meaning      |
 | ------------- | -------------- | ------------ |
@@ -91,26 +91,18 @@ Use Mermaid `erDiagram` with crow's-foot notation for the logical entity model. 
 
 The marker beside an entity describes how many instances of that entity may relate to one instance of the entity at the opposite end. `--` denotes an identifying relationship; `..` denotes a non-identifying relationship. Use the final logical entity names; do not imply that a document reference is enforced as a database foreign key.
 
-Show key attributes only. Use `PK`, `FK` and `UK` in SQL diagrams; use logical identifiers in document diagrams and describe the reference strategy separately. Put full field definitions in the physical-model section.
+Use logical entity names and identity in the logical view. Reserve physical keys and DBMS types for the physical model. Draw an identifying edge only when the parent identifier participates in the child identity.
 
 **Example:**
 
 ```mermaid
 erDiagram
-    customers ||--o{ orders : places
-    orders ||--|{ order_items : contains
-    products ||--o{ order_items : "is ordered as"
-    customers {
-        bigint id PK
-        text email UK
-    }
-    orders {
-        bigint id PK
-        bigint customer_id FK
-    }
+    Customer ||..o{ Order : places
+    Order ||--|{ OrderItem : contains
+    Product ||..o{ OrderItem : "is ordered as"
 ```
 
-**Reading:** a customer places zero or more orders; each order belongs to one customer and contains one or more order items; each order item refers to one product, and a product may appear in many order items.
+A customer may place many orders. Each order belongs to one customer and has at least one item in this example. An item is identified by its order and line number. It refers to one product, whose identifier is outside the item identity. Record other lifecycle states separately if they permit zero items.
 
 ## Output Mapping
 

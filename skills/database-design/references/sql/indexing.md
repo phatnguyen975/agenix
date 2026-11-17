@@ -11,7 +11,7 @@ An index is justified when it supports one or more of:
 - A lifecycle operation that locates rows to expire, archive, or delete.
 - A foreign-key maintenance path where child-side scans during parent delete/key update are costly.
 
-Do not add an index merely because a column exists or appears in a filter. A sequential scan may be correct for a small table, a low-selectivity predicate, or a query returning a large share of rows. Every index adds storage and write/maintenance cost. Primary-key and unique-constraint indexes already exist.
+Do not add an index merely because a column exists or appears in a filter. A sequential scan may be correct for a small table, a low-selectivity predicate, or a query returning a large share of rows. Every index adds storage and write/maintenance cost. PostgreSQL creates supporting indexes for primary keys and unique constraints. Verify the target engine and reuse existing coverage where applicable.
 
 ## Index Types
 
@@ -64,7 +64,7 @@ For each candidate index, record key order, direction, predicate, included colum
 An index for a tenant-scoped order list filtered by status and sorted newest first:
 
 ```sql
-CREATE INDEX ix_orders_tenant_status_created
+CREATE INDEX idx_orders_tenant_status_created
   ON orders (tenant_id, status, created_at DESC);
 ```
 

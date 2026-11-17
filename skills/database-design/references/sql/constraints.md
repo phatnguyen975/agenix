@@ -33,7 +33,7 @@ Use the strongest reliable declarative mechanism available. Where the DBMS canno
 - In PostgreSQL, `NO ACTION` can be deferred when the constraint is deferrable; `RESTRICT` is checked immediately.
 - Keep referenced identifiers immutable where possible. State non-default update behavior only when the domain requires it.
 - For composite foreign keys, define the intended NULL matching behavior. PostgreSQL's default `MATCH SIMPLE` permits a row to escape the check when any referencing column is NULL; `MATCH FULL` requires all referencing columns to be NULL or all to match.
-- Index the referencing side only when joins, child lookup, or parent deletion/key update cost justifies it (`indexing.md`). PostgreSQL does not create that index automatically.
+- Index the referencing side only when joins, child lookup, or parent deletion/key update cost justifies it ([Indexing](indexing.md)). PostgreSQL does not create that index automatically.
 
 ## Check Constraints
 
@@ -63,7 +63,7 @@ PRIMARY KEY (room_id, during WITHOUT OVERLAPS)
 FOREIGN KEY (room_id, PERIOD during) REFERENCES room_availability (room_id, PERIOD valid_during)
 ```
 
-Use these only when their semantics match the domain and the target version supports them. Define half-open/inclusive interval boundaries, timezone basis, open-ended periods, and allowed gaps/overlaps.
+In [PostgreSQL 18](https://www.postgresql.org/docs/18/sql-createtable.html), the temporal foreign key requires a referenced key declared with `WITHOUT OVERLAPS`. Matching parent periods must cover the entire child period, possibly across several rows. Temporal foreign keys do not support `CASCADE`, `RESTRICT`, `SET NULL` or `SET DEFAULT` referential actions. Choose these keys only when the domain needs those semantics. Define half-open/inclusive interval boundaries, timezone basis, open-ended periods, and allowed gaps/overlaps.
 
 ## Deferrable Constraints
 

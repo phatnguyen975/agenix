@@ -1,6 +1,6 @@
 # SQL Security
 
-Model data access, least privilege, sensitive attributes, and database-enforced boundaries. Tenant isolation is covered in `multi-tenancy.md`.
+Model data access, least privilege, sensitive attributes, and database-enforced boundaries. Tenant isolation is covered in [Multi Tenancy](multi-tenancy.md).
 
 ## Threat and Trust Boundaries
 

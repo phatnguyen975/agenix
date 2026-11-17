@@ -19,7 +19,7 @@ Choose tenant isolation, database/collection boundaries, tenant-aware uniqueness
 
 - Every tenant-owned document carries a non-null tenant identifier with one consistent BSON type.
 - Derive tenant identity from trusted authentication/session context; never trust a tenant ID supplied only by the request body or query parameters.
-- Include tenant scope in every tenant-owned read, update, delete, and uniqueness invariant. Centralize enforcement and test negative cross-tenant cases.
+- Include tenant scope in every tenant-owned read, update, and delete. Centralize enforcement and check that cross-tenant access is denied.
 - Use compound unique indexes such as `{ tenantId: 1, externalKey: 1 }` when uniqueness is per tenant. Use a global unique index only when global uniqueness is explicitly required and shard restrictions permit it.
 - Include `tenantId` in a compound index when it supports a real tenant-scoped query, sort, or uniqueness rule. Do not force it to lead every index without considering query shapes.
 - For references between tenant-owned documents, enforce same-tenant ownership in the trusted write path or transaction. A reference alone does not prove tenant equality.
@@ -34,7 +34,7 @@ Choose tenant isolation, database/collection boundaries, tenant-aware uniqueness
 ## Sharding Considerations
 
 - A tenant key may help targeted routing for tenant-scoped workloads, but tenant skew or monotonic keys can create hotspots depending on shard-key design.
-- Validate shard-key cardinality, value frequency, write distribution, query targeting, and tenant size skew before choosing a key (`sharding.md`).
+- Validate shard-key cardinality, value frequency, write distribution, query targeting, and tenant size skew before choosing a key ([Sharding](sharding.md)).
 - Unique indexes on a sharded collection generally must have the shard key as a prefix. Align tenant-scoped uniqueness with the actual shard key and target server restrictions.
 
 ## Example
@@ -56,4 +56,4 @@ Every access path must derive the tenant ID from authenticated server context an
 
 ## Output Mapping
 
-In `Tenant Isolation`, record the isolation model, trusted tenant identifier source/type, scope enforcement point, tenant-scoped unique keys/references, and explicitly allowed cross-tenant access. Put database roles and application authorization in `Security and Data Protection`. Identify cross-tenant access tests in the conversation verification report; do not add a verification section to the artifact.
+In `Tenant Isolation`, record the isolation model, trusted tenant identifier source/type, scope enforcement point, tenant-scoped unique keys/references, and explicitly allowed cross-tenant access. Put database roles and application authorization in `Security and Data Protection`. Include cross-tenant access checks in the verification summary where applicable.

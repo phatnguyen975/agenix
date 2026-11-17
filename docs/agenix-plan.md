@@ -399,7 +399,7 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 helper/
   - [x] `prd-writing`
   - [x] `domain-modeling`
   - [x] `evolutionary-architecture-design`
-  - [ ] `database-design`
+  - [x] `database-design`
   - [ ] `codebase-design`
   - [x] `work-breakdown-planning`
   - [x] `spec-writing`
@@ -517,6 +517,12 @@ Current capability checkpoint - `evolutionary-architecture-design` (uncommitted 
 - Changes: retained scoped design/evolve/review and both templates. Clarified caller output precedence, decision authority, cutover recovery, fitness evidence and source-backed quality guidance. Preserved author/version "1.0".
 - Checks: skill validator, YAML/JSON, routes/anchors, template structure, UTF-8 and whitespace passed. Checked references against SEI, ISO/IEC 25010:2023, C4, arc42, MADR and migration guidance. Two read-only [behavioral cases](../evals/evolutionary-architecture-design/scenarios.json) passed semantic assessment for cutover readiness and focused client composition.
 - Limits: supplied-context runs with inherited model settings. Final editorial and template changes received static checks. [Coverage](../evals/evolutionary-architecture-design/README.md#coverage) records remaining gaps. Shared P4-01 exit remains open.
+
+Current capability checkpoint - `database-design` (uncommitted changes against `19bb235`):
+
+- Changes: retained initial SQL/document scope and both templates. Clarified target-version checks, caller-owned output, tenant and uniqueness scopes, and concurrency-safe enforcement. Preserved author/version "1.0".
+- Checks: skill validator, YAML/JSON, links/anchors, Markdown, UTF-8 and whitespace passed. Checked PostgreSQL 18, MongoDB and Mermaid documentation. Both [read-only cases](../evals/database-design/scenarios.json) passed on their latest runs, including the MongoDB replay after clarifying deduplication retention.
+- Limits: inherited model settings and design reasoning only. See [coverage](../evals/database-design/README.md#coverage). Shared P4-01 exit remains open.
 
 ### P4-02 — Prove Shared Schemas, Helpers and Distribution
 

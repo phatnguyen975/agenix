@@ -1,6 +1,6 @@
 # NoSQL Security
 
-Design authorization boundaries, least-privilege access, sensitive-field handling, and trusted write paths. Tenant isolation is covered in `multi-tenancy.md`.
+Design authorization boundaries, least-privilege access, sensitive-field handling, and trusted write paths. Tenant isolation is covered in [Multi Tenancy](multi-tenancy.md).
 
 ## Trust Boundaries
 

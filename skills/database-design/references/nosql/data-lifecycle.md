@@ -31,12 +31,13 @@ Model audit metadata, revisions, deletion, retention, and archival from explicit
 | Anonymization | Irreversibly transform personal fields            | Embedded/history/archive copies, exports, backups, and re-identification risk                  |
 
 - Derive retention periods from confirmed requirements or policy. Use `Not specified` rather than inventing a period.
+- A unique index protects the keys of documents that remain indexed. If the required replay window is unclear, state that guarantee and leave post-deletion replay protection open. A separate deduplication store is an option only when its purpose, window, and retention policy are confirmed.
 - For active-only uniqueness, use a partial unique index with an explicit active-state predicate (for example `{ isDeleted: false }`) and define behavior for legacy documents missing the flag.
 - TTL indexes delete asynchronously after expiry; they are not exact-time schedulers or a guaranteed legal-erasure workflow.
 - TTL applies to a date field and has index-shape restrictions; verify the target version and collection type. Time-series collections can use collection-level `expireAfterSeconds` retention options.
 - Time-series collections do not support schema validation or change streams, cannot be written to inside multi-document transactions (reads are supported), and have a 4 MB per-document limit. Do not design their ingestion/integration workflow as though these capabilities exist.
-- Time-series collections have constrained update semantics: updates can only match/modify the `metaField` and must use supported update operators. Treat measurements as append-oriented facts; use a regular collection when arbitrary measurement correction is required.
-- Set `timeField`, `metaField`, and bucketing/granularity options at collection creation; do not assume these can be freely changed later. MongoDB buckets are bounded by both measurement count and bucket size, so avoid designing custom documents that approach the collection's document limit.
+- Time-series collections have constrained update semantics: updates can only match and modify the `metaField`, must use update operators and must allow multiple matches without upsert. Treat measurements as append-oriented facts; use a regular collection when arbitrary measurement correction is required.
+- Set `timeField` and `metaField` at creation. MongoDB allows increasing, but not decreasing, the time span covered by a bucket. Check [time-series restrictions](https://www.mongodb.com/docs/manual/core/timeseries/timeseries-limitations/) for the target version. MongoDB buckets are bounded by both measurement count and bucket size, so avoid designing custom documents that approach the collection's document limit.
 - Use an idempotent scheduled process when deletion requires conditions, cross-collection cleanup, archival, or auditable completion.
 - Distinguish logical deletion, primary deletion, replica propagation, and backup expiry; state the operational scope of any erasure guarantee.
 
