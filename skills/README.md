@@ -15,7 +15,7 @@ The current directory contains 20 capability skills. Workflow skills and additio
 | [code-review](code-review/SKILL.md)                                           | Review a bounded implementation change through applicable evidence-backed review axes.                       |
 | [code-simplification](code-simplification/SKILL.md)                           | Simplify tested code while preserving observable behavior.                                                   |
 | [codebase-design](codebase-design/SKILL.md)                                   | Design or assess source layout, module boundaries, dependencies, public surfaces and structural conventions. |
-| [codegraph-intelligence](codegraph-intelligence/SKILL.md)                     | Investigate code structure and impact using CodeGraph; consult its tool/index prerequisites.                 |
+| [codegraph-intelligence](codegraph-intelligence/SKILL.md)                     | Investigate code structure and impact using a verified CodeGraph CLI and project index.                      |
 | [context-priming](context-priming/SKILL.md)                                   | Load relevant context when starting, switching or resuming work.                                             |
 | [data-impact-analysis](data-impact-analysis/SKILL.md)                         | Analyze persisted-data effects against an existing model and propose approved model changes.                 |
 | [database-design](database-design/SKILL.md)                                   | Design an initial relational or document data model for an already selected storage paradigm.                |

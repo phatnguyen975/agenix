@@ -394,7 +394,7 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 helper/
   - [x] `context-priming`
   - [x] `handoff`
   - [x] `ideation`
-  - [ ] `codegraph-intelligence`
+  - [x] `codegraph-intelligence`
   - [ ] `autonomous-git-workflow`
   - [ ] `prd-writing`
   - [ ] `domain-modeling`
@@ -445,6 +445,12 @@ Current capability checkpoint — `ideation` (uncommitted changes against `bddea
 - Changes: retained selective lenses/frameworks and Explore/Compare/Sharpen flow; corrected universal value/differentiation/MVP claims and unsupported example assertions. Reused confirmed inputs and caller-owned output; standalone saving defaults to `docs/ideas/<idea-slug>.md` with appropriate write authority. Existing resource names, author/version `"1.0"` retained; no runtime files created/deleted.
 - Checks: external skill-creator validator, YAML/UTF-8, local routes/fences, JSON and `git diff --check` passed. HMW/JTBD/divergence/SCAMPER/pre-mortem checked against primary sources. Three isolated [behavioral cases](../evals/ideation/scenarios.json) passed coordinator semantic review: open framing, bounded caller comparison/rare consequential need and confirmed-direction default save/read-back. Fixture assertions confirmed the exact output path and no extra files.
 - Follow-up: synchronized comparison-only scope, assumption tiers versus validation priority, and example selection after comparison; static checks passed without rerunning model cases. Model-assisted evidence is not demand validation; no full multi-turn selection cycle, repeated-run/baseline or host-routing proof. [Coverage gaps](../evals/ideation/README.md#coverage) and shared P4-01 exit remain open; no capability-level blocker or CI runner added.
+
+Current capability checkpoint — `codegraph-intelligence` (uncommitted changes against `3a2686d`):
+
+- Decision/changes: human selected CLI-only domain guidance and approved deleting `references/setup.md`. Retained bounded command selection and all eight domain roles; added installed `context` support, corrected traversal/coverage claims and required returned project/index identity. Root configuration guidance removed; author/version `"1.0"` preserved.
+- Checks: local CLI/package 1.6.2 help and upstream versioned CLI documentation compared. `python evals/codegraph-intelligence/check_cli.py` passed real isolated query contracts, missing-index/symbol, invalid-option, inherited-root and modified-file checks. Initial missing-index test incorrectly used a child of an indexed project; corrected its isolation and asserted parent-root resolution explicitly. Three isolated [behavioral cases](../evals/codegraph-intelligence/scenarios.json) passed semantic review: enabled refactor/test candidates, disabled literal-search applicability and stale/mismatched-index review. Validator/static checks passed; no repository indexing or tool installation performed.
+- Limits: Windows/simple JavaScript fixtures, not all domains/frameworks or worktree/deletion edge cases; identity wording received static/fixture checks after model runs. [Coverage](../evals/codegraph-intelligence/README.md#coverage) does not establish host discovery, multi-OS or repeated-run reliability. No capability blocker; shared P4-01 exit remains open.
 
 ### P4-02 — Prove Shared Schemas, Helpers and Distribution
 
