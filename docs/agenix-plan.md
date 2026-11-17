@@ -407,7 +407,7 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 helper/
   - [ ] `data-impact-analysis`
   - [ ] `incremental-implementation`
   - [ ] `tdd`
-  - [ ] `code-simplification`
+  - [x] `code-simplification`
   - [ ] `code-review`
   - [ ] `systematic-debugging`
 - [ ] Correct Git policy/cadence/exact merge authorization and all affected command/branch/worktree references.
@@ -469,6 +469,12 @@ Current capability checkpoint — `spec-writing` (uncommitted changes against `a
 - Changes: single-feature behavior scope and four resource owners retained. Human approved the comprehensive Gherkin presentation guide; aligned remaining instructions to notation-only acceptance examples, stable coverage and section ownership. Kept ten sections, blockquote Revision/Last Updated metadata, explicit state outcomes and caller-owned formats; author/version `"1.0"` preserved.
 - Evidence: initial validator/source checks and two fresh behavioral cases passed; the saved case needed a targeted correction for hidden-persistence Then wording. Those runs precede the human-selected presentation-only scope and are not evidence for the final wording. Current review reread affected instructions/templates, routes, examples and metadata; whitespace inspection passed and the approved Gherkin file's content hash stayed unchanged during synchronization.
 - Limits: latest revision received editorial/source review, with no model replay or renderer preview. [Coverage](../evals/spec-writing/README.md#coverage) retains earlier observations and gaps. No capability blocker; shared P4-01 exit remains open.
+
+Current capability checkpoint — `code-simplification` (uncommitted changes against `13d9e37`):
+
+- Changes: bounded authorization/caller output, contextual signals, incremental preservation checks and precise recovery. Added the approved optional Markdown report; consolidated overlapping summary/assessment/plan sections into five focused sections. Removed the HTML template after human approval of Markdown. UI metadata remains accurate; author/version `"1.0"` preserved.
+- Checks: skill-creator validator, YAML/JSON, UTF-8, routes/fences and whitespace passed. Two standalone [behavioral cases](../evals/code-simplification/scenarios.json) correctly stopped on absent coverage/failing baseline; the former saved/read back the authorized report. A fresh composed patch-delivery variant passed semantic review and seven tests before/after; fixture assertions preserved tests, unrelated files and content outside the selected function.
+- Limits: autonomous write attempts were host-permission blocked; composed verification used coordinator-applied model output, not an autonomous-write pass. Windows/Python 3.14.10 with inherited model settings; latest report consolidation received editorial/static checks without model replay; no rollback, repeated-run, renderer or installed-host proof. [Coverage](../evals/code-simplification/README.md#coverage) records gaps; shared integration and P4-01 exit remain open.
 
 ### P4-02 — Prove Shared Schemas, Helpers and Distribution
 

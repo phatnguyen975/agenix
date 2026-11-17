@@ -1,166 +1,94 @@
 ---
 name: code-simplification
-description: Simplifies code for clarity and maintainability without changing its observable behavior. Use when refactoring code for readability, when code works but is harder to read, extend, or debug than it should be, when a code review flags complexity or duplication, or when consolidating logic that accumulated under time pressure. Do NOT use for adding features, fixing bugs, performance tuning, architectural rewrites, or on code with no test coverage.
+description: Simplify tested code within an authorized scope while preserving observable behavior. Use for concrete readability, duplication or control-flow improvements, including a focused refactor during implementation. Keep bug fixes, feature changes, performance tuning and architectural rewrites separate; do not edit uncovered code on inspection alone.
 metadata:
   author: phatnguyen975
-  version: 1.0
+  version: "1.0"
 ---
 
 # Code Simplification
 
-## Overview
+## Purpose and Scope
 
-Reduce code complexity while preserving behavior exactly. The goal is not fewer lines — it's code a teammate can read, understand, modify, and debug faster than the original. A change that doesn't make comprehension faster isn't a simplification, regardless of how much shorter or more "idiomatic" it looks. Every simplification should pass one test: "Would someone new to this code understand it faster than the original?"
+Improve how easily a maintainer can understand and change working code, without altering its observable contract. Fewer lines, fewer helpers or a more fashionable idiom are not sufficient reasons to edit. A clear no-change result is appropriate when no worthwhile simplification exists.
 
-## When to Use
+Work only on the supplied files/functions and their authorized owned changes. A standalone simplification request and a focused refactor inside an approved implementation scope use the same behavior-preservation rules. Keep the refactor distinguishable from feature/fix work while following the caller's agreed batch and publication cadence. Read-only review produces findings, not edits.
 
-- Code works and tests pass, but the implementation is heavier than it needs to be
-- A code review flags readability, duplication, or complexity issues
-- Deeply nested logic, long functions, or unclear naming is slowing comprehension
-- Code written under time pressure needs cleanup before further work continues
-- Related logic has drifted into duplicated or inconsistent forms across files
+## Inputs and Prerequisites
 
-## When NOT to Use
+- **Scope:** the exact files/functions, intended readability concern and permitted write ownership. Read callers/dependencies as necessary; discovering them does not expand edit authority.
+- **Safety net:** the existing test command(s) exercising the affected behavior, execution prerequisites and any required build/lint/type checks. Discover documented commands when not supplied; do not invent commands or install tools implicitly.
+- **Project context:** applicable instructions, naming/style conventions, interfaces, relevant history, performance/resource constraints and caller-supplied output/verification expectations.
 
-- The code is already clean — simplifying for its own sake adds risk with no benefit
-- The code's behavior isn't understood yet — comprehend it first, simplify second
-- The code in scope has no test coverage — there's nothing to verify behavior against, so this is a hard stop, not a judgment call
-- The code is performance-critical and a "simpler" version would be measurably slower
-- The module is about to be rewritten entirely — simplifying throwaway code wastes effort
-- The task's actual goal is a feature, a bug fix, or a performance optimization — those are different goals with different trade-offs, and pursuing them risks changing behavior
-
-## Input
-
-- **Scope** (`scope`, required): the file(s), function(s), or module(s) to simplify. Nothing outside this set is touched.
-- **Test command** (`test_command`, required): the command that runs the tests covering the code in scope (e.g. `npm test`, `pytest path/`, `go test ./...`, `gradlew test`). Used to verify behavior after every change.
-- **Project conventions** (`project_conventions`, optional): a style guide, linter config, or project instructions file (e.g. `CLAUDE.md`, `AGENTS.md`). If absent, infer convention from neighboring code.
-
-## Output
-
-1. **Simplified code**, applied directly to the files in `scope`, one verified change at a time.
-2. **One HTML completion report** per run, built from `assets/report-template.html`, this is the artifact a human reviews.
+For edits, relevant existing tests must cover the affected behavior and pass before simplification. A green unrelated suite, a coverage percentage or a compiler alone is not sufficient. Inspect assertions and error/boundary coverage, not just filenames. If coverage is absent, relevant tests fail or prerequisites are unavailable, stop dependent edits and report the gap. Establishing characterization coverage or fixing failures requires separately authorized work; do not silently add or weaken tests to unblock this pass.
 
 ## Core Principles
 
-1. **Preserve behavior exactly.** A change that alters any observable behavior is not a simplification, however much cleaner it looks. Before keeping any change, confirm:
-   - Does this produce the same output for the same input?
-   - Does this maintain the same error behavior for the same failure cases?
-   - Does this preserve the same side effects (writes, network calls, mutations) and their order?
-   - Do all existing tests still pass without modification?
-2. **Understand before touching.** Don't change or remove code whose purpose isn't established — if you can't explain why a fence is there, don't tear it down. Before touching anything, answer:
-   - What is this code's responsibility?
-   - What calls it, and what does it call?
-   - What are its edge cases and error paths?
-   - Are there tests that define the expected behavior?
-   - Why might it have been written this way (performance, a platform constraint, a historical reason)? Check history (e.g. blame/log) if unclear.
-3. **No test coverage, no simplification.** Behavior preservation is only verifiable against something. If the code in scope isn't covered by `test_command`, stop and report that back, do not proceed on inspection alone.
-4. **Clarity over cleverness.** Simplicity means faster comprehension, not fewer lines or denser syntax. A change that needs a mental pause to parse isn't a simplification even when it's shorter.
-5. **Convention first, principles second.** The project's own conventions outrank general heuristics like KISS, DRY, and YAGNI, and outrank general language idioms too.
-   ```markdown
-   1. Read `CLAUDE.md` / `AGENTS.md` / Project conventions
-   2. Study how neighboring code handles similar patterns
-   3. Match the project's style for:
-      - Import ordering and module system
-      - Function declaration style
-      - Naming conventions
-      - Error handling patterns
-      - Type annotation depth
-   ```
-   Simplification that breaks project consistency is not simplification — it's churn.
-6. **Bounded scope.** Touch only code already in `scope`. No drive-by refactors of adjacent files, however tempting — unrequested scope expansion is the most common failure mode in agentic refactoring.
-7. **Incremental, reversible steps.** One simplification at a time, verified before the next. Never batch unverified changes — if something breaks, the cause must be unambiguous.
-8. **Avoid over-simplification.** Merging unrelated logic into one function, inlining a helper that gave a concept a name, or deleting an abstraction that exists for extensibility are failures of this skill, not successes.
-9. **Refactor and behavior-change are separate changes.** A change that does both is two changes, not one — never ship them together.
+1. **Understand before changing.** Establish the responsibility, callers, inputs, outputs, side effects, edge cases and reason for non-obvious code. Consult history when needed; unfamiliar code is not automatically unnecessary.
+2. **Preserve observable behavior.** Keep results, public interfaces, error types and contractual messages, side effects and their order, observable evaluation counts, state/identity semantics, resource lifetime and relevant timing/concurrency properties. Respect existing performance budgets where applicable. Tests provide evidence, not a substitute for reasoning about the diff.
+3. **Clarity over cleverness.** Preserve useful names, domain boundaries, explicit error handling and documented extension points. Do not collapse independent concerns or extract helpers that merely move complexity elsewhere.
+4. **Convention with correctness.** Follow applicable project style and local language idioms; style preferences do not authorize changing semantics. KISS, DRY and YAGNI are heuristics, not instructions to remove meaningful duplication or required abstractions.
+5. **Small, reversible increments.** One coherent transformation at a time, followed by relevant checks before another. A transformation may need several coordinated edits, such as an internal rename across owned call sites; do not leave an inconsistent intermediate result.
+6. **Bounded authority and preservation.** Reuse existing approval that covers the scope and transformation. Preserve pre-existing staged/unstaged and unrelated content. Ask only for a material change, unclear ownership or another consequential decision outside current authority.
 
 ## Complexity Signals
 
-Scan for these patterns — each one is a concrete signal, not a vague smell:
+Signals prompt investigation; they do not prove a defect or mandate a particular rewrite. Assess whether the proposed change makes this code easier to reason about while preserving its contract. Numeric size/nesting counts are review aids, not universal thresholds.
 
-**Structural complexity:**
+### Structure and Control Flow
 
-| Pattern                    | Signal                             | Simplification                                                            |
-| -------------------------- | ---------------------------------- | ------------------------------------------------------------------------- |
-| Deep nesting (3+ levels)   | Hard to follow control flow        | Extract conditions into guard clauses, early returns, or helper functions |
-| Long functions (50+ lines) | Multiple responsibilities          | Split into focused functions with descriptive names                       |
-| Nested ternaries           | Requires mental stack to parse     | Replace with if/else chains, switch, or lookup objects                    |
-| Boolean parameter flags    | `doThing(true, false, true)`       | Replace with options objects or separate functions                        |
-| Repeated conditionals      | Same `if` check in multiple places | Extract to a well-named predicate function                                |
+| Signal                                          | Possible Improvement                               | Check Before Applying                                                                    |
+| ----------------------------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Deep nesting or repeated conditional structure  | Guard clauses, named predicates or focused helpers | Preserve condition order, short-circuiting, exceptions and cleanup paths                 |
+| A long function with separable responsibilities | Extract a meaningful operation                     | A cohesive sequence may be clearer together; preserve shared state and evaluation order  |
+| Nested ternaries or dense expressions           | Explicit branches or a named intermediate value    | Preserve laziness, coercion, defaults and branch-specific effects                        |
+| Unclear boolean flags or positional arguments   | Clarify internal calls or group related inputs     | Do not break public signatures, external callers or language-specific argument semantics |
+| Repeated calculations or checks                 | Name or consolidate a genuinely shared operation   | Repeated evaluation may be deliberate or time/state dependent                            |
 
-**Naming and readability:**
+### Names and Explanations
 
-| Pattern                    | Signal                                         | Simplification                                                           |
-| -------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------ |
-| Generic names              | `data`, `result`, `temp`, `val`, `item`        | Rename to describe the content: `userProfile`, `validationErrors`        |
-| Abbreviated names          | `usr`, `cfg`, `btn`, `evt`                     | Use full words unless the abbreviation is universal (`id`, `url`, `api`) |
-| Misleading names           | Function named `get` that also mutates state   | Rename to reflect actual behavior                                        |
-| Comments explaining "what" | `// Increment counter` above `count++`         | Delete the comment — the code is clear enough                            |
-| Comments explaining "why"  | `// Retry because the API is flaky under load` | Keep these — they carry intent the code can't express                    |
+| Signal                                 | Possible Improvement            | Check Before Applying                                                             |
+| -------------------------------------- | ------------------------------- | --------------------------------------------------------------------------------- |
+| Generic or misleading names            | Use a domain-appropriate name   | Short names may be clear locally; public/exported names are contracts             |
+| Obscure abbreviations                  | Follow project vocabulary       | Established abbreviations need no cosmetic expansion                              |
+| Comments repeating obvious operations  | Remove redundant narration      | Retain rationale, warnings, legal notices and externally meaningful annotations   |
+| A helper whose name hides side effects | Make the responsibility evident | Renaming must cover owned uses; do not silently widen scope to external consumers |
 
-**Redundancy:**
+### Redundancy and Abstractions
 
-| Pattern                   | Signal                                                       | Simplification                                            |
-| ------------------------- | ------------------------------------------------------------ | --------------------------------------------------------- |
-| Duplicated logic          | Same 5+ lines in multiple places                             | Extract to a shared function                              |
-| Dead code                 | Unreachable branches, unused variables, commented-out blocks | Remove (after confirming it's truly dead)                 |
-| Unnecessary abstractions  | Wrapper that adds no value                                   | Inline the wrapper, call the underlying function directly |
-| Over-engineered patterns  | Factory-for-a-factory, strategy-with-one-strategy            | Replace with the simple direct approach                   |
-| Redundant type assertions | Casting to a type that's already inferred                    | Remove the assertion                                      |
+| Signal                                                 | Possible Improvement                     | Check Before Applying                                                                            |
+| ------------------------------------------------------ | ---------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Duplicated logic with the same responsibility          | Share a small, well-named operation      | Similar text can represent independently evolving rules; avoid premature coupling                |
+| Apparently unused code/imports or commented-out blocks | Remove confirmed dead/redundant material | Check dynamic loading, reflection, generated registrations, side effects and compatibility paths |
+| A wrapper or layered factory with no current role      | Inline or remove unnecessary indirection | Preserve instrumentation, lifecycle, extension/injection seams and public compatibility          |
+| An apparently redundant type assertion                 | Rely on equivalent inference             | Preserve type guarantees, overload selection and runtime conversions; run applicable type checks |
 
-**The Rule of 500:** If the planned change set exceeds roughly 500 lines, prefer automation (codemods, sed scripts, AST transforms) over manual edits — manual changes at that scale are error-prone and hard to review.
+For a repetitive mechanical change, consider an existing suitable transformation tool only within authority and after understanding its effect. Inspect its diff and verify behavior. A large diff calls for reassessment/splitting, not automatic tool installation, broad regex replacement or permission expansion.
 
 ## Workflow
 
-1. **Define scope.** State the exact files/functions in scope. Nothing outside this list gets touched during this run.
-2. **Verify the safety net.** Run `test_command` against the code in scope.
-   - Passing tests cover it → continue to Step 3.
-   - No coverage, or no `test_command` available → **STOP.** Produce the completion report marked as blocked, recommending test coverage before this skill is run again (characterization tests, if none exist at all, per Michael Feathers' definition: tests that pin down current behavior before it is changed). Do not write those tests yourself.
-3. **Understand.** Work through Principle 2's questions for anything non-obvious before proceeding.
-4. **Identify opportunities.** Match the code in scope against the Complexity Signals above. For idioms, naming, and anything specific to the language in scope: the project's own convention always wins — follow it wherever it exists (style guide, linter config, project conventions, or the patterns already used in neighboring code). Where the project has no convention of its own, fall back to that language's own widely-accepted standards and real-world best practices.
-5. **Plan and confirm with the human.** Summarize the proposed changes: what will change, why, and the expected risk level for each. Present this plan before touching any code.
-   - If feedback comes back, revise the plan and re-confirm if the revision is material.
-   - Proceed to execution only once the plan is approved.
-6. **Apply incrementally.** One simplification at a time → run `test_command` (and build/lint if available) → keep the change if it passes, revert and reconsider if it doesn't, before moving to the next. Avoid batching multiple simplifications into a single untested change. If something breaks, you need to know which simplification caused it.
-7. **Self-verify.** Run the full Verification below against the final diff — read it as a reviewer would, not just by checking boxes. If the "simplified" version is harder to follow than the original, revert it; not every attempt succeeds.
-8. **Generate the completion report.** Read `assets/report-template.html`, do not redesign the layout; fill the placeholders and duplicate the marked repeating blocks per change or file. Before writing the file, confirm the save location with the human — propose `docs/code-simplification-<scope-slug>-<YYYYMMDD>.html` as the default and show it to them; save there if they accept it, or at whatever path or filename they give instead.
+1. **Inspect and bound.** Identify checkout/ownership, requested concern, applicable conventions and existing changes. Confirm analysis versus edits; record the starting diff/state needed to preserve and undo only this pass's changes.
+2. **Understand and establish the baseline.** Read the affected code, callers and relevant tests. Establish what behavior must remain unchanged, then run the covering test commands. Record applicable baseline build/lint/type results. Stop edits on a missing/failing safety net; independent read-only findings can still be useful.
+3. **Choose the smallest worthwhile change.** Explain the signal, intended improvement, semantic risks and affected consumers. If the existing request/plan covers it, proceed without another gate. Otherwise resolve the specific scope/decision first. A behavior defect is a separate finding, not permission to fix it here.
+4. **Apply and verify incrementally.** Apply one coherent simplification and run relevant existing tests and applicable build/lint/type checks. Keep their assertions/expected behavior unchanged. Inspect the actual diff for semantic traps; passing tests alone cannot justify an observable change.
+5. **Handle failure safely.** Stop the sequence if a check fails or the result is harder to understand. Inspect the cause and undo only this pass's change using the recorded starting state or a precise inverse patch. Do not reset/restore whole files over mixed user changes. Re-run relevant checks after undo; if preservation/restoration is uncertain, stop writes and report the exact state rather than claiming recovery.
+6. **Review the final candidate.** Read the combined diff and rerun relevant final checks when later edits invalidate earlier evidence. Confirm scope, unchanged behavior and net clarity. Follow the caller's commit/publication cadence; this skill does not imply either action.
+7. **Report and stop.** Give concise evidence in the caller's chosen channel/artifact. Record what changed, why it helps, baseline/final outcomes, unchanged behavior boundaries, preserved unrelated work and any blocked/deferred items. Do not produce a report file merely because a simplification occurred.
 
-## Anti-Patterns
+## Output
 
-- **Needing to modify a test to make it pass** → the simplification likely changed behavior, not just structure
-- **Simplifying code you don't fully understand** → read more first (Principle 2)
-- **Scope creep** → simplifying nearby code "while you're here" because it's ugly; flag it instead
-- **Unverifiable changes** → proceeding on code with no test coverage (Principle 3) or skipping `test_command` between steps
-- **Batching** → applying several simplifications before verifying any of them; if something breaks, the cause becomes ambiguous
-- **Behavior drift disguised as style** → changing an equality operator, error-wrapping call, default argument, or type coercion "for consistency" without recognizing it changes behavior
-- **Renaming to personal taste** → renaming that reflects the agent's preference rather than project convention (Principle 5)
-- **Silent large-diff growth** → a pass that keeps finding "one more thing" well past the task's natural boundary, instead of stopping and reporting
-- **Mixing refactor with behavior change** → shipping a simplification and a fix/feature in the same change (Principle 9)
-- **Removing error handling "to make it cleaner"** → error handling is behavior, not decoration
-- **Inconsistent renaming** → renaming a symbol at its definition without updating every call site atomically
+Default to the scoped code change and a concise completion summary. For analysis-only work, return findings and prerequisites without editing. State no change when no worthwhile simplification was found; do not invent work to fill a format.
 
-## Common Rationalizations to Reject
-
-| Rationalization                               | Reality                                                                                                        |
-| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| "It's working, no need to touch it"           | Readability debt compounds — but this doesn't license expanding scope elsewhere                                |
-| "Fewer lines means simpler"                   | Comprehension speed is the metric, not line count                                                              |
-| "I'll just clean up this nearby code too"     | Scope creep — the leading failure mode in agentic refactoring                                                  |
-| "The original author must have had a reason"  | Check (git blame, tests, comments), don't assume either way                                                    |
-| "This abstraction might be useful later"      | Speculative generality is complexity without current value (YAGNI)                                             |
-| "It's shorter, so it must be correct"         | Run the full Verification; brevity isn't proof of correctness                                                  |
-| "The types make it self-documenting"          | Types document structure, not intent — a well-named function still carries meaning a signature doesn't         |
-| "I'll refactor while I'm adding this feature" | Mixed changes are harder to review, revert, and understand in history later — keep them separate (Principle 9) |
+When a full report is requested, read [Report Template](assets/report-template.md) and use it unless the caller supplied another format. Use the specified path and existing write authority. If a report location is genuinely unspecified, propose `docs/code-simplification-<scope-slug>-<YYYYMMDD>.md` and resolve the destination before saving; do not repeatedly confirm a selected authorized path. Preserve an existing artifact unless its revision/replacement is authorized, and read back the saved report.
 
 ## Verification
 
-Run before producing the completion report. Any unchecked item blocks a "pass" status in the report.
+- Relevant baseline tests cover the changed behavior and passed; final applicable tests pass with existing expectations intact.
+- Applicable build, lint and type checks introduce no regression; missing or unrun required checks remain explicit, not a pass.
+- Results, interfaces, errors, side effects/order, boundary behavior and relevant performance/resource semantics are preserved.
+- The diff stays within authorized ownership/scope, preserves unrelated changes and follows the agreed plan/cadence.
+- Each coherent transformation received relevant verification before the next; any failed attempt was safely removed or is explicitly unresolved.
+- No new dead paths, accidental dependencies, weakened error handling or inconsistent renames were introduced by this pass.
+- The final diff improves comprehension for a maintainer without relying on line counts or personal naming preferences as proof.
 
-- [ ] All existing tests pass unmodified (`test_command` green)
-- [ ] Build/lint/type-check clean, no new warnings
-- [ ] No error handling removed or weakened
-- [ ] No new behavior or edge-case handling introduced
-- [ ] No dead code left behind (unused imports, unreachable branches)
-- [ ] Diff touches only files declared in `scope`
-- [ ] Each simplification was applied and verified independently, not batched
-- [ ] The human-approved plan was followed; any deviation is explained in the report
-- [ ] No language-specific behavior-preserving trap was triggered (coercion/equality rules, mutable defaults, closure capture, error-wrapping semantics, and similar gotchas for the language in scope)
-- [ ] Read as a whole, the diff is a net improvement a reviewer would approve — genuinely easier to understand, not just shorter
+Stop dependent edits when a required condition is unmet. Report what evidence supports the result and what remains unknown; do not assign a numerical confidence or preservation score without an agreed measurement rubric.
