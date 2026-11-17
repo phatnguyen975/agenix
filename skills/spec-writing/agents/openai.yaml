@@ -1,4 +1,4 @@
 interface:
   display_name: "Spec Writing"
-  short_description: "Define a feature's implementation-ready behavior"
-  default_prompt: "Use $spec-writing to clarify this feature and draft an implementation-ready specification."
+  short_description: "Define or revise feature behavior and acceptance"
+  default_prompt: "Use $spec-writing to clarify the supplied feature context and create or revise its behavior specification and acceptance criteria."

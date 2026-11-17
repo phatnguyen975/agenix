@@ -402,7 +402,7 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 helper/
   - [ ] `database-design`
   - [ ] `codebase-design`
   - [ ] `work-breakdown-planning`
-  - [ ] `spec-writing`
+  - [x] `spec-writing`
   - [ ] `api-contract-design`
   - [ ] `data-impact-analysis`
   - [ ] `incremental-implementation`
@@ -463,6 +463,12 @@ Current capability checkpoint — `prd-writing` (uncommitted changes against `83
 - Changes: human selected product and feature scope; retained fourteen default sections and all three named resources. Corrected elicitation, final readiness, verifiable wording, traceability and caller-owned revisions; retained real technical constraints. Removed the separate system scope, restored concise core principles and separated template fields/entry headings for readable Markdown. Blockquote metadata now uses Revision and Last Updated with explicit field order/separation. UI covers revisions; author/version `"1.0"` preserved.
 - Checks: NASA Appendix C, RFC 2119/8174, GOV.UK interview guidance and product/feature PRD usage reviewed. Validator, YAML/JSON, UTF-8, Markdown/routes, template coverage and whitespace checks passed. Three fresh [behavioral cases](../evals/prd-writing/scenarios.json) passed semantic assessment: missing-target blocker, caller-scoped revision and real feature PRD save/read-back. Artifact assertions verified the sole authorized path, fourteen sections and twelve unique/resolving IDs; an initial assertion omitted journey-heading definitions and was corrected.
 - Limits: inherited model/settings; single runs, not full product/multi-turn, host discovery, collision or repeated-run proof. Final readiness, terminology, principles and presentation changes received source/static checks only; no model replay or renderer/browser preview. No executable runtime changes or per-skill static runner added. [Coverage](../evals/prd-writing/README.md#coverage) records gaps; no capability blocker, shared P4-01 exit remains open.
+
+Current capability checkpoint — `spec-writing` (uncommitted changes against `ad37a27`):
+
+- Changes: single-feature behavior scope and four resource owners retained. Human approved the comprehensive Gherkin presentation guide; aligned remaining instructions to notation-only acceptance examples, stable coverage and section ownership. Kept ten sections, blockquote Revision/Last Updated metadata, explicit state outcomes and caller-owned formats; author/version `"1.0"` preserved.
+- Evidence: initial validator/source checks and two fresh behavioral cases passed; the saved case needed a targeted correction for hidden-persistence Then wording. Those runs precede the human-selected presentation-only scope and are not evidence for the final wording. Current review reread affected instructions/templates, routes, examples and metadata; whitespace inspection passed and the approved Gherkin file's content hash stayed unchanged during synchronization.
+- Limits: latest revision received editorial/source review, with no model replay or renderer preview. [Coverage](../evals/spec-writing/README.md#coverage) retains earlier observations and gaps. No capability blocker; shared P4-01 exit remains open.
 
 ### P4-02 — Prove Shared Schemas, Helpers and Distribution
 

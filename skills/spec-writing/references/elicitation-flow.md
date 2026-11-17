@@ -1,48 +1,32 @@
 # Elicitation Flow
 
-A single round of questions produces a thin, generic spec. Run a structured, persistent interview until every section in `spec-template.md` has concrete, specific content.
+## 1. Discover the Behavioral Gaps
 
-## 1. Interview Order
+Map confirmed input and relevant existing contracts to [spec coverage](spec-template.md#coverage-and-format). Distinguish missing information, stale/conflicting decisions and accepted facts. Do not re-ask clear answers or treat all source documents as equally authoritative. For revisions, investigate the requested delta and its consequences, preserving unrelated decisions.
 
-- **Skip what's already answered** by the input or by the project documentation gathered during Intake — only interrogate real gaps.
-- **Follow the template's dependency order:** Context → Scope → Actors & Flow → Business Rules → Functional Requirements → State Transitions (if applicable) → Non-Functional Requirements → Technical Constraints → Acceptance Criteria. Everything that defines _what the feature does_ (rules, requirements, states) is locked before moving to _quality attributes and constraints_. Acceptance criteria are elicited last of all, because they formalize the flow, rules, and requirements already locked earlier as concrete examples — writing them any earlier means redoing them.
-- **Root-cause check on Context**, when there's no upstream document to draw from: confirm why this feature is needed before detailing its behavior — one "why does that matter?" follow-up, not an exhaustive chain.
+Usually establish context and scope, actors and outcomes, rules, state behavior, quality conditions and acceptance examples. Follow dependencies rather than a rigid interview order: security constraints or concurrency can shape the main flow early, and a concrete example can expose an ambiguity before prose is complete. Confirm motivation only if it is genuinely unclear.
 
-## 2. Non-Functional Requirements Coverage
+## 2. Explore Relevant Boundaries
 
-When the interview reaches Non-Functional Requirements, walk through each category below for this feature — include it as an `NFR-xxx` if it applies, skip it if it genuinely doesn't, but don't skip it by default:
+Check applicability, then resolve the feature-specific obligations rather than requiring an answer for every generic category:
 
-- **Performance** — latency/throughput for this feature's specific operations under stated load.
-- **Reliability** — behavior on failure: error handling, retries, idempotency, partial-failure recovery.
-- **Concurrency** — two actors acting on the same resource at the same time.
-- **Security** — authorization checks, input validation boundaries, or rate-limiting specific to this feature's actions.
-- **Compatibility** — backward compatibility with existing behavior or consumers, especially when adding to a system already in production.
-- **Accessibility** — a behavioral requirement only (e.g. "operable via keyboard/screen reader"), never a visual design detail.
-- **Observability** — logging or audit trail, only if this feature is operationally or compliance-sensitive.
+- **Paths and data boundaries:** success, denial, invalid/missing input, empty results, domain boundaries and observable consequences.
+- **Failure and recovery:** unavailable dependencies, partial completion, retry, duplicate delivery/idempotency and what must remain unchanged.
+- **State and concurrency:** valid/rejected events, guards, simultaneous actors, ordering and consistency promises.
+- **Security and privacy:** permissions, tenant/ownership boundaries, sensitive information and applicable audit needs.
+- **Quality and compatibility:** latency/throughput under stated load, reliability windows, existing consumer behavior and migration/exposure constraints.
+- **Accessibility and operation:** applicable interaction/semantic accessibility criteria, diagnostics and operational observability. These are not limited to compliance-sensitive features; detailed UI contracts remain separately owned.
 
-## 3. Question Sequence Per Gap — Open Before Closed
+A functional denial or retry rule belongs with behavior, not automatically in NFRs because it concerns security/reliability. A quality target needs conditions and a measurement basis. Do not invent numbers, legal duties or interface contracts. Preserve inherited criteria and define only the feature's delta where appropriate.
 
-For each remaining gap, move through these stages in order:
+## 3. Ask and Resolve
 
-1. **Open.** Ask one open-ended question in the user's own words.
-2. **Probing.** If the answer is vague or partial, sharpen it along whichever of these is actually missing: **Who** (actor), **What** (capability), **When** (trigger/timing), **Where** (context/channel), **Why** (goal), **How** (mechanism/condition).
-3. **Closed.** If still unresolved, close with 2-4 concrete suggested options grounded in the input or common patterns, plus "something else".
+Use open questions to discover missing context, probes for specific actors/triggers/guards/outcomes, and neutral bounded alternatives for an already understood decision. Ask dependent questions sequentially; small independent batches are useful when they reduce burden without hiding dependencies. Explain consequential trade-offs and allow an alternative.
 
-One question at a time throughout — each answer shapes the next question; never dump a checklist on the user at once.
+Ground discovery in real examples and existing behavior. For new behavior, ask directly about intended policy; do not confuse a hypothetical preference with observed demand. Reflect material interpretations for agreement, but do not add confirmation gates after clear answers.
 
-## 4. Wording
+If probing stops yielding information, summarize the unresolved issue and propose explicit options with consequences. Obtain agreement for a proposed decision; a follow-up count cannot guarantee convergence. Silence is not acceptance. An unknown policy, acceptance target or required contract must be resolved, explicitly excluded within authority, or reported as a blocker. Do not hide it in an empirical assumption.
 
-- **Ask about the concrete present or the already-agreed design, not a hypothetical future** — "what should happen when X fails today?" rather than "would you want X to fail gracefully?"
-- **Keep questions and options neutral** — no phrasing that implies the expected answer.
+## 4. Check Readiness
 
-## 5. Convergence
-
-- **No vague answer is final** — it goes back through probing/closed.
-- **Follow-up cap.** After at most two follow-ups on the same point, stop asking, propose a concrete working decision, and ask for yes/no confirmation instead. This guarantees the interview converges rather than looping.
-- **"I don't know" triggers the same fallback** — a proposed decision to confirm, never a blank.
-
-## 6. Throughout
-
-- **Contradictions are surfaced immediately** — not carried silently into the draft.
-- **Answers are reflected back for confirmation** before moving to the next section, catching misunderstandings early rather than at final review.
-- **Drafting starts only once every section is concrete.** The output step never runs against a partially-answered interview.
+Cross-check happy paths, material failures, rule/transition boundaries and examples together. A final spec has concrete accepted decisions, verifiable obligations and no unanswered questions. Distinguish accepted empirical uncertainty from missing mandatory decisions. Required behavior cannot be deferred merely to complete the document. Independent drafting may continue, but incomplete output is labeled accordingly and delivered only as requested.

@@ -49,7 +49,7 @@ These resources own format, questioning technique and writing rules respectively
 
 ## Output
 
-Produce one coherent PRD using the supplied path/template when present. Default fresh-output paths are `docs/PRD.md` for a product and `docs/features/PRD-<feature-slug>.md` for a feature. These are portable naming defaults, not mandatory project structure. Resolve a genuinely unspecified location or write authority before saving; do not repeat confirmation for an already selected destination and authorized write.
+Produce one coherent PRD using the supplied path/template when present. Default fresh-output paths are `docs/PRD.md` for a product and `docs/features/<feature-slug>/PRD.md` for a feature. These are portable naming defaults, not mandatory project structure. Resolve a genuinely unspecified location or write authority before saving; do not repeat confirmation for an already selected destination and authorized write.
 
 For an authorized revision, keep the current path unless relocation was requested. If a new-output target already belongs to another artifact, preserve it and resolve replacement versus another filename. Do not overwrite, merge documents or select a different path silently.
 
