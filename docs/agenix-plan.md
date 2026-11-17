@@ -406,7 +406,7 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 helper/
   - [ ] `api-contract-design`
   - [ ] `data-impact-analysis`
   - [ ] `incremental-implementation`
-  - [ ] `tdd`
+  - [x] `tdd`
   - [x] `code-simplification`
   - [x] `code-review`
   - [x] `systematic-debugging`
@@ -487,6 +487,12 @@ Current capability checkpoint - `systematic-debugging` (uncommitted changes agai
 - Changes: empirical diagnosis/guard requirements retained with scope-aware repair/output authority, consistent manual fallback and unresolved-known-cause handling; removed the redundant anti-pattern table while retaining its safeguards at their owning steps. Added approved Markdown report, removed approved renderer and the human-removed HTML after Markdown review. Corrected Windows quoted checker invocation in find-polluter; repeat-run, UI and author/version "1.0" preserved.
 - Checks: validator, UTF-8, Markdown routes/anchors/fences, YAML/JSON/Python syntax and whitespace passed; ten isolated [helper tests](../evals/systematic-debugging/check_helpers.py) passed. Three supplied-evidence behavioral cases assessed diagnosis-only, preauthorized repair and missing reproduction. Claim-versus-check-result confusion required a contract clarification and targeted corrective follow-up, which passed.
 - Limits: Windows/Python 3.14.10, inherited model settings; no full autonomous repair, report save, mitigation, descendant-termination failure, POSIX, renderer or installed-host proof. Final clarity edits received static checks without replay. [Coverage](../evals/systematic-debugging/README.md#coverage) records gaps; shared P4-01 exit remains open.
+
+Current capability checkpoint - `tdd` (uncommitted changes against `74a2fd4`):
+
+- Changes: retained four reference owners and six design techniques; corrected prior authorization/record ownership, scope-aware test levels, contractual interaction assertions, first-run-green coverage and reasoning-versus-executed sensitivity evidence. Preserved RED/GREEN/refactor checks, user work and durable evidence; author/version "1.0" preserved. Removed standalone planning wording and aligned the UI prompt with TDD execution.
+- Checks: validator, YAML/JSON, UTF-8, routes/anchors/fences and whitespace passed. Three [behavioral cases](../evals/tdd/scenarios.json) passed semantic review for composed CI coverage, outward effects and already-green examples. Coordinator fixtures observed two real RED/GREEN increments and checked boundary oracles, decision-table equivalence and transition counts against source-reviewed definitions.
+- Limits: inherited model settings, read-only model cases and Windows/Python 3.14.10 fixtures; no autonomous feature cycle, resume, real CI/provider/mutation run or installed-host proof. Final cross-file synchronization clarified final checks and immediate evidence recording; static/example checks passed without model replay. [Coverage](../evals/tdd/README.md#coverage) records gaps; shared integration and P4-01 exit remain open.
 
 ### P4-02 — Prove Shared Schemas, Helpers and Distribution
 

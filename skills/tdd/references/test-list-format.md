@@ -1,13 +1,13 @@
 # Test List Format
 
-Templates and rules for the test list file, the review view, the revision view, and the in-loop update. Use them exactly so every run has the same structure. Placeholders appear as `<...>`.
+Templates and rules for the test list file, the review view, the revision view, and the in-loop update. Adapt them to caller-owned records while retaining sources, decisions, coverage and actual cycle evidence. Placeholders appear as `<...>`.
 
-## Test list file (for the agent)
+## Working Record
 
-A temporary working file and the source of truth for the loop.
+The working view of cases and evidence. Reuse the caller's canonical record; a separate file is optional.
 
-- Outside version-controlled source, or at a path the project already ignores. Never commit it. Tell the user the path.
-- Keep the section order and column order of the template.
+- Use an authorized destination or conversation record. Do not change ignore rules or create a duplicate tracker. Preserve durable evidence; clean a temporary copy only after useful content is retained in the owning record.
+- The default template keeps the information below together; a supplied format may organize it differently.
 - Row order in `Items` is the execution order.
 
 ### Template
@@ -17,26 +17,26 @@ A temporary working file and the source of truth for the loop.
 
 ## Context
 
-| Field             | Value                                                            |
-| ----------------- | ---------------------------------------------------------------- |
-| Change            | <one line>                                                       |
-| Sources           | <requirement, acceptance criteria, bug report, or existing code> |
-| Applicable levels | <levels> (source: <project rule files or user instructions>)     |
-| Seam              | <public interface where behavior is observed>                    |
-| Focused run       | `<command>`                                                      |
-| Full run          | `<command>`                                                      |
-| Baseline          | <result; pre-existing failures, or "none">                       |
-| Confirmation      | <"unconfirmed" or "confirmed">                                   |
+| Field             | Value                                                                                      |
+| ----------------- | ------------------------------------------------------------------------------------------ |
+| Change            | <one line>                                                                                 |
+| Sources           | <requirement, acceptance criteria or bug contract; observed behavior for characterization> |
+| Applicable levels | <levels> (source: <project rule files or user instructions>)                               |
+| Seam              | <public interface where behavior is observed>                                              |
+| Focused run       | `<command>`                                                                                |
+| Full run          | <required final commands, including separate CI checks and execution prerequisites>        |
+| Baseline          | <result; pre-existing failures, or "none">                                                 |
+| Authorization     | <existing approval/source and scope, or specific pending decision>                         |
 
 ## Items
 
-| ID   | Group   | Test        | Behavior                       | Expected                          | Source of expected                    | Level   | Status  |
-| ---- | ------- | ----------- | ------------------------------ | --------------------------------- | ------------------------------------- | ------- | ------- |
-| <ID> | <Group> | <test name> | <condition and concrete input> | <literal value, error, or effect> | <where the expected value comes from> | <level> | pending |
+| ID   | Group   | Test        | Behavior                       | Expected                                        | Source of Expected                    | Level   | Status   |
+| ---- | ------- | ----------- | ------------------------------ | ----------------------------------------------- | ------------------------------------- | ------- | -------- |
+| <ID> | <Group> | <test name> | <condition and concrete input> | <independent value, property, error, or effect> | <where the expected value comes from> | <level> | <status> |
 
 ## Coverage Map
 
-| Requirement or acceptance criterion | Item IDs            |
+| Requirement or Acceptance Criterion | Item IDs            |
 | ----------------------------------- | ------------------- |
 | <criterion>                         | <IDs, or "NO ITEM"> |
 
@@ -46,15 +46,15 @@ A temporary working file and the source of truth for the loop.
 | ---------- | -------- |
 | <behavior> | <reason> |
 
-## Planned Doubles
+## Test Doubles
 
-| Boundary   | Double kind                | Basis                                                      |
+| Boundary   | Double Kind                | Basis                                                      |
 | ---------- | -------------------------- | ---------------------------------------------------------- |
 | <boundary> | <fake, stub, spy, or mock> | <source, documentation, or real sample the double mirrors> |
 
 ## Decisions
 
-| ID             | User decision          |
+| ID             | User Decision          |
 | -------------- | ---------------------- |
 | <ID or "list"> | <decision in one line> |
 
@@ -66,27 +66,27 @@ A temporary working file and the source of truth for the loop.
 
 ## Evidence
 
-| ID   | RED (command → failure message) | GREEN (command → result) | REFACTOR                         |
-| ---- | ------------------------------- | ------------------------ | -------------------------------- |
-| <ID> | <command → message>             | <command → result>       | <what changed, or "none needed"> |
+| ID   | RED                 | GREEN              | REFACTOR                         |
+| ---- | ------------------- | ------------------ | -------------------------------- |
+| <ID> | <command → message> | <command → result> | <what changed, or "none needed"> |
 ```
 
-Write `None.` under a heading that has no content..
+Write `None.` under a heading that has no content.
 
-### Field rules
+### Field Rules
 
 **Items rules:**
 
-| Field              | Rule                                                                                                                                                                                                                  |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ID                 | Short prefix plus number. Unique, stable, never renumbered or reused.                                                                                                                                                 |
-| Group              | Exactly one value from the Group table below.                                                                                                                                                                         |
-| Test               | Name of the test this item belongs to. Items with the same name are rows of one data-driven test. A single-item test has its own name.                                                                                |
-| Behavior           | The condition plus a concrete input, in domain language. Describe observable behavior, never implementation.                                                                                                          |
-| Expected           | A literal value, an error type, or an observable effect. Never a formula or a reference to the code. `needs decision` is allowed only with status `needs-confirmation`, or `dropped` after the user dropped the item. |
-| Source of expected | A requirement ID, a document and section, existing code (current behavior), or a short hand computation (for example, `8.00 + 1.50 × 1`). Never `assumed` or `obvious`.                                               |
-| Level              | One of the applicable levels.                                                                                                                                                                                         |
-| Status             | One value from the status table below.                                                                                                                                                                                |
+| Field              | Rule                                                                                                                                                                                                                                    |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ID                 | Short prefix plus number. Unique, stable, never renumbered or reused.                                                                                                                                                                   |
+| Group              | Exactly one value from the Group table below.                                                                                                                                                                                           |
+| Test               | Name of the test this item belongs to. Items with the same name are rows of one data-driven test. A single-item test has its own name.                                                                                                  |
+| Behavior           | The condition plus a concrete input, in domain language. Describe observable behavior, never implementation.                                                                                                                            |
+| Expected           | An independently sourced value, error, effect or property. Do not derive the oracle from the subject's implementation. `needs decision` is allowed only with status `needs-confirmation`, or `dropped` after the user dropped the item. |
+| Source of expected | A requirement ID, a document and section, observed existing behavior (characterization only), or a short hand computation (for example, `8.00 + 1.50 × 1`). Never `assumed` or `obvious`.                                               |
+| Level              | One of the applicable levels.                                                                                                                                                                                                           |
+| Status             | One value from the status table below.                                                                                                                                                                                                  |
 
 | Group              | Meaning                                                                                            |
 | ------------------ | -------------------------------------------------------------------------------------------------- |
@@ -99,21 +99,21 @@ Write `None.` under a heading that has no content..
 
 | Status               | Meaning                                                                                     |
 | -------------------- | ------------------------------------------------------------------------------------------- |
-| `pending`            | Confirmed and not started                                                                   |
+| `pending`            | Sourced, authorized and not started                                                         |
 | `in-progress`        | The current cycle is working on it                                                          |
 | `done`               | RED and GREEN observed (or the exception in Core Principle 7 applied), refactoring finished |
 | `dropped`            | Removed; the reason is in `Decisions`                                                       |
-| `needs-confirmation` | Expected behavior cannot be derived; blocks the loop until the user resolves it             |
+| `needs-confirmation` | Expected behavior cannot be derived; blocks dependent work until resolved                   |
 
 **Other section rules:**
 
-- **Context > Confirmation:** set to `confirmed` only after the user approves every Group.
+- **Context > Authorization:** identify existing scope/approval or the exact pending decision; do not invent a second whole-list approval.
 - **Coverage Map:** when the request has no acceptance criteria, use the expected behavior stated in the request or bug report. A row with no items stays visible as `NO ITEM`.
 - **Decisions:** record every user answer that changes the list (resolved questions, drops, approved edits to existing tests, level choices) as soon as it is given.
-- **Planned Doubles:** list a double only when it stands in for the behavior of a boundary (fake, stub, spy, or mock), with the source or sample it mirrors. A dummy only fills a parameter that the behavior never uses, so it has no behavior to review and is not listed.
-- **Evidence:** add one row when an item reaches `done`. For the two exceptions in Core Principle 7, write `exception: pins existing behavior` in the RED cell. Rows of one data-driven test may share one evidence row listing their IDs. The exit summary is built from it.
+- **Test Doubles:** list a double used at a deliberate isolation boundary (fake, stub, spy, or mock), with the source or sample it mirrors. A dummy only fills a parameter that the behavior never uses, so it has no behavior to review and is not listed.
+- **Evidence:** record each RED, GREEN and REFACTOR observation as it occurs, with command, result and identifiable candidate state; retain partial rows for interrupted cycles. Set `done` only after required cycle checks and refactor review. For existing-behavior coverage under Core Principle 7, write `existing behavior: no new RED; provenance and sensitivity recorded` in the RED cell. Rows of one data-driven test may share one evidence row listing their IDs. The exit summary is built from it.
 
-## Review view (for the user)
+## Review View (for the User)
 
 Present the list in the conversation. The reader must be able to check three things quickly: the expected values and their sources, the open decisions, and what is not tested. Rules:
 
@@ -124,7 +124,7 @@ Present the list in the conversation. The reader must be able to check three thi
 - Show counts so the reader can see the size of the review.
 
 ```markdown
-## Test list for review: <change>
+## Test List for Review: <change>
 
 > Please check the expected values and their sources, the decisions needed, and what is not tested.
 
@@ -132,16 +132,16 @@ Present the list in the conversation. The reader must be able to check three thi
 
 - <N> items in <G> groups · levels: <levels> · <K> need your decision · <M> behaviors not tested
 
-### Decisions needed from you
+### Decisions Needed from You
 
-| #   | ID   | Question            | Proposed default |
+| #   | ID   | Question            | Proposed Default |
 | --- | ---- | ------------------- | ---------------- |
 | 1   | <ID> | <specific question> | <default>        |
 
-### Scope and setup
+### Scope and Setup
 
 - **Change:** <one line>
-- **Sources:** <requirement, acceptance criteria, bug report, or existing code>
+- **Sources:** <requirement, acceptance criteria or bug contract; observed behavior for characterization>
 - **Applicable levels:** <levels> (source: <rule or instruction>)
 - **Tested through (seam):** <function or interface the tests call>
 - **Commands:** focused `<command>` · full `<command>`
@@ -149,74 +149,74 @@ Present the list in the conversation. The reader must be able to check three thi
 
 ### Coverage
 
-| Requirement or acceptance criterion | Items             |
+| Requirement or Acceptance Criterion | Items             |
 | ----------------------------------- | ----------------- |
 | <criterion>                         | <IDs>             |
 | <criterion>                         | **NO ITEM (gap)** |
 
-### Items by group
+### Items by Group
 
 #### <Group> (<count>)
 
-| ID   | Behavior (concrete example) | Expected   | Source of expected | Level   |
-| ---- | --------------------------- | ---------- | ------------------ | ------- |
-| <ID> | <behavior>                  | <expected> | <source>           | <level> |
+| ID   | Behavior   | Expected   | Source of Expected | Level   |
+| ---- | ---------- | ---------- | ------------------ | ------- |
+| <ID> | <behavior> | <expected> | <source>           | <level> |
 
-Full list with status: `<path to the test list file>`
+Full list with status: <caller-owned record reference, conversation location or authorized file path>
 
-### Not tested
+### Not Tested
 
 | Behavior   | Reason   |
 | ---------- | -------- |
 | <behavior> | <reason> |
 
-### Planned test doubles
+### Test Doubles
 
 | Boundary   | Kind   |
 | ---------- | ------ |
 | <boundary> | <kind> |
 
-### Execution order
+### Execution Order
 
 <ID> → <ID> → <ID>
 
-### How to respond
+### How to Respond
 
-- Reply **confirmed** to approve everything, or name the groups or IDs you want changed.
+- Identify any unresolved behavior or scope decisions. Existing approval already covering these cases remains valid.
 - Answer the questions above, or accept the proposed defaults.
 ```
 
 Write `None.` under a heading that has no content.
 
-## Revision view
+## Revision View
 
-After feedback, reprint only what changed, mark each change, and ask again.
+After feedback, reprint only what changed, mark each change, and request confirmation only for a material unresolved decision.
 
 ```markdown
-### Changes since the last version
+### Changes Since the Last Version
 
-| Change  | ID   | Behavior       | Expected       | Source of expected | Level   |
+| Change  | ID   | Behavior       | Expected       | Source of Expected | Level   |
 | ------- | ---- | -------------- | -------------- | ------------------ | ------- |
 | ADDED   | <ID> | <behavior>     | <expected>     | <source>           | <level> |
 | CHANGED | <ID> | <new behavior> | <new expected> | <source>           | <level> |
 | REMOVED | <ID> | <behavior>     | —              | reason: <reason>   | —       |
 
-### Updated coverage
+### Updated Coverage
 
-| Requirement or acceptance criterion | Items |
+| Requirement or Acceptance Criterion | Items |
 | ----------------------------------- | ----- |
 | <criterion>                         | <IDs> |
 
-Please confirm, or tell me what else to change.
+Resolve the specific material decision above; routine derived cases within approved criteria need no repeated gate.
 ```
 
-## In-loop update
+## In-Loop Update
 
-When an item is added after confirmation, report it in the next message to the user:
+When a derived case is added within authorized scope, report its source in the next progress update:
 
 ```markdown
-### Item added during implementation
+### Item Added During Implementation
 
 - **<ID>:** <behavior> → expected <expected> (source: <source>).
-- **Found by:** <mutation analysis, new edge case, or other reason>.
+- **Found by:** <test sensitivity review, new edge case, or other reason>.
 ```

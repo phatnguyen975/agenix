@@ -2,11 +2,11 @@
 
 Techniques for building and reviewing the test list. They turn a specification into candidate items.
 
-## How to use the techniques
+## How to Use the Techniques
 
 1. Identify the data and logic the behavior depends on: inputs, outputs, configuration, state, and the conditions that decide outcomes.
 2. Pick techniques by trigger:
-   | Trigger in the specification                            | Technique                | Default coverage criterion                                                |
+   | Trigger in the Specification                            | Technique                | Default Coverage Criterion                                                |
    | ------------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------- |
    | Input has ranges, sets, or formats                      | EP                       | Every partition at least once (Each Choice when there are several inputs) |
    | Partitions are ordered (limits, lengths, counts, dates) | BVA                      | 3-value BVA: every boundary value and both its neighbors                  |
@@ -20,7 +20,7 @@ Techniques for building and reviewing the test list. They turn a specification i
 
 ## 1. Equivalence Partitioning (EP)
 
-**Mechanism:** Divide a data element into partitions whose members the system should process the same way. If one value of a partition exposes a defect, any other value of that partition should expose it too, so one test per partition is sufficient.
+**Mechanism:** Divide a data element into partitions whose members the system should process the same way. Representatives rely on a hypothesis of equivalent processing; one example per partition meets the selected partition coverage but does not prove equivalence or absence of defects.
 
 **Rules:**
 
@@ -38,18 +38,18 @@ Techniques for building and reviewing the test list. They turn a specification i
 3. Pick one representative per partition and take its expected result from the specification.
 4. For several inputs, build test cases so that every partition of every input appears at least once; the number of test cases is at least the size of the largest set of partitions. Group valid representatives together. Cover each invalid partition in its own test (one invalid value per test) so that one rejection cannot hide another.
 
-**Example:** "A ticket category depends on age in whole years: 0–12 child, 13–64 adult, 65–120 senior. Any other age is rejected."
+**Example:** "For integer ages, a ticket category is 0–12 child, 13–64 adult, 65–120 senior; other integers are rejected. Fractional input handling is unspecified."
 
-| Partition                       | Values | Valid | Expected                             |
-| ------------------------------- | ------ | ----- | ------------------------------------ |
-| Below range                     | ≤ −1   | no    | rejected                             |
-| Child                           | 0–12   | yes   | child                                |
-| Adult                           | 13–64  | yes   | adult                                |
-| Senior                          | 65–120 | yes   | senior                               |
-| Above range                     | ≥ 121  | no    | rejected                             |
-| Not a whole number (e.g., 12.5) | —      | no    | not specified → `needs-confirmation` |
+| Partition                       | Values      | Valid   | Expected             |
+| ------------------------------- | ----------- | ------- | -------------------- |
+| Below range                     | ≤ −1        | no      | rejected             |
+| Child                           | 0–12        | yes     | child                |
+| Adult                           | 13–64       | yes     | adult                |
+| Senior                          | 65–120      | yes     | senior               |
+| Above range                     | ≥ 121       | no      | rejected             |
+| Not a whole number (e.g., 12.5) | unspecified | unknown | `needs-confirmation` |
 
-Representatives such as −5, 6, 40, 90, 200 cover the partitions. When BVA also applies, its values already cover the ordered partitions (see below), so do not duplicate rows.
+Representatives -5, 6, 40, 90 and 200 cover the five integer partitions; fractional handling remains unresolved. When BVA also applies, its values already cover the ordered partitions (see below), so do not duplicate rows.
 
 **Each Choice with a second input:** add `member` (yes or no), whose effect the specification defines. The age partitions need five tests; membership needs two partitions, so five tests are enough: (−5, member), (6, non-member), (40, member), (90, non-member), (200, member). Every partition of both inputs appears at least once, and the ten combinations are not all required.
 
@@ -68,13 +68,13 @@ Representatives such as −5, 6, 40, 90, 200 cover the partitions. When BVA also
 
 1. Take the ordered partitions from EP.
 2. Write each partition's minimum and maximum (its boundary values).
-3. Determine the step between neighbors from the specification's precision (whole numbers: 1; currency: 0.01; and so on). If the specification states no precision, state the assumed step in the item; if the step changes the expected result, mark the item `needs-confirmation`.
+3. Determine the step between neighbors from the specification's precision (whole numbers: 1; currency: 0.01; and so on). If precision is unspecified, record the representational assumptions; if the step changes the expected result, mark the item `needs-confirmation`.
 4. For each boundary value, add its two neighbors. Remove duplicates across adjacent boundaries.
 5. Take each expected result from the specification.
 
 **Example:** Same ticket specification, whole numbers.
 
-| Limit between        | Boundary values | 3-value set        | Expected                           |
+| Limit Between        | Boundary Values | 3-value Set        | Expected                           |
 | -------------------- | --------------- | ------------------ | ---------------------------------- |
 | below range / child  | −1 and 0        | −2, −1, 0, 1       | rejected, rejected, child, child   |
 | child / adult        | 12 and 13       | 11, 12, 13, 14     | child, child, adult, adult         |
@@ -134,7 +134,7 @@ What the values detect (checked against mutated implementations):
   | **Actions**        |       |       |       |       |
   | A1 (free shipping) | X     | X     | X     |       |
   | A2 (10% off)       | X     |       |       |       |
-- Merging hides interactions the specification does not rule out; for a condition whose irrelevance is not stated, keep the full columns. For example, after merging, a wrongly implemented "coupon applies only to non-members" survives if every merged rule is exercised with a non-member.
+- Merging hides interactions the specification does not rule out; for a condition whose irrelevance is not stated, keep the full columns. For example, after merging, a wrongly implemented "coupon applies only to non-members" survives if the merged discount-applicable rule R1+R5 is exercised only with a non-member.
 
 A condition that is itself a limit (C2: total ≥ 100) still needs Boundary Value Analysis when choosing concrete values: use 99.99 for `F` and 100 for `T`, otherwise `total > 100` survives.
 
@@ -148,8 +148,8 @@ A condition that is itself a limit (C2: total ≥ 100) still needs Boundary Valu
 - A state table has states as rows and events (with guards) as columns. Each cell holds the target state and action. Empty cells are invalid transitions.
 - **Coverage criteria:**
   - **All states:** every state is visited. Weakest.
-  - **Valid transitions (0-switch):** every valid transition is exercised. Most widely used. Guarantees all states coverage.
-  - **All transitions:** every valid transition is exercised and every invalid transition is attempted. Guarantees the other two. A minimum for mission- and safety-critical software.
+  - **Valid transitions (0-switch):** every valid transition is exercised. A common baseline. Covers states reached by the modeled valid transitions; unreachable or isolated states need separate analysis.
+  - **All transitions:** every valid transition is exercised and every invalid transition is attempted. Covers the modeled valid and invalid transitions; separately account for unreachable states. Select safety-critical coverage from the applicable safety standard and risk analysis; this generic criterion is not certification.
 - Attempt only one invalid transition per test, to avoid fault masking (one defect hiding another).
 
 **Steps:**
@@ -158,7 +158,7 @@ A condition that is itself a limit (C2: total ≥ 100) still needs Boundary Valu
 2. Build the state table. Each empty cell is an invalid transition.
 3. Take the expected result of each valid transition from the specification: target state and action. Take the expected result of an invalid attempt from the specification (e.g. rejected with an error, state unchanged). If it is unspecified, mark the item `needs-confirmation`.
 4. Choose the criterion: valid transitions coverage by default; add invalid attempts (all transitions coverage) when wrongly allowing a transition would cause harm.
-5. Write event sequences that cover the chosen items. Where the interface lets a test set the starting state directly, do so instead of replaying a long sequence.
+5. Write event sequences that cover the chosen items. Use a valid fixture to establish the starting state when that preserves relevant invariants. Retain the event sequence when reaching the state is itself part of the behavior; do not manufacture impossible state through private mutation.
 
 **Example:** "An order starts `Created`. `pay` moves `Created` to `Paid`. `ship` moves `Paid` to `Shipped`. `cancel` moves `Created` or `Paid` to `Cancelled` (a `Paid` order is refunded). `Shipped` and `Cancelled` are final."
 
@@ -199,10 +199,10 @@ A condition that is itself a limit (C2: total ≥ 100) still needs Boundary Valu
 
 ## 6. Property-based Testing
 
-**Mechanism:** State a property (an invariant that must hold for every input), then check it over many inputs.
+**Mechanism:** State an independently justified property over its defined input domain and preconditions, then check many generated examples. Finite sampling is not proof for every input.
 
 - **Round trip:** `decode(encode(x)) = x`.
 - **Idempotence:** `f(f(x)) = f(x)`.
 - **Ordering:** a sorted result is non-decreasing and contains the same elements as the input.
 
-Use when a general rule matters more than specific examples. The property is the independent oracle; never compute the expected value with the code under test. Use a property-based testing tool only if the project already has one. Otherwise express the property as a data-driven test over a few explicit inputs.
+Use a contract-backed property as the independent oracle. Use an existing property-testing tool, or explicit data-driven examples when none is available; do not install a new tool implicitly. Round-trip consistency alone does not establish compatibility with an external encoding standard; combine it with independently known examples when that compatibility matters.
