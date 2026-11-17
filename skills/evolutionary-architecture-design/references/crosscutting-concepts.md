@@ -37,10 +37,10 @@ In System Design §8, for each selected concept record:
 
 **Example — Cross-Boundary Request Correlation:**
 
-- Applies to `Web App`, `Order API`, and `Fulfillment Worker`; supports `QUA-04` (diagnosis time).
+- Applies to `Web App`, `Order API`, and `Fulfillment Worker`; supports `QUA-05` (diagnosis time).
 - The entry point assigns or validates a correlation identifier and passes it along approved sync/async boundaries. No sensitive personal data is placed in that identifier.
 - If context propagation is missing, record the boundary and a diagnostic fallback; do not silently claim end-to-end trace continuity.
-- Verify with a representative request traversing all three elements. The `FF` is `planned` until an actual check exists.
+- Verify with a representative request traversing all three elements. The `FF` is `planned` until there is evidence the check operates at its defined cadence.
 
 ## Additional Example — Authorization Ownership
 

@@ -1,6 +1,9 @@
 <!--
 AUTHORING INSTRUCTIONS — DELETE THIS BLOCK IN THE OUTPUT
 
+Use this arc42-inspired structure for a full design when a caller has not
+provided an owning format. For a focused decision, take only relevant sections.
+
 1. Every <...> is a fill-in instruction, not final document content. Replace
    the entire bracketed instruction with project-grounded text. Replace sample
    IDs, links and diagram nodes as well. Do not copy example statuses, dates,
@@ -59,14 +62,13 @@ AUTHORING INSTRUCTIONS — DELETE THIS BLOCK IN THE OUTPUT
 
 ### 1.4 Architectural Drivers
 
-<!-- One row for every FUN/QUA/CST/CNC driver. Priority/Rank: order confirmed at
-     Gate A (e.g. '1 / High'); constraints: 'Mandatory' (unranked). Unknown
-     priorities remain unconfirmed rather than guessed. Difficulty:
+<!-- One row for every FUN/QUA/CST/CNC driver. Priority/Rank: order confirmed by
+     the accountable owner (e.g. '1 / High'). Use 'Mandatory' for unranked
+     hard constraints. Unknown priorities remain unconfirmed. Difficulty:
      High/Medium/Low/Unknown. Design Status: addressed/gap/unverified/accepted-risk.
      'accepted-risk' requires explicit accountable approval and cannot bypass
-     non-waivable hard constraints. Evidence kind/source goes in detailed sections;
-     do not mistake an 'addressed' design for tested runtime behavior. Accepted-risk
-     requires explicit human approval documented in §11. A DD is a deferred OPTION,
+     non-waivable hard constraints. Record the authorization in §11. Give
+     evidence type and source in the detailed sections. A DD is a deferred choice,
      not a substitute for fulfilling the driver. For CST, design coverage
      describes how the design accounts for it; §2 records meets/gap/unverified
      feasibility separately. -->
@@ -94,6 +96,7 @@ AUTHORING INSTRUCTIONS — DELETE THIS BLOCK IN THE OUTPUT
 
 <!-- C4 System Context diagram if relationships need a visual. State system
      boundary, relevant people and external systems, and interaction purposes.
+     If prose or a table explains these clearly, omit the diagram and its legend.
      Replace the example with real actors, external systems and directions;
      omit elements that do not exist or are immaterial to the current scope. -->
 
@@ -159,7 +162,8 @@ flowchart LR
      change-ready boundaries if driven by requirements. Otherwise use
      'Not applicable: No migration is required for this new design.'
      Remove the Change Objective and all migration-step placeholders if there
-     is no migration. -->
+     is no migration. For each retained phase identify affected consumers, the
+     authoritative data owner, verification evidence, and the recovery boundary. -->
 
 **Change Objective:** <Identify the drivers and the specific architecture change being planned>.
 
@@ -196,6 +200,7 @@ flowchart LR
 
 <!-- Show architecturally significant C4 applications and data stores within
      the system boundary and relevant actors/external systems outside it.
+     Use a table or prose if it communicates the needed structure clearly.
      Replace the example topology: add or remove nodes and relationships to
      match the actual design. State known technologies and interaction styles;
      mark open decisions rather than guessing. A C4 container is not necessarily
@@ -281,8 +286,8 @@ sequenceDiagram
   Service-->>Client: <Describe the externally visible response or result>
 ```
 
-- **Success And State:** <Explain the successful flow, state owner and required consistency semantics>.
-- **Failure And Recovery:** <Explain relevant failure handling, recovery and consumer-visible outcome>.
+- **Success and State:** <Explain the successful flow, state owner and required consistency semantics>.
+- **Failure and Recovery:** <Explain relevant failure handling, recovery and consumer-visible outcome>.
 - **Verification:** <Reference the validation method/FF and distinguish planned from observed evidence>.
 
 ## 7. Deployment View
@@ -319,19 +324,19 @@ flowchart TB
 
 - **Purpose/Drivers:** <Cite the affected driver IDs and why a shared policy is required>.
 - **Applies To:** <List the exact architecture elements governed by this policy>.
-- **Rules And Mechanism:** <Specify the architectural rule, ownership and cross-boundary mechanism>.
+- **Rules and Mechanism:** <Specify the architectural rule, ownership and cross-boundary mechanism>.
 - **Failure/Exceptions:** <Explain required exception approval, detection or failure response, if applicable>.
 - **Decision/Verification:** <Reference the governing ADR and any FF with actual execution status>.
 
 ## 9. Architecture Decisions
 
 <!-- List relevant ADR files with verified relative paths, titles and status.
-     Replace the sample ADR path/ID with a real link. If no ADR is applicable,
+     Use a real link for each ADR. If no ADR is applicable,
      explain briefly; do not invent a new record or an accepted status. -->
 
-| ADR                                       | Decision                | Status                    |
-| ----------------------------------------- | ----------------------- | ------------------------- |
-| [ADR-0001](decisions/0001-short-title.md) | <Copy actual ADR title> | <State actual ADR status> |
+| ADR                  | Decision                | Status                    |
+| -------------------- | ----------------------- | ------------------------- |
+| <Link to actual ADR> | <Copy actual ADR title> | <State actual ADR status> |
 
 ## 10. Quality Requirements
 
@@ -357,7 +362,7 @@ flowchart TB
 - **Environment:** <Specify relevant workload, system state and measurement window>.
 - **Artifact:** <Name the boundary, data or architectural element that responds>.
 - **Response:** <Describe the observable system response to the stimulus>.
-- **Response Measure:** <State the agreed measurable limit and observation window, or mark target unconfirmed>.
+- **Response Measure:** <State the agreed measure and observation window. If unconfirmed, give the decision or evidence needed>.
 - **Evidence:** <Identify evidence type, source, environment and known limitations>.
 - **Design Coverage:** <Link the proposed design/ADR and assign justified coverage status>.
 
@@ -368,7 +373,8 @@ flowchart TB
      architectural characteristics, not one per driver/ADR. Execution state
      is planned / active / suspended; active requires evidence of an operating
      check. Record the last result separately as pass / fail / not-run / unknown.
-     For a planned check with no execution, use not-run. If no check is justified
+     Record a trial result with its scope if ongoing operation is still planned.
+     For a check with no execution, use not-run. If no check is justified
      or feasible, remove the table and details, state why and describe how the
      critical property will otherwise be reviewed or validated. -->
 

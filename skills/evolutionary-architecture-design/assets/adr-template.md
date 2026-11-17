@@ -1,6 +1,6 @@
 ---
-status: <proposed | accepted | rejected | deprecated | superseded by ADR-NNNN>
-date: <Insert the actual creation or status-update date as YYYY-MM-DD>
+status: "<proposed | accepted | rejected | deprecated | superseded by ADR-NNNN>"
+date: "<Insert the actual creation or status-update date as YYYY-MM-DD>"
 decision-makers: <Name known people or roles authorized to decide; omit if unknown>
 consulted: <Name known people or roles whose input was requested; omit if unknown>
 informed: <Name known people or roles notified of the decision; omit if unknown>
@@ -11,7 +11,8 @@ AUTHORING INSTRUCTIONS — REMOVE THIS BLOCK IN THE FINAL ADR
 
 - Replace each <...> with actual content and remove the angle brackets.
 - Name the file NNNN-short-decision-title.md using the next available number,
-  unless the repository already has an established ADR convention.
+  unless the repository already has an established ADR convention. Keep valid
+  YAML after substitution. Quote or escape free-text values as needed.
 - A newly drafted decision starts as 'proposed'. Use 'rejected',
   'deprecated' or 'superseded by ADR-NNNN' only when their lifecycle
   meaning applies. Change to 'accepted' only after documented authorization.

@@ -78,4 +78,4 @@ A split does not automatically improve reliability: synchronous chains may prese
 - **Cycles:** cyclic dependencies between governed modules/services. Reject them when architecture layering or autonomy requires an acyclic graph.
 - **Change coupling:** percentage of relevant changes spanning boundaries, or releases requiring coordination; often more directly useful than static counts.
 
-Choose measurement scope and thresholds per project; do not assert that lower coupling numbers always mean better quality. Example fitness rule: "`Ordering` must not import `Catalog` internals; dependencies use the published module contract" (checked at each build). See `fitness-functions.md`.
+Choose measurement scope and thresholds per project; do not assert that lower coupling numbers always mean better quality. Example fitness rule: "`Ordering` must not import `Catalog` internals; dependencies use the published module contract" (checked at each build). See [Fitness Functions](fitness-functions.md).

@@ -398,7 +398,7 @@ Dependency order: Phase 3 exit → P4-01 existing capabilities → P4-02 helper/
   - [x] `autonomous-git-workflow`
   - [x] `prd-writing`
   - [x] `domain-modeling`
-  - [ ] `evolutionary-architecture-design`
+  - [x] `evolutionary-architecture-design`
   - [ ] `database-design`
   - [ ] `codebase-design`
   - [x] `work-breakdown-planning`
@@ -511,6 +511,12 @@ Current capability checkpoint - `domain-modeling` (uncommitted changes against `
 - Changes: retained operations/scopes, seven references and full template; clarified caller output precedence, scenario-reasoning evidence, event types/instances, invariants and process policies. Corrected the event branching example and direct resource links; UI metadata remains accurate, author/version "1.0" preserved.
 - Checks: skill validator, YAML/JSON, resource paths/anchors, Markdown, UTF-8 and whitespace passed. Source review used [Fowler](https://martinfowler.com/bliki/BoundedContext.html), [Vernon](https://www.dddcommunity.org/wp-content/uploads/files/pdf_articles/Vernon_2011_1.pdf) and official EventStorming material. Two read-only [behavioral cases](../evals/domain-modeling/scenarios.json) passed semantic assessment for credit/concurrency review and caller-composed terminology/context mapping.
 - Limits: inherited model settings, supplied-context single runs; no full document save, evolution writes, workshop, installed-host/renderer or repeated-run proof. Evans PDF access returned 403; final narrow clarifications received static checks without replay. [Coverage](../evals/domain-modeling/README.md#coverage) records gaps; shared P4-01 exit remains open.
+
+Current capability checkpoint - `evolutionary-architecture-design` (uncommitted changes against `37bc2e3`):
+
+- Changes: retained scoped design/evolve/review and both templates. Clarified caller output precedence, decision authority, cutover recovery, fitness evidence and source-backed quality guidance. Preserved author/version "1.0".
+- Checks: skill validator, YAML/JSON, routes/anchors, template structure, UTF-8 and whitespace passed. Checked references against SEI, ISO/IEC 25010:2023, C4, arc42, MADR and migration guidance. Two read-only [behavioral cases](../evals/evolutionary-architecture-design/scenarios.json) passed semantic assessment for cutover readiness and focused client composition.
+- Limits: supplied-context runs with inherited model settings. Final editorial and template changes received static checks. [Coverage](../evals/evolutionary-architecture-design/README.md#coverage) records remaining gaps. Shared P4-01 exit remains open.
 
 ### P4-02 — Prove Shared Schemas, Helpers and Distribution
 

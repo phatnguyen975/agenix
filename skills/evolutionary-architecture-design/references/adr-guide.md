@@ -1,6 +1,6 @@
 # ADR Guide
 
-Use when a **new or changed, architecturally significant decision** needs durable rationale. Follow the structure of Markdown Architectural Decision Records (MADR), adapting optional sections to the actual choice. The template is `assets/adr-template.md`.
+Use when a **new or changed, architecturally significant decision** needs durable rationale. Follow the project's ADR convention. The default [ADR Template](../assets/adr-template.md) adapts [MADR](https://adr.github.io/madr/) and keeps only sections that serve the decision.
 
 ## Decide What Deserves a Record
 
@@ -44,7 +44,7 @@ Avoid bloated sections that merely repeat the system-design document; use refere
 | `deprecated`             | Previously accepted, no longer applicable without replacement      |
 | `superseded by ADR-NNNN` | Replaced by an accepted newer ADR                                  |
 
-Use `date: YYYY-MM-DD` for the actual creation/status-update date (from an available trusted clock), not a fabricated date. Must not turn `proposed` into `accepted` by assuming the human agrees. In Update mode, keep accepted ADR reasoning unchanged; correct clerical errors or status metadata transparently, and supersede when a material choice changes.
+Use `date: YYYY-MM-DD` for the actual creation/status-update date (from an available trusted clock), not a fabricated date. Must not turn `proposed` into `accepted` by assuming the human agrees. In Evolve tasks, keep accepted ADR reasoning unchanged; correct clerical errors or status metadata transparently, and supersede when a material choice changes.
 
 ## Supersession Procedure
 
@@ -59,9 +59,9 @@ If a planned decision is rejected before acceptance, mark it `rejected` and expl
 
 - Use `NNNN-short-decision-title.md` under the project's decision directory; default `docs/decisions/`. Reuse repository numbering conventions if established.
 - Allocate the **next unused four-digit numeric prefix** rather than filling gaps that could clash; do not renumber existing ADRs.
-- Use relative Markdown links, e.g. `[ADR-0004](decisions/0004-use-queue.md)` when referenced from `docs/system-design.md`.
+- Resolve relative links from the referring document. With the default locations, the path from `docs/system-design.md` is `decisions/0004-use-queue.md`.
 - The H1 title is not automatically the filename, but should describe the same decision; maintain one authoritative file for each ID.
-- YAML frontmatter values must be valid; quote status strings containing spaces. Omit unprovided optional people/role fields entirely.
+- Use valid YAML frontmatter. Quote status and date strings and escape free-text scalars as needed, or use the field types required by the owning format. Omit unprovided optional people/role fields entirely.
 
 ## Worked Example
 
@@ -70,18 +70,18 @@ The following is **illustrative**, not project evidence:
 ```markdown
 ---
 status: proposed
-date: 2026-11-14
+date: "2026-11-14"
 ---
 
 # Decouple Order Acceptance from Fulfillment with Messaging
 
 ## Context and Problem Statement
 
-`QUA-02` requires accepting valid orders during a fulfillment outage. Should the checkout path wait synchronously for fulfillment?
+`QUA-04` requires accepting valid orders during a fulfillment outage. Should the checkout path wait synchronously for fulfillment?
 
 ## Decision Drivers
 
-- **QUA-02:** order acceptance during a 10-minute downstream outage
+- **QUA-04:** order acceptance during a 10-minute downstream outage
 - **CST-01:** use existing managed platform capabilities
 
 ## Considered Options
@@ -101,7 +101,7 @@ date: 2026-11-14
 
 ### Confirmation
 
-A planned outage/replay exercise will check `QUA-02`; no active fitness function has yet been established.
+A planned outage/replay exercise will check `QUA-04`; no active fitness function has yet been established.
 
 ## Pros and Cons of the Options
 
@@ -120,4 +120,4 @@ A planned outage/replay exercise will check `QUA-02`; no active fitness function
 Review if durability or consistency requirements change.
 ```
 
-Replace every `<...>` instruction with confirmed project-specific content and remove its brackets; illustrative text is not evidence. Keep the ADR `proposed` until explicit approval. When using `assets/adr-template.md`, remove guidance comments and placeholder-only backticks as well.
+Replace every `<...>` instruction with confirmed project-specific content and remove its brackets; illustrative text is not evidence. Keep the ADR `proposed` until explicit approval. When using [ADR Template](../assets/adr-template.md), remove guidance comments and placeholder-only backticks as well.

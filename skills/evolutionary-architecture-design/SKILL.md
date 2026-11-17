@@ -3,7 +3,7 @@ name: evolutionary-architecture-design
 description: Design, review, and evolve software architecture using evolutionary architecture principles. Use for new or existing systems, from end-to-end design to focused architectural decisions, to address architectural drivers, evaluate trade-offs, and enable safe, incremental evolution through adaptable structures and architectural fitness functions. Do not use for implementation code, detailed database or API schemas, UI design, tactical domain modeling or infrastructure provisioning.
 metadata:
   author: phatnguyen975
-  version: 1.0
+  version: "1.0"
 ---
 
 # Evolutionary Architecture Design
@@ -26,12 +26,12 @@ A task may be **end-to-end** (architecture description and any significant ADRs)
 
 ## Deliverables and Conventions
 
-For an **end-to-end** design or an explicitly requested architecture document, use the project's established locations and conventions; otherwise default to:
+Use the caller's requested format and destination, or the project's established architecture records and conventions. Preserve driver traceability, decision state and evidence in that format. When a requested artifact has no supplied or established location, use these defaults:
 
-- `docs/system-design.md` — living architecture description structured around the twelve arc42 sections; load `assets/system-design-template.md` only when writing or updating it.
-- `docs/decisions/NNNN-short-title.md` — an ADR **only for each newly proposed, architecturally significant decision**; load `assets/adr-template.md` and `references/adr-guide.md` only when needed.
+- `docs/system-design.md` — living architecture description using the twelve-section arc42-inspired structure in the [System Design Template](assets/system-design-template.md). Load it when that structure is needed for the requested architecture document.
+- `docs/decisions/NNNN-short-title.md` — an ADR for a new or materially changed, architecturally significant decision that needs a durable record. Use the [ADR Guide](references/adr-guide.md) and, if no project format governs, the [ADR Template](assets/adr-template.md).
 
-For a **focused design or review**, return the decision, analysis, affected architecture documentation or suggested diff at the requested scope; do not force the full document or create a redundant source of truth. Prefer links to existing requirements, decisions and checks over duplication. Do not overwrite unrelated content or reformat an existing repository merely to match this skill.
+For a **focused design or review**, return the decision, analysis, affected architecture documentation or suggested diff at the requested scope; do not force the full document or create a redundant source of truth. Reuse existing requirements, decision records and checks by reference. When the caller owns the output, return the scoped contribution for that record. Do not overwrite unrelated content or reformat an existing repository merely to match this skill.
 
 Use the project's writing language and documentation conventions; default to English when absent. In templates, `<...>` gives instructions for what to fill, not literal output. Do not emit template comments, sample rows or unresolved placeholders as completed architecture documentation.
 
@@ -45,13 +45,13 @@ Use the project's writing language and documentation conventions; default to Eng
 6. **Evolve incrementally.** Reassess affected drivers, contracts, data ownership, failure modes and guardrails after structural revisions. For live systems, design compatibility, verification, cutover, rollback or forward recovery, and retirement.
 7. **Protect important properties.** Define objective architecture fitness functions or explicit review methods for critical change-sensitive characteristics where feasible. Do not claim an unimplemented check is active; not every ADR requires its own check.
 8. **Record consequential rationale.** Use ADRs for new significant choices and supersession for changed accepted decisions. Observed undocumented architecture is not a retroactively accepted ADR.
-9. **Respect human authority.** Never self-approve significant trade-offs, accepted risk, requirement changes or breaking/irreversible changes. When confirmation is unavailable, keep the affected decision proposed and surface the blocker; progress on independent work may continue.
+9. **Respect human authority.** Reuse documented approval for unchanged decisions. Seek a decision from the accountable owner for unresolved material trade-offs, risk acceptance, requirement changes or breaking or irreversible changes. Keep affected choices proposed while confirmation is pending and continue independent work where possible.
 10. **Be proportionate.** Include only views, scenarios, concepts and records that explain a real driver, choice or risk. Do not require every possible diagram, pattern or check.
 
 ## Terms and Statuses
 
-- **Architectural driver:** a significant function (`FUN-nn`), quality scenario (`QUA-nn`), mandatory constraint (`CST-nn`), or distinct stakeholder concern requiring architectural analysis (`CNC-nn`). Do not turn every requirement or duplicate concern into a driver. Maintain stable IDs for drivers in the architecture scope being documented.
-- **Quality scenario:** a specific stimulus source, stimulus, environment, affected artifact, response and response measure. A quality goal can group several scenarios. See `references/quality-attributes.md`.
+- **Architectural driver:** a significant function, quality scenario, mandatory constraint, or distinct stakeholder concern requiring architectural analysis. Default prefixes are `FUN`, `QUA`, `CST` and `CNC`, respectively. Do not turn every requirement or duplicate concern into a driver. Reuse stable IDs from the owning requirements or design.
+- **Quality scenario:** a specific stimulus source, stimulus, environment, affected artifact, response and response measure. A quality goal can group several scenarios. See [Quality Attributes](references/quality-attributes.md).
 - **Baseline:** the observed as-is architecture for an existing system, or an initial architecture candidate for a new system. The target is the architecture being proposed or approved; a baseline is not proof of suitability.
 - **Design coverage:** `addressed` (credible design explanation, not implementation proof), `gap` (known unmet need), `unverified` (insufficient information or validation), `accepted-risk` (documented shortfall explicitly authorized by an accountable human). Assess a hard constraint separately as `meets`, `gap` or `unverified`, with evidence. A non-waivable legal, contractual or other hard constraint cannot be waived merely by choosing `accepted-risk`; it requires an authorized change to the underlying obligation, if one is possible.
 - **Evidence:** `observed`, `analyzed`, `tested`, `measured`, `estimated` or `unverified`, with source, environment and limitations. These describe kinds of support, not a universal ranking of certainty.
@@ -63,51 +63,51 @@ Use the project's writing language and documentation conventions; default to Eng
 
 ## Inputs and Reference Routing
 
-Inspect the user's task, repository instructions and the relevant requirements, existing design, ADRs, code topology, release/deployment evidence and available observations. Identify the system boundary, stakeholders, prioritized scenarios, hard constraints, existing dependencies, and — when changing a live system — migration restrictions. Ask only questions whose answers materially change the decision. Mark nonblocking unknowns explicitly and use reversible assumptions where safe.
+Inspect the user's task, repository instructions and the relevant requirements, existing design, ADRs, code topology, release/deployment evidence and available observations. Establish the system boundary and intended result from the available inputs. Identify relevant stakeholders, prioritized scenarios, hard constraints, existing dependencies, and — when changing a live system — migration restrictions. Ask only questions whose answers materially change the decision. Mark nonblocking unknowns explicitly and use reversible assumptions where safe.
 
 Load only the references for the active work, and open templates only when producing those artifacts. References are guides for particular design questions, not a required reading sequence:
 
-| Need                                                     | Reference                                    | Load When                                                             |
-| -------------------------------------------------------- | -------------------------------------------- | --------------------------------------------------------------------- |
-| Drivers, baseline, iteration, timing, technology choices | `references/design-iteration.md`             | Framing, choosing or refining a significant design                    |
-| Quality scenarios, tactics, trade-offs                   | `references/quality-attributes.md`           | Defining or evaluating quality requirements                           |
-| Style/topology comparison                                | `references/architecture-styles.md`          | A structural style or distribution choice is open                     |
-| Module/service/data boundaries                           | `references/partitioning-and-granularity.md` | Partitioning, splitting, merging or assessing coupling                |
-| Architectural views                                      | `references/views-and-diagrams.md`           | Creating or revising context, structural, runtime or deployment views |
-| Crosscutting policy                                      | `references/crosscutting-concepts.md`        | A policy spans multiple architectural elements                        |
-| Architecture guardrails                                  | `references/fitness-functions.md`            | Defining, evaluating or revising fitness checks                       |
-| Safe migration                                           | `references/incremental-change-patterns.md`  | Changing a running system with consumers or state to preserve         |
-| ADR lifecycle                                            | `references/adr-guide.md`                    | Proposing, reviewing or superseding an ADR                            |
+| Need                                                     | Reference                                                                  | Load When                                                             |
+| -------------------------------------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Drivers, baseline, iteration, timing, technology choices | [Design Iteration](references/design-iteration.md)                         | Framing, choosing or refining a significant design                    |
+| Quality scenarios, tactics, trade-offs                   | [Quality Attributes](references/quality-attributes.md)                     | Defining or evaluating quality requirements                           |
+| Style/topology comparison                                | [Architecture Styles](references/architecture-styles.md)                   | A structural style or distribution choice is open                     |
+| Module/service/data boundaries                           | [Partitioning and Granularity](references/partitioning-and-granularity.md) | Partitioning, splitting, merging or assessing coupling                |
+| Architectural views                                      | [Views and Diagrams](references/views-and-diagrams.md)                     | Creating or revising context, structural, runtime or deployment views |
+| Crosscutting policy                                      | [Crosscutting Concepts](references/crosscutting-concepts.md)               | A policy spans multiple architectural elements                        |
+| Architecture guardrails                                  | [Fitness Functions](references/fitness-functions.md)                       | Defining, evaluating or revising fitness checks                       |
+| Safe migration                                           | [Incremental Change Patterns](references/incremental-change-patterns.md)   | Changing a running system with consumers or state to preserve         |
+| ADR lifecycle                                            | [ADR Guide](references/adr-guide.md)                                       | Proposing, reviewing or superseding an ADR                            |
 
 Do not load style, migration or vendor guidance solely because it exists. Reuse references already read; do not insert their entire text into the deliverable.
 
 ## Workflow
 
-**Apply these activities in order where dependencies exist, then iterate as evidence changes.** For focused tasks, start from known drivers and perform only the affected activities. For a review, evaluate and report without assuming permission to mutate files. The checkpoints below are conditional decisions, not mandatory ceremonies or a requirement for three separate conversations.
+**Apply these activities in order where dependencies exist, then iterate as evidence changes.** For focused tasks, start from known drivers and perform only the affected activities. For a review, evaluate and report without assuming permission to mutate files. Identify missing authority at the point it affects a decision. Bundle related requests for approval when the same evidence supports them.
 
 ### Phase 1: Frame the Architecture Problem
 
 1. **Discover intent and baseline.** Identify Design, Evolve or Review and the exact scope. Examine existing evidence and accepted decisions; describe observed facts separately from the proposed state. For a new system, record the decision context instead of pretending an as-is implementation exists.
-2. **Define context and drivers.** Identify external actors/systems, key responsibilities, relevant stakeholders, constraints and important functional scenarios. Derive quality scenarios with objective criteria or explicitly unconfirmed targets. Assign IDs and rank by importance, design difficulty, timing and interactions. Read `references/design-iteration.md` and `references/quality-attributes.md` when this analysis is needed.
-3. **Resolve design-blocking ambiguity.** Present conflicting requirements or missing facts that could change the chosen architecture. **Checkpoint A — Drivers:** obtain human agreement on disputed scope, priorities or targets before treating them as approved. If already documented and authoritative, reuse that agreement; if unavailable, label the affected choices provisional and avoid irreversible commitments.
+2. **Define context and drivers.** Identify external actors/systems, key responsibilities, relevant stakeholders, constraints and important functional scenarios. Derive quality scenarios with objective criteria or explicitly unconfirmed targets. Assign IDs and rank by importance, design difficulty, timing and interactions. Read [Design Iteration](references/design-iteration.md) and [Quality Attributes](references/quality-attributes.md) when this analysis is needed.
+3. **Resolve design-blocking ambiguity.** Identify conflicting scope, priorities or targets that could change the architecture. Bring unresolved material decisions to the accountable owner. For a review, report gaps and their implications. For design or evolution, keep dependent choices provisional until the information is available.
 
 ### Phase 2: Establish and Evaluate a Candidate
 
 4. **Develop architecture candidates.** For an existing system, use the observed as-is baseline to identify gaps and candidate changes. For new design, establish an initial candidate and compare alternatives when a meaningful structural choice is open. Define major responsibilities, modules/containers, interfaces, data ownership, deployment/release boundaries and critical dependency paths. Load style/partitioning references only when those decisions matter.
-5. **Evaluate consequential choices.** Walk priority scenarios — including failure and change scenarios — through candidates. Check hard constraints as pass/fail conditions; compare operations, cost, coupling, consistency, security, reversibility and migration. For architecture-level technology choices, distinguish mandated, retained existing and open options; compare viable alternatives when a choice is open, and verify consequential claims. Apply the decision-timing and technology-evaluation guidance in `references/design-iteration.md` when relevant. Investigate material uncertainties rather than asserting suitability. Record the preferred candidate, remaining gaps and significant proposed ADRs.
-6. **Review the proposed direction.** **Checkpoint B — Architecture:** obtain agreement on material structural trade-offs and new decisions when stakeholder authorization is required. If a proposal includes breaking contracts or irreversible change, acceptance is conditional on the impact review in Checkpoint C; do not mark affected ADRs accepted prematurely. For review-only tasks, provide findings and recommendations rather than fabricating authorization.
+5. **Evaluate consequential choices.** Walk priority scenarios — including failure and change scenarios — through candidates. Assess whether each hard constraint is met, violated or unverified. Compare operations, cost, coupling, consistency, security, reversibility and migration. For architecture-level technology choices, distinguish mandated, retained existing and open options; compare viable alternatives when a choice is open, and verify consequential claims. Apply the decision-timing and technology-evaluation guidance in [Design Iteration](references/design-iteration.md) when relevant. Investigate material uncertainties rather than asserting suitability. Record the preferred candidate, remaining gaps and significant proposed ADRs.
+6. **Review the proposed direction.** Present the proposed direction and its trade-offs. Before requesting acceptance of a breaking or irreversible change, assess the impact in Phase 3 so the owner can decide on the complete proposal. For review-only tasks, report findings and recommendations.
 
 ### Phase 3: Refine and Plan Evolution
 
 7. **Refine high-impact gaps.** Choose the driver(s) and architecture element(s) that the next iteration must address. Evaluate relevant tactics, allocate responsibilities and interfaces, and refine the affected candidate. Reassess previously addressed drivers and constraints. Repeat while iterations add credible design progress; escalate material uncertainty or conflicting priorities instead of looping indefinitely.
 8. **Describe consequential behavior.** Capture the required context/structure, significant success/failure runtime paths, data consistency, trust boundaries, and deployment/failure isolation. Use views and crosscutting policies only where they communicate relevant architectural obligations.
 9. **Define evolution safeguards.** Specify objective checks for critical, regression-prone properties with criteria, ownership, cadence, response and actual execution state. For changes to a running system, plan compatibility phases, affected consumers and data, verification, safe cutover, recovery and retirement.
-10. **Assess risk and approvals.** Trace every relevant driver to design coverage and evidence; record unknowns and residual shortfalls. **Checkpoint C — Change Impact:** obtain explicit authorization before finalizing a breaking/irreversible migration, an agreed target change or a risk exception requiring authority. This review may be combined with Checkpoint B if the necessary impact plan is already available. Never treat a hard constraint as waived by risk acceptance alone.
+10. **Assess risk and approvals.** Trace every relevant driver to design coverage and evidence; record unknowns and residual shortfalls. Obtain the accountable owner's decision on material trade-offs that need authorization, including a breaking or irreversible migration, a change to an agreed target or acceptance of a risk exception. Reuse an applicable decision already made on the same scope and impact. Architecture acceptance records a design decision. Execution of cutover or other operational changes requires its own authority. Apply the hard-constraint rule under [Terms and Statuses](#terms-and-statuses).
 
 ### Phase 4: Deliver and Verify
 
-11. **Update only requested/necessary artifacts.** For end-to-end design, use the system design template and the applicable ADR template. For focused tasks, update only affected sections/files or report recommendations. Ensure as-is, transition and target descriptions, statuses and internal links are consistent. A user request to edit named files authorizes those scoped edits, not unrelated destructive changes.
-12. **Verify and report.** Check driver coverage, constraints, scenarios, trade-offs, ADR state, diagram consistency, fitness checks, migration safety and unresolved approvals. Report files changed (if any), decisions, evidence limits, accepted risks and blockers. Do not claim validation that was not performed.
+11. **Update only requested/necessary artifacts.** For end-to-end design, follow the formats selected under [Deliverables and Conventions](#deliverables-and-conventions). For focused tasks, update only affected sections/files or report recommendations. Ensure as-is, transition and target descriptions, statuses and internal links are consistent. A user request to edit named files authorizes those scoped edits, not unrelated destructive changes.
+12. **Verify and report.** Check driver coverage, constraints, scenarios, trade-offs, ADR state, diagram consistency, fitness checks, migration safety and unresolved approvals. Use the caller's summary format when supplied. Otherwise report the scope and deliverables, decisions and their status, the checks performed with their evidence limits, and unresolved risks or decisions. For review, give the location or driver, evidence, impact and recommended action for each material finding. Do not claim validation that was not performed.
 
 ## Update and Review Rules
 
@@ -115,17 +115,6 @@ Do not load style, migration or vendor guidance solely because it exists. Reuse 
 - Keep current, transition and target diagrams and obligations labeled; never render planned components as deployed. Trace affected consumers, contracts, data authority, invariants, failure behavior, releases, policies and fitness functions.
 - Revisit a deferred choice when its signal fires; do not automatically implement the previously imagined answer. Temporary migration exceptions require owner, safety guard and retirement criteria.
 - A review records findings by severity/driver and suggests feasible alternatives; do not assert that code inspection alone verifies production quality, or rewrite historical ADRs as if they had been decided today.
-
-## Common Rationalizations to Reject
-
-| Rationalization                        | Response                                                                             |
-| -------------------------------------- | ------------------------------------------------------------------------------------ |
-| "Microservices are the modern default" | Judge styles against drivers; prefer the least complex viable target design          |
-| "Defer it; we can always change later" | Assess reversal cost and timing; defer only with a viable interim design and trigger |
-| "Decide everything now to be safe"     | Decide only what is needed; optional choices may be deferred with clear conditions   |
-| "Splitting this unit is cleaner"       | A split needs a ranked driver that a cheaper change cannot satisfy                   |
-| "Performance is surely fine"           | Evidence with a method (walkthrough, estimate, spike, measurement) is required       |
-| "Skip the questions to keep momentum"  | Resolve blocking ambiguity before committing; independent analysis can continue      |
 
 ## Final Verification
 

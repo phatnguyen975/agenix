@@ -7,7 +7,7 @@ Use when **an existing running system** must change safely while continuing to s
 | Change Situation                          | Candidate Pattern     | Principal Risk                               |
 | ----------------------------------------- | --------------------- | -------------------------------------------- |
 | Replace exposed functionality gradually   | Strangler Fig         | Misrouting, split data ownership             |
-| Replace a deeply used internal dependency | Branch By Abstraction | Abstraction grows into permanent indirection |
+| Replace a deeply used internal dependency | Branch by Abstraction | Abstraction grows into permanent indirection |
 | Evolve an incompatible published contract | Parallel Change       | Legacy consumer never migrates               |
 | Separate deploy from feature release      | Feature Toggle        | Stale flags, behavior explosion              |
 | Compare old/new behavior before cutover   | Parallel Run          | Duplicate side effects, false comparisons    |
@@ -76,5 +76,5 @@ For **each significant step**, record in System Design §4.3:
 
 - Do not add an incremental-change pattern merely for architectural fashion. Trace to a justified change and its risks.
 - Do not silently add a new durable data owner or transactional dependency during migration.
-- Human Gate C applies before breaking contracts, destructive data moves and changes lacking easy rollback.
+- Before accepting a breaking or irreversible migration, follow the authority and impact guidance in [Refine and Plan Evolution](../SKILL.md#phase-3-refine-and-plan-evolution). Record cutover prerequisites and confirm the recovery path.
 - Combine patterns when boundaries differ (e.g. Strangler Fig outside, Parallel Change for data, Anti-Corruption Layer for semantics); distinguish their responsibilities.

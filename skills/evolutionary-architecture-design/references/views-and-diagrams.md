@@ -1,6 +1,6 @@
 # Views and Diagrams
 
-Use to document an architecture in forms that answer stakeholder concerns. The arc42 document organizes why and what; C4 supplies useful structural abstraction levels. Neither requires drawing every possible diagram. Mermaid is the default representation where accepted by the project.
+Use to document an architecture in forms that answer stakeholder concerns. [arc42](https://arc42.org/overview/) provides a documentation structure. [C4](https://c4model.com/abstractions/container) supplies useful structural abstractions. Neither requires drawing every possible diagram. Mermaid is the default representation where accepted by the project.
 
 ## C4 Element Vocabulary
 
@@ -150,7 +150,7 @@ When an existing system evolves, a logical container may remain the same while i
 ## Documentation Consistency Checks
 
 - Each view has explicit scope, target audience and current/target state.
-- Every owned container in the logical model has a deployment mapping **or an explained exception** (e.g. browser app deployed to a user's device).
+- Every owned container in the logical model has a deployment mapping **or an explained exception**. A browser app can map to a browser on a user device without implying owned infrastructure.
 - Referenced runtime participants and dependencies exist in the context/container views; a runtime scenario need not show **every** container.
 - External systems and people appear where relevant; no claim that all appear in every diagram.
 - Interfaces, data ownership, trust boundaries and technology labels agree with ADRs and architecture concepts.

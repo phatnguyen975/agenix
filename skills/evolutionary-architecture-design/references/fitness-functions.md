@@ -1,6 +1,6 @@
 # Fitness Functions
 
-Use to define **objective, repeatable checks** that detect when architecture changes threaten important qualities or design constraints. An architectural fitness function evaluates a specified architectural property; it does not by itself establish that the overall design is correct.
+Use to define **objective, repeatable checks** that detect when architecture changes threaten important qualities or design constraints. An [architectural fitness function](https://www.thoughtworks.com/insights/articles/fitness-function-driven-development) evaluates a specified architectural property; it does not by itself establish that the overall design is correct.
 
 ## Selection and Coverage
 
@@ -32,7 +32,7 @@ Where a trigger watches _headroom_, distinguish an **early-warning threshold** f
 - **Purpose:** protect `QUA-01` checkout response time.
 - **Check:** load-test peak of 250 requests/s; measure p95 latency and error fraction for the checkout endpoint; include the relevant dependencies.
 - **Criterion:** p95 ≤ 300 ms in the agreed five-minute window, with separately agreed error target.
-- **Execution:** pre-release performance stage; owner role: performance owner; **status: planned** until configured.
+- **Execution:** pre-release performance stage; owner role: performance owner; **status: planned** until execution evidence shows it operates.
 - **On Failure:** block promotion and assess the regression against the architecture decision.
 
 **Example `FF-02`:** module dependency test for `Ordering` → `Catalog`: direct imports of `Catalog` internals are forbidden; run on each build; **status: active** only when code/test evidence confirms it runs.
@@ -46,7 +46,7 @@ These dimensions are useful labels; they are not mutually exclusive across dimen
 - **Static analysis / runtime assessment:** inspect design/code/dependency artifacts or observe a running system under representative conditions.
 - **Automated / manual:** execution method. Manual checks still require criteria, cadence and a recorded outcome.
 
-Avoid using `static` to mean "fixed threshold" and `dynamic` to mean "variable threshold"; this conflates implementation/evaluation with conditional limits. An SLO with a rolling window may be a monitoring fitness function, but an SLO alone is a goal, not evidence of an active check.
+Avoid using `static` to mean "fixed threshold" and `dynamic` to mean "variable threshold"; this conflates implementation/evaluation with conditional limits. An SLO defines a target. A monitor evaluating the observed indicator against that target can act as a fitness function when its evaluation and response are defined.
 
 ## Check Patterns by Driver
 
@@ -80,15 +80,15 @@ A numeric FF can evaluate a DD when the signal is observable. Example: sustained
 
 Record each DD's **interim design, signal, latest-safe decision point, owner and next step** in System Design §4.4. When a trigger fires, reassess options and their drivers; do not automatically execute a preselected migration.
 
-## When an Objective Check Is Not yet Feasible
+## When an Objective Check Is Not Yet Feasible
 
-If a quality requirement cannot yet be measured reliably, do not fabricate an FF with a guessed threshold. Specify the required observation or experiment, its owner and the decision it unlocks; classify the related driver `unverified`. A manual architectural review qualifies as a repeatable guardrail only when its inputs, criteria, cadence and result record are explicit.
+If a quality requirement cannot yet be measured reliably, do not fabricate an FF with a guessed threshold. Specify the required observation or experiment, its owner and the decision it unlocks; record the missing validation evidence separately from whether the design credibly addresses the driver. A manual architectural review qualifies as a repeatable guardrail only when its inputs, criteria, cadence and result record are explicit.
 
 **Example:** a proposed independent-deployability guardrail asks whether `Catalog` can release against the supported `Ordering` contract without coordinating the other release. Initially assess this through a documented contract/release rehearsal. When it is implemented as an automated compatibility check, update the execution state and evidence rather than claiming the check always existed.
 
 ## Lifecycle and Anti-Patterns
 
-- Mark execution status `planned`, `active` or `suspended` (method: `automated` or `manual`), with evidence for `active`. Record last result separately as `pass`, `fail`, `not-run` or `unknown`, with the date and evidence when available; a planned check has `not-run`, and an active check can fail.
+- Mark execution status `planned`, `active` or `suspended` (method: `automated` or `manual`), with evidence for `active`. Record last result separately as `pass`, `fail`, `not-run` or `unknown`, with the date and evidence when available; use `not-run` if the check has never run. A trial on a named candidate can have a recorded result while ongoing operation remains planned. An active check can fail.
 - Keep a source of truth for each check; define ownership of its threshold and runtime environment. If a measure is still unconfirmed, document a check proposal without inventing a pass threshold.
 - Review check usefulness, flakiness, false positives and changing business drivers; retire obsolete guardrails with a documented decision.
 - Reject subjective tests ("architecture is clean"), silent estimate-to-target promotion, unexecuted checks called enforced, or code coverage called a direct modifiability measure.

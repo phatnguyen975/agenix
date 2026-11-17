@@ -4,7 +4,7 @@ Use to turn stakeholder expectations into assessable architectural requirements,
 
 ## Product Quality Vocabulary
 
-The ISO/IEC 25010 product quality model includes nine characteristics. Use the applicable characteristic/subcharacteristic consistently rather than relabeling stakeholder language without explanation.
+The [ISO/IEC 25010:2023 product quality model](https://www.iso.org/standard/78176.html) includes nine characteristics. Use the edition specified by the project if it differs. Use the applicable characteristic/subcharacteristic consistently rather than relabeling stakeholder language without explanation.
 
 - **Functional Suitability:** functional completeness, functional correctness, functional appropriateness.
 - **Performance Efficiency:** time behaviour, resource utilization, capacity.
@@ -20,7 +20,7 @@ This model is a reference, not a checklist demanding nine requirements. For exam
 
 ## Quality Scenario Construction
 
-Use six parts (SEI/Software Architecture in Practice):
+Use the six parts of an [SEI quality attribute scenario](https://www.sei.cmu.edu/library/file_redirect/2003_005_001_14213.pdf/).
 
 | Part             | Question               | Typical Content                           |
 | ---------------- | ---------------------- | ----------------------------------------- |
@@ -33,7 +33,7 @@ Use six parts (SEI/Software Architecture in Practice):
 
 Six parts can be written in prose; avoid a six-column table. **Source of the requirement** (stakeholder, document) is additional provenance, not the scenario's **Stimulus Source**. Record baseline and target separately.
 
-Good measures specify the viewpoint and population, a boundary, time/window and necessary workload where relevant. For errors and availability, define eligible events and exclusions. Distinguish an agreed target from an estimate, a forecast and an observed measurement. If the response target is unknown, record `target unconfirmed` and bring it to Human Gate A; do not pick arbitrary numbers to satisfy the template.
+Good measures specify the viewpoint and population, a boundary, time/window and necessary workload where relevant. For errors and availability, define eligible events and exclusions. Distinguish an agreed target from an estimate, a forecast and an observed measurement. If the response target is unknown, record `target unconfirmed` and identify the source or decision needed. Continue comparisons that do not depend on the specific value.
 
 **Additional scenario considerations:** For authorization, state attacker/actor, protected resource, trust boundary, requested action, reject/audit behavior and the observable criterion. For compatibility, state producer/consumer revisions, overlapping deployment conditions and what continues to work during migration. For data freshness, define update stimulus, consumers, normal/degraded operation and the maximum tolerated lag.
 
@@ -56,8 +56,8 @@ These are illustrative scenarios; their targets and workloads are not project de
 - **Stimulus:** primary instance becomes unavailable.
 - **Environment:** production during ordinary operation.
 - **Artifact:** order persistence capability.
-- **Response:** fail over and restore order processing without unacknowledged data loss beyond the agreed bound.
-- **Response Measure:** recovery time ≤ 5 minutes and recovery point ≤ 1 minute, measured by a restore exercise.
+- **Response:** fail over and restore order processing within the agreed recovery objectives.
+- **Response Measure:** restore order processing within five minutes of the failure and recover committed order data to a point at most one minute before the failure; check both in a representative failover and recovery exercise.
 
 **QUA-03 — Maintainability / Modifiability**
 
@@ -116,9 +116,9 @@ For a high-priority scenario, locate the actual constraint or failure mechanism 
 ## Architectural Trade-Off Analysis
 
 - **Latency versus isolation/security:** extra hops, authorization and encryption have possible time/operational cost; measure rather than assume a violation.
-- **Availability versus consistency:** describe desired behavior under _specific faults_. CAP theorem only constrains the trade-off in the presence of a network partition; it does not mean all distributed systems permanently choose "availability" or "consistency".
+- **Availability versus consistency:** describe desired behavior under _specific faults_. During a partition, CAP rules out guaranteeing both atomic consistency (linearizability) and availability for all requests to non-failing nodes in its model. Specify which operations can continue, what they guarantee and how recovery works. CAP availability is distinct from a service availability SLO. See [Gilbert and Lynch](https://groups.csail.mit.edu/tds/papers/Gilbert/Brewer2.pdf).
 - **Independent deployability versus cross-service coordination:** splitting units may improve independent release and scaling while complicating contracts, transactions and troubleshooting.
 - **Reliability versus feature velocity/cost:** redundancy and stronger recovery measures consume resources; agree priorities and service objectives.
 - **Modifiability versus performance:** abstraction and indirection can alter critical-path latency; trace actual paths.
 
-For each tension, name driver IDs, articulate options and operational consequences, assess against the scenario measures, and send unresolved priorities to the human. Recheck in `design-iteration.md` after architecture changes.
+For each tension, name driver IDs, articulate options and operational consequences, assess against the scenario measures, and send unresolved priorities to the human. Recheck in [Design Iteration](design-iteration.md) after architecture changes.

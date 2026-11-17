@@ -1,0 +1,40 @@
+{
+  "skill": "evolutionary-architecture-design",
+  "execution": {
+    "isolation": "Give a fresh context one raw case input and the runtime skill path. Hide other cases and the rubric.",
+    "permissions": "Allow runtime resource reads only. Prohibit writes, network, product execution, Git, credentials and delegation.",
+    "assessment": "Assess actual responses semantically. Supplied facts and proposed checks do not imply new execution."
+  },
+  "cases": [
+    {
+      "id": "review-irreversible-cutover",
+      "input": "Review only the proposed cutover for a live ordering system. An accepted ADR says legacy owns order writes. Proposed replacement routes all writes to new storage tomorrow, while a legacy batch worker can still write old storage. A destructive schema transformation prevents old binaries from reading the new state. Product owner previously approved gradual migration as a direction, but has not accepted this specific cutover or changed the durability target. A load check was run once in staging and passed, but the check is not wired into recurring execution. An approved requirement says acknowledged orders may never be lost. Return findings and evidence needs in chat, with the appropriate decision and fitness check states. I need a decision on whether this cutover is ready.",
+      "expected": [
+        "Recommend holding the cutover and identify concurrent write authority and transformed data as distinct blockers.",
+        "Preserve the accepted ADR and zero-loss requirement. Keep the successor proposed and identify who must authorize the revised decision.",
+        "Separate load trial evidence from check activation. Request relevant reconciliation and recovery evidence for acknowledged orders and identify the last safe rollback point."
+      ],
+      "prohibited": [
+        "Claim execution, production verification or approval for this cutover",
+        "Treat binary or traffic rollback as recovering transformed data",
+        "Mark the successor accepted or the load check active solely on the supplied evidence"
+      ],
+      "quality": "The review ties each blocker to a concrete consequence and the evidence that would support reconsideration."
+    },
+    {
+      "id": "composed-client-offline-decision",
+      "input": "Return a focused client architecture contribution in chat for the existing decision record fields Proposal, Drivers, Evidence, Revisit. Browser-only library kiosk has an existing external catalog provider. Browser users must be able to browse a previously successful catalog snapshot while offline (approved). External provider contract and existing supported browser set are already approved. Stakeholder has not decided how old an offline snapshot may be. Compare an in-memory approach with durable local snapshot storage at architectural level, and propose what we can say now. No full architecture document or new ADR file is requested. No implementation or test run exists and provisioning is out of scope.",
+      "expected": [
+        "Use the supplied fields and keep results within the client and approved provider boundary.",
+        "Compare behavior through disconnect, reload and restart, including browser retention and startup limitations. State the proposed scope and freshness decision still needed.",
+        "Reuse already approved inputs. Give an evidence-grounded recommendation and representative checks while distinguishing analysis from executed evidence."
+      ],
+      "prohibited": [
+        "Invent a freshness target, changes to the provider contract or implementation evidence",
+        "Generate a separate ADR, full system design or provisioning plan",
+        "Treat the tentative freshness policy as approved"
+      ],
+      "quality": "The contribution supports the next client architecture decision without prescribing unnecessary deployment or implementation details."
+    }
+  ]
+}
