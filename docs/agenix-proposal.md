@@ -237,11 +237,11 @@ When handing work to another session, use `.agenix/HANDOFF.md` to record the pha
 
 ### Hierarchy and Ownership
 
-| Item    | Meaning                                                            | Authoritative storage                                         |
-| ------- | ------------------------------------------------------------------ | ------------------------------------------------------------- |
-| Feature | A coherent user/stakeholder capability with a complete outcome     | Feature README and spec files in Git                          |
-| Ticket  | A small, independently verifiable change that can be merged safely | Local ticket file, GitHub issue, or Jira standard issue       |
-| Task    | One observable behavior or cohesive verification cycle             | Section in a local ticket, GitHub sub-issue, or Jira sub-task |
+| Item    | Meaning                                                            | Authoritative storage                                                       |
+| ------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------- |
+| Feature | A coherent user/stakeholder capability with a complete outcome     | Feature JSON record and specification files in Git                          |
+| Ticket  | A small, independently verifiable change that can be merged safely | Local ticket file, GitHub issue, or Jira standard issue                     |
+| Task    | One observable behavior or cohesive verification cycle             | Entry in a local ticket's `tasks` array, GitHub sub-issue, or Jira sub-task |
 
 A ticket normally slices vertically through its required layers. Contract-first backend/frontend tracks are allowed when their independent checks and final integration are planned explicitly. Safely mergeable does not mean immediately enabled for users.
 
@@ -288,13 +288,14 @@ Once a feature is `DONE`, follow-up work uses a new linked feature. While a feat
 
 ### Artifact Contracts
 
-| Artifact                         | Required Meaning                                                                                                                                       |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Feature catalog / feature README | Stable ID/title, priority, dependencies, system requirement coverage, spec/contract links, delivery strategy, ticket mappings and completion evidence. |
-| Ticket                           | Feature ownership, bounded scope, type/priority, dependencies, acceptance references, tasks, PR mapping and review outcome.                            |
-| Task                             | Parent/ID, dependencies, spec references, verification method, check IDs/levels or manual steps, acceptance and implementation evidence.               |
-| Local tracking                   | Ticket files and task sections under `docs/features/<feature-id>/tickets/`.                                                                            |
-| Remote tracking                  | Equivalent native items with explicit Agenix/native-ID mappings; no duplicate local ticket store.                                                      |
+| Artifact        | Required Meaning                                                                                                                                         |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Feature catalog | Feature IDs and record paths for navigation and requirement coverage checks.                                                                             |
+| Feature record  | Stable ID/title, priority, dependencies, requirement coverage, spec and contract references, delivery strategy, ticket mappings and completion evidence. |
+| Ticket          | Feature ownership, bounded scope, type/priority, dependencies, acceptance references, tasks, PR mapping and review outcome.                              |
+| Task            | Parent/ID, dependencies, spec references, verification method, check IDs/levels or manual steps, acceptance and implementation evidence.                 |
+| Local tracking  | Ticket JSON files with a `tasks` array under `docs/features/<feature-id>/tickets/`.                                                                      |
+| Remote tracking | Equivalent native items with explicit Agenix/native-ID mappings; no duplicate local ticket store.                                                        |
 
 Specs own behavior; tickets/tasks reference rather than copy them. Indexes are navigational, not competing status stores. Implementation defines precise schemas/templates and parsing details; validation must reject missing/duplicate IDs, invalid references, cycles, empty required acceptance/tasks and unsupported verification methods.
 
@@ -304,7 +305,7 @@ Use stable Markdown acceptance anchors and declared contract references. Use doc
 
 ### Structured Local Records and Evidence
 
-Feature metadata lives in its `README.md`. Local ticket files contain their task records. The implementation plan selects metadata serialization and placement. Parse only declared metadata locations and keep project settings in their [configuration block](#9-project-instructions-and-configuration).
+The feature catalog, feature records and local ticket records are JSON files in Git. Each local ticket contains its tasks in a `tasks` array. Parse only declared record paths. Keep project settings in the root configuration file described under [Project Instructions and Configuration](#9-project-instructions-and-configuration).
 
 The minimum record meanings are:
 
@@ -339,12 +340,12 @@ GitHub hosts the code repository and PRs in every mode. `tracker: local | github
 | ------------------------------- | ----------------------------------------------------------- | ------------- | ---------------------------------------------- |
 | PRD, blueprint, features, specs | Git                                                         | Git           | Git                                            |
 | Tickets                         | Ticket files                                                | Issues        | Configured standard issue type, normally Story |
-| Tasks                           | Ticket sections                                             | Sub-issues    | Configured sub-task type                       |
+| Tasks                           | Entries in the ticket's `tasks` array                       | Sub-issues    | Configured sub-task type                       |
 | Live ticket/task changes        | Owned ticket branch until delivery; default branch on merge | Tracker       | Tracker                                        |
 
 ### Local Tracking and Collaboration
 
-Local tracking is a first-class option for solo and team projects. Feature lifecycle metadata lives in its feature README; each ticket has one file containing its tasks. Do not create a shared task-status file or edit feature indexes for routine task progress. [Structured Local Records and Evidence](#structured-local-records-and-evidence) defines the records and [Local Status Verification](#artifact-validation-and-local-status-verification) defines `verify-status.py`; local mode still uses GitHub PRs/checks and human-owned merge.
+Local tracking is a first-class option for solo and team projects. Each feature has one lifecycle record and each ticket file contains its tasks. The catalog indexes feature records. Update task progress in the owning ticket file. [Structured Local Records and Evidence](#structured-local-records-and-evidence) defines the records and [Local Status Verification](#artifact-validation-and-local-status-verification) defines `verify-status.py`; local mode still uses GitHub PRs/checks and human-owned merge.
 
 One coordinated owner edits a ticket and its embedded tasks at a time. Other developers use separate tickets/worktrees. Serialize catalog/ID allocation, shared feature-plan edits, completion acceptance and finalization; check published in-flight plans and agreed ownership, not only the last fetched files. Ownership metadata is coordination, not a distributed lock.
 
@@ -359,6 +360,7 @@ Commit and push approved initial and additive task plans in the ticket file on t
 ### Remote Tracker Contract
 
 - Titles/summaries: `<agenix-id>: <title>`.
+- Render ticket and task definitions and checkpoints as readable sections. GitHub uses Markdown and Jira uses the equivalent sections in ADF.
 - Ticket body: overview, feature path/URL, canonical dependency IDs, type/scope/priority and scoped spec references. Use native child links for tasks and a separate checkpoint or comment for plan and PR evidence.
 - Task body: the Section 4 task fields, with parent ticket ID; omit a duplicate body status field.
 - Labels: exactly one `status:ready | status:blocked | status:in-progress | status:in-review | status:done | status:cancelled`. Tickets also carry `scope:<value>` and `priority:<value>`.
@@ -420,7 +422,7 @@ Python Jira helpers handle verified reads/creates/updates/transitions/links/comm
 
 These transitions describe the logical lifecycle, not a requirement for a separate commit or gate at every status change. Active branch/checkpoint state can precede the merged baseline; provisional same-run transitions need not become individual durable commits.
 
-Feature status is owned by its feature README; local ticket/task status is owned by its ticket file; remote ticket/task status is owned by the tracker label and required native-state pairing. Indexes link to these records. Any displayed readiness summary is derived from current dependencies and is not an independently editable status store; cached `BLOCKED` values cannot replace pre-flight evaluation.
+The feature record owns feature status. The local ticket file owns ticket and task status. In remote modes, the tracker label and required native state own ticket and task status. Derive readiness summaries from current dependencies. Cached `BLOCKED` values cannot replace pre-flight evaluation.
 
 - `agx-spec behavior` records feature `IN-PROGRESS` with its first approved specification publication. Spec readiness requires the last applicable step to merge. Feature `ship run` records `IN-REVIEW` in its active checkpoint during whole-feature acceptance. Prepare prospective `DONE` in the feature PR only after acceptance passes and the completion record is approved. This does not require a separate status-only commit.
 - `build run` records ticket/task `IN-PROGRESS` when implementation starts; `review assess` records ticket `IN-REVIEW`, which persists during fixes. A published manual task awaiting human judgment is `IN-REVIEW`. The workflow records successful completion only when the evidence contract below is satisfied; invocation alone never grants `DONE`.
@@ -668,7 +670,7 @@ Once production implementation starts, assess and iterate on the production fron
 
 ### Scoped Module and Release-Unit Instructions
 
-Use root `AGENTS.md` as the project entry: shared workflow/configuration/guardrails, concise project context, links to canonical blueprint/contracts, and an **Instruction Scope Index**. The index lists each actual scope's path, responsibility and child entry links; it does not inline every module's documentation.
+Use root `AGENTS.md` as the project entry: shared workflow, configuration links and guardrails, concise project context, links to canonical blueprint/contracts, and an **Instruction Scope Index**. The index lists each actual scope's path, responsibility and child entry links; it does not inline every module's documentation.
 
 Create `AGENTS.md` at meaningful release-unit/module roots selected in codebase design, not in every folder. Each scoped entry contains:
 
@@ -688,17 +690,17 @@ Scaffold `structure` identifies instruction scopes. Scaffold `instructions` auth
 
 ## 9. Project Instructions and Configuration
 
-`AGENTS.md` is the shared instruction source at root and selected module/release-unit scopes. Use a local `CLAUDE.md` import adapter at every generated scope under Section 8. Preserve team-owned content outside Agenix markers and existing Claude-specific instructions. Project instructions retain concise workflow and authority reminders, project-specific configuration, scope routing and verified operations. Keep machine-specific plugin-cache paths out of shared project instructions.
+`AGENTS.md` is the shared instruction source at root and selected module/release-unit scopes. Use a local `CLAUDE.md` import adapter at every generated scope under Section 8. Preserve team-owned content outside Agenix markers and existing Claude-specific instructions. Project instructions retain concise workflow and authority reminders, links to project settings and verified operations, plus scope routing. Keep machine-specific plugin-cache paths out of shared project instructions.
 
 The invoked workflow skill loads the shared guidance, templates and helpers needed by the selected step. Each shared guide covers one responsibility and is readable within that scope. When a step needs several resources, the workflow names them directly. The tracker guide explains the selected mode's records, status, operations and tools. The workflow supplies the inputs, applies the human gate and verifies the result.
 
-Shared configuration in root `AGENTS.md` records the Agenix/helper compatibility pin, tracker, GitHub repository/default branch, `docs-language` (English by default), project scope and any optional production-exposure operation. Keep non-secret settings in one owned JSON block, preserving team content; missing/invalid configuration blocks dependent actions. Implementation supplies exact schemas and generated instruction templates.
+Root `config.agenix.json` stores the Agenix/helper compatibility pin, tracker, GitHub repository and default branch, `docs-language` (English by default), project scope and any optional production-exposure operation. Root `AGENTS.md` points to the configuration and the scaffold environment record when each exists. Missing or invalid configuration blocks dependent actions.
 
 Setup `configure` adds the `agx-guide` entry point, the human's step and publication authority, and baseline protections for scope, secrets and external resources. These root instructions apply during scaffold. Scaffold `instructions` adds the project's verified operations, scope routing and environment-specific guardrails. Packaged step instructions and references own the shared workflow details.
 
 Jira mode additionally records the actual site/cloud/project, issue/field/link/workflow mappings and approved defaults discovered at setup; secrets remain separate. Optional release/deploy/apply/enable operations stay disabled until their real command, target and merged-revision/artifact selection are approved. Recording the command does not authorize an execution. Scope and target platforms follow Section 1; never infer unowned backend/frontend work.
 
-The scaffold environment block records verified operations in these structured sections. Keep shared settings in their one config block; do not duplicate tracker/language/scope in the environment record.
+Root `environment.agenix.json` records verified operations. Shared tracker, language and scope settings belong in `config.agenix.json`.
 
 | Section             | Required Recorded Values                                                                                                                                                                                                                                                                                |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -770,7 +772,7 @@ Write packaged guidance for use during workflow execution. Organize it around th
 - `.agenix/reviews/<item-id>.md`: ticket and whole-feature review drafts.
 - `.agenix/drafts/<phase-or-item>/`: other intermediate drafts and disposable working files.
 
-Ignore `.agenix/` in its entirety; nothing inside it is committed. Helper code and the empty credential template remain in the installed plugin. Shared non-secret configuration, including Jira site/cloud/project mappings and the Agenix/helper version pin, remains in `AGENTS.md`; approved durable documents remain under `docs/`. Credentials remain private and are not stored in the plugin cache or a root-level project JSON file.
+Ignore `.agenix/` in its entirety; nothing inside it is committed. Helper code and the empty credential template remain in the installed plugin. Store shared non-secret settings, including Jira mappings and the Agenix/helper version pin, in root `config.agenix.json`. Keep private credentials in their designated worktree-local file.
 
 Initialize `.agenix/credentials/jira.json` from the bundled empty template only if absent. The developer fills `email` and `api-token`. Credential helpers load only that fixed project-relative path, reject missing, duplicate, malformed or invalid fields before network access, and redact credentials and authorization headers from diagnostics. Use no alternate path, environment-variable or dotenv fallback.
 
@@ -834,7 +836,7 @@ Incorporate confirmed answers into the relevant requirements. Retain only decisi
 > **Invocation:** `agx-feature define`.  
 > **Inputs:** Approved PRD.  
 > **Prerequisites:** PRD merged; serialized ID allocation.  
-> **Outputs:** Feature index and feature README records.  
+> **Outputs:** Feature catalog and feature JSON records.  
 > **Human Gates:** Catalog, Coverage and DAG → PR Merge.  
 > **Completion Criteria:** Owned requirements/journeys allocated and valid feature records merged.
 
@@ -983,7 +985,7 @@ If an unmerged candidate needs substantive fixes, record the blocker and keep th
 
 #### Feature Acceptance and Finalization
 
-Features are tracked in Git in every tracker mode. Use the feature README for its lifecycle and delivery record.
+The feature JSON record owns its lifecycle and delivery data in every tracker mode.
 
 1. **Verify the delivery set.** Refresh the default branch and pin the integrated revision. Verify every non-cancelled ticket is merged and `DONE` with valid evidence. Reconcile delivery coverage against the approved feature and current contracts. Apply the scoped exceptions in [Completion Evidence](#completion-evidence) where relevant to either ship route.
 2. **Verify the integrated feature.** Re-run the distinct, applicable verification commands from the delivered tickets on the merged feature baseline. Run the feature-level checks selected by its acceptance and test strategy, including applicable real integration and end-to-end journeys with exposure isolated. Reuse equivalent evidence only for the same check on the same candidate and context. Record any required manual confirmations and explain which historical checks do not apply to the integrated baseline.
@@ -1016,8 +1018,10 @@ Use `agx-guide` without a step to learn how to use Agenix. The human can invoke 
 
 ```text
 project/
-├── AGENTS.md                          global rules/configuration and scope index
+├── AGENTS.md                          global rules, scope index and record links
 ├── CLAUDE.md                          imports local AGENTS.md
+├── config.agenix.json                 shared settings from setup
+├── environment.agenix.json            verified operations from scaffold
 ├── .env.example                       app placeholders, when applicable
 ├── .github/workflows/
 │   ├── agenix-artifacts.yml           setup
@@ -1049,9 +1053,9 @@ project/
     │   ├── conventions/              applicable *.convention.md rule sets
     │   └── decisions/
     └── features/
-        ├── README.md
+        ├── catalog.agenix.json        feature index
         └── FEAT-NNN/
-            ├── README.md              spec/contract links and delivery plan
+            ├── feature.agenix.json    feature record and delivery plan
             ├── spec.md
             ├── api-contract.md        only residual semantics; omit when unnecessary
             ├── data-impact.md         feature persistence intent and prerequisites
@@ -1063,7 +1067,7 @@ project/
             │   ├── assets/            images, icons, fonts
             │   └── data/              scenarios.json and UI-view fixtures
             └── tickets/               local tracker only
-                └── FEAT-NNN-TNN.md
+                └── FEAT-NNN-TNN.agenix.json
 ```
 
 The approved codebase design selects real release-unit/module paths. At each selected instruction scope, create `AGENTS.md` plus a local `CLAUDE.md` import adapter and link it from the nearest parent scope index; do not create a file at every directory. Source roots and test/fixture paths follow codebase design/test strategy, not a universal tree in this proposal.

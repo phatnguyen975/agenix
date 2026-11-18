@@ -4,11 +4,11 @@ Use these rules when allocating work, checking dependencies or deciding whether 
 
 ## Identify and Plan Work
 
-| Item    | ID               | Scope                                                                            |
-| ------- | ---------------- | -------------------------------------------------------------------------------- |
-| Feature | `FEAT-NNN`       | Coherent user or stakeholder outcome. Its README and specifications live in Git. |
-| Ticket  | `FEAT-NNN-TNN`   | Independently verifiable change that can merge safely within its feature.        |
-| Task    | `FEAT-NNN-TNN.N` | Observable behavior or cohesive verification cycle within its ticket.            |
+| Item    | ID               | Scope                                                                                 |
+| ------- | ---------------- | ------------------------------------------------------------------------------------- |
+| Feature | `FEAT-NNN`       | Coherent user or stakeholder outcome. Its JSON record and specifications live in Git. |
+| Ticket  | `FEAT-NNN-TNN`   | Independently verifiable change that can merge safely within its feature.             |
+| Task    | `FEAT-NNN-TNN.N` | Observable behavior or cohesive verification cycle within its ticket.                 |
 
 Allocate the next number after the highest allocated in the owning scope, starting at one. Use minimum widths of three digits for features and two for tickets. Keep allocated IDs stable, including cancelled work. Serialize allocation and edits to the same shared plan. Check the refreshed merged baseline and existing allocations, including relevant in-flight plans. Keep platform IDs as explicit mappings.
 
@@ -56,31 +56,31 @@ Use the approved strategy to select check levels, tools and exceptions. Validate
 
 Keep a nonempty applicable delivery set that covers the approved parent outcome. If all children are cancelled without fulfilled or replacement coverage, obtain an explicit parent cancellation. Report declared status, candidate validity, verified completion and dependency readiness separately. A prospective `DONE` needs the remaining merge and verification evidence. Candidate CI reports unfinished checks, including its own job, as pending.
 
-Record item and acceptance/check IDs, result, tested revision, applicable level/method/environment, durable evidence and actual confirmation where required. Bind approval, merge, waiver and cancellation records to the relevant candidate or disposition. Substantive changes invalidate affected earlier evidence. Retain historical results and reverify the changed candidate.
+Record item and acceptance/check IDs, result, tested revision, applicable level and mode, environment, durable evidence and actual confirmation where required. Read the method from the approved task definition. Bind approval, merge, waiver and cancellation records to the relevant candidate or disposition. Substantive changes invalidate affected earlier evidence. Retain historical results and reverify the changed candidate.
 
 ## Record Fields and Ownership
 
-| Record  | At Initial Planning and Publication                                                                                                                                                                               | Added or Updated Later                                                                                                                    |
-| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| Feature | ID, title, outcome, priority, dependencies, requirement and journey coverage, status.                                                                                                                             | Approved feature references, delivery strategy, ticket set and local references or native mappings, acceptance and finalization evidence. |
-| Ticket  | ID, title, parent feature, bounded outcome, type, scope, priority, ownership, dependencies, scoped references, status.                                                                                            | Approved task plan, embedded tasks or native child mappings, implementation checkpoint, review, PR, merge and closure evidence.           |
-| Task    | ID, title, parent ticket, outcome, dependencies, task-specific acceptance, verification method, applicable checks and test levels, status. Include the procedure, expected result and verifier for manual checks. | Implementation revision, check results and evidence, including human confirmation for manual checks.                                      |
+| Record  | At Initial Planning and Publication                                                                                                                                                                                                                                                   | Added or Updated Later                                                                                                           |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Feature | ID, title, outcome, priority, dependencies, requirement and journey coverage, provisional quality responsibilities when assigned, and status.                                                                                                                                         | Pinned feature references, delivery strategy, ticket references or native mappings, and acceptance and finalization checkpoints. |
+| Ticket  | ID, title, parent feature, bounded outcome, type, scope, owner, priority, dependencies, scoped references and status.                                                                                                                                                                 | Approved task plan, embedded tasks or native child mappings, implementation, review, PR, merge and closure checkpoints.          |
+| Task    | ID, title, parent ticket, outcome, dependencies, acceptance criteria with coverage IDs, status and a verification plan. The plan contains the method, applicable check IDs and any approved exception reason. Manual checks also require the procedure, expected result and verifier. | Implementation revision, check results and actual manual confirmation in checkpoints.                                            |
 
-Set each published item's initial status to `READY` or `BLOCKED` based on dependency readiness. Later transitions update the owning status field or native metadata. Keep a durable reference to each approved definition. Require fields when their owning step produces them. Apply cancellation, override and replacement records only where relevant.
+Set each published item's initial status to `READY` or `BLOCKED` based on dependency readiness. Later transitions update the owning status field or native metadata. Keep each approved definition resolvable from its checkpoint or a durable reference. Require fields when their owning step produces them. Use the applicable publication checkpoint for PR mappings. Record cancellation, override and replacement only where relevant.
 
 ### Reference Scope and Inheritance
 
-- The feature README links approved artifacts as they become available, including `spec.md`, applicable API contracts, `data-impact.md` and `ui-prototype/README.md`. Omit links for inapplicable artifacts.
+- Pin approved feature artifacts as they become available, including `spec.md`, applicable API contracts, `data-impact.md` and `ui-prototype/README.md`. Omit inapplicable references.
 - Use one **References** field on the ticket. Link directly to the applicable parts of the feature spec and any relevant contract, data impact or UI artifact. Include the acceptance criteria the ticket covers and pin the approved revisions. Keep shared definitions in their source artifacts.
-- A task inherits the ticket's referenced scope and follows the approved test strategy. Identify the subset it implements when the parent covers multiple criteria. Add a direct reference only where the task needs a more precise target. Give each task its own observable acceptance criteria and concrete checks. Select `test-first`, `test-after` or `manual` as its verification method, and record the approved reason for any exception to `test-first`.
+- A task inherits the ticket's referenced scope and follows the approved test strategy. Bind each observable task criterion to at least one acceptance ID selected by the ticket. Add a direct reference only where a more precise target is needed. Use approved check IDs, with levels defined alongside the checks. Select `test-first`, `test-after` or `manual` and record the approved reason for any exception to `test-first`.
 
 ### Git Records
 
-Keep the feature README and approved feature artifacts in Git in every mode. The README owns feature status, the approved delivery set and feature evidence. In local mode, keep each ticket's definition, status, embedded tasks and ticket evidence in its ticket file under `tickets/`. Each task section holds its own definition, status and evidence. The containing ticket supplies its parent identity.
+Keep the feature record and approved feature artifacts in Git in every mode. `feature.agenix.json` owns feature status, the approved delivery set and feature evidence. The catalog lists feature IDs and record paths. In local mode, the ticket JSON file owns ticket status and evidence. Each entry in its `tasks` array holds that task's definition, status and evidence. The containing ticket supplies its parent identity.
 
 ### Remote Tracker Records
 
-Use native tickets and child tasks with titles in the form `<agenix-id>: <title>`. Put the approved definition in the issue body, including canonical `depends-on` IDs. Verify native parentage and mirror dependencies with native links where supported. Use exactly one lowercase `status:<value>` label and the required native state. Tickets also carry `scope:<value>` and `priority:<value>` labels that match the approved definition. Keep evolving checkpoints and mappings outside the approved body.
+Use native tickets and child tasks with titles in the form `<agenix-id>: <title>`. Present the approved definition in readable sections in the issue body, including canonical dependency IDs. Verify native parentage and mirror dependencies with native links where supported. Use exactly one lowercase `status:<value>` label and the required native state. Tickets also carry `scope:<value>` and `priority:<value>` labels that match the approved definition. Record later checkpoints and mappings in readable comments.
 
 1. Draft **both tickets and tasks** in `.agenix/issues/<id>.md`. Show the definitions, parents, dependencies, labels and proposed writes for human review.
 2. Before creating tickets, use the approved feature plan as the batch definition. Record verified native mappings in the Git-owned feature plan. Before creating tasks, record the approved task-plan snapshot in a parent-ticket comment so resume can verify what was approved even after a partial create. Add the verified child mappings after creation. Keep the approved parent body intact.
@@ -97,11 +97,11 @@ Accept `OVERRIDE <id> <action>: <reason>` from the human only. Use the Agenix fe
 
 Store the override on the item that receives it:
 
-| Item                          | Where to Record It                                                                                 |
-| ----------------------------- | -------------------------------------------------------------------------------------------------- |
-| Feature in any tracker mode   | `docs/features/<feature-id>/README.md`                                                             |
-| Local ticket or task          | `docs/features/<feature-id>/tickets/<ticket-id>.md`, in the task's own section for a task override |
-| GitHub or Jira ticket or task | Comment on the corresponding issue, sub-issue or sub-task                                          |
+| Item                          | Where to Record It                                                                                  |
+| ----------------------------- | --------------------------------------------------------------------------------------------------- |
+| Feature in any tracker mode   | `docs/features/<feature-id>/feature.agenix.json`                                                    |
+| Local ticket or task          | `docs/features/<feature-id>/tickets/<ticket-id>.agenix.json`, on the task entry for a task override |
+| GitHub or Jira ticket or task | Comment on the corresponding issue, sub-issue or sub-task                                           |
 
 Record the item, action, UTC date, confirmation as `human-in-session`, reason, candidate, conditions, permitted work and consumer scope. Reference the durable record from the related PR checkpoint when it exists.
 

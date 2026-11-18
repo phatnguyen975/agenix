@@ -13,8 +13,10 @@ Use this guide when producing project documents, defining instruction scopes or 
 
 ```text
 project/
-├── AGENTS.md                         # shared instructions and managed configuration
+├── AGENTS.md                         # shared instructions and record links
 ├── CLAUDE.md                         # imports AGENTS.md
+├── config.agenix.json                # shared settings from setup
+├── environment.agenix.json           # verified operations from scaffold
 ├── .env.example                      # when environment settings are needed
 ├── .github/workflows/                # artifact checks at setup, project checks at scaffold
 ├── .agenix/                          # ignored, worktree-local state
@@ -33,16 +35,16 @@ project/
     │   └── decisions/                # when architecture decisions need recording
     ├── contracts/                    # shared definitions, schemas and wire examples
     └── features/
-        ├── README.md                 # feature catalog
+        ├── catalog.agenix.json       # feature index
         └── <feature-id>/
-            ├── README.md             # feature record and delivery plan
+            ├── feature.agenix.json   # feature record and delivery plan
             ├── spec.md
             ├── api-contract.md       # optional contract semantics
             ├── data-impact.md        # when persistence is affected
             ├── ui-prototype/         # when UI prototyping applies
             │   └── README.md
             └── tickets/              # local tracker only
-                └── <ticket-id>.md
+                └── <ticket-id>.agenix.json
 ```
 
 Use the approved codebase design for source, test and release-unit paths. Create feature `api-contract.md` only when it needs to document contract semantics that the canonical definitions under `docs/contracts/` cannot adequately express. Reference those definitions and the owning business rules without duplicating them.
@@ -51,13 +53,13 @@ Setup creates `agenix-artifacts.yml` for bootstrap artifact validation. Scaffold
 
 ## Configure Instructions and Scope
 
-1. Keep root `AGENTS.md` as the shared instruction entry. Store shared non-secret configuration in a single Agenix-managed JSON block inside that file. It contains the compatibility pin, tracker and repository settings, project scope, documentation language and any configured exposure operation. Preserve team-owned text outside managed blocks. Provide the usage-guide entry and baseline scope, authority and safety rules.
+1. Keep root `AGENTS.md` as the shared instruction entry. Point it to root `config.agenix.json` and to `environment.agenix.json` when scaffold provides it. Keep the compatibility pin, tracker, repository settings, project scope, documentation language and any configured exposure operation in the non-secret configuration file. Preserve team-owned text outside managed blocks. Provide the usage-guide entry and baseline scope, authority and safety rules.
 2. Select scoped entries at real module or release-unit boundaries that need distinct instructions. Record responsibilities, public surfaces, applicable commands, policy, etc. and routes to owning documents. Pair root and every generated scoped `AGENTS.md` with a local `CLAUDE.md` importing `@AGENTS.md`. Preserve unrelated Claude-specific content.
 3. Route from root to real scoped instruction entries. Before working within a subtree, read root and applicable ancestor/scoped entries. Load sibling context for work crossing a boundary. Keep host permissions and shared gates in effect. Keep installation cache paths out of project instructions.
 
 ## Record Verified Operations
 
-At the final scaffold step, use the environment record to document how to run and check the project. Use the results already verified during scaffold.
+At the final scaffold step, use root `environment.agenix.json` to document how to run and check the project. Use the results already verified during scaffold.
 
 - **Commands.** For each operation or check, record its ID, release unit, exact arguments, working directory, target and actual result. Include the test level, mode, required services and permissions where applicable. Use one approved command per operation, unit, target and mode.
 - **Services and access.** Identify the isolated services and how to check readiness, reset and clean them up. For each environment, list allowed, approval-required and prohibited operations. Limit access to approved paths, networks and resources. Record which restrictions are enforced and stop affected operations if required tools, permissions or controls are unavailable.

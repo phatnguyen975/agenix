@@ -6,8 +6,8 @@ Use this guide when `tracker: local`. The selected project uses Git for work-ite
 
 | Information                                   | Location                                                                                                                  |
 | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Feature state and delivery set                | Feature README in Git.                                                                                                    |
-| Ticket and its tasks                          | `docs/features/<feature-id>/tickets/<ticket-id>.md`. Tasks are embedded in their ticket.                                  |
+| Feature state and delivery set                | `docs/features/<feature-id>/feature.agenix.json`.                                                                         |
+| Ticket and its tasks                          | `docs/features/<feature-id>/tickets/<ticket-id>.agenix.json` with a `tasks` array.                                        |
 | Approved task plan, build evidence and review | The owned ticket file on the implementation branch. Reference durable evidence from the implementation PR once it exists. |
 | Integrated status                             | The refreshed default branch with supporting merge and verification evidence.                                             |
 
