@@ -1,21 +1,26 @@
 # Agenix Plugin Proposal
 
-> **Status:** Approved\
-> **Updated:** 2026-11-17\
+> **Status:** Approved  
+> **Updated:** 2026-11-18  
 > **Purpose:** Define Agenix v1 workflow, artifact contracts, gates and validation requirements.
 
-Read Section 2 for the lifecycle, Section 3 for invocation/resume rules, Section 8 for document ownership, and Section 10 for each phase's steps. Sections 4–7 define the shared contracts those steps must preserve; Sections 9 and 12 define project configuration and plugin implementation boundaries.
+Start with the [workflow map](#2-workflow-and-operating-boundaries). Use [Workflow Phases](#10-workflow-phases) to implement a step and [Sources of Truth](#sources-of-truth) to identify the owner of an artifact or rule.
 
 ## 1. Scope and Design Principles
 
-Agenix composes reusable Agent Skills into a human-gated, spec-first and test-first SDLC. AI performs analysis, implementation and automated verification within the selected step; humans decide material trade-offs and approve concrete results at dependency gates. Test-first is the default implementation method; justified task-specific `test-after` or `manual` exceptions require approval in the task plan. This proposal defines the workflow to build, not a claim that its skills or helpers already exist.
+Agenix composes reusable Agent Skills into a human-gated, spec-first and test-first SDLC. AI analyzes, implements and verifies work within the selected step. Humans decide material trade-offs and approve the concrete results that dependent work relies on. This proposal defines the target workflow.
 
-**V1 Scope:** New projects using Claude Code, Codex, or Antigravity; GitHub for PRs/merges; local files, GitHub Issues, or Jira Cloud for tracking. Web frontend, backend, fullstack, library, CLI and infrastructure scopes use only applicable outputs. Frontend support covers responsive web applications; native mobile and desktop GUI applications are outside v1. All owned code/context must reside in one repository; fullstack requires a monorepo containing FE and BE. Worktrees and parallel teams are supported. Cross-repository orchestration, existing-application adoption, hotfix/release-branch workflows and tracker migration are outside v1. Repository scope does not prescribe architecture style or the number of release units.
+V1 supports new projects within these boundaries:
+
+- **Hosts and tracking.** Use Claude Code, Codex or Antigravity. GitHub owns PRs and merges. Work items can use local files, GitHub Issues or Jira Cloud.
+- **Product scopes.** Responsive web frontend, backend, fullstack, library, CLI and infrastructure use the steps and outputs applicable to their owned responsibilities.
+- **Repository.** Keep owned code and context in one repository, including FE and BE for fullstack. Teams can use parallel worktrees. Architecture style and release-unit count follow project needs.
+- **Out of scope.** Native mobile and desktop GUI, cross-repository orchestration, adoption into existing applications, hotfix/release-branch workflows and tracker migration.
 
 | Principle             | Contract                                                                                                                                                                                                  |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Reusable capabilities | Non-`agx-*` skills are independent of Agenix and consuming-project artifact names. Declare actual domain, framework, language, agent or tool prerequisites; reuse does not imply universal compatibility. |
-| Workflow composition  | `agx-*` skills own phase order, gates, artifact contracts, status changes, and Git actions. They use capability skills as methods without adding Agenix requirements to those skills.                     |
+| Workflow composition  | Workflow skills own phase order, gates, artifact contracts, status changes and Git actions. They use capability skills as methods without adding Agenix requirements to those skills.                     |
 | Explicit control      | A human invokes and ends each named step. Approve prerequisite outputs before dependent work; group independent decisions within the selected step. An approved task plan authorizes its build loop.      |
 | Spec first            | Approved feature contracts guide implementation and review. Amend an incorrect contract before implementing the changed behavior.                                                                         |
 | Test first            | Derive checks from approved acceptance criteria before implementation. Use an approved exception only where test-first is unsuitable; never weaken completion evidence.                                   |
@@ -34,12 +39,13 @@ skills/<name>/
 └── assets/          optional: templates and other resources
 ```
 
-Keep workflow entry instructions concise and load step details progressively. Retain additional upstream resource directories when the selected capability requires them; do not relocate them without validating their consumers. Phase 2 selects capability composition, resource layout and implementation approaches. Phase 4 authors complete schemas, templates and executable interfaces, then validates them against this proposal.
+Keep workflow entry instructions concise and load step details progressively. Retain upstream resource directories required by the selected capability and verify their consumers before relocating them. The [maintainer planning lifecycle](#maintainer-planning-lifecycle) assigns selection and implementation responsibilities.
 
 - **Workflow skill:** `agx-<name>`; one phase with a step router, explicitly invoked by the human. Steps live in linked references, not nested discoverable skills or separate host commands.
+- **Guide skill:** [`agx-guide`](#agx-guide--usage-guide) provides read-only help on demand and can be selected by the agent for a usage question.
 - **Capability skill:** any other name; independently usable methodology or tooling.
-- **Composition precedence:** the workflow's required output contract takes precedence over a capability's default template; do not silently discard the capability's substantive checks.
-- Adding a skill requires its directory and index entry. Using it in a workflow also requires explicit routing: when to load it, relevant inputs, and expected contribution. A name alone does not guarantee integration.
+- **Composition:** each route names the trigger, input, selected method or mode, expected contribution, and return point. The workflow owns its required output contract and preserves the capability's substantive checks. See [Capability Selection Boundary and Third-Party Reuse](#capability-selection-boundary-and-third-party-reuse).
+- Add an index entry for each available skill directory.
 - Nested reference modules may be loaded by a parent skill. Do not rely on nested `SKILL.md` files being independently discovered on every host.
 
 ### Scope Applicability
@@ -54,7 +60,7 @@ Setup records the project's owned scope, product boundaries and target platforms
 | spec                         | Client behavior/UI and consumed contracts; do not redesign externally owned providers.                       | Provider behavior/contracts and owned data effects; no UI artifact.            | One shared behavior/contract set with applicable API/data/UI outputs.           |
 | plan / build / review / ship | Client tickets/checks and real external integration where required.                                          | Backend tickets/checks through the API or other real public boundary.          | Fullstack slices or parallel FE/BE tracks with final real integration.          |
 
-Web frontend uses mobile-first responsive layouts across the declared browser/viewport matrix; this does not add native-app scope. Its runtime, routing/state, client storage, security and external integration still need design: record these concisely in `tech-stack.md`'s Client Design section and map them to source boundaries in `codebase-design.md`; do not produce a whole-system `system-design.md` or infer backend internals. Local client persistence can require data design/testing without adding a backend.
+For a web frontend, design mobile-first responsive layouts for the declared browser and viewport matrix. Record runtime, routing, state, storage, security and external integrations in the Client Design section of `tech-stack.md`. Map these decisions to source boundaries in `codebase-design.md`. Frontend-only scope uses client design in place of a whole-system `system-design.md`; client-local persistence can still require data design and testing.
 
 For backend/fullstack, `system-design.md` covers only the system owned by this repository; externally owned systems are documented as dependencies, not coordinated codebases. Multiple units in a monorepo are not a mandate to create extra units.
 
@@ -64,16 +70,17 @@ For backend/fullstack, `system-design.md` covers only the system owned by this r
 | CLI                 | Commands, arguments, output, exit behavior and applicable filesystem/process effects; web UI design only if an owned web surface exists. | The built executable is invoked in an isolated environment.              |
 | Infrastructure      | Owned resources, configuration, lifecycle and safe change behavior; provider systems remain external dependencies.                       | Required operations against disposable or explicitly approved resources. |
 
-The spec `api` step covers public interface contracts, including library exports and CLI interfaces; OpenAPI/AsyncAPI apply only to compatible network/message interfaces. Without such interfaces, record the contract in `spec.md` or an appropriate referenced definition rather than inventing a wire schema. Terminal text output alone does not require a browser prototype. Each product verifies its supported platforms and real public boundary; browser, mock and schema checks are not substitutes for those checks.
+The spec `api` step covers applicable public interfaces, including library exports and CLI commands. Use the [shared contract rules](#shared-contracts-docscontracts) to select the format. Terminal text output alone does not require a browser prototype. Each product verifies its real public boundary on the supported targets.
 
 ### Execution Policy
 
-Agenix follows one execution path per declared context. Setup fixes tracker/documentation language/scope; architecture fixes domain/technical/UI foundations and test intent; scaffold verifies commands, scoped instruction routing, permissions and harnesses; feature planning fixes delivery strategy; the task plan selects verification methods, check levels and applicable mock/live contexts. Those declared choices are the only source of runtime variation.
+Agenix uses one execution path for each declared context. Each planning level supplies a different part of that context:
 
-- Missing prerequisites, unsupported versions, failed checks, or ambiguous state stop the dependent action and require correction. AI does not invent a substitute implementation or downgrade a check.
-- Never silently switch tracker, verification method, storage location, Git publication method, manifest layout, or review execution strategy. Corrections to approved design or verification choices use the amendment rules in Section 3; tracker migration and additional host platforms remain outside v1.
-- Project-specific architecture/tool choices must be approved and recorded before use. Once recorded, follow them consistently until an explicit approved change replaces them.
-- Context-dependent artifacts are determined by approved scope: UI docs require UI scope. This is applicability, not an alternate workflow.
+- **Setup:** tracker, documentation language, project scope and targets.
+- **Architecture and scaffold:** approved foundations and verification strategy, then verified commands, instruction routing, permissions and harnesses.
+- **Feature and task plans:** delivery strategy, then concrete verification methods, check levels and mock or live contexts.
+
+Follow recorded choices for architecture, tools, tracking, verification, storage, publication and review. Missing prerequisites, unsupported versions, failed checks or ambiguous state block dependent work. Use [amendments](#amendments-and-re-entry) for material changes and the [scope rules](#scope-applicability) for inapplicable artifacts.
 
 ## 2. Workflow and Operating Boundaries
 
@@ -83,33 +90,35 @@ flowchart TD
     PRD --> FEATURE["agx-feature"]
     FEATURE --> ARCH["agx-architect"]
     ARCH --> SCAFFOLD["agx-scaffold"]
-    SCAFFOLD --> SPEC["agx-spec <feature-id>"]
-    SPEC --> PF["agx-plan <feature-id>"]
-    PF --> PT["agx-plan <ticket-id>"]
-    PT --> BUILD["agx-build <ticket-id>"]
-    BUILD --> REVIEW["agx-review <ticket-id>"]
-    REVIEW -->|"fix tasks"| BUILD
-    REVIEW -->|"approved"| SHIP["agx-ship <ticket-id>"]
+    SCAFFOLD --> SPEC["agx-spec &lt;feature-id&gt;"]
+    SPEC --> PF["agx-plan &lt;feature-id&gt;"]
+    PF --> PT["agx-build &lt;ticket-id&gt; plan"]
+    PT --> BUILD["agx-build &lt;ticket-id&gt; run"]
+    BUILD --> REVIEW["agx-review &lt;ticket-id&gt;"]
+    REVIEW -->|"new fix tasks needed"| PT
+    REVIEW -->|"approved tasks cover fixes"| BUILD
+    REVIEW -->|"approved"| SHIP["agx-ship &lt;ticket-id&gt; run"]
     SHIP -->|"unmerged candidate needs fixes"| REVIEW
+    SHIP -->|"merged ticket needs repair"| PF
     SHIP -->|"next eligible ticket"| PT
-    SHIP -->|"all tickets DONE / merged"| FS["agx-ship <feature-id>"]
+    SHIP -->|"all tickets DONE / merged"| FS["agx-ship &lt;feature-id&gt; run"]
     FS -->|"additional work before feature DONE"| PF
     FS -->|"feature finalized; next eligible feature"| SPEC
 ```
 
-Arrows summarize phase eligibility; Section 3 defines explicitly invoked steps. No arrow triggers execution. Internal steps share the phase branch; a dependent phase consumes the merged default-branch artifact set. Tracker-only task planning has no Git planning commit.
+The diagram shows eligibility for one feature's delivery. Humans invoke each step separately. Independent eligible tickets can proceed in parallel.
 
-The first developer starts with `agx-setup configure`. Joining developers use `agx-setup verify`, then select an eligible ticket. An existing approved task plan can proceed directly to `agx-build <ticket-id> run`.
+The first developer starts with `agx-setup configure`. Joining developers use `agx-setup verify`, then select an eligible ticket and choose `build plan` or `build run` based on its approved task plan.
 
 ### Execution Rules
 
 - One coordinating Agenix workflow session per worktree; delegates remain within its selected step, not independent phase routers. Separate clones/worktrees for parallel tickets; any planned same-step parallel writes require declared ownership and safe isolation. No automatic worktree creation is required.
 - One Agenix project is one Git repository, including its FE/BE release units when present. Teams may use separate worktrees; cross-repository dependency orchestration is outside v1.
-- Serialize feature-ID allocation and planning of the same feature/ticket. Merge the relevant plan before parallel implementation.
-- Use the current PR branch for review/fixes; use fresh default-branch state to validate already-merged dependencies.
+- Serialize feature-ID allocation and planning edits to the same item. Merge the feature ticket plan before those tickets start. Each ticket's approved task plan is verified on its own branch or in its tracker.
+- Use the owned ticket branch for planning, build, review and fixes. Validate cross-ticket and feature dependencies against fresh default-branch evidence.
 - Local tracking shares changes through Git. It does not provide real-time assignment or a distributed lock. Team members coordinate ticket ownership explicitly.
 - A rerun inspects existing artifacts, branches, PRs, and tracker IDs before writing. Resume matching work; stop on conflicting ownership or ambiguous state. Do not create duplicates or overwrite unrelated edits.
-- All paths below are repository-relative unless a rendered Markdown link explicitly uses a relative target. V1 fixes the documentation root at `docs/`.
+- V1 fixes the project documentation root at `docs/`. Managed project paths are repository-relative unless an interface explicitly requires an absolute path.
 
 ## 3. Step Invocation, Sessions, and Human Gates
 
@@ -122,47 +131,53 @@ agx-<phase> [<item-id>] <step>
 agx-architect domain
 agx-architect system
 agx-scaffold tests
+agx-scaffold instructions
 agx-spec FEAT-003 ui
 agx-plan FEAT-003 tickets
-agx-plan FEAT-003-T01 tasks
+agx-build FEAT-003-T01 plan
 agx-build FEAT-003-T01 run
+agx-ship FEAT-003-T01 run
+agx-ship FEAT-003 run
 ```
 
 These are logical skill invocations, not shell commands. Section 12 supplies the host prefix. The remaining words are task input interpreted by the workflow router, not a portable native subcommand API.
 
-The item is required for `spec`, `plan`, `build`, `review` and `ship`; the step is always required. Invalid/missing arguments produce the allowed syntax and stop without changes or a guessed default. Calling a later step does not run its predecessors. Load only the selected instructions and necessary context.
+Workflow invocations always include a step. `spec` and `plan` require a feature ID, `build` and `review` require a ticket ID, and `ship` accepts either with its applicable steps. Reject invalid or missing arguments with the allowed syntax and no changes. A later step does not run its predecessors. [`agx-guide`](#agx-guide--usage-guide) is a separate read-only invocation without a step.
 
-| Phase / Item    | Steps and Prerequisites                                                                         | Final Step           |
-| --------------- | ----------------------------------------------------------------------------------------------- | -------------------- |
-| setup           | `configure` → `verify`; joining uses verify only against merged configuration.                  | `verify`             |
-| prd             | `define`.                                                                                       | `define`             |
-| feature         | `define`.                                                                                       | `define`             |
-| architect       | `domain` → applicable `system` → `stack` → applicable `data` / `ui` → `conventions` → `tests`.  | `tests`              |
-| scaffold        | `structure` → `runtime` → `services` → `tests` → `ci`; services is omitted when inapplicable.   | `ci`                 |
-| spec / feature  | `behavior` → `api` → `data` → `ui`, omitting only scope-inapplicable contracts.                 | Last applicable step |
-| plan / feature  | `strategy` → `tickets`.                                                                         | `tickets`            |
-| plan / ticket   | `tasks`.                                                                                        | `tasks`              |
-| build / ticket  | `run`: complete the approved task loop.                                                         | `run`                |
-| review / ticket | `assess`: complete assessment and its applicable decisions.                                     | `assess`             |
-| ship / ticket   | `accept` → `merge` → `finalize`.                                                                | `finalize`           |
-| ship / feature  | All non-cancelled tickets `DONE`/merged → `accept` → `finalize`; no feature-level `merge` step. | `finalize`           |
+| Phase / Item    | Steps and Prerequisites                                                                                  | Final Step           |
+| --------------- | -------------------------------------------------------------------------------------------------------- | -------------------- |
+| setup           | `configure` → `verify`; joining uses verify only against merged configuration.                           | `verify`             |
+| prd             | `define`.                                                                                                | `define`             |
+| feature         | `define`.                                                                                                | `define`             |
+| architect       | `domain` → applicable `system` → `stack` → applicable `data` / `ui` → `conventions` → `tests`.           | `tests`              |
+| scaffold        | `structure` → `runtime` → applicable `services` → `tests` → `ci` → `instructions`.                       | `instructions`       |
+| spec / feature  | `behavior` → `api` → `data` → `ui`, omitting only scope-inapplicable contracts.                          | Last applicable step |
+| plan / feature  | Initial plan: `strategy` → `tickets`. Additions can use `tickets` against the current approved strategy. | `tickets`            |
+| build / ticket  | `plan` → `run`. An existing valid plan permits direct `run`. Use `plan` again for task additions.        | `run`                |
+| review / ticket | `assess`: complete assessment and its applicable decisions.                                              | `assess`             |
+| ship / ticket   | `run`: verify, publish, confirm merge and verify ticket completion.                                      | `run`                |
+| ship / feature  | `run`: after verified ticket completion, verify the feature and publish and confirm its finalization.    | `run`                |
 
-At phase entry, derive and record the applicable steps from approved scope; do not remove one to bypass failed prerequisites. Spec's last applicable step is `ui`, otherwise `data`, otherwise `api`, otherwise `behavior`. The final applicable step always checks the aggregate artifact set. Independent architect `data` / `ui` steps may be invoked in either order, each with its selected-step gate; a declared dependency between them must be approved first. `conventions` consumes all applicable foundations; `tests` checks their complete verification coverage. No empty artifact represents an inapplicable step.
+At phase entry, derive and record applicable steps from approved scope. An unmet prerequisite blocks required work. Omit artifacts for inapplicable steps.
 
-Spec uses behavior-first, public-interface-first design: `api` defines the observable boundary, `data` resolves its owned persistence effects, and `ui` consumes the approved behavior and applicable contracts. No step may silently change an earlier approved contract to fit its design. If later data or UI work reveals a conflict, amend the affected prerequisite before continuing. Frontend-only may consume an external contract without owning its provider; backend-only omits `ui`; a library/CLI without persistence or UI ends at `api`, or at `behavior` when no separate interface work is needed.
+- **Architect:** invoke independent `data` and `ui` steps in either order, each with its own gate. Approve any dependency between them first. `conventions` consumes the applicable foundations, and `tests` checks their verification coverage.
+- **Spec:** Invoke applicable steps in sequence: `behavior` → `api` → `data` → `ui`. `api` defines the owned public interface or references the external contract. `data` resolves owned persistence effects. `ui` consumes approved behavior and applicable contracts. If a later step reveals a conflict, use [Amendments and Re-entry](#amendments-and-re-entry) before dependent work continues.
+- **Final applicable step:** check the whole artifact set for that phase.
 
-**Publication is an automatic post-gate action inside the selected step, not a separately invoked publish step.** Section 7 defines exactly what is committed, pushed and published. A non-final step updates the phase's draft PR; the final step presents the complete checked artifact set, then makes that PR ready after its gate. Subsequent phases consume the merged default-branch baseline.
+**Publication runs inside the selected step after approval.** [Publication Points](#publication-points) defines the applicable draft/ready PR and tracker actions, including steps that publish no Git changes.
 
 ### Mandatory Order Within a Step
 
+Use this order when a step creates or changes an artifact or publishes gated state. A verification-only step records its result and any blockers without an artifact gate. If the selected step includes merge, approve publication and verify remote readiness before requesting separate [merge authority](#review-evidence-and-merge-authority).
+
 1. **Prepare:** inspect repository/worktree identity, owned changes, existing branch/PR, prerequisites, configuration and relevant approvals. Resume matching work; stop on conflicts rather than overwriting it.
 2. **Execute and verify:** finish the selected work, self-review, run every applicable local artifact/test/static/UI check and fix issues within approved scope. Do not present unfinished AI verification as a human review task.
-3. **Present the artifact gate:** show the exact candidate files/diff, decisions, requirement coverage, commands/results, genuine manual judgments, limitations, and the proposed commit/push/PR or tracker actions. Resolve failures and material questions first.
+3. **Present the artifact gate:** show the exact candidate files/diff, decisions, requirement coverage, check results, genuine manual judgments, residual limitations, and proposed publication actions. A successful acceptance gate requires its checks to pass or an applicable recorded waiver. A fix plan or explicitly incomplete handoff may be approved with failures recorded as blockers. Apply the selected step's requirements.
 4. **Wait for human review:** revise requested changes and rerun affected checks. Approval covers the identified snapshot and stated publication actions, not a future materially changed artifact.
-5. **Publish automatically after approval:** execute the approved commit, push, PR create/update or tracker writes, record evidence and monitor applicable CI. Do not ask separate permission for each of these already-approved actions. Local tests precede the gate; remote CI necessarily follows push.
-6. **Report and checkpoint:** identify the published revision, PR/tracker links, local and CI outcomes, blockers and remaining work in this step. Stay in `DURING` until the human sends its matching `END`. A green CI result never authorizes merge or a step transition.
+5. **Publish automatically after approval:** follow the [shared publication rule](#pre-publication-gate-and-automatic-actions). Commit and push approved Git changes and perform the selected step's approved PR or tracker actions in their required order. Record evidence and monitor applicable CI.
+6. **Report and checkpoint:** identify the published revision, PR/tracker links, local and CI outcomes, blockers and remaining work. Follow the session marker rules below. CI success grants neither merge authority nor permission to enter another step.
 
-Reuse current evidence and already-resolved decisions when their candidate, prerequisites and environment remain applicable; rerun/review what changed or is no longer reliable, not unrelated work. Required business/architecture decisions can need intermediate gates before dependent work inside a step. Group independent decisions; do not ask the human to supervise routine reasoning, tool calls, tests or bug fixes. Build's approved task plan authorizes its full local task loop, not pre-gate commits.
+Reuse decisions and evidence while their candidate, prerequisites and environment remain applicable. Recheck affected work when those conditions change. Group independent material decisions at a checkpoint before dependent work. The approved task plan authorizes the local build loop under the [publication boundary](#pre-publication-gate-and-automatic-actions).
 
 ### AI and Human Responsibilities
 
@@ -172,7 +187,7 @@ The human controls step invocation/closure, material decisions, artifact approva
 
 ### Step Closure and Resume
 
-`BEGIN`, `DURING` and `END` identify the active step in chat; they are not work-item statuses or host commands.
+`BEGIN`, `DURING` and `END` coordinate steps within the current chat session. They carry no work-item status or execution authority.
 
 | Marker                               | Author     | Meaning                                                                                 |
 | ------------------------------------ | ---------- | --------------------------------------------------------------------------------------- |
@@ -180,13 +195,23 @@ The human controls step invocation/closure, material decisions, artifact approva
 | `DURING AGX-<NAME> [item-id] <step>` | AI         | First response line on subsequent work, feedback, progress or resume in that open step. |
 | `END AGX-<NAME> [item-id] <step>`    | Human only | Explicitly closes the identified step after any actions authorized in the same message. |
 
-An invocation is validated before work starts. If another step is still open, report its identity and wait for its matching `END`; do not treat a new invocation as implicit closure. After `END`, the next step still requires its own human invocation. AI never emits `END` as a closure signal or starts another step because approval, CI, publication or merge succeeded.
+Validate each invocation before work starts. If a different step is open in the current session, wait for the human's matching `END`. After `END`, the human explicitly invokes the next step. AI never emits `END` as a closure signal.
 
-Artifact approval, publication, merge authority, successful completion and chat closure are distinct. With no matching `END`, remain in `DURING`, including after all required work or a manual merge. When `END` arrives, finish only actions explicitly authorized by that message or prior approval, then summarize outputs, evidence, unresolved work, completion outcome and the next eligible invocation. `END` alone grants no artifact approval or publication, merge or production-exposure authority. Approval and `END` may appear in one message.
+In a fresh session, start the human's selected step with `BEGIN` and verify its prerequisites from repository and tracker evidence. If the session continues work from a handoff, restore the step and its marker state from that handoff. Use `DURING` for an open step being continued and `BEGIN` when explicitly restarting an ended step. A marker from another session applies only when that session is being continued via handoff. Keep marker state in chat or the handoff rather than in repository records, PRs, tracker metadata or a separate session store.
 
-An intermediate design/setup/scaffold step meets its completion criteria after approved publication/checkpointing. Its final applicable step also requires confirmed human-owned merge. Joining `verify` has no shared-file publication or PR. Build requires its approved batch published; review may finish with approved changes requested; each ship step requires its own stated result. These criteria do not close the chat step automatically. A human may end a blocked or incomplete step; record that outcome without claiming downstream eligibility. An approved incomplete draft-PR handoff is not completion evidence.
+Artifact approval, publication, merge authority, successful completion and chat closure are separate events.
 
-A fresh session resumes an open step with the same invocation and `DURING`, using actual repository/tracker state and checkpoints. A previously ended but unfinished step is explicitly reopened with `BEGIN`. Do not recreate completed artifacts, duplicate PRs or repeat uncertain remote writes. Closing a step does not close its ticket or feature.
+- **Before `END`:** continue in `DURING`, including after successful work or a manual merge.
+- **On `END`:** finish only actions already authorized or explicitly authorized in the same message. Summarize outputs, evidence, unresolved work, completion outcome and the next eligible invocation.
+- **Authority:** a message can contain approval and `END` together. The closure marker alone grants no approval, publication, merge or exposure authority.
+
+Completion depends on the selected step:
+
+- An intermediate design, setup or scaffold step completes after approved publication and checkpointing. The final applicable step also requires confirmed human-owned merge. Joining `verify` completes without shared publication.
+- `build plan` completes when the approved task plan and its stated writes are verified. `build run` completes when the verified batch and its stated writes are recorded. Review can complete with approved changes requested. Ship completes on verified closure of the selected item.
+- A human can end a blocked or incomplete step, including after an approved incomplete draft handoff. Record its actual outcome and keep dependent work ineligible.
+
+When resuming work, reconcile actual artifacts, PRs and tracker writes before repeating any action. Closing chat scope leaves the ticket or feature at its verified lifecycle state.
 
 ### Amendments and Re-entry
 
@@ -195,18 +220,18 @@ An approved artifact is a baseline, not an irreversible design. When new evidenc
 1. Identify its owning step, affected requirements/artifacts/plans/checks and active consumers. Stop only the dependent work; report the impact and required human decisions.
 2. If the owning step is already active, revise there. Otherwise checkpoint the current step, wait for human `END`, and let the human invoke the owning step again. Never route to another step automatically.
 3. Prepare and verify a scoped amendment with its impact and publication actions. Obtain approval before dependent implementation; update affected references and approvals rather than preserving stale evidence.
-4. Publish the amendment through its owning phase PR when the baseline must be shared; if the earlier PR already merged, use a new scoped amendment PR rather than trying to update a merged PR. After implementation starts, ticket-local spec corrections, fix tasks and associated evidence may be coordinated by `review` on the existing ticket PR. Changes affecting other tickets require a merged shared baseline before those consumers resume.
+4. Publish shared amendments through the owning phase PR, or a new scoped PR if the original already merged. `review` may approve a ticket-local contract amendment for publication on the ticket branch. `build plan` owns any resulting new tasks. Changes affecting other tickets require a merged shared baseline before those consumers resume.
 5. Revalidate affected task/ticket dependencies, acceptance coverage and whole-feature delivery coverage. Resume only explicitly invoked work against the corrected baseline and verified harnesses.
 
 These amendment rules apply to shared design/specification artifacts and their consumers. They do not authorize rewriting approved work-item definitions: Section 4 governs additive planning, replacement and cancellation. Preserve completed evidence and existing PR ownership; reconcile affected plans with new items and explicit dispositions before resuming dependent work.
 
 ### Approval Evidence and Invalidation
 
-Use the phase/ticket PR for shared checkpoints, not a new workflow database. Record phase/item/step, outcome, reviewed snapshot, published commit, artifact paths, prerequisite revisions, actual human confirmation, local/CI results and next action. Tracker-only task planning stores complete approved definitions/DAG/actions in parent-item comments before creating children, then records mappings; ignored draft links are insufficient.
+Record the phase, item, step, outcome, candidate and prerequisite revisions, relevant paths, human confirmation, actual checks and next action. Use shared phase PRs and the applicable [ticket checkpoint](#ticket-checkpoints).
 
 Pre-commit approval identifies a candidate tree and parent revision under Section 7. After commit, prove its tree matches that candidate, allowing only explicitly approved mechanical bindings, and link the confirmation to the actual SHA. Never fabricate a native approving review or approver identity. A substantive change invalidates affected approvals and requires corrected local verification and a new artifact gate before publishing it.
 
-`.agenix/HANDOFF.md` records phase/item/step, branch/PR, checkpoint links, uncommitted work, provisional task verification, pending decisions and next action. It is local to each worktree and supports resume; it is not sole evidence of approved/published work. Before an artifact is approved, an interrupted draft can remain local; do not publish it merely to obtain a shared checkpoint.
+When handing work to another session, use `.agenix/HANDOFF.md` to record the phase/item/step and whether it is still open (`DURING`) or has ended (`END`). Include the branch/PR, checkpoint links, pending work and decisions, and the next action. The handoff stays worktree-local. Verify approvals, publication and completion from their owning records.
 
 ## 4. Work Items, Identifiers, and Artifact Contracts
 
@@ -249,13 +274,17 @@ After approval:
 - Execute the approved definition. Status, assignment, native/PR mappings, evidence and append-only child links/dispositions may evolve; definition changes must not be hidden inside metadata updates.
 - New outcomes become new features. Additional work within an open feature's approved outcome becomes new tickets. Within an open, unmerged ticket, added implementation/review work becomes new tasks. A closed task/ticket is not reopened or rewritten to absorb new work; use a new sibling item and link its origin.
 - Fixing code during an active task to satisfy its existing acceptance is normal autonomous execution, not a new item for every failed check. A distinct defect or added obligation discovered after that work is accepted is follow-up work with a new ID.
-- Use `agx-feature define`, `agx-plan <feature-id> tickets` or `agx-plan <ticket-id> tasks` to approve additions at the corresponding level. `review` may prepare and gate fix tasks for its active ticket. Preserve prior definitions and publish additions/mappings through the normal gate; no silent expansion of the build batch.
+- Use `agx-feature define`, `agx-plan <feature-id> tickets` or `agx-build <ticket-id> plan` to approve additions at the corresponding level. Review records findings and fix obligations. Build planning defines any new tasks. Preserve prior definitions and apply the selected step's gate before adding work to a batch.
 - A spec/contract correction may be a versioned, impact-reviewed amendment. Preserve the prior revision and original item references; new implementation obligations receive new items referencing the corrected contract. A contract amendment cannot silently redefine what an old item was approved to deliver.
 - If an unfinished definition is wrong or obsolete, the human may approve `CANCELLED` with a reason and replacement links where needed. Keep the original definition and history. Reconcile requirement coverage and every affected dependent before excluding it from active completion; do not pretend it passed acceptance.
 
-A cancelled dependency is not a completed dependency. Work that still requires it stays blocked until the obligation is actually fulfilled or the affected unfinished item is explicitly cancelled/replaced through new approved definitions. Non-cancelled parent items require all non-cancelled children to reach `DONE`; cancellation cannot erase required scope. A `DONE` item stays historical `DONE`; subsequent defects/changes use new work rather than changing its historical result. Cancelling a parent does not silently cancel its children; present the affected-item dispositions together for approval. Persist local cancellation on the default branch through a planning PR, not by merging an abandoned implementation PR. Account for any already-merged effects separately.
+When cancelling work:
 
-Once a feature is `DONE`, follow-up work uses a new linked feature. Before `DONE`, newly approved tickets extend its active delivery set and invalidate affected feature acceptance/finalization evidence. Rerun whole-feature acceptance against the expanded merged delivery set before finalization. Do not expose an unfinished extension merely because an earlier ticket merged; revalidate the exposure boundary. A pending finalization PR must be marked obsolete or updated through a new gate before it can merge; previous acceptance cannot finalize the expanded feature.
+- Keep work that references a cancelled dependency blocked. Cancel and replace the affected unfinished item with an approved definition that references the correct dependency, or use a scoped [`allow-work` waiver](#human-override) where justified. Keep the original dependency and disposition in the historical record.
+- Reconcile the remaining delivery set and confirm which work still covers the approved parent outcome. Its remaining children may still be open. Before successful parent closure, verify [completion and coverage](#completion-evidence). If cancelling a parent, present each affected child's disposition for approval.
+- Publish shared feature or ticket cancellation in its owning planning PR. Record task dispositions in their owning ticket record and publish local task changes with the implementation PR. Preserve prior implementation history and account for already-merged effects.
+
+Once a feature is `DONE`, follow-up work uses a new linked feature. While a feature is open, approved ticket additions extend its active delivery set. Revalidate [whole-feature acceptance and finalization](#agx-ship-item-id-run--ticket-delivery-and-feature-acceptance) against that set.
 
 ### Artifact Contracts
 
@@ -271,11 +300,11 @@ Specs own behavior; tickets/tasks reference rather than copy them. Indexes are n
 
 These contracts mature through their owning steps. Validate the fields and artifacts required at the current stage; a catalog entry is not invalid merely because its spec or ticket plan has not yet been created. Later steps add and verify their owned fields without placeholders pretending to be approved results. Final phase checks require that phase's complete applicable outputs.
 
-Use stable Markdown acceptance anchors and project-declared contract references. Rendered links are relative to their document; machine references are repository-relative and cannot escape the repository. Planning identifies the approved revision. Amendments reconcile affected consumers through new items or append-only impact records; preserve the original references in locked definitions. Schemas and enums must preserve these identities, scope choices and lifecycle.
+Use stable Markdown acceptance anchors and declared contract references. Use document-relative links for files in the repository and explicit URLs for external resources. Machine file references are repository-relative and cannot escape the repository. Pin approved revisions and preserve references in locked definitions when amending downstream work.
 
 ### Structured Local Records and Evidence
 
-Feature metadata lives in its `README.md`; local ticket files contain their task records. These records must expose machine-readable identity, status, dependencies and evidence while keeping explanatory scope and acceptance references readable. Task records belong only to their parent ticket; feature indexes remain navigational. The implementation plan selects serialization and metadata placement; complete field schemas, markers and templates are authored in Phase 4. This proposal does not prescribe YAML frontmatter or task-block syntax. Parse only declared metadata locations, never prose checkboxes or illustrative examples as authoritative state. Project configuration remains its separate owned JSON block; do not duplicate settings in work-item metadata.
+Feature metadata lives in its `README.md`. Local ticket files contain their task records. The implementation plan selects metadata serialization and placement. Parse only declared metadata locations and keep project settings in their [configuration block](#9-project-instructions-and-configuration).
 
 The minimum record meanings are:
 
@@ -286,9 +315,11 @@ The minimum record meanings are:
 | Embedded task | ID, dependency IDs, approved-definition/spec/acceptance references, verification method, check IDs or manual procedure, lifecycle status and evidence records. Its parent is the containing ticket.                                                                                                  |
 | Evidence      | Item/acceptance/check IDs, result, tested candidate or implementation revision, applicable check level/mode/environment, durable result references and actual confirmation source where required. Approval, merge, cancellation and waiver records identify their own reviewed snapshot/disposition. |
 
-An empty evidence list is valid for unstarted work, never proof of `DONE`. Before publication, evidence may identify the reviewed candidate tree; after commit, bind it to the actual revision through approved mechanical metadata updates. Do not require a record to contain the SHA of the commit that contains that same record. Keep implementation/check evidence distinct from merge/finalization evidence; a squash merge can produce a different commit without preserving the original batch SHA as an ancestor.
+Apply these rules to structured records:
 
-Use safe, format-appropriate parsing and reject ambiguous, duplicate or schema-invalid metadata; never execute metadata content. Structured evidence supports deterministic consistency checks; it is not a substitute for running tests, human confirmation or confirming live merge/CI state. Retain concise durable check/review receipts with exact revisions and outcomes, not only expiring logs. For historical merged dependencies, verify the canonical PR-to-merge mapping and retained receipts; do not require every original pre-squash commit object or expired CI log to exist in a clean clone. Current candidate checks still require actual current outcomes, and missing required durable evidence remains a blocker.
+- Parse safely. Reject ambiguous, duplicate or schema-invalid metadata and treat its contents as data. An empty evidence list is valid for unstarted work.
+- Before publication, identify the reviewed candidate tree. After commit, link it to the actual revision through approved mechanical updates. Records must be resolvable without embedding the SHA of their own commit.
+- Keep durable receipts for check results, human confirmation, review, and merge. For historical squash merges, resolve original implementation evidence through the recorded PR-to-merge mapping and retained receipts. Current checks still require current outcomes.
 
 ### Shared Contracts: `docs/contracts/`
 
@@ -304,12 +335,12 @@ Distinguish document/reference validation, payload schema validation and runtime
 
 GitHub hosts the code repository and PRs in every mode. `tracker: local | github | jira` selects work-item storage only.
 
-| Data                            | Local                                                         | GitHub Issues | Jira Cloud                                     |
-| ------------------------------- | ------------------------------------------------------------- | ------------- | ---------------------------------------------- |
-| PRD, blueprint, features, specs | Git                                                           | Git           | Git                                            |
-| Tickets                         | Ticket files                                                  | Issues        | Configured standard issue type, normally Story |
-| Tasks                           | Ticket sections                                               | Sub-issues    | Configured sub-task type                       |
-| Live ticket/task changes        | Shared on the published branch; default-branch state on merge | Tracker       | Tracker                                        |
+| Data                            | Local                                                       | GitHub Issues | Jira Cloud                                     |
+| ------------------------------- | ----------------------------------------------------------- | ------------- | ---------------------------------------------- |
+| PRD, blueprint, features, specs | Git                                                         | Git           | Git                                            |
+| Tickets                         | Ticket files                                                | Issues        | Configured standard issue type, normally Story |
+| Tasks                           | Ticket sections                                             | Sub-issues    | Configured sub-task type                       |
+| Live ticket/task changes        | Owned ticket branch until delivery; default branch on merge | Tracker       | Tracker                                        |
 
 ### Local Tracking and Collaboration
 
@@ -317,14 +348,18 @@ Local tracking is a first-class option for solo and team projects. Feature lifec
 
 One coordinated owner edits a ticket and its embedded tasks at a time. Other developers use separate tickets/worktrees. Serialize catalog/ID allocation, shared feature-plan edits, completion acceptance and finalization; check published in-flight plans and agreed ownership, not only the last fetched files. Ownership metadata is coordination, not a distributed lock.
 
-Fetch before allocation, publication and merge decisions, and inspect relevant incoming changes. Preserve unrelated edits. If multiple people edit the same record, stop affected publication, coordinate ownership and reconcile both changes on the owned branch. Never resolve by blindly choosing one side, taking the highest status or dropping IDs, acceptance or evidence. Revalidate definitions, IDs, DAG, coverage, evidence and affected tests after reconciliation; material candidate changes require a new artifact gate. Worktrees reduce overlap but cannot guarantee conflict-free concurrent edits. No automatic cross-worktree status refresh or locking is introduced.
+Before allocation, publication and merge, [refresh the baseline](#branch-and-ownership-policy) and inspect incoming changes. If contributors edit the same record:
 
-Initial local task planning uses its planning PR and must merge before first build. Once a ticket PR is active, approved new tasks and their evidence stay on that same ticket branch/PR; an additive `plan tasks` or `review` gate publishes the plan checkpoint before the next build run. Do not require an early implementation merge merely to approve fix tasks. Shared feature-plan additions still merge before their new tickets start.
+1. Pause affected publication and agree who owns reconciliation.
+2. Reconcile on the owned branch. Preserve unrelated edits, valid contributions, IDs, acceptance and evidence.
+3. Revalidate definitions, IDs, dependencies, coverage, evidence and affected tests. Obtain a new gate for material candidate changes.
+
+Commit and push approved initial and additive task plans in the ticket file on the owned implementation branch. Use the verified plan to start `build run`. Only ticket `ship run` opens the implementation PR. Shared feature-plan additions still merge before their new tickets start.
 
 ### Remote Tracker Contract
 
 - Titles/summaries: `<agenix-id>: <title>`.
-- Ticket body: overview, feature path/URL, canonical dependency IDs, type/scope/priority, scoped spec references, task links, and PR URL when available.
+- Ticket body: overview, feature path/URL, canonical dependency IDs, type/scope/priority and scoped spec references. Use native child links for tasks and a separate checkpoint or comment for plan and PR evidence.
 - Task body: the Section 4 task fields, with parent ticket ID; omit a duplicate body status field.
 - Labels: exactly one `status:ready | status:blocked | status:in-progress | status:in-review | status:done | status:cancelled`. Tickets also carry `scope:<value>` and `priority:<value>`.
 - Body `depends-on` IDs are authoritative. Native links mirror them where supported; mismatches stop execution for correction.
@@ -332,9 +367,9 @@ Initial local task planning uses its planning PR and must merge before first bui
 - Record returned issue URLs/keys immediately. On retry, resolve the canonical Agenix ID and verify an existing match before creating anything. Retain drafts until publication and mappings succeed.
 - List endpoints must paginate. Do not infer “all tasks complete” from the first page or a count alone.
 
-Native ticket/task bodies preserve Section 4's ownership, dependency, acceptance, verification and mapping semantics. Parent links and canonical IDs must agree; status has one authoritative native source. Implementation supplies exact body/ADF templates and field schemas.
+Native ticket/task bodies preserve Section 4's ownership, dependency, acceptance, verification and mapping semantics. Parent links and canonical IDs must agree. The tracker is the sole ticket/task status store. The Agenix label and required native state must agree before treating a transition as complete. Implementation supplies exact body/ADF templates and field schemas.
 
-Task and ticket closure are separate. AI closes a task when its approved checks/acceptance and implementation-evidence requirements are met, after the authorized build/review publication; it does not wait for the parent ticket to merge. A ticket reaches successful closure only after all its non-cancelled tasks are complete, its approved scope remains covered, review is valid and its PR is confirmed merged. Cancellation follows its separate human-approved disposition. Features complete through their Git-owned finalization record, not a fabricated remote feature item.
+Apply the [completion evidence](#completion-evidence) for closure. Publish task closure when verified in build, review or ship. Publish native ticket closure after merge verification in ticket `ship run`. Feature status remains in Git.
 
 ### GitHub Issues
 
@@ -358,7 +393,7 @@ Agenix tickets map to one configured standard Jira issue type (often Story, or T
 
 Shared project configuration records site URL, cloud ID, project key, standard/sub-task issue type IDs, dependency link type ID/direction, and target workflow status IDs for To Do/In Progress/Done and cancellation per issue type. Discover these values from the actual project; do not assume English type names, a link named Blocks, or identical workflows.
 
-Each developer privately fills `<project-root>/.agenix/credentials/jira.json`, initialized only if absent from a packaged empty credential template. It contains only `email` and `api-token`, using that developer's scoped Jira Cloud API token. Credential helpers alone load this fixed project-relative path; missing, malformed, duplicate or invalid fields fail before network access. No app dotenv, environment-variable or alternate-path fallback is used. The template ships with Agenix; no project credential/example file is committed. JSON is a format, not encryption. Helpers never expose credentials or authorization headers to the model/logs. Implement credential parsing and helper interfaces against this boundary.
+Use the [private Jira credential file](#private-workspace-and-credentials) with a developer's scoped Jira Cloud API token.
 
 - V1 uses scoped API tokens with HTTP Basic authentication (`email:token`) through `https://api.atlassian.com/ex/jira/<cloudId>`. Setup records `cloud-id`; scripts derive this API base URL using the fixed gateway prefix. The configured site URL is used only for browser links. No site-URL authentication path is implemented.
 - Descriptions/comments use ADF. Convert only the documented paragraph/list/link subset of drafts; preserve canonical IDs and references as text.
@@ -387,29 +422,32 @@ These transitions describe the logical lifecycle, not a requirement for a separa
 
 Feature status is owned by its feature README; local ticket/task status is owned by its ticket file; remote ticket/task status is owned by the tracker label and required native-state pairing. Indexes link to these records. Any displayed readiness summary is derived from current dependencies and is not an independently editable status store; cached `BLOCKED` values cannot replace pre-flight evaluation.
 
-- `agx-spec behavior` records feature `IN-PROGRESS` with its first approved specification publication; full spec readiness still requires its final applicable step merged. `ship <feature-id> accept` records feature `IN-REVIEW` on its approved acceptance branch; `ship <feature-id> finalize` records `DONE` only through confirmed finalization merge. Ticket builds do not edit feature lifecycle status.
+- `agx-spec behavior` records feature `IN-PROGRESS` with its first approved specification publication. Spec readiness requires the last applicable step to merge. Feature `ship run` records `IN-REVIEW` in its active checkpoint during whole-feature acceptance. Prepare prospective `DONE` in the feature PR only after acceptance passes and the completion record is approved. This does not require a separate status-only commit.
 - `build run` records ticket/task `IN-PROGRESS` when implementation starts; `review assess` records ticket `IN-REVIEW`, which persists during fixes. A published manual task awaiting human judgment is `IN-REVIEW`. The workflow records successful completion only when the evidence contract below is satisfied; invocation alone never grants `DONE`.
 - Feature and ticket: `READY` → `IN-PROGRESS` → `IN-REVIEW` → DONE. Automated task: `READY` → `IN-PROGRESS` → DONE. Manual task: `READY` → `IN-PROGRESS` → `IN-REVIEW` → DONE. `BLOCKED` resolves to `READY` before work starts; the explicit pre-flight/manual-failure corrections below are the only backward transitions. `CANCELLED` is a separate terminal disposition, not successful completion.
 - Pre-flight may correct `READY` ↔ `BLOCKED` before work starts. No general backward lifecycle transitions are implied.
-- Review adds new fix tasks; the ticket stays IN-REVIEW. Appending fix tasks must preserve the manual-leaf rule and revalidate the task DAG; do not introduce a new dependency on a completed manual task. A failed manual check may return that task to `IN-PROGRESS` while fixing its implementation.
+- The ticket stays `IN-REVIEW` while approved fixes are planned and implemented. Revalidate the task DAG when adding fix tasks and preserve the manual-leaf rule. A failed manual check may return that task to `IN-PROGRESS` while fixing its implementation.
 - Any unfinished item may become `CANCELLED` only through a human-approved disposition under Section 4; cancellation is terminal and never unblocks a dependency as if it were `DONE`. A `DONE` item is not cancelled or reopened. Once a feature is `DONE`, changes and defect fixes require a new linked feature. An override or accepted risk is not evidence that a failed check passed.
 
 ### Completion Evidence
 
-| Item                      | Required evidence                                                                                                                                                                                                    |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Automated task            | Approved acceptance/checks pass; implementation committed; local state committed or remote DONE/native closure verified; parent merge not required                                                                   |
-| Manual task               | Implementation committed; human confirms every declared manual check; results recorded in PR and task state published; parent merge not required                                                                     |
-| Ticket ready to ship      | Nonempty task list, all non-cancelled tasks `DONE`, with approved scope covered, valid review approval, referenced specs current, required checks passing on final PR head                                           |
-| Ticket `DONE`             | Above, plus confirmed merge; local `DONE` metadata on default branch or tracker `DONE` label/native state                                                                                                            |
-| Feature ready to finalize | Every non-cancelled planned ticket `DONE`/merged, with approved scope covered, whole-feature acceptance approved, required real-boundary checks pass on the merged feature baseline, no unresolved blocking findings |
-| Feature `DONE`            | Above, plus completion record and `DONE` status committed to default branch                                                                                                                                          |
+| Item                     | Required evidence                                                                                                                                                                                                                                             |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Automated task           | Approved acceptance/checks pass; implementation committed; local state committed or remote DONE/native closure verified; parent merge not required                                                                                                            |
+| Manual task              | Implementation committed, human confirmation for each declared manual check, durable evidence and verified task state. Parent merge is not required.                                                                                                          |
+| Ticket ready to publish  | Approved task plan and review, current contracts, covered acceptance, satisfied dependencies and required local checks passing. The only outstanding task evidence may be checks that require the published candidate.                                        |
+| Ticket ready to merge    | Published candidate bound to the current review, passing required final-head CI, all non-cancelled tasks verified `DONE`, and no blockers to merge.                                                                                                           |
+| Ticket `DONE`            | Ready-to-merge evidence and confirmed merge, plus passing required post-merge checks or [verified repair evidence](#post-merge-ticket-repair). Local `DONE` metadata is on the default branch, or the tracker label and native completion state are verified. |
+| Feature ready to publish | Every non-cancelled planned ticket `DONE`/merged, with approved scope covered, whole-feature acceptance approved, required real-boundary checks pass on the merged feature baseline, no unresolved blocking findings                                          |
+| Feature `DONE`           | Approved whole-feature acceptance, confirmed merge of the finalization record with `DONE` on the default branch, and passing required post-merge checks.                                                                                                      |
 
 These are the default completion requirements. [Human Override](#human-override) defines scoped `accept-incomplete` exceptions; never report waived conditions as passed checks.
 
 A successful parent must retain a nonempty applicable delivery set and complete coverage of its approved outcome. If all children are cancelled without fulfilled/replacement coverage, cancel the parent explicitly instead of declaring it `DONE`.
 
 Status checks alone cannot prove test execution, human acceptance, or a successful merge. Terminal `DONE` requires verified completion under the normal rules or an explicit `accept-incomplete` disposition, not a prospective candidate value. Invalid or incomplete evidence is reported as a blocker even if a file declares `DONE`; it is not silently accepted or automatically rewritten.
+
+For Git-owned status, report the **declared status** from the file and the **verified completion** from the evidence. This applies both before and after merge. A declared `DONE` with a pending or failed required check cannot satisfy a dependency. Use verified completion to determine whether an item is historical or still eligible for repair.
 
 Completion evidence is revision-specific. A later substantive change requires affected checks and approvals to be revalidated even when task status already says `DONE`. Preserve historical results, record the new failure truthfully and resolve it through reviewed fix tasks or an approved amendment; stale task closure never authorizes ticket merge or feature completion.
 
@@ -429,7 +467,7 @@ Verification readiness grows with the artifact lifecycle:
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Setup                 | Configuration/artifact checks and bootstrap CI; fields that will be discovered in `verify` are explicitly pending, never invented. Final setup requires complete verified settings.                                                                                                                                                               |
 | Architecture          | Document/reference consistency and actual prototype replay/render checks where applicable. `stack` approves tools needed by later design steps; `ui` defines and records its local replay checks before its artifact gate. `tests` consolidates these with intended implementation checks.                                                        |
-| Scaffold              | Runnable harnesses, verified commands/services/permissions, meaningful failure enforcement, clean-checkout results and applicable CI. A working harness does not claim future business cases already pass.                                                                                                                                        |
+| Scaffold              | Verified commands, services and harnesses, meaningful failure enforcement, clean-checkout results, required CI and project instructions checked against the actual environment.                                                                                                                                                                   |
 | Feature specification | Behavior/contract consistency, applicable schemas/examples and initial UI prototype replay, using verified tools. Later UI amendments update written contracts with available production evidence, without reworking historical prototype code or claiming future behavior passed. A new tool/boundary needs a scoped strategy/harness amendment. |
 | Build through ship    | Task checks and relevant regressions on the actual candidate; final real-boundary acceptance and required post-merge checks. Mock-only success never claims live integration.                                                                                                                                                                     |
 
@@ -450,13 +488,19 @@ For each selected local item, the verifier reports its declared status, dependen
 
 The verifier does not execute product tests, invent human approval, change files/statuses or fetch Git remotes. It checks structured records, Git evidence and actual required PR/CI state through `gh`; a URL or arbitrary written claim is not proof. Workflow steps refresh the Git baseline and run/revalidate product checks before relying on the result. Remote queries are limited to the declared repository/PR/checks, never issue-tracker synchronization; unavailable required reads block the dependent action. A missing, stale, unavailable or non-evaluable prerequisite blocks the dependent action rather than becoming a pass.
 
-Distinguish candidate validation from durable completion: an approved prospective local `DONE` in an unmerged ticket PR can be structurally valid, but is not a completed ticket dependency. Same-run provisional task results may enable the local build loop only. Published task completion can precede parent merge; ticket/feature dependency evidence must resolve to the required default-branch state. Candidate artifact CI evaluates the selected gate's structural/verification requirements and reports future merge/finalization and still-running checks as pending; it must not fail merely because the candidate itself has not merged. A verifier running inside a required CI job must not require that same job to have already succeeded. Delivery pre-flight waits for the actual final-head outcomes afterward. Dependency eligibility uses the stricter durable-completion result. Never collapse these two contexts into a status-only boolean. Implement the verifier's interfaces and parser/result schemas without changing these meanings.
+Report candidate validation and durable completion separately:
+
+- **Active build:** Verified provisional task results can unblock dependent tasks within the same local run. Published task completion can precede the parent ticket's merge.
+- **Candidate CI:** Validate the selected gate's structural and verification requirements. Report future merge/finalization and still-running required checks as pending, including the current CI job.
+- **Delivery pre-flight and dependencies:** Require actual final-head check results for merge. Require the confirmed default-branch state and durable completion evidence for ticket and feature dependencies. A prospective local `DONE` remains candidate metadata until closure requirements are verified.
 
 ### Pre-Flight and Unblocking
 
-Before every step, verify required artifacts, branch/worktree, prerequisite checkpoints, item state and dependencies even when `depends-on` is empty. A `CANCELLED` item is historical and cannot start/resume implementation or receive an override. Verify start eligibility for item-scoped phases and delivery/finalization readiness in ship. Already-merged work resumes its remaining delivery actions rather than reapplying the pre-merge gate. Invalid schemas and unresolved required checks block execution; only a specifically documented permitted waiver can cover an unmet condition. Tracker mode resolves exact IDs/parents and checks native state as well as Agenix labels.
+Before every step, verify its required artifacts, branch/worktree, prerequisite checkpoints, item state and dependencies, even when `depends-on` is empty. A `CANCELLED` item is historical and cannot start/resume implementation or receive an override. Tracker mode resolves exact IDs and parents and checks labels and native state.
 
-Use merged default-branch artifacts for dependencies; use the working branch for the active ticket's task states. A completed ticket dependency also requires its confirmed merged PR. Refresh remote state before a merge decision. In tracker mode, remote records must match the merged plan: a published tracker item whose feature-plan mapping has not merged is not eligible to start.
+An unmet check blocks the action that requires it. Investigation, changes-requested review and explicitly approved repair work can proceed under their own prerequisites. For already-merged work, verify the recorded merge and resume only the remaining delivery actions. Apply a waiver only to its documented conditions.
+
+Use the merged default branch for feature and ticket dependencies. For tasks in an active ticket, use its working branch in local mode and the verified native records in tracker mode. Check each remote ticket against its mapping in the merged feature plan. Verify remote task definitions and mappings against the approved snapshot in a comment on the parent issue. Refresh remote state before a merge decision.
 
 Evaluate unblocking when an item is selected. Do not edit sibling ticket files or all dependent features merely to refresh a cached `BLOCKED` state. Only not-started items in `READY` / `BLOCKED` are refreshed: if all dependencies are complete, or a current `allow-work` waiver explicitly covers the unmet conditions, record `READY` in the selected item's own file/issue with that evidence; otherwise retain/restore `BLOCKED` and stop. Active items keep their lifecycle status; an unmet dependency on resume blocks execution without resetting their progress. Apply local status corrections on the phase's intended working branch, after checking eligibility.
 
@@ -471,7 +515,7 @@ Evaluate unblocking when an item is selected. Do not edit sibling ticket files o
 
 Before applying the signal, identify the affected conditions, current revision, permitted work and impact on consumers. Clarify missing or ambiguous scope with the human. An exact command answering an already-presented impact assessment is sufficient confirmation; do not require the same approval twice.
 
-Record item, UTC date, author `human-in-session`, action, reason, reviewed revision, exact waived conditions, permitted work, consumer impact and actual human confirmation in the feature/local ticket record or native tracker comment, with the normal durable PR checkpoint. Preserve approved definitions and actual test outcomes. A waiver is revision- and scope-bound; changed assumptions, material drift or new blockers require reassessment and a new human decision.
+Record item, UTC date, author `human-in-session`, action, reason, reviewed revision, exact waived conditions, permitted work, consumer impact and actual human confirmation in the feature/local ticket record or native tracker comment. Carry the evidence into the usual PR checkpoint when the PR exists. Preserve approved definitions and actual test outcomes. A waiver is revision- and scope-bound; changed assumptions, material drift or new blockers require reassessment and a new human decision.
 
 For `allow-work`, pre-flight may record a not-started item as `READY` with the applicable waiver even while its prerequisite remains unfinished. Active items retain their lifecycle status. A feature waiver can satisfy that feature's start gate for its explicitly permitted steps and child work; it does not waive the children's own dependencies or completion checks. For example, permitting a dependent feature to use verified backend/contracts leaves the source feature's integration ticket open. Other consumers receive no implied permission.
 
@@ -483,39 +527,42 @@ Neither action applies to historical `DONE` or `CANCELLED` items, rewrites froze
 
 ### Branch and Ownership Policy
 
-Use short-lived branches. Setup fixes `origin` and `github-repo`; fetch origin before branch-dependent decisions and use `origin/<default-branch>` as the merged baseline. Failed fetch, remote mismatch or ambiguous ownership blocks dependent work. Never guess another branch/remote, discard unrelated changes, force-push, rewrite published history, commit directly to the default branch, or bypass protections.
+Use short-lived branches and keep the default branch stable through verified merges. Setup fixes `origin` and `github-repo`; fetch origin before branch-dependent decisions and use `origin/<default-branch>` as the merged baseline. Failed fetch, remote mismatch or ambiguous ownership blocks dependent work. Never guess another branch/remote, discard unrelated changes, force-push, rewrite published history, commit directly to the default branch, or bypass protections.
 
-| Work                                                           | Branch / PR                                          |
-| -------------------------------------------------------------- | ---------------------------------------------------- |
-| Initial setup or scaffold                                      | `chore/<phase>`; one phase PR                        |
-| PRD, catalog, architecture, feature spec/plan, local task plan | `docs/<phase>[-<item-id>]`; one phase/item PR        |
-| Ticket build, review amendments and fixes                      | `feat/<ticket-id>-<slug>`; reuse one ticket PR       |
-| Feature finalization                                           | `docs/status-<feature-id>`; separate finalization PR |
-| Joining verification / tracker-only task plan                  | No empty Git PR                                      |
+| Work                                          | Branch / PR                                                                  |
+| --------------------------------------------- | ---------------------------------------------------------------------------- |
+| Initial setup or scaffold                     | `chore/<phase>`; one phase PR                                                |
+| PRD, catalog, architecture, feature spec/plan | `docs/<phase>[-<item-id>]`; one phase/item PR                                |
+| Ticket planning, build, review and fixes      | `feat/<ticket-id>-<slug>`; one implementation PR opened by ticket `ship run` |
+| Feature finalization                          | `docs/status-<feature-id>`; separate finalization PR                         |
+| Joining verification / remote task planning   | No Git PR for these operations                                               |
 
-Internal steps consume approved artifacts from their shared phase branch. Different dependent phases consume the merged artifact set. Parallel tickets use separate worktrees/branches and explicitly coordinated shared contracts.
+Foundation and feature-definition steps use their owning phase PRs. Setup publishes shared configuration and bootstrap CI. PRD, feature catalog, architecture, scaffold, feature specification and feature delivery planning publish the baselines later phases or tickets require. These PRs can precede ticket shipping because they establish the inputs for that work.
+
+Ticket steps use the owned branch until delivery. `build` and `review` leave first creation of the implementation PR to `ship run`. If a PR already exists, pushing can update its head. Revalidate candidate-bound approval and CI before declaring merge readiness. Parallel tickets use separate worktrees and coordinate changes to shared contracts.
 
 ### Pre-Publication Gate and Automatic Actions
 
 AI finishes applicable local artifact/reference/test/static/build/UI checks, inspects the complete intended diff and excludes unrelated changes/secrets before the gate. Review identifies an immutable candidate and parent revision; publication must match it except for explicitly approved returned IDs/URLs/completion bookkeeping. The implementation plan selects the snapshot/checkpoint approach; implementation proves candidate binding.
 
-One artifact gate authorizes the stated batch: commit, push, create/update PR or tracker items, record mappings and monitor CI. No individual build-task commit, PR creation or remote requirement/terminal-state publication precedes its gate; approved local candidate files may be edited and checked before publication. Creating native items can precede Git publication when their verified mappings are needed by the approved plan. Create no duplicate PR or empty commit on resume.
+**For every step with Git changes, artifact approval authorizes AI to commit the approved batch, push it to the owning branch and verify the remote revision.** This applies across setup, design, scaffold, planning, build, review and ship. Approval also covers the stated PR or tracker actions owned by that step. Do not ask again for those actions. If there are no Git changes, avoid empty commits. If push fails, report that publication is incomplete and resume from the existing commit. Merge into the default branch always requires a separate human decision.
+
+Keep commits, PR creation and remote requirement or terminal-state writes behind their applicable gate. Tracker items may be created first when an approved Git change needs verified native mappings. On resume, reconcile earlier writes before creating or updating anything.
 
 Before artifact approval, invocation permits truthful nonterminal progress updates to selected existing remote items, not remote requirement edits or terminal publication. Local drafts/candidate metadata remain subject to their artifact gate. After approval, perform already-authorized actions without per-command prompts. Reconcile unknown remote outcomes before retry. Local failures are fixed before the gate; substantive CI-driven corrections are verified locally and reapproved before publication. Corrections to unfinished tasks retain their definitions; changes to completed work require approved new fix tasks.
 
 ### Publication Points
 
-| Point                                         | Before the Human Gate                                                                                     | Automatic Actions After Approval                                                                                                                                                                            |
-| --------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Intermediate design/setup/scaffold step       | Checked selected output and required prerequisite decisions                                               | Commit/push scoped artifacts; create/update draft phase PR; run applicable CI; checkpoint; stop before the next step.                                                                                       |
-| Final applicable planning/setup/scaffold step | Aggregate consistency, complete diff, local checks, final documentation and explicit publication actions  | Commit/push remaining scoped changes; create/update ready PR; run CI; await human merge or explicit merge authorization.                                                                                    |
-| Feature ticket plan                           | Approved strategy, complete ticket DAG/coverage and tracker drafts                                        | Persist local records or create approved native issues; reconcile mappings, commit/push feature plan and ready its PR; await merge.                                                                         |
-| Ticket task plan                              | Complete verified task definitions, check IDs, DAG and publication actions                                | Local initial plan: publish planning PR and await merge. Active local ticket: publish additions on its existing PR. Remote: record approved snapshot, create children and verify mappings; no empty Git PR. |
-| Ticket build/fix run                          | Entire planned local task batch implemented, self-reviewed and tested; remaining manual checks identified | Commit the reviewed batch, push, create/update the ticket PR, publish completion/evidence states and monitor CI. No per-task pre-gate commits.                                                              |
-| Ticket review                                 | Complete findings, verified amendments/impact, human-only checks and decision on the actual candidate     | Commit/push only approved changes; update the same PR; map review evidence to its published head and verify CI; never merge here.                                                                           |
-| Ticket ship                                   | Checked ticket acceptance/metadata, exact merge revision or confirmed post-merge closure as selected      | Publish approved metadata; merge only with explicit PR/head authority; persist confirmed merge/closure evidence.                                                                                            |
-| Feature ship accept                           | All planned non-cancelled tickets complete; verified whole-feature result on the merged baseline          | Publish approved acceptance evidence and `IN-REVIEW` on a draft feature finalization PR.                                                                                                                    |
-| Feature ship finalize                         | Current acceptance, complete delivery set and concrete completion record                                  | Publish/check the finalization PR and confirm human-owned merge before feature `DONE`; exposure remains separately authorized.                                                                              |
+| Point                                         | Before the Human Gate                                                                                    | Automatic Actions After Approval                                                                                                                                           |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Intermediate design/setup/scaffold step       | Checked selected output and required prerequisite decisions                                              | Commit/push scoped artifacts; create/update draft phase PR; run applicable CI; checkpoint; stop before the next step.                                                      |
+| Final applicable planning/setup/scaffold step | Aggregate consistency, complete diff, local checks, final documentation and explicit publication actions | Commit/push remaining scoped changes; create/update ready PR; run CI; await human merge or explicit merge authorization.                                                   |
+| Feature ticket plan                           | Approved strategy, complete ticket DAG/coverage and tracker drafts                                       | Persist local records or create approved native issues; reconcile mappings, commit/push feature plan and ready its PR; await merge.                                        |
+| Ticket build plan                             | Verified task definitions, dependencies, verification and planned writes                                 | Commit and push the approved task plan in the local ticket file, or record the plan and verify native child creation in tracker mode.                                      |
+| Ticket build run                              | Approved batch implemented, self-reviewed and locally verified                                           | Commit and push the reviewed batch. Record task progress and actual evidence.                                                                                              |
+| Ticket review                                 | Findings, verified amendments, manual results and decision on the candidate                              | Record the decision against the reviewed revision. Commit and push approved changes.                                                                                       |
+| Ticket ship run                               | Approved candidate and passing required local checks                                                     | Open or update the implementation PR, verify final-head results and task closure, then request separate merge authority. On confirmed merge, verify and record completion. |
+| Feature ship run                              | Verified ticket delivery set and passing whole-feature acceptance                                        | Publish the feature completion record on its own PR. Verify CI, ask separately for merge authority and verify completion after merge.                                      |
 
 Planning commits use `docs(<phase>): <summary>`; setup/scaffold use `chore(<phase>): <summary>`. An approved build batch uses `<type>(<component>): <summary> [<ticket-id>]` and lists implemented task IDs in the body; task completion references that batch commit. Spec amendments use `docs(spec): <summary> [<ticket-id>]`. Component follows project conventions, independently of ticket scope.
 
@@ -525,31 +572,62 @@ Ticket PR titles are `<ticket-id>: <ticket title>`; bodies link specs, tasks, lo
 
 Setup creates artifact CI for Windows, Linux and macOS. CI provisions the pinned Agenix helper distribution and its declared dependencies independently of any developer host/plugin installation; it does not use a machine-specific plugin-cache path. Scaffold adds the selected app/prototype/contract jobs from locally verified commands. Before scaffold, bootstrap CI is the applicable required contract; no nonexistent application suite is claimed to pass.
 
-Local verification must finish **before** artifact approval. Remote PR checks can run only **after** commit/push; their success is a separate observation and a prerequisite to merge, not a fabricated pre-gate result. Verify expected job names actually ran on the final head; an empty, skipped or missing required check is not success.
+Finish required local checks before artifact approval. Before a ticket PR exists, report its required PR checks as pending publication. At ship, verify the expected jobs actually run for the selected PR state and tie results to the final head. An empty, skipped or missing required check cannot establish merge readiness.
 
 Classify changes by actual affected units/consumers, not PR labels or docs/ location. Prototypes created or changed for design approval require replay/render checks; wire schemas/examples require their schema/contract checks. Historical prototype code is excluded from current implementation-conformance and synchronization gates. Text-only changes require artifact validation and applicable repository checks. Architecture supplies local prototype evidence until scaffold installs its CI commands; production changes use the implementation's own checks.
 
-Scaffold proves failure enforcement locally before its gate. Its publication batch presents both the locally demonstrated failing-probe diff/tree and the passing restoration tree for approval. After approval, publish that exact controlled sequence, verify the probe fails the intended CI job, restore the reviewed passing tree and require green final-head checks. Those are two explicitly reviewed snapshots, not permission to publish arbitrary fixes; unexpected substantive changes require a new artifact gate. Real secrets are never used for artifact CI.
+Scaffold `tests` proves failure enforcement locally. The `ci` gate presents the failing-probe snapshot and the passing restoration snapshot. After approval, publish that exact sequence on the draft scaffold PR, verify the intended CI failure, restore the reviewed passing tree and verify the restored head. Unexpected substantive changes require a new gate. Keep real secrets out of artifact CI. The final `instructions` gate verifies the complete scaffold candidate and its final-head CI.
 
 ### Review Evidence and Merge Authority
 
-A pre-commit review records item, decision, candidate parent/tree, target-base SHA, actual human confirmation/time, manual results, findings and accepted risks. After publication, record `reviewed-head` as the actual commit matching that candidate and any explicitly approved mechanical bindings. A previous head is insufficient when the approved artifact includes uncommitted amendments.
+A review records the decision, reviewed revision or candidate tree, target-base revision, actual human confirmation and time, and findings, manual results and accepted risks. At ship, record the final published head and its relationship to the reviewed revision. Carry the review forward only after verifying that differences are limited to the explicitly approved bookkeeping fields. Verify native approvals under repository policy.
 
-Record ticket review on its ticket PR and whole-feature acceptance on the feature finalization PR. Copy durable results, not only a link to ignored reports. Chat confirmation is identified truthfully as human-in-session; repository-required native approvals remain separate.
+Before a ticket PR exists, bind the review to the ticket branch candidate and persist it under [Ticket Checkpoints](#ticket-checkpoints). On publication, record the reviewed head and evidence on the PR. Record whole-feature acceptance on the feature finalization PR. Identify chat confirmation as human-in-session. Repository-required native approvals are separate.
 
 Substantive changes invalidate affected review/acceptance. Only the explicitly approved bookkeeping allowlist may follow without a new content gate: routine task/ticket progress or completion status, local review summary, PR URL and feature lifecycle/completion evidence. New work, cancellation, replacement and feature-plan additions are material planning decisions, not routine status bookkeeping; each requires its own applicable gate. Verify the entire actual diff and rerun applicable checks on the final head.
 
 **The human owns merge.** Artifact approval, a step invocation, a green CI result and `END` do not authorize AI merge or enabling auto-merge. The human may merge directly or explicitly authorize AI to merge the identified PR/head. Before doing so, verify final-head checks/reviews, current dependencies, branch/base freshness and absence of blockers. If integration changes are needed, rerun checks and obtain approval of the changed snapshot before publishing.
 
-For authorized AI merge, use squash and `--match-head-commit <SHA>`, respect branch protection/queues, and confirm actual merge; queued submission is not completion. Never use admin bypass. A repository without squash support is a setup blocker. Tickets close only after confirmed merge; tasks close independently under Section 6. Deploy/release/apply separately requires explicit target-environment and confirmed-revision/artifact permission; report merge, delivery and user exposure distinctly.
+For authorized AI merge:
+
+- On a branch without a required merge queue, use `gh pr merge <PR> --squash --match-head-commit <SHA>` against the configured repository. A repository without squash support is a setup blocker.
+- On a branch with a required merge queue, verify the queue is configured for squash. Use `--match-head-commit <SHA>` to submit the approved head only after the required pre-queue checks pass. With pending checks, the CLI can enable auto-merge instead of enqueueing. If policy or checks prevent safe submission, report the blocker and leave merge to the human once repository requirements are met.
+- Honor protections without admin bypass. Confirm the actual merge before relying on it. [Ticket closure](#agx-ship-item-id-run--ticket-delivery-and-feature-acceptance) and [feature exposure](#feature-exposure) have their own prerequisites.
+
+### Ticket Checkpoints
+
+- **Local tracker:** Keep approved task definitions, build evidence and the review decision in the existing ticket file. Commit them on the owned branch and identify the candidate they cover.
+- **GitHub and Jira:** Keep task definitions and status in native child records. Record approved plan evidence in a parent-ticket comment before child creation, then record verified mappings. Use tracker comments for approved build and review receipts tied to the relevant Git revision. Leave the parent ticket's approved body intact.
+- **At ship:** Attach or reference durable evidence on the implementation PR, using the actual reviewed candidate and verified final head. Keep ignored drafts for active work only. A branch checkout, tracker label or draft link alone cannot establish approval or completion.
 
 ### Feature Exposure
 
 The approved spec defines the product's exposure boundary and a verifiable rule preventing unfinished behavior from reaching real users or resources. Earlier tickets can merge safely behind that boundary. Choose a mechanism suited to the product: a runtime activation control, deployment boundary, package publication, executable release or infrastructure application. Do not require a feature flag where withholding release/application already provides the boundary.
 
-Feature-level `ship accept` exercises real required behavior on the merged feature baseline in an isolated environment, including test-only activation where needed. All implementation tickets must be mergeable without exposing the unaccepted feature. The spec and delivery plan define the controlled release/deploy/apply/enable operation; if merging would itself expose unaccepted behavior, correct that boundary before the ticket can ship. Production exposure requires accepted feature evidence and separate target/revision authorization. Neither ticket merge nor feature `DONE` claims exposure occurred. A mock-only pass or tracker status never substitutes for real acceptance.
+Feature `ship run` exercises the required real behavior on the merged feature baseline in isolation, using test-only activation where needed. All implementation tickets must be mergeable within the approved exposure boundary. If merging would expose unaccepted behavior, correct the boundary before shipping the ticket.
+
+Feature `DONE` records accepted delivery on the default branch after the finalization PR merges and required checks pass. Release, deployment, infrastructure application or feature enablement may follow in the same feature `ship run` session when the operation is configured and the human separately authorizes the exact target and verified revision or artifact. Report the exposure result independently of delivery. If the operation is deferred, use the project's release or operational workflow later. It requires no additional Agenix step or feature status.
 
 ## 8. Domain Model, Scoped Instructions, and Design Ownership
+
+### Sources of Truth
+
+| Artifact                               | Owns                                                                                                                        | References                                                                                       |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| PRD                                    | Product goals, scope, system requirements, quality constraints and material assumptions                                     | Relevant evidence and confirmed product decisions                                                |
+| Domain model                           | Confirmed business language, rules, responsibilities and context semantics                                                  | PRD and business scenarios                                                                       |
+| System design and decision records     | Technical boundaries, runtime/deployment behavior and significant trade-offs                                                | Domain model and architectural drivers                                                           |
+| Tech stack                             | Selected tools/versions, rationale and applicable client design                                                             | Approved architectural decisions                                                                 |
+| Global UI design                       | Current shared visual/interaction rules; adjacent demonstrations preserve approved design intent at their recorded revision | PRD, supported browsers/viewports and shared domain language                                     |
+| Database design                        | Approved initial persistence design, ownership and shared invariants                                                        | Domain model, system design and datastore decisions                                              |
+| Schema declarations and migrations     | Integrated repository schema at a selected revision                                                                         | [Schema and migration rules](#schema-baseline-and-migrations) and owning implementation evidence |
+| Shared contract definitions            | Canonical wire definitions, standard API/message descriptions and referenced schemas/examples                               | Domain semantics, feature requirements and interface ownership                                   |
+| Feature spec set                       | Feature behavior/acceptance, applicable public-interface/data/UI obligations and residual wire semantics only when needed   | Shared blueprint/contracts; explicit amendments rather than duplicate wire definitions           |
+| Engineering conventions                | Applicable concern-specific `*.convention.md` rules and intended enforcement                                                | Approved foundations; scaffold later binds concrete paths and verified commands                  |
+| Codebase design and scoped `AGENTS.md` | Source layout, module/public-surface/dependency mapping, local context and operational instructions                         | Approved domain/architecture/conventions and verified environment                                |
+| Test strategy and environment contract | Verification coverage and intended harnesses; verified runnable commands respectively                                       | Requirements, contracts and actual scaffold results                                              |
+
+Feature specs may add detail but cannot contradict the shared domain model. Resolve conflicts with a reviewed, scoped amendment and impact analysis before dependent implementation. Update affected current models, architecture, written contracts, scope-entry links and tests; amend executable prototypes only while their UI remains in design, before production implementation begins. Never copy the same rule into multiple authoritative documents.
 
 ### Shared Domain Model
 
@@ -559,13 +637,34 @@ Create and approve the scoped model in `agx-architect domain` before dependent s
 
 When applicable, `system-design.md` uses the approved domain model and PRD quality constraints to choose owned system boundaries/interactions. Frontend-only uses the client design described in Section 1 instead. Architecture discovery may reveal a semantic question: return that question to domain modeling, obtain confirmation of the affected change, then reapprove impacted architectural decisions. Do not develop two independent competing models or silently edit business semantics to fit a chosen stack.
 
+### Schema Baseline and Migrations
+
+**Initial baseline.** Where persistence applies, `database-design.md` records the approved initial design, ownership and shared invariants. Scaffold establishes the smallest approved schema needed to start the owned runtime, prove the migration harness and provide known shared prerequisites for parallel work. Defer feature-specific structures to implementation. Use one migration or several ordered migrations as appropriate for the toolchain and reviewable change boundaries. Skip empty migrations and keep disposable test data separate from required reference data.
+
+**Feature scope and ownership.** The feature `data` step records the integrated revision examined, intended data changes, affected consumers and migration prerequisites. Assign each missing shared structure to one owner.
+
+- If the structure is an approved foundation, scaffold establishes it.
+- Within a feature, dependent tickets declare a dependency on the ticket that owns the change.
+- Across features, use the feature dependency. A dependent step may proceed early only within the scope of an approved [`allow-work` waiver](#human-override). Confirm the required structure is integrated before relying on it.
+
+**Implementation and rollout.** The owning build task writes the migrations using the approved toolchain's identifiers and ordering rules. Split changes when rollout needs distinct steps, such as adding a compatible field, backfilling it and then enforcing a constraint. Preserve migrations already applied to shared environments and correct them with a new forward migration. Provide and test a `down` operation where the project requires it and reversal is safe. Document recovery and any irreversible step.
+
+**Verification and subsequent analysis.**
+
+- Compare the candidate against the latest target schema and migration history for overlap, order and prerequisites. Recheck affected assumptions and evidence when the target changes.
+- Verify initialization on an empty disposable store and applicable upgrades from the previously supported state with representative data. Record the actual migration paths or revisions in the owning implementation evidence.
+- For the current repository schema, start with the toolchain's maintained schema representation where available and inspect relevant migrations at the selected integrated revision. If that evidence is insufficient, verify the schema by applying the migrations to a disposable database. Amend shared design documentation when design intent materially changes. Verify the applied state separately before making claims about a specific environment.
+
 ### Global and Feature UI Ownership
 
-For web UI scope, `docs/blueprint/ui-design/README.md` is the canonical global UI design: visual principles, styles/tokens, applicable color/typography rules, shared components/interactions and accessibility/mobile-first responsive expectations. Adjacent HTML/CSS/JS and optional assets/data demonstrate these foundations during design. One directory contains the written design and its demonstrations.
+For web UI scope, each design directory contains a written source of truth and its design-time demonstrations:
 
-`docs/features/<feature-id>/ui-prototype/README.md` owns the written UI contract: feature screens, flows, states and acceptance references, inheriting the global design. Adjacent prototype code demonstrates requirement-linked scenarios with deterministic mock data/reset. AI replays scenarios in a real browser, checks relevant layouts/interactions and supplies concrete evidence before human approval of material design choices. Resolve discrepancies between the written contract and demonstration before that design gate; no backend implementation is needed.
+- `docs/blueprint/ui-design/README.md` owns shared styles and tokens, visual and interaction rules, shared components, accessibility and mobile-first responsive expectations. Adjacent HTML/CSS/JS and optional assets/data demonstrate those foundations.
+- `docs/features/<feature-id>/ui-prototype/README.md` owns feature screens, flows, states and acceptance references. It inherits global rules. Adjacent prototype code uses deterministic mock data and reset for requirement-linked scenarios.
 
-The approved prototype revision is the implementation's initial design baseline. Once production implementation of that UI begins, iterate and review the production frontend directly. Prototype/demo code remains a historical draft: do not synchronize it with production changes, require it to track later amendments, or package it as production code. Keep written UI contracts and acceptance current through the amendment/additive-work rules; approval of a later contract supersedes the corresponding historical demonstration. Apply the same distinction to global design demonstrations. Global rule changes require a reviewed global amendment and impact checks, not a silent feature-local override.
+Before design approval, replay the relevant layouts and interactions in a real browser, record evidence and resolve discrepancies with the written contract. Use the approved prototype revision as the initial implementation baseline.
+
+Once production implementation starts, assess and iterate on the production frontend. Preserve global and feature demonstrations at their historical revisions and exclude them from production packaging. Keep written contracts and acceptance current through [amendments and additive work](#approved-work-items-and-additive-planning). Changes to shared UI rules require a global amendment and impact checks.
 
 ### Scoped Module and Release-Unit Instructions
 
@@ -585,30 +684,15 @@ At root and **every generated instruction scope**, pair `AGENTS.md` with a thin 
 
 Before working in a subtree, the agent reads root instructions, applicable ancestor/scoped entries and their relevant links. A root index/link is a navigation route, not a guarantee that every host automatically loads descendant files. Read sibling scope context when a task crosses its boundary without applying sibling-only rules globally. Respect host instruction precedence and surface material conflicts with shared workflow authority; a child file cannot silently waive a gate, secret boundary or required check.
 
-Scaffold records `instruction-entry: AGENTS.md` in the environment contract and validates index links, scope paths and local CLAUDE imports. Initialize these entries with the runnable structure; finalize them against verified commands/tests before scaffold's final gate. No scoped file may claim a tool/service/check is active before verification.
-
-### Sources of Truth
-
-| Artifact                               | Owns                                                                                                                        | References                                                                             |
-| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| PRD                                    | Product goals, scope, system requirements, quality constraints and material assumptions                                     | Relevant evidence and confirmed product decisions                                      |
-| Domain model                           | Confirmed business language, rules, responsibilities and context semantics                                                  | PRD and business scenarios                                                             |
-| System design and decision records     | Technical boundaries, runtime/deployment behavior and significant trade-offs                                                | Domain model and architectural drivers                                                 |
-| Tech stack                             | Selected tools/versions, rationale and applicable client design                                                             | Approved architectural decisions                                                       |
-| Global UI design                       | Current shared visual/interaction rules; adjacent demonstrations preserve approved design intent at their recorded revision | PRD, supported browsers/viewports and shared domain language                           |
-| Shared contract definitions            | Canonical wire definitions, standard API/message descriptions and referenced schemas/examples                               | Domain semantics, feature requirements and interface ownership                         |
-| Feature spec set                       | Feature behavior/acceptance, applicable public-interface/data/UI obligations and residual wire semantics only when needed   | Shared blueprint/contracts; explicit amendments rather than duplicate wire definitions |
-| Engineering conventions                | Applicable concern-specific `*.convention.md` rules and intended enforcement                                                | Approved foundations; scaffold later binds concrete paths and verified commands        |
-| Codebase design and scoped `AGENTS.md` | Source layout, module/public-surface/dependency mapping, local context and operational instructions                         | Approved domain/architecture/conventions and verified environment                      |
-| Test strategy and environment contract | Verification coverage and intended harnesses; verified runnable commands respectively                                       | Requirements, contracts and actual scaffold results                                    |
-
-Feature specs may add detail but cannot contradict the shared domain model. Resolve conflicts with a reviewed, scoped amendment and impact analysis before dependent implementation. Update affected current models, architecture, written contracts, scope-entry links and tests; amend executable prototypes only while their UI remains in design, before production implementation begins. Never copy the same rule into multiple authoritative documents.
+Scaffold `structure` identifies instruction scopes. Scaffold `instructions` authors or updates their entries, records `instruction-entry: AGENTS.md` in the environment contract and verifies the index links, scope paths and local CLAUDE imports against the actual repository. Publish commands, services and checks as active only after verification.
 
 ## 9. Project Instructions and Configuration
 
 `AGENTS.md` is the shared instruction source at root and selected module/release-unit scopes. Use a local `CLAUDE.md` import adapter at every generated scope under Section 8. Preserve team-owned content outside Agenix markers and existing Claude-specific instructions. Keep reusable lifecycle, publication and content-authoring rules in packaged references, loaded explicitly by the selected workflow. Project instructions retain concise workflow/authority reminders, project-specific configuration, scope routing and verified operations rather than duplicating those reference documents. Installation or a Markdown link alone does not make a rule active; the workflow must load the relevant instructions. Never persist machine-specific plugin-cache paths in shared project instructions.
 
 Shared configuration in root `AGENTS.md` records the Agenix/helper compatibility pin, tracker, GitHub repository/default branch, `docs-language` (English by default), project scope and any optional production-exposure operation. Keep non-secret settings in one owned JSON block, preserving team content; missing/invalid configuration blocks dependent actions. Implementation supplies exact schemas and generated instruction templates.
+
+Setup `configure` adds the `agx-guide` entry point, the human's step and publication authority, and baseline protections for scope, secrets and external resources. These root instructions apply during scaffold. Scaffold `instructions` adds the project's verified operations, scope routing and environment-specific guardrails. Packaged step instructions and references own the shared workflow details.
 
 Jira mode additionally records the actual site/cloud/project, issue/field/link/workflow mappings and approved defaults discovered at setup; secrets remain separate. Optional release/deploy/apply/enable operations stay disabled until their real command, target and merged-revision/artifact selection are approved. Recording the command does not authorize an execution. Scope and target platforms follow Section 1; never infer unowned backend/frontend work.
 
@@ -620,18 +704,22 @@ The scaffold environment block records verified operations in these structured s
 | Commands            | Stable operation/check ID, unit ID, argument vector, working directory, target OS/runtime, level/check type when applicable, mock/live mode, required service IDs and permissions. Exactly one approved command per operation/unit/target/mode; targets are explicit contexts, not fallback candidates. |
 | Test Services       | Service ID, disposable resource identity, start/readiness/seed/reset/cleanup command IDs, migration commands, fixtures and isolation policy.                                                                                                                                                            |
 | Instruction Routing | Exactly `instruction-entry: AGENTS.md`; the root Instruction Scope Index routes to actual scoped entries, canonical domain model and shared contracts.                                                                                                                                                  |
-| Permissions         | Allowed read/write roots, network/service/browser/device access, prohibited secrets/production resources and actions requiring human authorization.                                                                                                                                                     |
+| Permissions         | Per-environment allowed operations, operations requiring human approval and prohibited operations. Include affected roots, networks, services and resource boundaries, along with enforcement or verification status.                                                                                   |
 | Evidence            | Actual tool versions, harness and clean-checkout results, intentional-failure proof and CI links/revisions. A declared command is not execution evidence.                                                                                                                                               |
 
-README and environment records use the same arguments/working directories. Task check-ids selects checks; build verifies their units, levels and modes. Missing commands, unsupported targets or unavailable required permissions block the affected check. AI may fix authorized setup issues but cannot weaken assertions, replace tools or switch mock/live mode silently.
+README and environment records use the same arguments and working directories. Task check IDs select commands. Build verifies their units, levels and modes. Missing commands, unsupported targets or unavailable permissions block the affected check. Fix authorized setup issues without weakening assertions or silently changing tools or mock/live mode.
 
-Instructions define policy; host permissions, CI and branch protection enforce available controls. Ignoring a secret does not authorize reading it into model context. Each configured delivery operation uses its approved orchestration command, identifying affected release units, target and the exact merged revision/artifact.
+Apply least privilege to operating contexts such as local development, disposable tests, CI and any production target in scope. Bind allowed operations to verified commands or check IDs, working directories, targets and required permissions. Keep prohibited operations and operations requiring case-specific approval explicit. Project instructions record policy. Use the available host, CI and repository controls for enforcement, and distinguish instruction-only restrictions from verified technical controls. Required controls and permissions that cannot be verified block dependent work. Each configured delivery operation uses its approved command, target and exact merged revision or artifact.
 
 ### Helper Ownership and Execution
 
 Reusable Agenix helpers are packaged and versioned with the plugin. Shared workflow helpers live in root `scripts/`; a skill's own `scripts/` contains its private logic or thin launchers that call shared helpers without duplicating them. Reusable capability scripts stay with their capability. Setup verifies and binds them to the project; it does not copy helper source into the consumer repository, regenerate it with AI or create a second editable implementation. Project-owned application/test/service scripts remain in the repository when required by its approved design; they are distinct from reusable Agenix helpers.
 
-Local workflow execution resolves the actual bundled helper path from the installed skill/plugin resource location and passes an explicit absolute project root. Helpers validate that root before resolving project configuration, metadata, drafts or credentials. Never infer the target repository from the helper's own directory or assume a plugin-root environment variable is available in every host/tool context. Treat the plugin installation as read-only; generated files, evidence and secrets belong to their declared project/private locations. Dependencies use a declared tool environment, without implicitly modifying plugin files or the application environment. Execution remains subject to host permissions; denied access is not a reason to bypass controls by copying code elsewhere.
+For local execution:
+
+- Resolve the bundled helper from its installed skill/plugin resources. Pass an explicit absolute project root and verify it before accessing project data. Treat the installation and current working directory as independent locations.
+- Keep the installation read-only. Use the declared tool environment for dependencies and write results only to their designated project or private locations.
+- Respect host permissions. If the resource cannot be resolved or accessed, report the blocker for the dependent action.
 
 CI provisions the same helper distribution at the project's recorded immutable revision and installs its pinned dependencies into a disposable tool environment, without needing an AI host session. The consumer repository commits configuration and CI wiring, not helper source or developer cache paths. The implementation plan selects distribution/provisioning and per-host resource resolution; implementation must prove these work for the intended access model before setup can succeed. Local and CI must agree on the compatible helper revision/schema; missing resources or mismatches block dependent work, not a silent copy, rewrite or upgrade.
 
@@ -650,7 +738,11 @@ Keep root rules concise and route to relevant scope/phase documents. Required gu
 
 Host permissions and repository protections remain binding. A blocker report can identify unfinished checks but is not acceptance of missing required evidence.
 
-Agenix helpers require Python 3.11 or later and Git; all modes also require `gh` and GitHub authentication for PRs. Prefer the Python standard library for helpers. The implementation plan selects any required metadata-parser dependencies based on the chosen format; implementation pins and verifies them. Do not hand-write a partial parser for a standard format. Setup and CI install/verify declared dependencies reproducibly. Helpers do not depend on Bash, Git Bash, `jq` or `curl`. The logical entrypoint is `python <resolved-helper-path> --project-root <absolute-project-root> ...`; complete executable helper interfaces are authored in Phase 4. Resolve the helper from its installed skill/plugin location, never from an assumed consuming-project `scripts/` path; setup verifies that `python` resolves to a supported interpreter before proceeding. A missing or incompatible interpreter blocks setup; do not try another launcher. App language/framework tooling remains project-specific and is not restricted to Python or these helper tools.
+### Helper Runtime
+
+The helper runtime requires Python 3.11 or later, Git, and authenticated `gh` for PRs in all tracker modes. Application tooling is project-specific. Setup verifies `python` resolves to the supported interpreter before proceeding. The shared entry point is `python <resolved-helper-path> --project-root <absolute-project-root> ...`. Phase 4 defines the complete interfaces.
+
+Prefer the Python standard library. The implementation plan selects any metadata-parser dependencies based on the format. Pin and install declared dependencies reproducibly in setup and CI. Use a compliant parser for standard formats. Helpers run without Bash, Git Bash, `jq` or `curl`.
 
 Helpers verify the repository root before accessing managed files, handle paths with spaces and UTF-8, and invoke tools without shell evaluation. Child helpers use the verified interpreter. Jira calls require certificate-verified HTTPS, bounded timeouts and sanitized diagnostics under Section 5's retry rules. Do not depend on POSIX commands, executable bits, shell expansion or global shell configuration.
 
@@ -674,13 +766,15 @@ Keep these as shared authoring instructions; they require no separate capability
 
 `.agenix/` holds Agenix's private worktree-local state and credentials, not distributable helper code. Create each working subdirectory when first used; no additional temporary-directory layer is used:
 
-- `.agenix/HANDOFF.md`: phase progress and resume information.
+- `.agenix/HANDOFF.md`: optional cross-session handoff and marker state.
 - `.agenix/credentials/jira.json`: Jira-only private developer credentials; never scratch or an automatic cleanup target. Each worktree is initialized separately; never copy another developer's credentials.
 - `.agenix/issues/<id>.md`: ticket/task drafts before tracker publication.
 - `.agenix/reviews/<item-id>.md`: ticket and whole-feature review drafts.
 - `.agenix/drafts/<phase-or-item>/`: other intermediate drafts and disposable working files.
 
 Ignore `.agenix/` in its entirety; nothing inside it is committed. Helper code and the empty credential template remain in the installed plugin. Shared non-secret configuration, including Jira site/cloud/project mappings and the Agenix/helper version pin, remains in `AGENTS.md`; approved durable documents remain under `docs/`. Credentials remain private and are not stored in the plugin cache or a root-level project JSON file.
+
+Initialize `.agenix/credentials/jira.json` from the bundled empty template only if absent. The developer fills `email` and `api-token`. Credential helpers load only that fixed project-relative path, reject missing, duplicate, malformed or invalid fields before network access, and redact credentials and authorization headers from diagnostics. Use no alternate path, environment-variable or dotenv fallback.
 
 AI reads/writes drafts only under `.agenix/issues/`, `.agenix/reviews/`, and `.agenix/drafts/`, and maintains `.agenix/HANDOFF.md` separately. Credential helpers alone load `.agenix/credentials/jira.json`; the model must not read it or recursively scan the entire workspace. Cleanup targets only the relevant draft/review files, never `.agenix/` as a whole, the handoff, or credentials. Retain drafts needed for an unfinished gate, publication retry, or resume; remove them after approved outputs and required evidence have been persisted. Local scratch is not the sole copy of tracker mappings, approval, acceptance, or override evidence.
 
@@ -697,7 +791,11 @@ Agenix helpers do not load app dotenv files. Application code may load its own e
 
 ## 10. Workflow Phases
 
-Every selected step applies the scope matrix and Sections 3–7: finish applicable local verification, present its artifact/publication gate, then publish automatically after approval. Intermediate outputs share a phase branch; a dependent phase consumes the merged result. Do not repeat those rules as separate per-command gates. The implementation plan defines capability routing and resource ownership; complete step procedures, templates and executable interfaces are authored in Phase 4. Completion criteria below describe successful work; chat closure still requires human `END`. Additions/cancellation follow Section 4, and active-ticket local planning follows Section 5.
+Each step follows the shared contracts:
+
+- Apply [scope rules](#scope-applicability) to select outputs and [work-item rules](#approved-work-items-and-additive-planning) for additions or cancellation.
+- Apply the [publication gate](#pre-publication-gate-and-automatic-actions) after local verification. Shared phase baselines must merge before dependent phases use them. Ticket planning, build and review share the owned branch.
+- Use the [session protocol](#step-closure-and-resume) to record the outcome and wait for the human to close the step. The implementation plan defines [capability routes and output ownership](#capability-selection-boundary-and-third-party-reuse).
 
 ### `agx-setup <step>` — Project Setup
 
@@ -709,12 +807,14 @@ Every selected step applies the scope matrix and Sections 3–7: finish applicab
 > **Human Gates:** Shared Settings → Checked Setup Artifacts → First-Setup Connectivity/Mappings → PR Merge.  
 > **Completion Criteria:** First setup merged with bootstrap CI passing; joining verify completes without shared-file changes.
 
-| Step        | Required Result                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `configure` | Confirm repository, owned scope/targets, `docs-language` (English by default), tracker and host/tool prerequisites. Preserve team-owned instructions; add managed configuration, ignore rules, the Agenix/helper version pin and bootstrap CI. Verify bundled artifact validation in every mode, `verify-status.py` for local mode and API helpers for Jira. Initialize missing private Jira credentials from the packaged template without reading secrets into model context; do not copy or regenerate helper implementations in the project. Verify locally before the step gate. |
-| `verify`    | First setup: discover/approve actual tracker mappings, verify tools/authentication/permissions and aggregate configuration, then ready the phase PR. Joining: verify the merged setup and initialize private credentials only if absent; do not repair shared artifacts silently or create a PR.                                                                                                                                                                                                                                                                                      |
+| Step        | Required Result                                                                                                                                                                                                                                                                                                                                                            |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `configure` | Confirm repository, owned scope/targets, `docs-language`, tracker and host/tool prerequisites. Prepare managed configuration, ignore rules, the Agenix/helper pin and bootstrap CI. Verify local helper resolution and applicable artifact/helper checks. For Jira, prepare the missing private credential file and mark mappings to be discovered in `verify` as pending. |
+| `verify`    | First setup: discover/approve actual tracker mappings, verify tools/authentication/permissions and aggregate configuration, then ready the phase PR. Joining: verify the merged setup and initialize private credentials only if absent; do not repair shared artifacts silently or create a PR.                                                                           |
 
 Humans enter secrets privately; helpers return sanitized verification. Verify the repository's actual merge/check/reviewer policy is satisfiable, including a solo maintainer using chat gates when no native approving review is required. Native branch protections are never waived. Connectivity is not proof that every future write is permitted. Broken shared setup requires an explicitly scoped repair.
+
+For joining `verify`, use merged settings and verify this developer's prerequisites. Private credential initialization follows [the credential contract](#private-workspace-and-credentials). Joining requires neither a new settings approval nor shared publication.
 
 ### `agx-prd <step>` — Product Requirements
 
@@ -757,12 +857,12 @@ Slice by coherent stakeholder outcome, not technical layers. Record feature prio
 | `domain`      | `domain-model.md`: confirmed product concepts, language, responsibilities, rules and relevant boundaries. Keep depth proportional to scope; never invent unowned provider internals.                                                                                                                                                              |
 | `system`      | Applicable `system-design.md`: owned technical boundaries, runtime/lifecycle, external interactions and quality trade-offs. Required for backend/fullstack; other products include it only where meaningful. Frontend-only records client direction in `stack` instead.                                                                           |
 | `stack`       | `tech-stack.md`: supported toolchain/versions and rationale, including tools needed by later design checks. Frontend-only first confirms its client direction from the domain/requirements, then selects tools; Client Design records relevant runtime/state/storage/security/integration decisions.                                              |
-| `data`        | Design owned persistence only, including client-local storage when applicable. No schema design for externally owned databases.                                                                                                                                                                                                                   |
+| `data`        | `database-design.md` records approved persistence design and shared invariants, including owned client-local storage where applicable.                                                                                                                                                                                                            |
 | `ui`          | `docs/blueprint/ui-design/README.md` owns global visual/interaction foundations and accessibility/mobile-first responsive rules. Initially, demonstrate them in adjacent code and verify rendered replay before approval. Later amendments update written foundations and affected production checks; historical demonstrations follow Section 8. |
 | `conventions` | Applicable `docs/blueprint/conventions/*.convention.md` files define engineering rules, ownership and intended checks for actual shared/backend/frontend/interface/data/security/test/operational concerns. Reference foundations rather than duplicating them.                                                                                   |
 | `tests`       | `test-strategy.md`: selected levels/check types, default `test-first` and exception criteria, tooling/test paths, fixtures/services/isolation, target matrix and required local/CI evidence. Distinguish initial prototype verification from production regressions; check complete blueprint consistency before the final gate.                  |
 
-Web UI prototypes use lightweight HTML/CSS/JavaScript with synthetic data, deterministic replay/reset and requirement-linked scenarios. Styling may use the approved tooling, including Tailwind when selected; verify its real build/replay requirements rather than assume an unconfigured dependency. Global demonstrations show shared foundations; feature prototypes later demonstrate specific flows against approved contracts. AI verifies the rendered scenarios and mobile-first responsive behavior before the human design gate. An illustrative global scenario is not an approved feature spec. Prototypes approve UI/flow intent, not production integration; their historical lifecycle follows [Global and Feature UI Ownership](#global-and-feature-ui-ownership).
+Use lightweight HTML/CSS/JavaScript and synthetic data for global demonstrations. Verify any selected tooling (such as Tailwind) and run the browser replay and responsive checks under [Global and Feature UI Ownership](#global-and-feature-ui-ownership). Global examples illustrate shared rules. Feature prototype scenarios are tied to their approved behavior and contracts.
 
 Use unit/integration/e2e levels only where meaningful, with acceptance through the owned product's real public boundary. Contract/component/visual/accessibility checks belong to the strategy. Schema validation, mocks and browser simulation cannot claim real integration evidence; automated accessibility checks do not establish complete conformance.
 
@@ -775,27 +875,21 @@ Store significant rationale under `docs/blueprint/decisions/`; architectural rec
 > **Inputs:** Applicable approved blueprint and project settings.  
 > **Prerequisites:** Architecture merged; required toolchain/test permissions available.  
 > **Outputs:** Codebase design, owned runtime/tooling/test skeleton, CI, README and scoped instructions.  
-> **Human Gates:** Structure → Runtime → Applicable Services → Tested Harnesses → CI/Instructions → PR Merge.  
-> **Completion Criteria:** Clean-checkout paths and every selected harness/required CI job work; scaffold merged.
+> **Human Gates:** Structure → Runtime → Applicable Services → Tested Harnesses → CI → Instructions and Complete Scaffold → PR Merge.  
+> **Completion Criteria:** Clean-checkout operations, required harnesses and final-head CI verified; project instructions match the verified environment; scaffold merged.
 
-| Step        | Required Result                                                                                                                                                                                                                                                                         |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `structure` | `codebase-design.md`: owned units/modules, public surfaces, dependencies, paths and instruction scopes. Bind the architecture/test strategy to concrete source and test locations without silently changing their decisions. Do not add unowned applications or meaningless UI tooling. |
-| `runtime`   | Create the approved source/tooling/configuration skeleton and scoped `AGENTS.md` / `CLAUDE.md` entries. Verify service-independent build/static/start commands; dependent startup is verified after required services are ready, not replaced with a false passing command.             |
-| `services`  | Provision only owned/approved test dependencies, migrations and disposable data. Client mocks are test support, not an invented backend application. Skip when inapplicable.                                                                                                            |
-| `tests`     | Implement every strategy-selected harness, discovery, fixtures/readiness/cleanup and checks. Prove intended assertions fail and restored checks pass. Record verified commands/permissions before CI depends on them.                                                                   |
-| `ci`        | Derive CI from verified local commands; finalize README/instructions and prove the clean-checkout path. The final gate covers tested artifacts and the controlled negative-CI probe/restoration under Section 7.                                                                        |
+| Step           | Required Result                                                                                                                                                                                                                                                                                                                                                                                          |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `structure`    | `codebase-design.md`: owned units/modules, public surfaces, dependencies, paths and instruction scopes. Bind the architecture/test strategy to concrete source and test locations without silently changing their decisions. Do not add unowned applications or meaningless UI tooling.                                                                                                                  |
+| `runtime`      | Build the approved source/tooling/configuration skeleton. Define application settings and provide safe placeholders such as `.env.example` where applicable. Own application-only container build and run configuration when selected. Verify service-independent build, static and start commands.                                                                                                      |
+| `services`     | Provision approved disposable dependencies and data. Own Compose or equivalent orchestration when it connects the app to development or test services. Verify service configuration, readiness, isolation, reset and service-dependent startup. Establish the applicable [initial schema and migration harness](#schema-baseline-and-migrations). Omit this step when inapplicable.                      |
+| `tests`        | Implement selected harnesses, discovery, fixtures and checks. Prove intended assertions fail and restored checks pass. Record verified commands and requirements for CI.                                                                                                                                                                                                                                 |
+| `ci`           | Wire required CI jobs from verified commands and prove the approved failure/restoration sequence on the draft PR. If selected, add a project-owned Git pre-commit hook that runs existing fast checks. Document any repository-scoped activation. Keep required verification in CI independently of the hook.                                                                                            |
+| `instructions` | Finalize root and scoped instructions, Claude adapters, README and the verified environment record. Bind command policy and environment boundaries to actual project operations. Verify the complete clean-checkout path, scope routing and effective controls. Present the final scaffold candidate and, after approval, ready the PR and verify required final-head CI before separate merge approval. |
 
 No deferred required harness, empty discovery or skipped placeholder suite counts as readiness. Do not invent business behavior just for a smoke test. New feature cases use these harnesses; a new boundary needs an approved strategy/harness extension before its behavior is implemented.
 
-The order follows readiness dependencies: `structure` binds paths before files are generated; `runtime` provides runnable entry points; applicable `services` establishes readiness and service-dependent startup; `tests` proves the harnesses; `ci` uses those verified operations. Final scaffold verification includes the complete clean-checkout startup path. Before tests/CI are verified, scoped instructions label their planned commands as pending rather than active.
-
-#### Schema Baseline and Migrations
-
-- **Design the baseline.** The approved `database-design.md`, where applicable, records initial structure, ownership and shared invariants. In `services`, establish the smallest approved persistence baseline needed to start the owned runtime, prove the migration harness and provide confirmed shared prerequisites for planned parallel work. Defer feature-specific structures until their owning work is implemented. A datastore without an applicable initialization change needs no empty migration. Keep disposable test data separate from required reference data.
-- **Plan one owner for each change.** Feature `data` records the integrated revision used for analysis, intended data changes, affected structures and consumers, and any migration prerequisites. It does not author migrations. If multiple tickets or features need a missing shared structure, assign its creation to one approved owning item and declare dependencies on that item. Require integrated dependency evidence under the existing eligibility rules before dependent implementation relies on the structure. For example, create `users` in scaffold if it is an approved foundation. Otherwise, one owning item creates it and dependent items reuse it.
-- **Author migrations during implementation.** The owning build task implements the required schema and data changes with the approved toolchain. Initialization may use one migration or several ordered migrations, according to the toolchain and reviewable change boundaries. Split later changes when there are distinct rollout stages, such as adding a compatible field, backfilling data and enforcing a new constraint. Use the toolchain's identifiers and ordering rules. Preserve the contents of migrations already applied to shared environments. Correct them through a new forward migration when necessary. Provide and test a `down` operation where the project requires it and reversal is safe. Document the recovery path and any irreversible point for changes that cannot be safely reversed.
-- **Verify the integrated result.** For an applicable migration candidate, check the latest target-branch schema and migration history for overlapping changes, ordering and prerequisites before relying on candidate evidence for merge. Verify initialization on an empty disposable store and, for applicable upgrades, verify from the previously supported state with representative data. Recheck affected assumptions and evidence when the target changes. Record the real migration paths or revisions in the owning implementation evidence. After integration, inspect the toolchain's schema declarations and migration history at the selected revision for current repository state. Use `database-design.md` for shared design decisions and amend it when those decisions materially change. Establish applied state separately when an environment-specific claim is needed.
+Use the root setup guardrails throughout scaffold. Document applicable environment settings without persisting real secrets, and add only the container or orchestration files required by the chosen stack. For the final gate, reuse evidence only where it remains valid for the complete candidate and rerun affected checks.
 
 ### `agx-spec <feature-id> <step>` — Shared Feature Specification
 
@@ -811,7 +905,7 @@ The order follows readiness dependencies: `structure` binds paths before files a
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `behavior` | Actors, scope/non-goals, scenarios/alternatives/errors, rules, measurable acceptance and allocated NFRs. Define final real-boundary acceptance, exposure boundary and how unfinished behavior stays isolated.                                                                                                                                                                                                                                                                                                       |
 | `api`      | Define/update the applicable public interface contract, or pin the consumed external contract. Use shared wire definitions only where applicable; package/CLI contracts may stay in `spec.md`. Validate applicable documents/references/schemas/examples; define conformance cases without claiming future implementation passed them. Add `api-contract.md` only for residual semantics.                                                                                                                           |
-| `data`     | Record owned persistence effects, constraints, migration and compatibility intent, lifecycle and isolated verification. Omit when there is no in-scope persistence impact.                                                                                                                                                                                                                                                                                                                                          |
+| `data`     | `data-impact.md` records the integrated baseline, owned persistence effects, constraints, compatibility and migration intent, and isolated verification. Omit when there is no in-scope persistence impact.                                                                                                                                                                                                                                                                                                         |
 | `ui`       | Feature `ui-prototype/README.md` owns the written UI contract and identifies the approved prototype revision. Initially, demonstrate requirement-linked mock scenarios and verify actual browser replay/layouts/states before the human design gate. After production implementation begins, amend written contracts using available production evidence; retain prototype code as historical and verify changed behavior during the authorized build. Reuse global rules/wire examples; omit without web UI scope. |
 
 The `data` step records persistence intent and prerequisites as described in [Schema Baseline and Migrations](#schema-baseline-and-migrations). The final applicable step checks the aggregate contract set, acceptance coverage, references and amendments before publication. No competing FE/BE specifications or invented backend implementation are needed to prototype a client.
@@ -823,7 +917,7 @@ Amendments follow Section 3. After implementation starts, `review` coordinates t
 > **Purpose:** Choose delivery ownership and safely mergeable tickets.  
 > **Invocation:** `agx-plan <feature-id> <step>`.  
 > **Inputs:** Approved feature contracts, codebase design and strategy.  
-> **Prerequisites:** Specs merged; feature `IN-PROGRESS`, or `IN-REVIEW` for approved additions before feature `DONE`; dependencies satisfied. Additions invalidate affected feature acceptance.  
+> **Prerequisites:** Specs merged, feature delivery still open and dependencies satisfied. Use the current approved strategy for additions.  
 > **Outputs:** Delivery strategy, ticket DAG/mappings, acceptance coverage and real integration/acceptance coverage.  
 > **Human Gates:** Delivery Strategy → Checked Tickets/DAG/Publication → PR Merge.  
 > **Completion Criteria:** Approved records/mappings exist and the feature plan is merged.
@@ -833,81 +927,92 @@ Amendments follow Section 3. After implementation starts, `review` coordinates t
 | `strategy` | Record delivery slices, ownership, the shared contract revision, independent checks, integration checkpoints and exposure policy for the owned product. Fullstack may use vertical slices or contract-first FE/BE tracks; do not invent a second side for other scopes.                                                                                                                                                                                                                 |
 | `tickets`  | Define small verifiable tickets, actual dependencies and complete acceptance coverage. Allocate known real integration work to the initial ticket set, within suitable slices or a dedicated integration ticket; record the required client/provider dependencies. No ticket is designated to close the feature; feature-level `ship` owns whole-feature acceptance/finalization. Approve drafts/actions, reconcile native mappings and merge the shared plan before new tickets start. |
 
-Frontend-only/backend-only do not create tickets for the unowned side. In fullstack, separate teams can use worktrees in the same monorepo: FE builds its production client against contract-checked API mocks while BE verifies the actual provider and owned boundaries. Run strategy-selected unit, component and browser checks without waiting for provider implementation; these mocks are test/development support, distinct from historical prototype code. A mock-backed ticket may complete against its approved bounded acceptance while real integration remains in the feature delivery set.
+In fullstack, teams can use separate worktrees in one repository. The frontend can verify production client changes with contract-checked mocks while the backend verifies the real provider. A mock-backed ticket may close under its bounded acceptance. Plan the real integration work upfront and start it as soon as the relevant client/provider slices are ready.
 
-Plan known integration obligations upfront and detail their tasks when the owning ticket becomes eligible. Integrate each boundary when its required client/provider slices are ready, without waiting for the entire backend. Verify real requests, provider behavior and end-to-end journeys on the integrated baseline before feature acceptance; mocks do not prove integration. Newly discovered obligations use additive planning, not changes to approved definitions. Parallel work is useful only where dependencies permit it.
+Allocate verification of real requests, provider behavior and required journeys to the owning tickets. Feature `ship run` verifies the whole outcome on the integrated baseline.
 
-### `agx-plan <ticket-id> <step>` — Task Plan
+For a ticket addition, including a post-merge repair, invoke `tickets` against the current approved strategy. Re-enter `strategy` only if the addition requires changing that strategy. Keep previously approved ticket definitions intact.
 
-> **Purpose:** Turn a ticket into an executable verified task batch.  
-> **Invocation:** `agx-plan <ticket-id> tasks`.  
-> **Inputs:** Ticket/contracts, conventions, scoped instructions and test strategy.  
-> **Prerequisites:** Feature plan merged; eligibility verified; initial planning has no conflicting implementation, or re-entry is an explicitly scoped additive plan.  
-> **Outputs:** Approved task DAG, verification/check IDs, acceptance and native mappings if used.  
-> **Human Gates:** Checked Task Definitions and Publication Actions.  
-> **Completion Criteria:** Nonempty approved task set persisted; initial local plan merged, active-ticket additions checkpointed on its PR, or native tracker publication verified.
+### `agx-build <ticket-id> <step>` — Ticket Planning and Implementation
 
-Tasks express observable acceptance, default to `test-first` and select applicable test levels and verified check IDs. Each `test-after` or `manual` exception needs its reason and expected evidence approved here under Section 6. A new tool/method/boundary first needs an approved strategy/harness amendment. Include needed migrations/configuration/documentation in the behavior that requires them. Bind shared migration prerequisites and verification using [Schema Baseline and Migrations](#schema-baseline-and-migrations).
+> **Purpose:** Prepare an approved task plan, then implement and verify it on the owned ticket branch.  
+> **Invocations:** `agx-build <ticket-id> plan` and `agx-build <ticket-id> run`.  
+> **Prerequisites:** Feature ticket plan merged, ticket dependencies satisfied and ownership verified.  
+> **Outputs:** Approved task plan, verified implementation batch and ticket checkpoints.
 
-Manual-only judgments must be leaf tasks, so implementation never waits for human verification mid-loop. Validate references/DAG/coverage and harness readiness before the gate. Publish the approved set: initial local plan PR, active-ticket additions on its existing PR, or native children with the parent checkpoint. Never create both local and native ticket/task stores; preserve locked definitions and prior evidence.
+#### Plan Tasks
 
-### `agx-build <ticket-id> run` — Autonomous Ticket Build
+1. Start from the approved ticket definition, contract revisions, scoped instructions and test strategy. Refine the ticket until each executable task has observable acceptance, a verification method and applicable check IDs or a manual procedure. Map dependencies, validate coverage and reject invalid references or cycles.
+2. Verify harness readiness and proposed exceptions under [Verification Policy and Readiness](#verification-policy-and-readiness). A predecessor needs enough locally verifiable evidence to unblock its dependents during build. If a required prerequisite can only be verified after PR publication, resolve the plan before approval without weakening the check. Keep human-only judgments on leaf tasks.
+3. Present the exact task definitions, dependencies, checks and writes for approval. In local mode, commit the approved plan in the existing ticket file on the ticket branch and push the commit under [Branch and Ownership Policy](#branch-and-ownership-policy). In remote modes, record the approved plan in a comment on the existing ticket, create GitHub sub-issues or Jira sub-tasks, and verify parent links and mappings. Preserve the parent ticket's approved definition.
+4. Verify the approved plan and its stated writes. Report the checkpoint and any blocker. The human ends the step and explicitly invokes `run` when ready.
 
-> **Purpose:** Implement and verify the entire approved batch before human review.  
-> **Invocation:** `agx-build <ticket-id> run`.  
-> **Inputs:** Approved tasks/contracts/checks, scoped instructions and owned branch/worktree.  
-> **Prerequisites:** Start eligibility, harnesses/services and permissions verified.  
-> **Outputs:** Tested implementation batch, evidence/task states and ticket PR.  
-> **Human Gates:** Complete Checked Batch and Publication Actions; blocked handoff requires explicit approval.  
-> **Completion Criteria:** Approved batch published with local/CI outcomes; pending human-only checks identified.
+Re-enter `plan` for new obligations, including approved review findings requiring new work. Preserve existing task definitions and evidence. Reuse tasks that already cover the work and link additions to their source finding or requirement. An existing valid plan permits direct entry to `run`.
 
-Select approved, non-cancelled eligible tasks in numeric order and perform their recorded verification cycle. Newly proposed tasks do not enter the run until their additive plan is approved. Test-first RED is an intended assertion, not setup/import/service failure. Run targeted checks/refactor, then relevant regressions and the complete required candidate checks, including actual browser execution for selected web UI checks. UI implementation starts from the approved design baseline; subsequent review/feedback iterates production code and affected written contracts under the existing amendment/work-item rules, without prototype-code synchronization.
+#### Run the Approved Batch
 
-AI implements and verifies all eligible tasks autonomously, using `test-first` unless the task has an approved exception. Within the same uncommitted run, later tasks can rely on revalidated provisional earlier-task results. This avoids waiting for a commit or human approval between tasks, but is not durable `DONE` or a dependency another ticket/worktree can use. Human-only leaves remain pending. No task-level commit/push or per-task approval interrupts the batch.
-
-After the complete artifact gate, commit/push the reviewed batch and publish truthful task/PR evidence; completion references that commit. AI marks eligible tasks `DONE` and closes remote task items without waiting for ticket merge or requiring a separate per-task approval. A task requiring human confirmation or outstanding required checks stays pending until those conditions are met. The ticket remains open. Reconcile partial tracker writes. Stop on material contract ambiguity; a blocked review handoff requires explicit approval and, if a partial PR is needed, a clearly incomplete draft publication.
+1. Verify the approved plan and current prerequisites. Select the lowest numeric ID among approved, non-cancelled tasks whose dependencies are satisfied. Repeat as dependencies clear.
+2. Execute each recorded verification method. Verified provisional results may unblock dependents during the local run. Apply approved UI and migration rules to the affected work. Leave human-only judgments for review and PR-dependent checks for ship.
+3. Verify the combined candidate with required local checks and affected regressions. Present the checked batch for approval, then commit and push it on the ticket branch. Record actual evidence and close only tasks whose completion requirements have been met.
+4. Report the committed revision, local evidence and pending checks. Stop affected work on material contract ambiguity. A partial handoff for contract review requires explicit approval and records its limits on the branch or tracker. Newly discovered obligations return to `plan`.
 
 ### `agx-review <ticket-id> assess` — Ticket Review
 
-> **Purpose:** Assess the contract first, then implementation and acceptance evidence.  
-> **Invocation:** `agx-review <ticket-id> assess`.  
-> **Inputs:** Actual candidate/PR diff, contracts, checks and review questions.  
-> **Prerequisites:** Eligibility verified; automated work complete, or an approved partial-build spec handoff.  
-> **Outputs:** Findings, approved amendments/manual results and durable PR decision.  
-> **Human Gates:** Material Spec/Impact Decisions → Checked Candidate and Finding Dispositions.  
-> **Completion Criteria:** Current ticket approval or an approved changes-requested plan recorded.
+> **Purpose:** Assess the specification, implementation and evidence before ticket delivery.  
+> **Inputs:** Owned ticket branch and candidate diff, approved contracts and check evidence.  
+> **Prerequisites:** Verified local build or an explicitly approved partial handoff for contract assessment.  
+> **Outputs:** Findings, manual results, approved amendments where applicable, and a decision bound to the candidate.
 
-Assess specification validity before dependent conformance findings. Cover correctness, maintainability, tests, security and relevant performance; independent assessments may run in parallel under the planned execution strategy. Consolidate findings against the actual candidate and verify UI/contract evidence; humans handle only declared residual judgments and consequential dispositions.
+1. Validate the specification before assessing dependent conformance. Approve the impact of a contract correction before using it as the basis for fixes.
+2. Assess applicable correctness, maintainability, tests, security and performance. Verify relevant UI and contract evidence. Consolidate findings on the same candidate and obtain declared human judgments. A partial candidate or unresolved required evidence prevents ticket approval, except for declared PR-dependent checks that are verified during ship.
+3. Record the decision and evidence under [Ticket Checkpoints](#ticket-checkpoints). Commit and push approved ticket-local amendments or evidence changes. A substantive change requires review of the changed candidate.
+4. State the next eligible invocation. Existing approved tasks covering the fix return to `build run`. New obligations return to `build plan`. An approved candidate can proceed to `ship run`. In each case the human ends review and invokes the next step.
 
-An incorrect contract is amended with impact approval before dependent fixes. Prepare nonduplicated fix tasks for previously completed work or added obligations; correct an unfinished task under its existing definition; do not fabricate tasks when an amendment merely documents already-correct code. An incomplete draft cannot receive ticket approval.
+### `agx-ship <item-id> run` — Ticket Delivery and Feature Acceptance
 
-Complete local checks before the candidate gate; automatically publish approved amendments/task/evidence changes afterward and bind approval to the actual head. Substantive changes require re-review. Changes requested enables the human to invoke `build` again; current approval enables `ship`. Both require closure of the active step and a new invocation, and neither authorizes merge.
+> **Purpose:** Publish and verify delivery for one ticket or one feature.  
+> **Invocations:** `agx-ship <ticket-id> run` and `agx-ship <feature-id> run`.  
+> **Authority:** Approve PR publication first. Merge requires separate authority for the exact PR/head, and exposure follows its own authorization rule.
 
-### `agx-ship <item-id> <step>` → Ticket Delivery and Feature Acceptance
+#### Ticket Delivery
 
-> **Purpose:** Close reviewed tickets, then accept and finalize the merged feature independently of any ticket role.  
-> **Invocation:** Ticket: `agx-ship <ticket-id> accept|merge|finalize`; feature: `agx-ship <feature-id> accept|finalize`. Each call selects one step, not the literal pipe-separated alternatives.  
-> **Inputs:** Current contracts/delivery set, ticket review/PR evidence or the merged feature baseline, verified checks and optional exposure-operation configuration.  
-> **Prerequisites:** Ticket steps require their current task/review/dependency evidence. Feature `accept` requires every non-cancelled ticket `DONE`/merged and complete approved scope coverage. Feature `finalize` requires current whole-feature acceptance.  
-> **Outputs:** Confirmed ticket merge/closure; feature acceptance evidence and a merged feature finalization record; separately identified exposure outcome.  
-> **Human Gates:** Ticket Acceptance → Explicit Ticket Merge → Ticket Closure; Feature Acceptance → Feature Finalization/Merge; optional release/deploy/apply/enable authorization remains separate.  
-> **Completion Criteria:** The selected step meets its result below; feature dependencies require verified feature `DONE` on the default branch.
+1. **Check the candidate.** Revalidate current review, dependencies, acceptance, task evidence and exposure isolation under [Completion Evidence](#completion-evidence). Resolve local and manual checks before PR publication. List any required results that need the published PR.
+2. **Publish for CI.** Present the candidate, pending remote checks and publication actions. For local tracking, include prospective ticket `DONE` and any task completion metadata that only awaits final-head CI in the candidate for approval. Identify the exact pending evidence. After approval, push the candidate and create or update the ticket implementation PR. Attach review and check evidence.
+3. **Confirm readiness and merge.** Verify required CI on the final head and reconcile tasks waiting for those results. Close eligible native tasks under the stated publication approval. Require all non-cancelled tasks to be verified `DONE` and confirm [merge readiness and authority](#review-evidence-and-merge-authority).
+4. **Verify closure.** Confirm that the approved PR/head actually merged and that required post-merge results pass. Record the merge mapping and closure evidence in the PR checkpoint. In local mode, confirm the approved status reached the default branch. In remote modes, close the native ticket under the stated publication approval and read back the label and native state.
 
-| Item / Step          | Required Result                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Ticket / `accept`    | Revalidate task completion, review and applicable ticket acceptance on the actual candidate. Confirm merge will preserve the unaccepted feature's exposure boundary. Prepare exact metadata; publish only after its artifact gate and verify final-head CI.                                                                                                                                                                                                                                      |
-| Ticket / `merge`     | Present the exact PR/head, current review/checks/dependencies and exposure constraints. Human merges or explicitly authorizes AI for that revision. Confirm actual merge; queue submission is not completion.                                                                                                                                                                                                                                                                                    |
-| Ticket / `finalize`  | Confirm the actual merge and required post-merge checks, persist the merge mapping, and close the native ticket if applicable. Local successful closure requires its approved metadata on the default branch plus confirmed merge evidence. A post-merge defect becomes new work, never a reopened historical `DONE` ticket.                                                                                                                                                                     |
-| Feature / `accept`   | Verify the entire current delivery set is complete. Pin the fresh merged baseline and run required real-boundary integration/acceptance with exposure isolated. Present coverage/results and human-only judgments. After approval, publish acceptance evidence and feature `IN-REVIEW` on a draft feature finalization PR. Failure blocks finalization/exposure. Correct harness/environment failures within approved scope; product gaps require approved new tickets through feature planning. |
-| Feature / `finalize` | Recheck the approved delivery set, baseline, acceptance and blockers. Revalidate affected checks if code/contracts changed. Prepare the feature completion record and prospective `DONE` metadata on the same finalization PR, obtain its artifact gate, publish/check CI, then confirm human-owned merge and required post-merge results before relying on feature `DONE`. No unplanned product changes belong in this PR.                                                                      |
+If an unmerged candidate needs substantive fixes, record the blocker and keep the PR ineligible for merge. The human ends ship and invokes the owning build or review step. Reuse the same PR on the next ship invocation. A required post-merge failure follows [Post-Merge Ticket Repair](#post-merge-ticket-repair).
 
-If required ticket post-merge checks fail, preserve their result and resume finalization after verified repair through new tickets on the merged baseline. An origin/replacement link is not a completion dependency on the broken source ticket; do not create a repair dependency cycle.
+#### Feature Acceptance and Finalization
 
-Initial feature acceptance/finalization uses `docs/status-<feature-id>` and one shared PR. Its acceptance is tied to the merged implementation baseline, not to a permanently fixed ticket. Any added ticket, changed contract or relevant baseline drift invalidates affected acceptance; end the active step, approve/complete the additional work and explicitly invoke feature acceptance again. Keep its finalization PR blocked or update it through the new gate; do not merge stale completion metadata.
+Features are tracked in Git in every tracker mode. Use the feature README for its lifecycle and delivery record.
 
-Local ticket `accept` may prepare prospective `DONE` metadata to reach the default branch with the implementation. Before confirmed merge, that value is bookkeeping, not verified completion. After merge, record the actual PR/head-to-merge-SHA mapping in the existing durable PR checkpoint. The local verifier queries the recorded PR and verifies its merge against the refreshed default-branch Git history, accounting for squash rather than requiring original batch-SHA ancestry. Historical implementation receipts may resolve through that verified merged mapping when pre-squash objects are unavailable; do not confuse an unavailable original object with an unmerged ticket. A committed merge SHA is not mandatory when it can be resolved from that canonical PR mapping; do not add a bookkeeping PR solely to write it back. Feature finalization likewise retains the pre-merge candidate/checkpoint and verifies the actual merged record, avoiding self-referential commit fields.
+1. **Verify the delivery set.** Refresh the default branch and pin the integrated revision. Verify every non-cancelled ticket is merged and `DONE` with valid evidence. Reconcile delivery coverage against the approved feature and current contracts. Apply the scoped exceptions in [Completion Evidence](#completion-evidence) where relevant to either ship route.
+2. **Verify the integrated feature.** Re-run the distinct, applicable verification commands from the delivered tickets on the merged feature baseline. Run the feature-level checks selected by its acceptance and test strategy, including applicable real integration and end-to-end journeys with exposure isolated. Reuse equivalent evidence only for the same check on the same candidate and context. Record any required manual confirmations and explain which historical checks do not apply to the integrated baseline.
+3. **Publish completion.** Present coverage, results, the pinned revision and the completion record for approval. Prepare prospective `DONE` on `docs/status-<feature-id>` and publish the separate feature finalization PR. Product fixes go through delivery tickets.
+4. **Verify merge and completion.** Check required CI and review evidence before requesting separate merge authority. Confirm that the approved PR/head actually merged and that required post-merge checks pass before using feature `DONE`. When requested, apply the [exposure policy](#feature-exposure).
 
-Resume verified remaining actions after interruptions; never repeat a successful merge or exposure operation. Required post-merge failures block dependent progression/finalization and production exposure. Successful closure is distinct from `CANCELLED`. Optional exposure operations require their own exact target/revision/artifact authorization; report acceptance, merge, finalization and exposure separately. The human still sends `END` for each selected step.
+A coverage gap or blocking failure prevents finalization. Resolve harness failures within scope and use approved new tickets for product gaps. Added tickets, changed contracts or relevant baseline drift invalidate affected evidence. Re-run affected acceptance and obtain approval before updating a pending PR. Use a new scoped PR under [Amendments and Re-entry](#amendments-and-re-entry) if an obsolete completion record already merged.
+
+#### Post-Merge Ticket Repair
+
+Keep the original ticket's required check failure on its merged revision. Repair it through a new linked ticket on the merged baseline. The origin link records provenance without requiring the original ticket to close first.
+
+Resume the original ticket's ship step once the repair is confirmed merged and the required checks covering the failed scope pass on the repaired merged revision. Retain the original failure and link both PRs, their verified revisions and check results in the durable checkpoint.
+
+#### Shared Delivery Evidence and Resume
+
+After an interruption, verify the existing PR, head, base, approvals, CI and merge state. Resume the remaining actions. If the human chooses to merge directly, report where the workflow is waiting. The human may end the step and explicitly invoke `ship run` again after merge. Reuse valid approval and never repeat a confirmed merge or exposure action.
+
+Record the reviewed head and verified merge SHA in the PR checkpoint. Resolve squash merges against refreshed default-branch history even if the pre-squash commit is unavailable. Required post-merge failures block completion and exposure. Report acceptance, actual merge, verified completion and exposure outcomes separately.
+
+### `agx-guide` — Usage Guide
+
+Use `agx-guide` without a step to learn how to use Agenix. The human can invoke it directly, and the agent can select it for questions about Agenix usage. It works before project setup and during an open workflow step without changing that step.
+
+- Explain the workflow map, invocation syntax, applicable steps, human gates and where to find the owning rules. Load only the references needed to answer the question.
+- Report the relevant information in chat. A suggested invocation leaves workflow execution to the human. The guide performs no writes, changes no project state and creates no workflow checkpoint.
+- Author the guide after the workflow step contracts are stable. Reuse packaged rules and step references as their source. Load the guide on demand in v1, with no session-start hook for onboarding.
 
 ## 11. Artifact Layout
 
@@ -951,7 +1056,7 @@ project/
             ├── README.md              spec/contract links and delivery plan
             ├── spec.md
             ├── api-contract.md        only residual semantics; omit when unnecessary
-            ├── data-impact.md         persistence changes
+            ├── data-impact.md         feature persistence intent and prerequisites
             ├── ui-prototype/          web UI contract and design-time demonstration
             │   ├── README.md          current UI contract; approved prototype revision
             │   ├── index.html
@@ -979,9 +1084,9 @@ Shared contract definitions and wire schemas live under `docs/contracts/` with p
 
 The v1 package uses the three manifest locations above with consistent identity/version metadata and shared `skills/` content. OpenAI supports `.codex-plugin/plugin.json` as a compatibility fallback when `extensions.com.openai` is absent; an inline OpenAI extension replaces that overlay rather than merging with it. Agenix selects the portable root layout and omits the overlay from its v1 package. Validate each selected manifest against its vendor schema.
 
-The workflow contract does not prescribe an execution topology. Phase 2 evaluates whether hooks, subagents or custom-agent profiles improve enforcement, context isolation or independent checks, then defines their responsibilities and supported-host behavior. They are neither required nor prohibited by this proposal. Verify actual host capabilities, permissions, packaging/distribution constraints and portability before selecting them; do not assume equivalent APIs across hosts.
+Apply explicit-only invocation to workflow steps. Verify that `agx-guide` is discoverable for both direct invocation and Agenix usage questions, including before project setup, while ordinary sessions can proceed without loading the guide.
 
-Any selected automation must preserve explicit step invocation, human-only `END`, artifact gates, merge/delivery authority and truthful evidence. A coordinating AI remains responsible for integrating results, resolving contradictions and verifying the actual candidate. Independent analysis/checks may run in parallel when their inputs are ready and ownership is safe; prerequisite decisions and dependent work remain ordered. Hooks cannot create approval or advance the workflow, and a delegated result is not accepted without checking its relevance, revision and evidence. Declare required mechanisms in the implementation plan; unavailable prerequisites block affected work rather than causing an improvised runtime fallback.
+Phase 2 may select hooks, subagents or custom-agent profiles when they improve enforcement, context isolation or independent checks. Verify the host, permissions and packaging before relying on them. Keep dependent work ordered and parallelize only when inputs and ownership are clear. The coordinating AI verifies delegated results against the actual candidate. Automation preserves explicit invocation, human-only `END`, gates and merge/exposure authority. Report unavailable required mechanisms as blockers.
 
 ### Packaging Boundary
 
@@ -991,9 +1096,15 @@ Maintainer instructions govern building Agenix, not consuming-project policy. Ex
 
 ### Capability Selection Boundary and Third-Party Reuse
 
-This proposal defines workflow inputs, outputs, ordering, gates, verification and authority. It does not assign capability skills to phases or steps. Phase 2 inventories available capabilities, evaluates coverage/gaps, selects and pins third-party sources where needed, and defines composition and template ownership against the approved contracts. No existing skill name or implementation is a prerequisite assumed by this proposal.
+Phase 2 owns selection and composition. Read the current capability instructions and relevant resources against the approved step contract. Use direct step instructions where a separate capability would add no value.
 
-Reused skills must support the required artifact formats, supported production targets, portability and AI verification. Place the applicable upstream license in `LICENSE` beside each reused `SKILL.md`; preserve copyright and any legally required upstream notices/attribution, including for assets. Use `skills/README.md` as the single skill/source index with repository/path links, exact revisions, licenses and concise adaptation summaries where needed; no separate notes/provenance file is required. Adding LICENSE alone does not grant rights or replace upstream terms; missing/incompatible licensing blocks vendoring until resolved. Keep reusable capability instructions independent of Agenix-specific publication or gate rules.
+For every capability route, record:
+
+- **Use and inputs.** The step and trigger, approved inputs, selected mode or technique, applicable references and substantive checks. Identify prerequisites and supported artifact formats or production targets.
+- **Contribution and handoff.** What the capability delivers, where the workflow resumes and which lifecycle, human decisions or publication actions remain with the workflow. Supply caller-provided choices and paths explicitly.
+- **Output ownership.** Choose method-only reuse, the capability's template at its source, or a workflow-owned template or adapter. Document the required adaptation of fields, IDs, references and evidence. Preserve substantive checks and keep a single authoritative owner for each output format.
+
+Keep reusable capabilities portable and independent of workflow-specific gates. For each selected third-party import, verify license compatibility, pin the exact upstream revision and preserve the applicable `LICENSE` beside its `SKILL.md` and all required notices, including for assets. Record the local entry, purpose, upstream source, exact revision, license and adaptations under Imported Skills in `skills/README.md`. Missing or incompatible terms block the import.
 
 ### Maintainer Planning Lifecycle
 
@@ -1013,31 +1124,15 @@ Approved baselines live at `docs/agenix-proposal.md` and `docs/agenix-plan.md`. 
 Phase 2 defines the implementation/test plan. Before a v1 release, verify these workflow contracts with fixtures and end-to-end walkthroughs:
 
 1. Artifact/schema validation: stage-aware required fields, safe parsing of the Phase 2-selected metadata format, duplicate/malformed metadata, ID growth/collisions, stable acceptance anchors, invalid paths/references, empty required work, dependency levels/cycles and cancellation coverage.
-2. Full lifecycle in local, GitHub and Jira modes: setup/join, design/spec/plan publication, autonomous build, manual judgment, review/fixes, ticket acceptance/merge/closure and separate feature acceptance/finalization. No status alone proves successful completion.
+2. Full lifecycle in local, GitHub and Jira modes: setup/join, design and feature planning, ticket task planning and implementation, review and fixes, ticket shipping and independent feature shipping. Verify human-only checks and the distinction between declared status and verified completion.
 3. Local verification: structured feature/ticket metadata and embedded task records, candidate versus durable baseline, structured test/manual/review evidence, provisional task chaining, `BLOCKED` to `READY`, actual PR/CI lookup, squash-merge mapping, missing/stale evidence and no verifier writes or product-test execution.
 4. Solo/team local collaboration: independent ticket files, shared-file ownership, serialized ID/plan edits, incoming branch drift, conflicting task/status/evidence changes, preservation of both valid contributions and reapproval after material reconciliation. No distributed-lock guarantee.
-5. Publication and resume: no pre-gate commit/push/PR or remote requirement/terminal write; automatic approved batch publication; partial/unknown API outcomes, pagination, read-back and duplicate avoidance. Final-head CI and confirmed human-owned merge remain mandatory.
-6. Separate ticket/feature delivery: all active tickets complete before feature acceptance; real merged-baseline journeys; exposure remains isolated until acceptance; finalization PR, relevant drift, added tickets, invalidated evidence and separately authorized release/deploy/apply/enable.
+5. Publication and resume: one approval for branch commit and push across phases, verified recovery after a failed push, no implementation PR before ship, and no duplicate PR or tracker children. Verify partial/unknown API outcomes, pagination, read-back and unchanged parent ticket definitions.
+6. Ticket and feature shipping: PR-dependent checks pending at publication and required before merge, separate merge authority, resume after a human merge, prospective local `DONE` and post-merge evidence, and native closure only after verification. Cover linked post-merge repairs, whole-feature reruns on the merged baseline, stale acceptance and separately authorized exposure.
 7. Scope/verification walkthroughs: web frontend-only, backend-only, fullstack, library/package, CLI and infrastructure; default `test-first` plus justified `test-after` / `manual`; applicable public contracts, persistence/UI omissions, mock/provider checks and real-boundary integration. Web UI includes scenario/mock approval, mobile-first responsive browser checks and production-code iteration without historical-prototype synchronization; native mobile/desktop GUI routes are excluded.
-8. Scaffold readiness: clean-checkout install/start/build/test, real service readiness/migrations/isolation, meaningful test discovery, local intentional-failure proof, controlled failing-CI probe/restoration and green final-head checks. No placeholders counted as success.
-9. Host behavior: fixed manifests, installation/discovery, explicit-only invocation, argument/resource routing, root/scoped instructions and local Claude imports. Validate bundled helper resolution from a read-only install with paths containing spaces and a different project working directory, plus any planned hooks/delegation, without changing prerequisite order, authority or evidence requirements.
-10. Step control/re-entry: invalid or missing arguments, AI `BEGIN`/`DURING`, human-only `END`, blocked/incomplete closure, fresh-session resume and no automatic next step after approval/merge. Initial local planning and active-ticket additions use their correct publication paths.
+8. Scaffold readiness: clean-checkout install/start/build/test, applicable service and migration isolation, meaningful failure enforcement, the controlled CI probe/restoration and final-head checks. Verify that the final instructions resolve by scope and match verified commands and environment controls. Exercise a case without optional services or hooks.
+9. Host behavior: manifest, installation/discovery, explicit workflow invocation, on-demand guide, argument/resource routing and scoped instructions. Test helper resolution from a read-only installation with paths containing spaces and a different project working directory. Any selected hooks or delegation preserve authority and step order.
+10. Step control and re-entry: invalid arguments, same-session `BEGIN`/`DURING` and human-only `END`, a fresh invocation without prior marker state, and a resumed handoff for an open or ended step. Approval never invokes a successor. Review routes to plan or run according to whether new tasks are needed.
 11. Immutable definitions and amendments: draft refinement, initial child planning, approved additive tasks/tickets/features, versioned contract corrections, human-approved `CANCELLED`, blocked cancelled dependencies, retained historical `DONE` and new linked features after feature completion. Verify human-only `OVERRIDE` for feature/ticket/task, both actions, revision/consumer scope, raw blockers versus waivers, individual child dispositions and unchanged merge/exposure authority.
 12. Portability/security: supported OS/tool versions, paths with spaces, UTF-8, pinned parser dependencies where required, sanitized errors, credential validation, permissions, private-artifact exclusion and mocked Jira success/failure. Artifact CI runs without real tracker credentials. Validate pinned helper provisioning in a clean runner without an installed AI plugin, local/CI revision matching, and credential preservation on setup reruns.
 13. Content/provenance: language/terminology consistency, relevant section references, single contract ownership, current written UI contracts versus historical demonstrations, schema/example conformance, colocated upstream licenses and the `skills/README.md` source index, required legal attribution and exclusion of development-only context from packaging.
-
-### Official References
-
-Recheck vendor documentation when implementing/pinning a compatibility target; documentation conformance does not replace runtime tests.
-
-- [GitHub sub-issues](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/adding-sub-issues), [GitHub CLI issue creation](https://cli.github.com/manual/gh_issue_create), [issue inspection](https://cli.github.com/manual/gh_issue_view), [issue closure](https://cli.github.com/manual/gh_issue_close), [PR merge](https://cli.github.com/manual/gh_pr_merge).
-- [Jira hierarchy](https://support.atlassian.com/jira-cloud-administration/docs/configure-the-issue-type-hierarchy/), [Jira REST issues](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/), [projects/statuses](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-projects/), [comments](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-comments/), [issue links](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-links/), [issue link types](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-link-types/), [issue search](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-search/), [API tokens](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/).
-- [Claude Code skills](https://code.claude.com/docs/en/skills), [plugin reference](https://code.claude.com/docs/en/plugins-reference), [hooks](https://code.claude.com/docs/en/hooks), [subagents](https://code.claude.com/docs/en/sub-agents).
-- [OpenAI plugin packaging](https://developers.openai.com/plugins/build/plugins), [skills](https://learn.chatgpt.com/docs/build-skills), [subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents).
-- [Antigravity plugin authoring](https://antigravity.google/docs/build-plugins), [customization discovery](https://antigravity.google/docs/customization-discovery).
-- [DORA trunk-based development](https://dora.dev/capabilities/trunk-based-development/), [Agile Alliance INVEST](https://agilealliance.org/glossary/invest/).
-- [Contract verification principles](https://docs.pact.io/getting_started/how_pact_works), [WCAG 2.2](https://www.w3.org/TR/WCAG22/).
-- [Python subprocess](https://docs.python.org/3/library/subprocess.html), [HTTP client](https://docs.python.org/3/library/urllib.request.html), [GitHub licensing guidance](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository).
-- [Git prospective tree snapshots](https://git-scm.com/docs/git-write-tree), [GitHub squash/merge semantics](https://docs.github.com/en/pull-requests/reference/pull-request-merges), [GitHub required reviews and checks](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches).
-- [OpenAPI specification](https://spec.openapis.org/oas/latest.html), [AsyncAPI specification](https://www.asyncapi.com/docs/reference/specification/latest), [JSON Schema dialects](https://json-schema.org/understanding-json-schema/reference/schema).
-- [Codex `AGENTS.md` scopes](https://learn.chatgpt.com/docs/agent-configuration/agents-md), [Claude instruction loading and imports](https://code.claude.com/docs/en/memory), [Antigravity scoped rules](https://antigravity.google/docs/rules).
