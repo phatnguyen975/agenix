@@ -1,47 +1,44 @@
 # Agenix — Skill Catalog
 
-This directory contains reusable skills maintained in this repository. This index helps maintainers find a skill by purpose and navigate to its instructions. Each linked `SKILL.md` owns that skill's detailed scope, prerequisites, procedure and resource routes.
+This catalog lists the skills available in this plugin. Start with a skill's `SKILL.md` and load supporting resources as needed.
 
-Capability skills provide independently reusable methods. Workflow skills compose methods into explicitly invoked steps. Index membership does not mean a skill should run for every task, or that it is already compatible with a particular workflow.
+## Maintaining This Catalog
 
-## Available Skills
+- Keep entries in alphabetical order and link to the skill's local `SKILL.md`.
+- Describe the work each skill supports. Update its entry when its purpose or scope changes.
+- **Capability skills** provide reusable methods for specific tasks. Record each skill's purpose and when to use it.
+- **Workflow skills** coordinate related steps to achieve a larger outcome. Record the outcome and what the workflow coordinates.
+- **Imported skills** bring in upstream methods for local use. Record each skill's purpose, upstream source, exact revision, license, and local adaptations. Preserve required notices with the skill.
 
-The current directory contains 20 capability skills. Workflow skills and additional capabilities selected in the implementation plan are not present yet; add their index entries when their directories are created or imported.
+## Capability Skills
 
-| Skill                                                                         | Purpose / When to Use                                                                                        |
-| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| [api-contract-design](api-contract-design/SKILL.md)                           | Design, review or evolve a consumer-visible API/message contract; not its implementation.                    |
-| [autonomous-git-workflow](autonomous-git-workflow/SKILL.md)                   | Perform scoped Git, branch, worktree and PR operations under the applicable authorization policy.            |
-| [code-review](code-review/SKILL.md)                                           | Review a bounded implementation change through applicable evidence-backed review axes.                       |
-| [code-simplification](code-simplification/SKILL.md)                           | Simplify tested code while preserving observable behavior.                                                   |
-| [codebase-design](codebase-design/SKILL.md)                                   | Design or assess source layout, module boundaries, dependencies, public surfaces and structural conventions. |
-| [codegraph-intelligence](codegraph-intelligence/SKILL.md)                     | Investigate code structure and impact using a verified CodeGraph CLI and project index.                      |
-| [context-priming](context-priming/SKILL.md)                                   | Load relevant context when starting, switching or resuming work.                                             |
-| [data-impact-analysis](data-impact-analysis/SKILL.md)                         | Assess persistence effects, migration dependencies and rollout risk against a baseline.                      |
-| [database-design](database-design/SKILL.md)                                   | Design an initial relational or document data model for an already selected storage paradigm.                |
-| [domain-modeling](domain-modeling/SKILL.md)                                   | Establish or refine technology-independent product language, business rules and domain boundaries.           |
-| [evolutionary-architecture-design](evolutionary-architecture-design/SKILL.md) | Evaluate architectural drivers, boundaries, trade-offs and evolutionary decisions.                           |
-| [grilling](grilling/SKILL.md)                                                 | Resolve consequential ambiguity through structured rounds of questions.                                      |
-| [handoff](handoff/SKILL.md)                                                   | Capture the current work thread and next action for another session or agent.                                |
-| [ideation](ideation/SKILL.md)                                                 | Explore and refine an open product idea before requirements are settled.                                     |
-| [incremental-implementation](incremental-implementation/SKILL.md)             | Implement nontrivial work through small verified increments.                                                 |
-| [prd-writing](prd-writing/SKILL.md)                                           | Turn product requirements and confirmed decisions into a PRD.                                                |
-| [spec-writing](spec-writing/SKILL.md)                                         | Specify one feature's observable behavior, rules and acceptance criteria.                                    |
-| [systematic-debugging](systematic-debugging/SKILL.md)                         | Reproduce a failure, establish its cause and verify an authorized repair.                                    |
-| [tdd](tdd/SKILL.md)                                                           | Derive behavior-focused cases and implement through Red-Green-Refactor.                                      |
-| [work-breakdown-planning](work-breakdown-planning/SKILL.md)                   | Decompose outcomes into verifiable work with acceptance coverage and dependencies.                           |
+| Skill                                                                         | Purpose and Use                                                                                                                                                                                             |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [api-contract-design](api-contract-design/SKILL.md)                           | Define or review what clients can rely on when using an HTTP API, RPC, event, or stream. Specify schemas, interaction semantics, errors, and compatibility when the contract changes.                       |
+| [autonomous-git-workflow](autonomous-git-workflow/SKILL.md)                   | Carry out authorized trunk-based Git work. Establish the correct branch or worktree, keep commits atomic, and handle synchronization, pull requests, merges, recovery, or releases within the agreed scope. |
+| [code-review](code-review/SKILL.md)                                           | Evaluate a bounded code change against its requirements and relevant quality criteria. Verify findings with evidence and explain the impact and corrective action.                                          |
+| [code-simplification](code-simplification/SKILL.md)                           | Make tested code easier to understand and maintain by reducing duplication, indirection, or control-flow complexity. Verify that observable behavior stays the same.                                        |
+| [codebase-design](codebase-design/SKILL.md)                                   | Design or review how a codebase is organized. Define release units, module boundaries, public surfaces, permitted dependencies, and the checks that protect them.                                           |
+| [codegraph-intelligence](codegraph-intelligence/SKILL.md)                     | Use the project's selected CodeGraph CLI and a usable index to trace symbol relationships, investigate change impact, and identify candidate affected tests.                                                |
+| [context-priming](context-priming/SKILL.md)                                   | Establish the context needed to start, resume, or redirect a task. Reconcile relevant instructions, earlier decisions, repository state, and evidence before proceeding.                                    |
+| [data-impact-analysis](data-impact-analysis/SKILL.md)                         | Assess how a change affects persisted data against an established baseline. Identify affected consumers, model changes, migration dependencies, compatibility risks, and verification needs.                |
+| [database-design](database-design/SKILL.md)                                   | Translate requirements into an initial relational or document data model for a selected storage paradigm. Define structures, relationships, integrity constraints, and access paths.                        |
+| [domain-modeling](domain-modeling/SKILL.md)                                   | Develop a technology-independent model of the business domain. Establish shared terminology, bounded contexts, workflows, and invariants that later design can rely on.                                     |
+| [evolutionary-architecture-design](evolutionary-architecture-design/SKILL.md) | Make or review architectural decisions against system drivers and trade-offs. Plan incremental evolution and define fitness functions that check whether architectural properties hold.                     |
+| [grilling](grilling/SKILL.md)                                                 | Resolve multiple consequential uncertainties in an idea, plan, or decision through focused rounds of questions. Establish what is settled and what still needs a decision.                                  |
+| [handoff](handoff/SKILL.md)                                                   | Prepare a concise snapshot for another session, agent, or person. Preserve the work state, decisions, evidence, open issues, and next action needed to resume.                                              |
+| [ideation](ideation/SKILL.md)                                                 | Turn an open product, feature, or process idea into a clearer direction. Explore meaningful alternatives, compare trade-offs, and make assumptions explicit.                                                |
+| [incremental-implementation](incremental-implementation/SKILL.md)             | Implement nontrivial work through small, dependency-aware increments. Apply the agreed verification method to each increment and record its outcome or blockers.                                            |
+| [prd-writing](prd-writing/SKILL.md)                                           | Create or revise a PRD for a product or significant feature. Clarify product decisions and connect goals, user journeys, requirements, constraints, and success measures.                                   |
+| [spec-writing](spec-writing/SKILL.md)                                         | Define what one feature must do from the user's or consumer's perspective. Specify rules, scenarios, state transitions, quality constraints, and verifiable acceptance criteria.                            |
+| [systematic-debugging](systematic-debugging/SKILL.md)                         | Investigate a reproducible, intermittent, or regressing failure. Isolate and confirm the cause, then verify an authorized fix and its regression coverage.                                                  |
+| [tdd](tdd/SKILL.md)                                                           | Derive tests from required behavior and drive implementation with Red-Green-Refactor. Observe an expected failure, make the smallest passing change, and refactor under the tests.                          |
+| [work-breakdown-planning](work-breakdown-planning/SKILL.md)                   | Turn a scoped outcome into verifiable work. Define acceptance criteria, hard dependencies, and an execution order that supports independent work where possible.                                            |
 
-## Resources and Sources
+## Workflow Skills
 
-Resource paths start at the selected skill's directory. Read its `SKILL.md` first, then only the references, scripts, templates or data it actually requires. Optional directories vary by skill; do not infer a resource exists from another skill's layout or preload all resources.
+Workflow skills will be listed here as they are added.
 
-For Agenix composition, consult the implementation plan's [reuse boundaries](../docs/agenix-plan.md#2-audit-findings-and-reuse-boundaries) and [workflow mapping](../docs/agenix-plan.md#3-workflow-to-capability-mapping). Those describe planned integration; they do not replace current skill instructions or prove the planned corrections are complete.
+## Imported Skills
 
-The current skills identify `phatnguyen975` as their metadata author and are maintained in this repository under its [root license](../LICENSE). No selected third-party imports have been added yet. When importing a skill, record its upstream repository/directory, exact revision, applicable license and concise adaptation summary here, next to its entry. Keep the applicable upstream `LICENSE` beside its `SKILL.md` and preserve any required attribution/notices for included resources. Repository licensing does not replace third-party terms.
-
-## Maintaining the Index
-
-- Add an entry whenever a skill is created or imported; update it when its name, purpose, scope or source changes. Link the actual `SKILL.md` and explain its trigger concisely.
-- Keep entries aligned with directories that exist. Implementation proposals and unimplemented selections belong in the plan, not in the available-skill list.
-- Preserve independent capability use. Workflow routing, artifact destinations and publication authority belong in workflow instructions, not in this index.
-- Verify links and resource closure after moves or edits. Keep one source index here; do not create separate provenance reports or a README in every skill directory.
+Imported skills will be listed here as they are added.

@@ -4,7 +4,7 @@ Assess each proposed change against existing data, applications, and consumers. 
 
 ## 1. Classification
 
-| Class      | Criteria                                                                                                                        | Typical examples                                                                                                                            |
+| Class      | Criteria                                                                                                                        | Typical Examples                                                                                                                            |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | Compatible | Existing valid data and supported readers and writers continue to work through rollout. Assess this for each supported version. | An optional field accepted by existing readers and writers, or an independent table.                                                        |
 | Breaking   | Existing data, readers/writers, consumers, or an intermediate rollout can fail or change meaning without coordination.          | Rename/remove, incompatible type or key change, required field without safe backfill, tighter constraint, changed deletion/state semantics. |

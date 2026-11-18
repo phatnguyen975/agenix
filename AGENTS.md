@@ -89,15 +89,13 @@ Use Git for repository inspection and the host's real file tools for documentati
 
 The following commands exist and can be run from the repository root:
 
-| Command                                                 | What It Verifies                                                             |
-| ------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `git status --short`                                    | Current tracked/untracked changes; not artifact correctness.                 |
-| `git diff --check`                                      | Whitespace errors in tracked diffs; inspect new files separately.            |
-| `git diff -- <path>`                                    | The selected tracked change; read new files directly before staging.         |
-| `git ls-files -- <path>`                                | Whether a path is tracked; ignoring it does not untrack it.                  |
-| `python --version`, `git --version`, `gh --version`     | Installed executable versions; not supported-host or runtime compatibility.  |
-| `python evals/autonomous-git-workflow/check_git.py`     | Git command contracts in disposable local fixtures; no LLM/hosting proof.    |
-| `python -B evals/systematic-debugging/check_helpers.py` | Debugging helper CLI contracts in disposable fixtures; no LLM/product proof. |
+| Command                                             | What It Verifies                                                            |
+| --------------------------------------------------- | --------------------------------------------------------------------------- |
+| `git status --short`                                | Current tracked/untracked changes; not artifact correctness.                |
+| `git diff --check`                                  | Whitespace errors in tracked diffs; inspect new files separately.           |
+| `git diff -- <path>`                                | The selected tracked change; read new files directly before staging.        |
+| `git ls-files -- <path>`                            | Whether a path is tracked; ignoring it does not untrack it.                 |
+| `python --version`, `git --version`, `gh --version` | Installed executable versions; not supported-host or runtime compatibility. |
 
 Shared artifact/status helpers, a repository-wide test runner, CI bootstrap and release packaging commands are **pending** implementation. P4-02 establishes helper/distribution CI; P4-08 validates final packaging. Run existing capability scripts only for their documented interfaces in isolated fixtures. Add exact test/setup commands here when they have been implemented and verified; do not invent a command or mark a planned suite green.
 
