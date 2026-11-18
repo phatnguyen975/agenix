@@ -1,8 +1,7 @@
 # Agenix Implementation Plan
 
 > **Status:** Approved  
-> **Updated:** 2026-11-18  
-> **Design baseline:** [Agenix Plugin Proposal](agenix-proposal.md)
+> **Updated:** 2026-11-18
 
 The proposal owns workflow behavior and authority. This plan selects the methods, template owners and packaged resources, then orders the work through v1 implementation. Paths proposed here describe target files. Treat the live repository and the installed package as the evidence of what exists.
 
@@ -15,7 +14,7 @@ The proposal owns workflow behavior and authority. This plan selects the methods
 | `agx-setup`     | Establish shared project configuration and verify first-time or joining setup.                       |
 | `agx-prd`       | Establish the approved product requirements baseline.                                                |
 | `agx-feature`   | Allocate product outcomes to a feature catalog and feature records.                                  |
-| `agx-architect` | Design the owned domain, technical foundations, conventions and verification strategy.               |
+| `agx-architect` | Design the owned domain, technical foundations, conventions and test strategy.                       |
 | `agx-scaffold`  | Build and verify the runnable foundation, CI and project-specific operating instructions.            |
 | `agx-spec`      | Define feature behavior and applicable public interface, data and UI contracts.                      |
 | `agx-plan`      | Choose the feature delivery strategy and plan its tickets.                                           |
@@ -26,22 +25,22 @@ The proposal owns workflow behavior and authority. This plan selects the methods
 
 ### Imported Capability Skills
 
-The pinned links identify the selected sources. Imported skills follow the same standalone contract as other capabilities.
+The GitHub repository, path and revision identify each selected source. Imported skills follow the same standalone contract as other capabilities.
 
-| Skill                                                                                                                                                  | Purpose                                                                                                           |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
-| [`accessibility`](https://github.com/addyosmani/web-quality-skills/tree/afa8da942115f2961fdbfa80807ea0b232ff6c00/skills/accessibility)                 | Evaluate and improve web accessibility with criterion-linked source, browser and manual checks.                   |
-| [`frontend-design`](https://github.com/anthropics/skills/tree/1780c5e5a552fd4d1c9d6a7b0cab26b0c2bef064/skills/frontend-design)                         | Set and critique a distinctive visual direction suited to the product and its users.                              |
-| [`playwright-cli`](https://github.com/microsoft/playwright-cli/tree/b21724888b8100b05ef8dee3a92f2bb03bf4dcde/skills/playwright-cli)                    | Operate a browser, replay scenarios and collect browser evidence.                                                 |
-| [`react-testing`](https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/react-testing)                                  | Test React components and hooks with observable assertions, isolated providers and network mocks.                 |
-| [`security-review`](https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/security-review)                              | Assess relevant security controls around trust boundaries, inputs, authentication, secrets and sensitive actions. |
-| [`ui-styling`](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/tree/b6a79003ad2b93c174590a4143a0ddbb2e4574e2/.claude/skills/ui-styling)        | Implement selected Tailwind or shadcn/ui patterns for tokens, responsive layout and accessible components.        |
-| [`ui-ux-pro-max`](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/tree/b6a79003ad2b93c174590a4143a0ddbb2e4574e2/.claude/skills/ui-ux-pro-max)  | Look up product-specific styles, palettes, typography, interactions and UX patterns.                              |
-| [`vercel-composition-patterns`](https://github.com/vercel-labs/agent-skills/tree/1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62/skills/composition-patterns) | Design reusable React component APIs, shared state and composition boundaries.                                    |
-| [`vercel-react-best-practices`](https://github.com/vercel-labs/agent-skills/tree/1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62/skills/react-best-practices) | Improve React and Next.js rendering, data fetching and bundle performance for the selected versions.              |
-| [`vitest`](https://github.com/antfu/skills/tree/d524ed287eef22757297827ce42e3cad88abd20c/skills/vitest)                                                | Configure and use Vitest assertions, mocks, fixtures, filtering and coverage.                                     |
-| [`web-design-guidelines`](https://github.com/vercel-labs/agent-skills/tree/1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62/skills/web-design-guidelines)      | Review implemented web UI against applicable interface guidelines.                                                |
-| [`web-perf`](https://github.com/cloudflare/skills/tree/cbf893b954222276bf1af57e5f23379231e0efb9/skills/web-perf)                                       | Measure and diagnose loading and interaction performance on a runnable web surface.                               |
+| Skill                         | Upstream Repository and Path                                            | Pinned Revision                            | Purpose                                                                                                           |
+| ----------------------------- | ----------------------------------------------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `accessibility`               | `addyosmani/web-quality-skills` · `skills/accessibility`                | `afa8da942115f2961fdbfa80807ea0b232ff6c00` | Evaluate and improve web accessibility with criterion-linked source, browser and manual checks.                   |
+| `frontend-design`             | `anthropics/skills` · `skills/frontend-design`                          | `1780c5e5a552fd4d1c9d6a7b0cab26b0c2bef064` | Set and critique a distinctive visual direction suited to the product and its users.                              |
+| `playwright-cli`              | `microsoft/playwright-cli` · `skills/playwright-cli`                    | `b21724888b8100b05ef8dee3a92f2bb03bf4dcde` | Operate a browser, replay scenarios and collect browser evidence.                                                 |
+| `react-testing`               | `affaan-m/ECC` · `skills/react-testing`                                 | `d2ef2680594f9a17526a6e1a2e18b3d242c5d17b` | Test React components and hooks with observable assertions, isolated providers and network mocks.                 |
+| `security-review`             | `affaan-m/ECC` · `skills/security-review`                               | `d2ef2680594f9a17526a6e1a2e18b3d242c5d17b` | Assess relevant security controls around trust boundaries, inputs, authentication, secrets and sensitive actions. |
+| `ui-styling`                  | `nextlevelbuilder/ui-ux-pro-max-skill` · `.claude/skills/ui-styling`    | `b6a79003ad2b93c174590a4143a0ddbb2e4574e2` | Implement selected Tailwind or shadcn/ui patterns for tokens, responsive layout and accessible components.        |
+| `ui-ux-pro-max`               | `nextlevelbuilder/ui-ux-pro-max-skill` · `.claude/skills/ui-ux-pro-max` | `b6a79003ad2b93c174590a4143a0ddbb2e4574e2` | Look up product-specific styles, palettes, typography, interactions and UX patterns.                              |
+| `vercel-composition-patterns` | `vercel-labs/agent-skills` · `skills/composition-patterns`              | `1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62` | Design reusable React component APIs, shared state and composition boundaries.                                    |
+| `vercel-react-best-practices` | `vercel-labs/agent-skills` · `skills/react-best-practices`              | `1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62` | Improve React and Next.js rendering, data fetching and bundle performance for the selected versions.              |
+| `vitest`                      | `antfu/skills` · `skills/vitest`                                        | `d524ed287eef22757297827ce42e3cad88abd20c` | Configure and use Vitest assertions, mocks, fixtures, filtering and coverage.                                     |
+| `web-design-guidelines`       | `vercel-labs/agent-skills` · `skills/web-design-guidelines`             | `1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62` | Review implemented web UI against applicable interface guidelines.                                                |
+| `web-perf`                    | `cloudflare/skills` · `skills/web-perf`                                 | `cbf893b954222276bf1af57e5f23379231e0efb9` | Measure and diagnose loading and interaction performance on a runnable web surface.                               |
 
 ### Agenix Capability Skills
 
@@ -205,14 +204,14 @@ agenix/
 │   │   └── assets/, scripts/       private resources only where needed
 │   └── agx-guide/SKILL.md            on-demand entry with focused references if useful
 ├── references/
-│   ├── workflow-control.md          invocation, scope, gates and session handoff
-│   ├── work-items-and-evidence.md   IDs, lifecycle, additive rules and evidence
-│   ├── git-publication.md           branch, candidate, push, PR, CI and merge rules
-│   ├── project-content.md           authoring, ownership, paths and scope instructions
+│   ├── workflow-control.md          invocation, scope, gates, re-entry and handoff
+│   ├── work-items-and-evidence.md   identity, lifecycle, readiness and completion
+│   ├── git-publication.md           branches, revision evidence, PRs, CI and merge
+│   ├── project-content.md           project authoring, ownership and instruction scopes
 │   └── trackers/
-│       ├── local.md                 Git-owned records, collaboration and verification
-│       ├── github.md                issue/sub-issue operations and native state
-│       └── jira.md                  issue/sub-task operations and private configuration
+│       ├── local.md                 local records, status and Git/verifier operations
+│       ├── github.md                native issue mappings, status and GitHub CLI operations
+│       └── jira.md                  native issue mappings, status and Jira helper operations
 ├── templates/
 │   ├── instructions/                root, scoped and Claude adapter templates
 │   ├── records/                     feature, local ticket/task and native draft structures
@@ -224,9 +223,9 @@ agenix/
     └── agenix_helpers/              shared parsing, paths, Git/CI and evidence logic
 ```
 
-The layout describes the intended bundle and its catalog. Include required runtime resources and notices. Keep maintainer instructions, scratch, real credentials and development fixtures outside the runtime package. The approved layout uses the root OpenAI extension instead of the existing Codex compatibility overlay. The guide is loaded on demand. No startup hook is needed.
+The layout describes the intended bundle and its catalog. Include required runtime resources and notices. Keep the proposal, implementation plan, maintainer instructions, scratch, real credentials and development fixtures outside the runtime package. The approved layout uses the root OpenAI extension instead of the existing Codex compatibility overlay. The guide is loaded on demand. No startup hook is needed.
 
-Each workflow router validates the exact arguments and item type, shows step order and points to the selected procedure. Keep workflow invocation explicit and allow the guide to be selected for usage questions. A step reference describes inputs, ordered actions, applicable method routes, output destination, checks, approval batch and completion. Link the specific shared section for rules that already have an owner. Add a focused topic only for reusable detail. A tracker route loads only its selected adapter.
+Each workflow entry validates arguments and item type, shows step order and selects the procedure. The procedure owns the selected step's inputs, actions, methods, outputs, checks, approval batch and completion. Keep a rule in the step when it applies only there.
 
 | Workflow                    | Files under `references/` in the skill                                                 |
 | --------------------------- | -------------------------------------------------------------------------------------- |
@@ -239,6 +238,29 @@ Each workflow router validates the exact arguments and item type, shows step ord
 | `agx-build`                 | `plan.md`, `run.md`                                                                    |
 | `agx-review`                | `assess.md`                                                                            |
 | `agx-ship`                  | `ticket-run.md`, `feature-run.md`, selected by item type                               |
+
+### Shared Reference Ownership and Routing
+
+Each shared reference covers one cohesive responsibility and reads on its own. Only `agx-*` instructions route to shared references, templates and helper entry points. The workflow entry or selected step names each resource and applicable section directly. Shared references contain no links to other packaged resources.
+
+| Shared Reference             | Owns                                                                                                                                                                                                            | Workflow Use                                                                                                                                                                                                                                                                                                                                                    |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `workflow-control.md`        | Invocation, scope and prerequisite handling, step markers, artifact gates, amendments, resume and handoff.                                                                                                      | Workflow entry and step lifecycle across setup through ship. Read amend/resume sections only on those routes. The guide can load the relevant section for usage questions.                                                                                                                                                                                      |
+| `work-items-and-evidence.md` | IDs and dependencies, frozen definitions and additive work, status semantics, verification modes, completion criteria and overrides. Owns shared remote item shape and common read-back and retry expectations. | `feature define` for feature IDs and dependencies, `spec behavior` for feature readiness, `plan strategy/tickets` for delivery coverage and ticket planning, and `build plan/run`, `review assess` and both ship routes for the selected item's checks. Setup reads the shared requirements its selected tracker must satisfy.                                  |
+| `git-publication.md`         | Branch and PR ownership, candidate-to-revision binding, approved writes, PR/CI evidence, merge authority, post-merge recovery and release authority.                                                            | Publishing steps use only the branch, commit/push and PR rules they need. `setup verify` reads applicable repository prerequisites, `scaffold ci` reads failure/restoration rules, `review assess` binds the decision to its candidate, and ship reads merge and closure rules. Feature ship reads exposure rules only where applicable.                        |
+| `project-content.md`         | Documentation language, authoring, paths, artifact ownership and managed project instructions, including private workspace boundaries.                                                                          | `setup configure` for configuration, ignores and root instructions, `scaffold structure` for scope selection, and `scaffold instructions` for verified operations and guardrails. Document-producing steps load applicable authoring and ownership sections. Helper resolution and execution belong to the calling workflow instructions and helper interfaces. |
+
+Load a tracker reference only when the step reads or writes that mode's ticket/task data, or verifies its setup. The feature record stays in Git in every mode. When feature ship verifies ticket closure, it loads the selected adapter for that check.
+
+| Tracker Reference    | Mode-Specific Guidance                                                                                                                                                                                                                                         |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `trackers/local.md`  | Explain canonical ticket files and embedded task records, working-branch versus merged state, edit reconciliation and prospective versus verified `DONE`. Explain what Git, `gh` and `verify-status.py` verify and how to interpret missing or stale evidence. |
+| `trackers/github.md` | Explain required CLI authentication and repository permissions, issue and sub-issue mappings, labels and native states, batch creation, paginated reads and verified closure using `gh`.                                                                       |
+| `trackers/jira.md`   | Explain project, issue-type and transition discovery, private credential setup, issue and sub-task mappings, labels and native transitions, and how to read back or reconcile writes through `jira.py`.                                                        |
+
+The principal tracker routes are `setup configure/verify`, `plan tickets`, `build plan/run`, `review assess` and `ship run` for both item types. Each loads the selected adapter together with the applicable shared work-item rules. The adapter explains what its tool needs, what it returns and what to do on partial or ambiguous results. The calling step resolves and invokes the actual tool or helper and supplies approved write scope and project inputs.
+
+Use the approved design as input when writing a shared guide. Organize the guide around what the caller needs to know, decide, do and verify. Keep workflow-specific sequences, examples and template bindings in the owning skill.
 
 ### Resource Resolution and Helper Boundaries
 
@@ -275,13 +297,15 @@ The endpoint is **v1 implementation complete**, with the source, runtime resourc
 
 ### Phase 1 - Shared Workflow Contracts and Helpers
 
-- [ ] Sync the maintainer instructions with the approved proposal and this plan before using them to implement workflows. Reuse the existing instruction entry points and remove obsolete section and phase links.
-- [ ] Author shared references for invocation, session-local markers and handoff, work-item definitions and evidence, publication and merge authority, project content and tracker-specific operations. Keep one owner for each rule.
-- [ ] Define managed configuration and record shapes for features, tickets, tasks, approvals and verification receipts. Bind stable IDs, frozen definitions, parentage and dependencies. Make validation stage-aware so later artifacts can be absent during earlier steps.
+- [x] Sync the maintainer instructions with the approved proposal and this plan before using them to implement workflows. Reuse the existing instruction entry points and remove obsolete section and phase links.
+  - Verified maintainer instruction alignment, Markdown, UTF-8, the 14 document links and the existing Claude import.
+- [x] After human confirmation, author the shared guides using the ownership and workflow routes in Section 3. Verify each guide is self-contained and each tracker guide explains its records, status handling, supported operations and tools.
+  - Reviewed all seven guides against their intended routes, including step closure, handoff and baseline amendments. UTF-8, Markdown and resource-boundary checks passed. GitHub CLI options were checked with installed help and Jira operations against the REST documentation.
+- [ ] Define the configuration and record schemas for features, tickets, tasks, approvals and verification receipts. Specify storage by tracker mode, immutable fields, IDs, parentage, dependencies and when each field becomes required. Define the mapping from shared fields to remote issue bodies, native metadata and checkpoints.
 - [ ] Implement contained resource and project path resolution, strict record parsing, definition and candidate binding, and shared Git/PR evidence reads. Keep unresolved prerequisites distinguishable from failed verification.
 - [ ] Implement `validate-artifacts.py` and the read-only `verify-status.py`. Keep declared state, candidate validity, verified completion and dependency readiness separate. Neither helper runs product tests or writes status.
 - [ ] Implement shared tracker operations. Use `gh` for GitHub and the root Jira helper for approved REST actions. Handle parent links, pagination, partial outcomes, read-back and duplicate avoidance. Keep credential access and sanitized diagnostics inside the Jira helper.
-- [ ] Create the shared instruction, record and evidence templates. Bind them to the record shapes and give each workflow an exact way to load its selected references and templates.
+- [ ] Create the shared instruction, record and evidence templates from the approved schemas. Cover the complete field set in the authoring guidance and mark local-only, remote-only, conditional and later-stage fields. Verify that each workflow selects the correct template and renders the fields for its tracker mode and stage.
 
 ### Phase 2 - Capability Preparation
 

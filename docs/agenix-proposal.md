@@ -77,7 +77,7 @@ The spec `api` step covers applicable public interfaces, including library expor
 Agenix uses one execution path for each declared context. Each planning level supplies a different part of that context:
 
 - **Setup:** tracker, documentation language, project scope and targets.
-- **Architecture and scaffold:** approved foundations and verification strategy, then verified commands, instruction routing, permissions and harnesses.
+- **Architecture and scaffold:** approved foundations and test strategy, then verified commands, instruction routing, permissions and harnesses.
 - **Feature and task plans:** delivery strategy, then concrete verification methods, check levels and mock or live contexts.
 
 Follow recorded choices for architecture, tools, tracking, verification, storage, publication and review. Missing prerequisites, unsupported versions, failed checks or ambiguous state block dependent work. Use [amendments](#amendments-and-re-entry) for material changes and the [scope rules](#scope-applicability) for inapplicable artifacts.
@@ -688,7 +688,9 @@ Scaffold `structure` identifies instruction scopes. Scaffold `instructions` auth
 
 ## 9. Project Instructions and Configuration
 
-`AGENTS.md` is the shared instruction source at root and selected module/release-unit scopes. Use a local `CLAUDE.md` import adapter at every generated scope under Section 8. Preserve team-owned content outside Agenix markers and existing Claude-specific instructions. Keep reusable lifecycle, publication and content-authoring rules in packaged references, loaded explicitly by the selected workflow. Project instructions retain concise workflow/authority reminders, project-specific configuration, scope routing and verified operations rather than duplicating those reference documents. Installation or a Markdown link alone does not make a rule active; the workflow must load the relevant instructions. Never persist machine-specific plugin-cache paths in shared project instructions.
+`AGENTS.md` is the shared instruction source at root and selected module/release-unit scopes. Use a local `CLAUDE.md` import adapter at every generated scope under Section 8. Preserve team-owned content outside Agenix markers and existing Claude-specific instructions. Project instructions retain concise workflow and authority reminders, project-specific configuration, scope routing and verified operations. Keep machine-specific plugin-cache paths out of shared project instructions.
+
+The invoked workflow skill loads the shared guidance, templates and helpers needed by the selected step. Each shared guide covers one responsibility and is readable within that scope. When a step needs several resources, the workflow names them directly. The tracker guide explains the selected mode's records, status, operations and tools. The workflow supplies the inputs, applies the human gate and verifies the result.
 
 Shared configuration in root `AGENTS.md` records the Agenix/helper compatibility pin, tracker, GitHub repository/default branch, `docs-language` (English by default), project scope and any optional production-exposure operation. Keep non-secret settings in one owned JSON block, preserving team content; missing/invalid configuration blocks dependent actions. Implementation supplies exact schemas and generated instruction templates.
 
@@ -750,17 +752,13 @@ Setup verifies executable versions/capabilities; README records tested Python ve
 
 ### Content and Reference Rules
 
-Apply these rules to Agenix's own documentation/instructions and to generated or maintained consuming-project content; keep root instructions concise and link to detailed contracts only when needed:
+Write for readers without prior chat context. Fit the structure to the artifact and follow its owning template or applicable standard. Use consistent terminology and stable identifiers. Distinguish verified facts from assumptions and check material external claims against authoritative sources.
 
-- Use consistent terminology, identifiers, structure and formatting across related artifacts, following the relevant domain/tool's standard terms. Define project-specific terms before relying on them.
-- State verified facts accurately; distinguish assumptions, proposals and unknowns. Never invent requirements, APIs, execution results or approval. Verify material external claims against authoritative sources.
-- Write for a human or AI without prior conversation context: make purpose, scope, decisions and required actions clear. Prefer concise, relevant explanations over transcripts or repeated rationale.
-- Default documentation to English; setup records `docs-language` and all generated explanatory documentation follows it. Keep required machine keys, IDs, API/tool names and upstream notices unchanged. Product/UI language is a separate requirements decision.
-- Keep one authoritative owner per rule/contract. Prefer references over duplication; repeat only the small amount needed for safe standalone use, and keep it consistent with its source.
-- Reference relevant content with the target section/anchor or exact definition and explain its role. Avoid unrelated links, link chains and unnecessary circular navigation. Navigation backlinks are permitted; dependency/authority cycles are not. Load the relevant section first, expanding context when a cross-cutting check requires it.
-- After edits, review the complete affected context and consumers, update links and examples, remove obsolete/conflicting text and revalidate. Preserve approved work-item definitions; use the additive-work and amendment rules rather than silently rewriting history.
+Agenix's own documentation and instructions use English. Generated explanatory content follows the consuming project's approved `docs-language`, which defaults to English. Machine keys, identifiers, tool and API names, and required upstream notices retain their defined forms. Product and UI language is decided separately.
 
-Keep these as shared authoring instructions; they require no separate capability skill.
+Keep one owner per rule or contract. Link directly to the relevant definition when readers need it, and keep enough local context to use the reference. Review affected consumers, links and examples after edits. Approved definitions and shared contracts retain their [work-item and amendment rules](#approved-work-items-and-additive-planning).
+
+Write packaged guidance for use during workflow execution. Organize it around the decisions, operations and evidence needed at that point. Keep step-specific execution details in the owning workflow.
 
 ### Private Workspace and Credentials
 
@@ -1092,7 +1090,7 @@ Phase 2 may select hooks, subagents or custom-agent profiles when they improve e
 
 Keep portable root `plugin.json` plus the selected Claude/Antigravity manifests consistent. Workflow and independently reusable capability skills share `skills/` content; named-step routing loads only relevant instructions. Phase 2 decides concrete helper/template/reference layouts, capability composition and any justified hook/subagent integration.
 
-Maintainer instructions govern building Agenix, not consuming-project policy. Exclude scratch, credentials and development-only context from distributables. A repository marketplace catalog describes discovery and distribution separately from plugin manifests; verify both on the selected host surfaces. Per-host tests must verify discovery, explicit invocation, argument routing, resource paths and scoped instruction loading; vendor documentation alone is not runtime proof.
+Maintainer instructions govern building Agenix, not consuming-project policy. Exclude the proposal, implementation plan, scratch, credentials and development-only context from distributables. Runtime instructions and resources are self-contained within the installed bundle and the selected consuming project. A repository marketplace catalog describes discovery and distribution separately from plugin manifests; verify both on the selected host surfaces. Per-host tests must verify discovery, explicit invocation, argument routing, resource paths and scoped instruction loading; vendor documentation alone is not runtime proof.
 
 ### Capability Selection Boundary and Third-Party Reuse
 
