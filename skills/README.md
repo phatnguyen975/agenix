@@ -17,7 +17,7 @@ The current directory contains 20 capability skills. Workflow skills and additio
 | [codebase-design](codebase-design/SKILL.md)                                   | Design or assess source layout, module boundaries, dependencies, public surfaces and structural conventions. |
 | [codegraph-intelligence](codegraph-intelligence/SKILL.md)                     | Investigate code structure and impact using a verified CodeGraph CLI and project index.                      |
 | [context-priming](context-priming/SKILL.md)                                   | Load relevant context when starting, switching or resuming work.                                             |
-| [data-impact-analysis](data-impact-analysis/SKILL.md)                         | Analyze persisted-data effects against an existing model and propose approved model changes.                 |
+| [data-impact-analysis](data-impact-analysis/SKILL.md)                         | Assess persistence effects, migration dependencies and rollout risk against a baseline.                      |
 | [database-design](database-design/SKILL.md)                                   | Design an initial relational or document data model for an already selected storage paradigm.                |
 | [domain-modeling](domain-modeling/SKILL.md)                                   | Establish or refine technology-independent product language, business rules and domain boundaries.           |
 | [evolutionary-architecture-design](evolutionary-architecture-design/SKILL.md) | Evaluate architectural drivers, boundaries, trade-offs and evolutionary decisions.                           |

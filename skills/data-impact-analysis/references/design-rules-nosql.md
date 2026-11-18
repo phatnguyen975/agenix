@@ -2,7 +2,7 @@
 
 NoSQL is not one data model. Distinguish document, key-value, wide-column, graph, time-series, search, and event-stream stores. The rules below cover document and key-value/wide-column stores; verify other models against the selected product's documentation.
 
-**Start from requirements and access patterns.** List reads, writes, lookups, uniqueness checks, ordering/pagination, and event/replay paths before choosing the model. Assign `AP-xx` IDs and link keys/indexes to them.
+**Start from requirements and access patterns.** List relevant reads, writes, lookups, uniqueness checks, ordering/pagination, and event/replay paths. Link affected keys and indexes to the operations or invariants they support.
 
 ## 1. Document Stores
 
@@ -34,6 +34,7 @@ Compare workload, atomicity, size/growth, ownership, access, duplication, and re
 - Use schema validation when supported; define level, old/unknown-field behavior, and rollout.
 - Add a schema version only for a real compatibility/migration need; specify version handling.
 - State atomicity at the actual document/operation scope. Do not assume multi-document atomicity.
+- For invariants across documents, check how competing writers conflict or serialize. An existence read alongside an insert may race with concurrent deletion of the target.
 - Define unique/partial/sparse/multikey behavior and missing/null semantics from product docs.
 - Assess size limits, hot documents, index cardinality, and write amplification.
 
@@ -49,7 +50,7 @@ Compare workload, atomicity, size/growth, ownership, access, duplication, and re
 ### Keys and Workload
 
 - Define the full primary key: partition plus sort/range key where applicable; include type, encoding, uniqueness scope, and composite-key grammar.
-- Map each AP to key conditions, filters, ordering, and result shape. State when a secondary index, fan-out, scan, or materialized copy is needed.
+- Map each access pattern to key conditions, filters, ordering, and result shape. State when a secondary index, fan-out, scan, or materialized copy is needed.
 - Assess hot keys and skew; high cardinality alone does not prevent hot partitions.
 - Design sort keys for grouping, prefix, range, and ordering needs. Avoid ambiguous composite encodings.
 - For each secondary index, define keys, projection, sparse/condition rules, consistency, cost, and backfill where supported.
@@ -80,6 +81,7 @@ For graph, time-series, vector, search, object, or event-stream stores:
 - [MongoDB Embedding](https://www.mongodb.com/docs/manual/data-modeling/embedding/) and [Referencing](https://www.mongodb.com/docs/manual/data-modeling/referencing/)
 - [MongoDB Unbounded Arrays](https://www.mongodb.com/docs/manual/data-modeling/design-antipatterns/unbounded-arrays/)
 - [MongoDB Schema Validation](https://www.mongodb.com/docs/manual/core/schema-validation/)
+- [MongoDB Atomicity and Transactions](https://www.mongodb.com/docs/manual/core/write-operations-atomicity/)
 - [MongoDB Unique Indexes](https://www.mongodb.com/docs/manual/core/index-unique/)
 - [DynamoDB Partition Keys](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-partition-key-design.html) and [Sort Keys](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-sort-keys.html)
 - [DynamoDB Version Control](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/BestPractices_ImplementingVersionControl.html) and [Condition Expressions](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.ConditionExpressions.html)

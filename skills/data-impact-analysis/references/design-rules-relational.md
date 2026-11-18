@@ -6,8 +6,8 @@ These are defaults, not substitutes for project conventions or the selected data
 
 - Start from sourced entities, attributes, cardinality, optionality, ownership, lifecycle, and operations.
 - Model relationships explicitly. Use an association table for many-to-many relations unless requirements justify another design.
-- **Use 3NF by default:** atomic attributes (1NF), full-key dependency (2NF), and no transitive non-key dependency (3NF).
-- Denormalize only for a named `AP-xx` or clear integrity/workload need. Record source of truth, update/repair mechanism, consistency window, and write cost.
+- Preserve sound existing normalization. Analyze functional dependencies and update anomalies when adding or duplicating facts.
+- Denormalize only for a named access pattern or clear domain need. Record source of truth, update/repair mechanism, consistency window, and write cost.
 - Do not persist derived values without an access, snapshot, audit, or history requirement.
 
 ## 2. Fields and Types
@@ -16,7 +16,7 @@ For every added/changed field, define name/path, meaning, type/precision, nullab
 
 - Distinguish null, empty, zero, missing, and unknown.
 - Choose money, time, identifier, and measurement types from domain needs and project conventions; do not guess precision, timezone, or units.
-- Use one canonical status field for a lifecycle, not overlapping booleans. Define allowed values in Section 7.
+- For a lifecycle, identify the canonical state representation and check allowed values and transitions.
 - A default does not necessarily backfill existing rows; verify engine behavior.
 
 ## 3. Keys and Relationships
@@ -36,11 +36,11 @@ Prefer database enforcement where reliable. Check current data before tightening
 
 ## 5. Index Design
 
-- Start from named `AP-xx` patterns: predicates, joins, ordering, pagination, projections, scale, and scan tolerance.
+- Start from named access patterns: predicates, joins, ordering, pagination, projections, scale, and scan tolerance.
 - Reuse an index only after checking ordered keys, expression/collation, predicate, included columns, and engine semantics.
 - For common B-tree patterns, equality columns often precede sort/range columns; verify the actual engine and query.
 - A leading-prefix index may be redundant, but uniqueness, predicates, ordering, included columns, type, or workload may justify both.
-- Every new index names its AP and justifies write, storage, maintenance, and build cost.
+- Every new index names the operation or invariant it supports and justifies write, storage, maintenance, and build cost.
 - Define unique, partial, expression, covering, and specialized index options precisely and verify support.
 - Consider update/delete/FK checks as well as reads. Do not claim plan validation without inspecting a plan.
 
@@ -48,21 +48,9 @@ Prefer database enforcement where reliable. Check current data before tightening
 
 - Classify compatibility with existing data, consumers, and old/new app versions.
 - Audit data before adding non-null, unique, restrictive, or type constraints.
-- For breaking changes, plan expand/migrate/contract when suitable; state version compatibility, locks/build behavior, rollback limits, and irreversible points.
+- Apply [rollout and recovery checks](change-classification.md#2-breaking-changes-expand--migrate--contract) when the change affects existing data or supported versions.
 - Consider transaction duration, table rewrites, replication lag, and deployment order.
 - For changes across stores, use a documented alternative such as outbox/saga/compensation when one transaction cannot cover them.
-
-## 7. Anti-Patterns
-
-| Pattern                                      | Better default                                                                                         |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Delimited lists                              | Child/association table when values need independent access or integrity.                              |
-| Numbered columns (`item1`, `item2`)          | Child table or bounded structured value.                                                               |
-| EAV for known attributes                     | Typed columns; use EAV only for genuinely open-ended attributes with explicit query/validation design. |
-| Polymorphic IDs across unrelated tables      | Explicit associations or documented application integrity.                                             |
-| Table/column per year or category            | Value/partitioning design supported by workload and engine.                                            |
-| Multiple booleans for one lifecycle          | One status field and transition rules.                                                                 |
-| Duplicated derived columns without ownership | Normalize or define source of truth, propagation, and repair.                                          |
 
 ## Official References
 

@@ -1,13 +1,13 @@
 # Change Classification and Rollout Safety
 
-Classify each DMC by compatibility with existing data, applications, and consumers. `Additive` and `Breaking` describe compatibility risk, not implementation effort.
+Assess each proposed change against existing data, applications, and consumers. Classify compatibility separately from rollout risk. An additive change may still require a table lock, significant storage, or deployment coordination.
 
 ## 1. Classification
 
-| Class    | Criteria                                                                                                               | Typical examples                                                                                                                            |
-| -------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| Additive | Existing valid data and supported old readers/writers remain compatible through rollout.                               | Optional field, independent entity, compatible index, rule limited to new data.                                                             |
-| Breaking | Existing data, readers/writers, consumers, or an intermediate rollout can fail or change meaning without coordination. | Rename/remove, incompatible type or key change, required field without safe backfill, tighter constraint, changed deletion/state semantics. |
+| Class      | Criteria                                                                                                                        | Typical examples                                                                                                                            |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Compatible | Existing valid data and supported readers and writers continue to work through rollout. Assess this for each supported version. | An optional field accepted by existing readers and writers, or an independent table.                                                        |
+| Breaking   | Existing data, readers/writers, consumers, or an intermediate rollout can fail or change meaning without coordination.          | Rename/remove, incompatible type or key change, required field without safe backfill, tighter constraint, changed deletion/state semantics. |
 
 Before classifying, check:
 
@@ -17,7 +17,7 @@ Before classifying, check:
 - Engine/version behavior: locks, index builds, consistency, throughput, atomicity.
 - Rollback limits and the irreversible point.
 
-Unknown compatibility is not evidence of safety. Record the uncertainty and block the decision when material.
+When information is missing, report compatibility as unverified and identify the affected rollout decision.
 
 ## 2. Breaking Changes: Expand → Migrate → Contract
 
@@ -33,7 +33,7 @@ For each stage, state:
 - Data visibility, consistency, and dual-write risk.
 - Backfill and completion checks.
 - Retry, idempotency, rollback, and recovery.
-- DMC dependencies and operational hazards.
+- Change dependencies and operational hazards.
 
 Do not write migration commands or scripts. Specify the required behavior for a later implementation task.
 
@@ -53,11 +53,9 @@ Neither is automatically low-risk. Verify engine/version support, locking, onlin
 
 ## 5. Dependencies and Ordering
 
-- List prerequisites; avoid dependency cycles.
-- Keep DMCs reviewable without leaving an invalid intermediate model.
-- Order changes to shared structures so every intermediate state is coherent.
-- Reuse an applied DMC only after verifying semantic equivalence in the current model.
-- Before reversing an applied DMC, inspect later consumers and plan a safe deprecation/rollout.
+- Keep each change reviewable and each intermediate state compatible with supported readers and writers.
+- Check ordering, overlaps, and owners using [Parallel Changes](baseline-reconciliation.md#parallel-changes).
+- Before reversing an applied change, inspect later consumers and supported deployed versions. Prefer a verified forward correction or recovery plan when reversing the schema would lose data or break those consumers.
 
 ## References
 
