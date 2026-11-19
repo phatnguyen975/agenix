@@ -14,6 +14,25 @@ Use this guide when `tracker: jira`. Map a ticket to one configured standard iss
 2. Create issues or sub-tasks with the verified project and type. Set a sub-task's parent using `fields.parent.key`. Convert the approved description and comments to Atlassian Document Format using supported paragraphs, lists and links. Preserve canonical IDs and acceptance references in the converted content.
 3. Record the returned key and read back the type, parent, labels, links and current status. Traverse every page for collections. Reconcile a partial or unknown create by exact ID and parent before attempting another write. If search can still be stale and direct reads cannot resolve the outcome, leave the create unresolved.
 
+## Helper Operations
+
+Run the installed entry point with the absolute Git worktree root and the declared private credential path.
+
+```bash
+python "<plugin-root>/scripts/jira.py" --project-root "<project-root>" --credentials-file ".agenix/credentials/jira.json" <operation> <arguments>
+```
+
+| Operation                                      | Arguments and Result                                                                                                                                                                                                                                                                                                   |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `discover`, `link-types`                       | Read project issue types and link types. For `discover --issue-type <id>`, read the create fields for that type.                                                                                                                                                                                                       |
+| `issue`, `children`, `comments`, `transitions` | Pass `--key <issue-key>` to read the issue or its related records.                                                                                                                                                                                                                                                     |
+| `create`, `reconcile`                          | Pass `--input <draft-path>` containing `role`, `item`, `summary`, ADF `description` and `labels`. Include `parent` for a task and optional approved native `fields`. Only use `create` for a new approved write. After an uncertain outcome, use `issue` with the returned key or `reconcile` with the original draft. |
+| `comment`                                      | Pass `--key <issue-key> --input <draft-path>` containing the ADF checkpoint. After an uncertain write, inspect existing comments first.                                                                                                                                                                                |
+| `dependency`                                   | Pass `--key <dependent-key> --prerequisite <prerequisite-key>`. The helper checks for the existing link before writing.                                                                                                                                                                                                |
+| `status`                                       | Pass `--key <issue-key> --status <agenix-status>`. Use lowercase status values. Supply `--input <draft-path>` for required native transition fields, and `--transition-id <id>` when selecting an exact transition.                                                                                                    |
+
+Draft paths are project-relative JSON inputs. The calling step owns ADF rendering, the approved definition and write authority. The helper saves a private create receipt under `.agenix/issues/` before sending a new issue. It retains the known native key for direct read-back. An unresolved receipt blocks another create on a search miss. Preserve it and the draft until mappings and evidence are durable.
+
 ## Confirm Native State
 
 | Agenix State               | Configured Target for the Issue Type                                                    |

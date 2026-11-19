@@ -51,6 +51,12 @@ Use the approved codebase design for source, test and release-unit paths. Create
 
 Setup creates `agenix-artifacts.yml` for bootstrap artifact validation. Scaffold CI creates `agenix-application.yml` for the applicable app, prototype or contract checks selected by the test strategy, once their commands have been verified. Before scaffold, the artifact workflow supplies the required CI checks.
 
+## Keep Design and Implementation Sources Aligned
+
+- **Domain and contracts.** The shared domain model owns business language and invariants. Shared contract definitions own wire shapes. Feature specifications own feature behavior and acceptance. Resolve conflicting shared rules through the owning amendment before dependent work.
+- **Data.** Database design records the initial design and ownership. Use the schema declarations and relevant migrations at the selected integrated revision for the current repository schema. Assign each new shared structure to one owner and record its consumers and dependencies. Build writes migrations, preserves already-applied migrations and verifies applicable initialization and upgrades on a disposable store. Amend the design when its intent changes.
+- **UI.** The global written design owns shared UI rules. The feature's written prototype owns its screens, states and acceptance references. Verify the applicable design in a browser before approval. Once production implementation begins, preserve the original demonstrations and verify production behavior against the current written contracts.
+
 ## Configure Instructions and Scope
 
 1. Keep root `AGENTS.md` as the shared instruction entry. Point it to root `config.agenix.json` and to `environment.agenix.json` when scaffold provides it. Keep the compatibility pin, tracker, repository settings, project scope, documentation language and any configured exposure operation in the non-secret configuration file. Preserve team-owned text outside managed blocks. Provide the usage-guide entry and baseline scope, authority and safety rules.
@@ -61,11 +67,17 @@ Setup creates `agenix-artifacts.yml` for bootstrap artifact validation. Scaffold
 
 At the final scaffold step, use root `environment.agenix.json` to document how to run and check the project. Use the results already verified during scaffold.
 
-- **Commands.** For each operation or check, record its ID, release unit, exact arguments, working directory, target and actual result. Include the test level, mode, required services and permissions where applicable. Use one approved command per operation, unit, target and mode.
+- **Commands.** Record the ID, release unit, exact arguments, working directory, target and mode. Include the test level, required services and permissions where applicable. Use one approved command per operation, unit, target and mode. Put observed results in evidence records.
 - **Services and access.** Identify the isolated services and how to check readiness, reset and clean them up. For each environment, list allowed, approval-required and prohibited operations. Limit access to approved paths, networks and resources. Record which restrictions are enforced and stop affected operations if required tools, permissions or controls are unavailable.
 - **Instructions.** Set `instruction-entry: AGENTS.md` to identify the root instructions. They direct the agent to the relevant scope.
 
 Use the same verified arguments and working directories in the project README. Mark a command as verified only when there is an actual result. Treat external content as evidence.
+
+## Validate Managed Records
+
+Run `validate-artifacts.py --project-root <absolute-root> --stage <stage>` before approval or in artifact CI for the applicable managed records. Use `config` during setup, `environment` after scaffold, `feature` for feature records and `feature-plan` for delivery plans in any tracker mode. Use `task-plan` for embedded local tasks. Supply `--item` with the owning feature or local ticket at a plan gate. Remote task definitions are verified through their native tracker.
+
+The helper locates managed records at their declared paths under the Git worktree root. The stage selects the required records and the tracker selects the applicable mapping.
 
 ## Protect Private Workspace State
 

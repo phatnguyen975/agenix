@@ -461,7 +461,7 @@ Completion evidence is revision-specific. A later substantive change requires af
 - `test-after` requires a task-specific reason approved in planning. Define expected results first, then implement and add/run automated checks before completion. It is not permission to defer tests past the build gate.
 - `manual` covers a judgment or operation that cannot reasonably be automated. Define the procedure, expected result and human responsibility in advance. AI still performs all applicable automated checks; it cannot self-confirm a human-only judgment.
 
-The test strategy defines applicable levels, tools and permitted exception criteria. Task planning selects concrete methods/checks and explains each exception; it cannot quietly change strategy. Manual-only judgments are leaf tasks so the autonomous implementation loop does not wait for a human mid-batch.
+The test strategy defines applicable levels, tools and permitted exceptions. Task planning selects concrete methods and checks and explains each exception within that strategy. Manual tasks are leaves because completion requires human confirmation even when automated checks also apply.
 
 Verification readiness grows with the artifact lifecycle:
 

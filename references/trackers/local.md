@@ -26,3 +26,12 @@ Use one editor per ticket and coordinate catalog allocation, shared plan edits a
 3. Keep the approved local task plan in the ticket file and publish updates on the owned branch. At ticket ship, the candidate may carry prospective `DONE` and task completion metadata bound to pending final-head checks. After merge, confirm the approved record reached the default branch and verify closure from actual PR and check results.
 
 If another contributor updated the same record, pause publication and agree who reconciles it. Preserve both valid contributions, approved definitions, stable IDs and evidence. Recheck dependencies, coverage and affected checks. Obtain fresh approval for material changes before publishing.
+
+When a selected, unstarted item is `BLOCKED`, run the verifier before work begins. A result with `dependency-ready: true` permits the owning workflow to consider `READY` after checking the step's other prerequisites. The verifier leaves the record untouched. An active item keeps its lifecycle status if a new blocker appears.
+
+## Helper Inputs
+
+- Run `verify-status.py --project-root <absolute-root> --item <id>` after refreshing `origin`. Select `active-build` for same-worktree task evidence, `candidate-ci` for prospective state or `delivery` for merged evidence. Pass the checked `--revision` or the staged task `--tree` when evaluating a candidate.
+- Pass the required GitHub check names from the approved policy using `--head-check` and `--post-merge-check`. Use `--ci-policy` with per-item `head` and `merge` name arrays when the requirements differ. Explicitly select the applicable empty set when the approved policy has no checks for that stage. Supply `--pr-number` when inspecting an open candidate's PR. Pass exact `--approved-blob` entries only for bookkeeping explicitly covered by approval.
+- Read the JSON result before proceeding. Exit 2 means invalid input or contradictory evidence. Exit 3 means a required input or observation is unavailable. A successful structural check, pending candidate-CI result or provisional local result is usable only within its reported scope.
+- If check results attach to an open PR's test merge, pass the exact `--test-merge-revision`. The helper checks the live PR mapping and both commit parents before reading results for that revision.

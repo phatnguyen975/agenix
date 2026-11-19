@@ -61,8 +61,9 @@ Method is test-first, test-after or manual. Checks are distinct approved check I
 separated by commas. Automated methods require at least one check. Use the exact value
 "None" only for manual tasks with no applicable automated checks. For test-after and
 manual include Exception Reason. Include Manual Procedure, Expected Result and
-Responsible Verifier only for manual. Copy the approved values. Derive check levels from
-the check definitions.
+Responsible Verifier only for manual. Manual tasks require human confirmation and
+cannot be prerequisites for other tasks. Copy the approved values. Derive check
+levels from the check definitions.
 -->
 
 - **Method:** <test-first, test-after or manual>

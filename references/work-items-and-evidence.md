@@ -41,7 +41,7 @@ There are 3 types of verification:
 
 - `test-first` is the default. Establish the intended acceptance assertion failure, implement and verify a passing result. Keep checks passing during refactoring. A broken harness or missing dependency does not establish the intended failure.
 - `test-after` needs a task-specific reason approved during planning. Define expected results before implementation and add/run automated checks before completion.
-- `manual` needs an approved procedure, expected result and human responsibility. Run applicable automated checks as well. A task that relies on a human-only judgment is a leaf. Other tasks cannot depend on it.
+- `manual` needs an approved procedure, expected result and human verifier. Run applicable automated checks as well. A manual task is a leaf because its completion requires human confirmation. Other tasks cannot depend on it.
 
 Use the approved strategy to select check levels, tools and exceptions. Validate the managed non-secret artifacts and fields due at the current stage. Check IDs, references, ownership and dependencies. Treat parsed records as data. Reject malformed, duplicate or ambiguous fields, conflict markers and empty required acceptance or task sets. Check schemas, prototype replay and product behavior separately when applicable. Match evidence to the actual boundary and environment.
 

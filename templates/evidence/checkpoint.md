@@ -32,7 +32,7 @@ snapshot-specific Git evidence. Include the checkpoint ID when selecting one ins
 JSON record.
 -->
 
-- `<target>` at `<evidence commit>` _(Checkpoint: <checkpoint-id>)_
+- `<target>` [at `<evidence commit>`] [_(Checkpoint: <checkpoint-id>)_]
 
 ## Candidate
 

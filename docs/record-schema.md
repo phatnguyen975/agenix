@@ -149,7 +149,7 @@ The task's `verification` object is its approved plan. It uses the following fie
 | `exception-reason`                                            | `string`                             | `test-after` or `manual`. Approve the reason during planning.                                                                                                |
 | `manual-procedure`, `expected-result`, `responsible-verifier` | `string` each                        | `manual` only.                                                                                                                                               |
 
-Read levels from the check definitions. Run applicable automated checks even for manual tasks. Store actual results, tested revisions and human confirmations in checkpoints.
+Read levels from the check definitions. Run applicable automated checks even for manual tasks. Reject task dependencies on tasks that use the manual method. Store actual results, tested revisions and human confirmations in checkpoints.
 
 ### Mappings and Changes
 
@@ -356,12 +356,12 @@ Reject an address without a postal code.
 
 ## Details
 
-- Feature: FEAT-003
-- Feature Reference: `docs/features/FEAT-003/feature.agenix.json` at `2222222222222222222222222222222222222222`
-- Type: feat
-- Scope: backend
-- Priority: high
-- Owner: checkout
+- **Feature:** FEAT-003
+- **Feature Reference:** `docs/features/FEAT-003/feature.agenix.json` at `2222222222222222222222222222222222222222`
+- **Type:** feat
+- **Scope:** backend
+- **Priority:** high
+- **Owner:** checkout
 
 ## Dependencies
 
@@ -369,7 +369,7 @@ None
 
 ## References
 
-- `docs/features/FEAT-003/spec.md#ac-003` at `2222222222222222222222222222222222222222` (Acceptance: AC-003)
+- `docs/features/FEAT-003/spec.md#ac-003` at `2222222222222222222222222222222222222222` _(Acceptance: AC-003)_
 ```
 
 The native task title is `FEAT-003-T01.1: Reject a missing postal code`. Use `status:ready` and attach it to the native ticket. The parent checkpoint preserves the approved task definition in this readable form. The same definition then goes into the child body.
@@ -381,7 +381,7 @@ Reject the request without persisting the address.
 
 ## Details
 
-- Parent Ticket: FEAT-003-T01
+- **Parent Ticket:** FEAT-003-T01
 
 ## Dependencies
 
@@ -389,12 +389,12 @@ None
 
 ## Acceptance
 
-- AC-1 (Covers: AC-003): A request that omits the postal code returns a validation error and saves no address.
+- **AC-1:** A request that omits the postal code returns a validation error and saves no address. _(Covers: AC-003)_
 
 ## Verification
 
-- Method: test-first
-- Checks: checkout-address-integration
+- **Method:** test-first
+- **Checks:** checkout-address-integration
 ```
 
 For Jira, render these sections using the equivalent ADF labels and lists. Both native items use the configured To Do status.

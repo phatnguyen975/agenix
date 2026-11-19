@@ -134,6 +134,7 @@
           "minLength": 1
         },
         "depends-on": {
+          "description": "Sibling task IDs. Tasks that use manual verification cannot be prerequisites.",
           "type": "array",
           "items": {
             "$ref": "../evidence/checkpoint.schema.json#/$defs/taskID"
