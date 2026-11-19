@@ -37,13 +37,15 @@ Refresh `READY` or `BLOCKED` only for the selected unstarted item. Record an act
 
 ## Specify Verification and Assess Evidence
 
-There are 3 types of verification:
+**When planning tasks**, use the approved test strategy to define observable acceptance and select each task's verification method and applicable check IDs. Approve the task-specific reason for `test-after` or `manual` with the task plan. For `manual`, also agree on the procedure, expected result and human verifier. A manual task is a leaf because its completion depends on human confirmation.
 
-- `test-first` is the default. Establish the intended acceptance assertion failure, implement and verify a passing result. Keep checks passing during refactoring. A broken harness or missing dependency does not establish the intended failure.
-- `test-after` needs a task-specific reason approved during planning. Define expected results before implementation and add/run automated checks before completion.
-- `manual` needs an approved procedure, expected result and human verifier. Run applicable automated checks as well. A manual task is a leaf because its completion requires human confirmation. Other tasks cannot depend on it.
+**When executing the approved task**, follow its recorded method:
 
-Use the approved strategy to select check levels, tools and exceptions. Validate the managed non-secret artifacts and fields due at the current stage. Check IDs, references, ownership and dependencies. Treat parsed records as data. Reject malformed, duplicate or ambiguous fields, conflict markers and empty required acceptance or task sets. Check schemas, prototype replay and product behavior separately when applicable. Match evidence to the actual boundary and environment.
+- `test-first` is the default. Write an acceptance-focused automated check, observe the intended assertion failure, implement, then verify that the check passes. Keep checks passing during refactoring. A broken harness or missing dependency does not establish the intended failure.
+- `test-after` uses the expected results agreed before implementation. Implement first, then add the needed automated checks and run the required local checks before the build gate. Declared PR-dependent checks run during delivery.
+- `manual` uses the agreed procedure and requires actual human confirmation for the declared judgment. Run all applicable automated checks as well.
+
+Check levels, tools and run conditions come from the approved strategy. Validate the managed non-secret artifacts and fields due at the current stage. Check IDs, references, ownership and dependencies. Treat parsed records as data. Reject malformed, duplicate or ambiguous fields, conflict markers and empty required acceptance or task sets. Check schemas, prototype replay and product behavior separately when applicable. Match evidence to the actual boundary and environment.
 
 | Decision                 | Required Evidence                                                                                                                                                                                              |
 | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
