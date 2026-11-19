@@ -1,0 +1,1052 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agenix.invalid/templates/evidence/checkpoint.schema.json",
+  "title": "Agenix checkpoint",
+  "description": "Embed in the owning Git record. Include only entries applicable to the current step. Verify external facts, Git objects, stage requirements and human approval through the workflow.",
+  "type": "object",
+  "properties": {
+    "checkpoint-id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "phase": {
+      "type": "string",
+      "minLength": 1
+    },
+    "step": {
+      "type": "string",
+      "minLength": 1
+    },
+    "recorded-at": {
+      "$ref": "#/$defs/utcTime"
+    },
+    "outcome": {
+      "type": "string",
+      "minLength": 1
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/evidenceRef"
+      },
+      "uniqueItems": true
+    },
+    "item-id": {
+      "$ref": "#/$defs/itemID"
+    },
+    "next-action": {
+      "type": "string",
+      "minLength": 1
+    },
+    "candidate": {
+      "type": "object",
+      "properties": {
+        "base-commit": {
+          "$ref": "#/$defs/gitOID"
+        },
+        "tree": {
+          "$ref": "#/$defs/gitOID"
+        },
+        "target-base-commit": {
+          "$ref": "#/$defs/gitOID"
+        },
+        "approved-definitions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/approvedDefinition"
+          },
+          "minItems": 1
+        },
+        "baseline-commit": {
+          "$ref": "#/$defs/gitOID"
+        }
+      },
+      "required": [],
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": ["base-commit", "tree"]
+        },
+        {
+          "required": ["approved-definitions", "baseline-commit"]
+        }
+      ],
+      "dependentRequired": {
+        "base-commit": ["tree"],
+        "tree": ["base-commit"],
+        "target-base-commit": ["base-commit"],
+        "approved-definitions": ["baseline-commit"],
+        "baseline-commit": ["approved-definitions"]
+      }
+    },
+    "decision": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "artifact",
+            "review",
+            "feature-acceptance",
+            "merge",
+            "exposure",
+            "manual-confirmation",
+            "cancellation",
+            "override"
+          ]
+        },
+        "result": {
+          "type": "string",
+          "enum": ["approved", "changes-requested", "passed", "failed"]
+        },
+        "actor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "at": {
+          "$ref": "#/$defs/utcTime"
+        },
+        "confirmation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "authorized-actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "minLength": 1
+              },
+              "target": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": ["action", "target"],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        },
+        "pr": {
+          "$ref": "#/$defs/prRef"
+        },
+        "head-commit": {
+          "$ref": "#/$defs/gitOID"
+        },
+        "operation-id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "$ref": "#/$defs/gitOID"
+        },
+        "artifact-ref": {
+          "$ref": "#/$defs/evidenceRef"
+        },
+        "acceptance-ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "check-ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "required": ["kind", "result", "actor", "at", "confirmation"],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": ["merge"]
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "required": ["pr", "head-commit"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": ["exposure"]
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "required": ["operation-id", "target"],
+            "oneOf": [
+              {
+                "required": ["revision"]
+              },
+              {
+                "required": ["artifact-ref"]
+              }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": ["manual-confirmation"]
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "anyOf": [
+              {
+                "required": ["acceptance-ids"]
+              },
+              {
+                "required": ["check-ids"]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "verification": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/verificationReceipt"
+      },
+      "minItems": 1
+    },
+    "publication": {
+      "type": "object",
+      "properties": {
+        "head-commit": {
+          "$ref": "#/$defs/gitOID"
+        },
+        "pr": {
+          "$ref": "#/$defs/prRef"
+        },
+        "native-mappings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nativeMapping"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "merge-commit": {
+          "$ref": "#/$defs/gitOID"
+        }
+      },
+      "required": [],
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": ["head-commit"]
+        },
+        {
+          "required": ["pr"]
+        },
+        {
+          "required": ["native-mappings"]
+        },
+        {
+          "required": ["merge-commit"]
+        }
+      ],
+      "dependentRequired": {
+        "merge-commit": ["pr", "head-commit"]
+      }
+    },
+    "disposition": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "item-id": {
+              "$ref": "#/$defs/itemID"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            },
+            "replacement-refs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/artifactRef"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          },
+          "required": ["item-id", "reason"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "item-id": {
+              "$ref": "#/$defs/itemID"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            },
+            "action": {
+              "type": "string",
+              "enum": ["allow-work", "accept-incomplete"]
+            },
+            "revision": {
+              "$ref": "#/$defs/gitOID"
+            },
+            "waived-conditions": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "permitted-work": {
+              "type": "string",
+              "minLength": 1
+            },
+            "consumer-scope": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "item-id",
+            "reason",
+            "action",
+            "revision",
+            "waived-conditions",
+            "permitted-work",
+            "consumer-scope"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "required": [
+    "checkpoint-id",
+    "phase",
+    "step",
+    "recorded-at",
+    "outcome",
+    "references"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "featureID": {
+      "type": "string",
+      "pattern": "^FEAT-(?=[0-9]*[1-9])[0-9]{3,}$"
+    },
+    "ticketID": {
+      "type": "string",
+      "pattern": "^FEAT-(?=[0-9]*[1-9])[0-9]{3,}-T(?=[0-9]*[1-9])[0-9]{2,}$"
+    },
+    "taskID": {
+      "type": "string",
+      "pattern": "^FEAT-(?=[0-9]*[1-9])[0-9]{3,}-T(?=[0-9]*[1-9])[0-9]{2,}\\.[1-9][0-9]*$"
+    },
+    "itemID": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/featureID"
+        },
+        {
+          "$ref": "#/$defs/ticketID"
+        },
+        {
+          "$ref": "#/$defs/taskID"
+        }
+      ]
+    },
+    "gitOID": {
+      "type": "string",
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+    },
+    "utcTime": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "READY",
+        "BLOCKED",
+        "IN-PROGRESS",
+        "IN-REVIEW",
+        "DONE",
+        "CANCELLED"
+      ]
+    },
+    "projectPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\\\:#\\r\\n]+$"
+    },
+    "artifactRef": {
+      "type": "object",
+      "properties": {
+        "target": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^https://[^/\\s?#]+(?:[/?#][^\\s]*)?$"
+            },
+            {
+              "type": "string",
+              "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\\\:#\\r\\n]+(?:#[^\\r\\n]+)?$"
+            }
+          ]
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["target"],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "target": {
+                "not": {
+                  "pattern": "^https://"
+                }
+              }
+            },
+            "required": ["target", "revision"]
+          },
+          "then": {
+            "properties": {
+              "revision": {
+                "$ref": "#/$defs/gitOID"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "pinnedArtifactRef": {
+      "type": "object",
+      "properties": {
+        "target": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^https://[^/\\s?#]+(?:[/?#][^\\s]*)?$"
+            },
+            {
+              "type": "string",
+              "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\\\:#\\r\\n]+(?:#[^\\r\\n]+)?$"
+            }
+          ]
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["target", "revision"],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "target": {
+                "not": {
+                  "pattern": "^https://"
+                }
+              }
+            },
+            "required": ["target", "revision"]
+          },
+          "then": {
+            "properties": {
+              "revision": {
+                "$ref": "#/$defs/gitOID"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ticketArtifactRef": {
+      "type": "object",
+      "properties": {
+        "target": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^https://[^/\\s?#]+(?:[/?#][^\\s]*)?$"
+            },
+            {
+              "type": "string",
+              "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\\\:#\\r\\n]+(?:#[^\\r\\n]+)?$"
+            }
+          ]
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1
+        },
+        "acceptance-ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "required": ["target", "revision"],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "target": {
+                "not": {
+                  "pattern": "^https://"
+                }
+              }
+            },
+            "required": ["target", "revision"]
+          },
+          "then": {
+            "properties": {
+              "revision": {
+                "$ref": "#/$defs/gitOID"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "evidenceRef": {
+      "type": "object",
+      "properties": {
+        "target": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^https://[^/\\s?#]+(?:[/?#][^\\s]*)?$"
+            },
+            {
+              "type": "string",
+              "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\\\:#\\r\\n]+(?:#[^\\r\\n]+)?$"
+            }
+          ]
+        },
+        "revision": {
+          "$ref": "#/$defs/gitOID"
+        },
+        "checkpoint-id": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["target"],
+      "additionalProperties": false
+    },
+    "prRef": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "url": {
+          "type": "string",
+          "pattern": "^https://[^/\\s?#]+(?:[/?#][^\\s]*)?$"
+        }
+      },
+      "required": ["number", "url"],
+      "additionalProperties": false
+    },
+    "nativeRef": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "number": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "url": {
+              "type": "string",
+              "pattern": "^https://[^/\\s?#]+(?:[/?#][^\\s]*)?$"
+            }
+          },
+          "required": ["number", "url"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string",
+              "minLength": 1
+            },
+            "native-id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "url": {
+              "type": "string",
+              "pattern": "^https://[^/\\s?#]+(?:[/?#][^\\s]*)?$"
+            }
+          },
+          "required": ["key", "native-id", "url"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "nativeMapping": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ticketID"
+            },
+            {
+              "$ref": "#/$defs/taskID"
+            }
+          ]
+        },
+        "native-ref": {
+          "$ref": "#/$defs/nativeRef"
+        }
+      },
+      "required": ["id", "native-ref"],
+      "additionalProperties": false
+    },
+    "acceptanceCriterion": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "criterion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "covers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "required": ["id", "criterion", "covers"],
+      "additionalProperties": false
+    },
+    "taskVerification": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": ["test-first", "test-after", "manual"]
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "exception-reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "manual-procedure": {
+          "type": "string",
+          "minLength": 1
+        },
+        "expected-result": {
+          "type": "string",
+          "minLength": 1
+        },
+        "responsible-verifier": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["method", "checks"],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "type": "string",
+                "enum": ["test-first", "test-after"]
+              }
+            },
+            "required": ["method"]
+          },
+          "then": {
+            "properties": {
+              "checks": {
+                "minItems": 1
+              }
+            },
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["manual-procedure"]
+                },
+                {
+                  "required": ["expected-result"]
+                },
+                {
+                  "required": ["responsible-verifier"]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "type": "string",
+                "enum": ["test-first"]
+              }
+            },
+            "required": ["method"]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["exception-reason"]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "type": "string",
+                "enum": ["test-after", "manual"]
+              }
+            },
+            "required": ["method"]
+          },
+          "then": {
+            "required": ["exception-reason"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "type": "string",
+                "enum": ["manual"]
+              }
+            },
+            "required": ["method"]
+          },
+          "then": {
+            "required": [
+              "manual-procedure",
+              "expected-result",
+              "responsible-verifier"
+            ]
+          }
+        }
+      ]
+    },
+    "verificationReceipt": {
+      "type": "object",
+      "properties": {
+        "check-id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "item-id": {
+          "$ref": "#/$defs/itemID"
+        },
+        "acceptance-ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "result": {
+          "type": "string",
+          "enum": ["passed", "failed", "pending", "skipped", "unavailable"]
+        },
+        "at": {
+          "$ref": "#/$defs/utcTime"
+        },
+        "environment": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "$ref": "#/$defs/gitOID"
+        },
+        "tree": {
+          "$ref": "#/$defs/gitOID"
+        },
+        "check-level": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mode": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence-ref": {
+          "$ref": "#/$defs/evidenceRef"
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["check-id", "result", "at", "environment"],
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": ["revision"]
+        },
+        {
+          "required": ["tree"]
+        }
+      ],
+      "dependentRequired": {
+        "item-id": ["acceptance-ids"],
+        "acceptance-ids": ["item-id"]
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "result": {
+                "type": "string",
+                "enum": ["passed", "failed"]
+              }
+            },
+            "required": ["result"]
+          },
+          "then": {
+            "required": ["evidence-ref"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "result": {
+                "type": "string",
+                "enum": ["pending", "skipped", "unavailable"]
+              }
+            },
+            "required": ["result"]
+          },
+          "then": {
+            "required": ["detail"]
+          }
+        }
+      ]
+    },
+    "approvedTicket": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/ticketID"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "outcome": {
+          "type": "string",
+          "minLength": 1
+        },
+        "feature-id": {
+          "$ref": "#/$defs/featureID"
+        },
+        "feature-ref": {
+          "$ref": "#/$defs/pinnedArtifactRef"
+        },
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^A-Z]+$"
+        },
+        "priority": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^A-Z]+$"
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "depends-on": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ticketID"
+          },
+          "uniqueItems": true
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ticketArtifactRef"
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "contains": {
+            "required": ["acceptance-ids"]
+          }
+        },
+        "origin-ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/artifactRef"
+            },
+            {
+              "$ref": "#/$defs/evidenceRef"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "outcome",
+        "feature-id",
+        "feature-ref",
+        "type",
+        "scope",
+        "priority",
+        "owner",
+        "depends-on",
+        "references"
+      ],
+      "additionalProperties": false
+    },
+    "approvedTask": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/taskID"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "outcome": {
+          "type": "string",
+          "minLength": 1
+        },
+        "depends-on": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/taskID"
+          },
+          "uniqueItems": true
+        },
+        "acceptance": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/acceptanceCriterion"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "verification": {
+          "$ref": "#/$defs/taskVerification"
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/pinnedArtifactRef"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "ticket-id": {
+          "$ref": "#/$defs/ticketID"
+        },
+        "origin-ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/artifactRef"
+            },
+            {
+              "$ref": "#/$defs/evidenceRef"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "outcome",
+        "depends-on",
+        "acceptance",
+        "verification",
+        "ticket-id"
+      ],
+      "additionalProperties": false
+    },
+    "approvedDefinition": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/approvedTicket"
+        },
+        {
+          "$ref": "#/$defs/approvedTask"
+        }
+      ]
+    }
+  }
+}

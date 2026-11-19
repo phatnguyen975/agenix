@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agenix.invalid/templates/records/local-ticket.schema.json",
+  "title": "Agenix local ticket record",
+  "description": "Use for a local ticket JSON file. Include tasks after task-plan approval. The containing ticket supplies parent identity. Check parent IDs, dependencies, coverage, the approved snapshot and child completion through the workflow.",
+  "type": "object",
+  "properties": {
+    "schema-version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "ticket"
+    },
+    "id": {
+      "$ref": "../evidence/checkpoint.schema.json#/$defs/ticketID"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "outcome": {
+      "type": "string",
+      "minLength": 1
+    },
+    "feature-id": {
+      "$ref": "../evidence/checkpoint.schema.json#/$defs/featureID"
+    },
+    "feature-ref": {
+      "$ref": "../evidence/checkpoint.schema.json#/$defs/pinnedArtifactRef"
+    },
+    "type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scope": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^A-Z]+$"
+    },
+    "priority": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^A-Z]+$"
+    },
+    "owner": {
+      "type": "string",
+      "minLength": 1
+    },
+    "depends-on": {
+      "type": "array",
+      "items": {
+        "$ref": "../evidence/checkpoint.schema.json#/$defs/ticketID"
+      },
+      "uniqueItems": true
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "$ref": "../evidence/checkpoint.schema.json#/$defs/ticketArtifactRef"
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "contains": {
+        "required": ["acceptance-ids"]
+      }
+    },
+    "status": {
+      "$ref": "../evidence/checkpoint.schema.json#/$defs/status"
+    },
+    "approval-ref": {
+      "$ref": "../evidence/checkpoint.schema.json#/$defs/evidenceRef"
+    },
+    "checkpoint-refs": {
+      "type": "array",
+      "items": {
+        "$ref": "../evidence/checkpoint.schema.json#/$defs/evidenceRef"
+      }
+    },
+    "checkpoints": {
+      "type": "array",
+      "items": {
+        "$ref": "../evidence/checkpoint.schema.json"
+      }
+    },
+    "origin-ref": {
+      "anyOf": [
+        {
+          "$ref": "../evidence/checkpoint.schema.json#/$defs/artifactRef"
+        },
+        {
+          "$ref": "../evidence/checkpoint.schema.json#/$defs/evidenceRef"
+        }
+      ]
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/task"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "schema-version",
+    "kind",
+    "id",
+    "title",
+    "outcome",
+    "feature-id",
+    "feature-ref",
+    "type",
+    "scope",
+    "priority",
+    "owner",
+    "depends-on",
+    "references",
+    "status"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "task": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "../evidence/checkpoint.schema.json#/$defs/taskID"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "outcome": {
+          "type": "string",
+          "minLength": 1
+        },
+        "depends-on": {
+          "type": "array",
+          "items": {
+            "$ref": "../evidence/checkpoint.schema.json#/$defs/taskID"
+          },
+          "uniqueItems": true
+        },
+        "acceptance": {
+          "type": "array",
+          "items": {
+            "$ref": "../evidence/checkpoint.schema.json#/$defs/acceptanceCriterion"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "verification": {
+          "$ref": "../evidence/checkpoint.schema.json#/$defs/taskVerification"
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "$ref": "../evidence/checkpoint.schema.json#/$defs/pinnedArtifactRef"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "status": {
+          "$ref": "../evidence/checkpoint.schema.json#/$defs/status"
+        },
+        "approval-ref": {
+          "$ref": "../evidence/checkpoint.schema.json#/$defs/evidenceRef"
+        },
+        "checkpoint-refs": {
+          "type": "array",
+          "items": {
+            "$ref": "../evidence/checkpoint.schema.json#/$defs/evidenceRef"
+          }
+        },
+        "checkpoints": {
+          "type": "array",
+          "items": {
+            "$ref": "../evidence/checkpoint.schema.json"
+          }
+        },
+        "origin-ref": {
+          "anyOf": [
+            {
+              "$ref": "../evidence/checkpoint.schema.json#/$defs/artifactRef"
+            },
+            {
+              "$ref": "../evidence/checkpoint.schema.json#/$defs/evidenceRef"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "outcome",
+        "depends-on",
+        "acceptance",
+        "verification",
+        "status"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

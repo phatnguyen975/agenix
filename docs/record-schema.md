@@ -176,7 +176,7 @@ Use project-approved priority, work type and scope. Choose the Git component thr
 Use the native title for the item's ID and title. Both ticket and task bodies have these sections:
 
 - `Outcome` contains the approved outcome in prose.
-- `Details` contains labeled fields. A ticket records the feature ID and feature reference, type, scope, priority and owner. A task records the parent ticket ID. Check that fields mirrored by native labels or parentage agree with native metadata.
+- `Details` contains labeled fields. A ticket records the feature ID and feature reference, type, scope, priority and owner. A task records the parent ticket ID. Add `Origin` for applicable additive work. Check that fields mirrored by native labels or parentage agree with native metadata.
 - `Dependencies` lists the authoritative Agenix IDs. Render a known empty list as `None`.
 - `References` lists applicable pinned targets and their acceptance IDs where required. For tasks, omit this section when the parent supplies all relevant references.
 - Task bodies also have `Acceptance` and `Verification` sections. Each criterion includes its ID and `covers` IDs. Render the approved verification plan with the fields required for its method.
@@ -224,7 +224,7 @@ Read the verification method from the approved task definition.
 | Remote ticket and task                | Use readable sections. Render Markdown on GitHub and corresponding ADF on Jira. The tracker supplies native title, hierarchy and status. |
 | Checkpoint                            | Embed JSON in the owning Git record. Render remote and PR checkpoints as readable comments.                                              |
 
-Keep JSON templates syntactically valid and use defaults or sample values of the declared types. Fill and validate only the fields applicable to the selected mode and stage. Keep field requirements in the schema and use them to check rendered records.
+Use JSON Schema Draft 2020-12 for `*.schema.json` templates. Declare types, allowed values, required keys and structural constraints. Resolve bundled schema references locally. The workflow supplies the current mode and stage. Helpers check stage requirements, record relationships and evidence against the actual project and tracker. Rendered records use the declared JSON values.
 
 ## Worked Example
 

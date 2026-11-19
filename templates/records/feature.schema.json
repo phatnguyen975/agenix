@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agenix.invalid/templates/records/feature.schema.json",
+  "title": "Agenix feature record",
+  "description": "Use for feature.agenix.json in every tracker mode. The owning step determines when later-stage fields are required and which ticket mapping matches the tracker.",
+  "type": "object",
+  "properties": {
+    "schema-version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "feature"
+    },
+    "id": {
+      "$ref": "../evidence/checkpoint.schema.json#/$defs/featureID"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "outcome": {
+      "type": "string",
+      "minLength": 1
+    },
+    "priority": {
+      "type": "string",
+      "minLength": 1
+    },
+    "depends-on": {
+      "type": "array",
+      "items": {
+        "$ref": "../evidence/checkpoint.schema.json#/$defs/featureID"
+      },
+      "uniqueItems": true
+    },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "$ref": "../evidence/checkpoint.schema.json#/$defs/pinnedArtifactRef"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "journeys": {
+      "type": "array",
+      "items": {
+        "$ref": "../evidence/checkpoint.schema.json#/$defs/pinnedArtifactRef"
+      },
+      "uniqueItems": true
+    },
+    "quality-allocations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "requirement-ref": {
+            "$ref": "../evidence/checkpoint.schema.json#/$defs/pinnedArtifactRef"
+          },
+          "responsibility": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": ["requirement-ref", "responsibility"],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "$ref": "../evidence/checkpoint.schema.json#/$defs/pinnedArtifactRef"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "delivery-strategy": {
+      "type": "object",
+      "properties": {
+        "approach": {
+          "type": "string",
+          "enum": ["single-scope", "vertical-slices", "contract-first"]
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "integration-coverage": {
+          "type": "array",
+          "items": {
+            "$ref": "../evidence/checkpoint.schema.json#/$defs/pinnedArtifactRef"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "exposure-boundary": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["approach", "summary"],
+      "additionalProperties": false
+    },
+    "tickets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ticketMapping"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "status": {
+      "$ref": "../evidence/checkpoint.schema.json#/$defs/status"
+    },
+    "approval-ref": {
+      "$ref": "../evidence/checkpoint.schema.json#/$defs/evidenceRef"
+    },
+    "checkpoint-refs": {
+      "type": "array",
+      "items": {
+        "$ref": "../evidence/checkpoint.schema.json#/$defs/evidenceRef"
+      }
+    },
+    "checkpoints": {
+      "type": "array",
+      "items": {
+        "$ref": "../evidence/checkpoint.schema.json"
+      }
+    },
+    "origin-ref": {
+      "anyOf": [
+        {
+          "$ref": "../evidence/checkpoint.schema.json#/$defs/artifactRef"
+        },
+        {
+          "$ref": "../evidence/checkpoint.schema.json#/$defs/evidenceRef"
+        }
+      ]
+    }
+  },
+  "required": [
+    "schema-version",
+    "kind",
+    "id",
+    "title",
+    "outcome",
+    "priority",
+    "depends-on",
+    "requirements",
+    "journeys",
+    "status"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "ticketMapping": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "../evidence/checkpoint.schema.json#/$defs/ticketID"
+            },
+            "path": {
+              "type": "string",
+              "pattern": "^docs/features/FEAT-(?=[0-9]*[1-9])[0-9]{3,}/tickets/FEAT-(?=[0-9]*[1-9])[0-9]{3,}-T(?=[0-9]*[1-9])[0-9]{2,}\\.agenix\\.json$"
+            }
+          },
+          "required": ["id", "path"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "../evidence/checkpoint.schema.json#/$defs/ticketID"
+            },
+            "native-ref": {
+              "$ref": "../evidence/checkpoint.schema.json#/$defs/nativeRef"
+            }
+          },
+          "required": ["id", "native-ref"],
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}
