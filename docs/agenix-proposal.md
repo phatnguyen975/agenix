@@ -1086,7 +1086,9 @@ Shared contract definitions and wire schemas live under `docs/contracts/` with p
 | Codex       | Root `plugin.json`, including `extensions.com.openai` | `$agx-build FEAT-003-T01 run`; skill `agents/openai.yaml` sets `policy.allow_implicit_invocation: false` | `AGENTS.md`                                                      |
 | Antigravity | `.antigravity-plugin/plugin.json`                     | `/agx-build FEAT-003-T01 run`; `disable-model-invocation: true`                                          | `AGENTS.md`                                                      |
 
-The v1 package uses the three manifest locations above with consistent identity/version metadata and shared `skills/` content. OpenAI supports `.codex-plugin/plugin.json` as a compatibility fallback when `extensions.com.openai` is absent; an inline OpenAI extension replaces that overlay rather than merging with it. Agenix selects the portable root layout and omits the overlay from its v1 package. Validate each selected manifest against its vendor schema.
+The v1 package uses the three manifest locations above with consistent identity and version metadata and shared `skills/` content. Codex reads the portable root manifest and its inline OpenAI extension. Antigravity gives its dedicated manifest precedence over the root manifest. Validate each manifest against its vendor schema.
+
+The local plugin bundle includes a pinned Chrome DevTools MCP server for browser inspection, accessibility and performance evidence. Each host loads its own package configuration. The server uses a separate temporary browser profile and needs no credentials. The project supplies the approved browser target and test data. Browser checks may use another available tool that can produce the required evidence. A missing tool blocks only checks that still lack required evidence.
 
 Apply explicit-only invocation to workflow steps. Verify that `agx-guide` is discoverable for both direct invocation and Agenix usage questions, including before project setup, while ordinary sessions can proceed without loading the guide.
 

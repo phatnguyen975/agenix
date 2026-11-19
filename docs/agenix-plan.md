@@ -30,17 +30,17 @@ The GitHub repository, path and revision identify each selected source. Imported
 | Skill                         | Upstream Repository and Path                                            | Pinned Revision                            | Purpose                                                                                                           |
 | ----------------------------- | ----------------------------------------------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
 | `accessibility`               | `addyosmani/web-quality-skills` · `skills/accessibility`                | `afa8da942115f2961fdbfa80807ea0b232ff6c00` | Evaluate and improve web accessibility with criterion-linked source, browser and manual checks.                   |
-| `frontend-design`             | `anthropics/skills` · `skills/frontend-design`                          | `1780c5e5a552fd4d1c9d6a7b0cab26b0c2bef064` | Set and critique a distinctive visual direction suited to the product and its users.                              |
-| `playwright-cli`              | `microsoft/playwright-cli` · `skills/playwright-cli`                    | `b21724888b8100b05ef8dee3a92f2bb03bf4dcde` | Operate a browser, replay scenarios and collect browser evidence.                                                 |
-| `react-testing`               | `affaan-m/ECC` · `skills/react-testing`                                 | `d2ef2680594f9a17526a6e1a2e18b3d242c5d17b` | Test React components and hooks with observable assertions, isolated providers and network mocks.                 |
-| `security-review`             | `affaan-m/ECC` · `skills/security-review`                               | `d2ef2680594f9a17526a6e1a2e18b3d242c5d17b` | Assess relevant security controls around trust boundaries, inputs, authentication, secrets and sensitive actions. |
-| `ui-styling`                  | `nextlevelbuilder/ui-ux-pro-max-skill` · `.claude/skills/ui-styling`    | `b6a79003ad2b93c174590a4143a0ddbb2e4574e2` | Implement selected Tailwind or shadcn/ui patterns for tokens, responsive layout and accessible components.        |
-| `ui-ux-pro-max`               | `nextlevelbuilder/ui-ux-pro-max-skill` · `.claude/skills/ui-ux-pro-max` | `b6a79003ad2b93c174590a4143a0ddbb2e4574e2` | Look up product-specific styles, palettes, typography, interactions and UX patterns.                              |
+| `frontend-design`             | `anthropics/skills` · `skills/frontend-design`                          | `e4bb5d960d87126ff3b3a8af1a104b7db67560ba` | Set and critique a distinctive visual direction suited to the product and its users.                              |
+| `playwright-cli`              | `microsoft/playwright-cli` · `skills/playwright-cli`                    | `c872a33cec77fa03c28fa7c6d1ad99d15d04ce42` | Operate a browser, replay scenarios and collect browser evidence.                                                 |
+| `react-testing`               | `affaan-m/ECC` · `skills/react-testing`                                 | `3f14a103a8694e51c1df9a806217a6d0b5f7a6f7` | Test React components and hooks with observable assertions, isolated providers and network mocks.                 |
+| `security-review`             | `affaan-m/ECC` · `skills/security-review`                               | `3f14a103a8694e51c1df9a806217a6d0b5f7a6f7` | Assess relevant security controls around trust boundaries, inputs, authentication, secrets and sensitive actions. |
+| `ui-styling`                  | `nextlevelbuilder/ui-ux-pro-max-skill` · `.claude/skills/ui-styling`    | `2de1134dc4d1cfe112934611ae5803ae17a1bd7e` | Implement selected Tailwind or shadcn/ui patterns for tokens, responsive layout and accessible components.        |
+| `ui-ux-pro-max`               | `nextlevelbuilder/ui-ux-pro-max-skill` · `.claude/skills/ui-ux-pro-max` | `2de1134dc4d1cfe112934611ae5803ae17a1bd7e` | Look up product-specific styles, palettes, typography, interactions and UX patterns.                              |
 | `vercel-composition-patterns` | `vercel-labs/agent-skills` · `skills/composition-patterns`              | `1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62` | Design reusable React component APIs, shared state and composition boundaries.                                    |
 | `vercel-react-best-practices` | `vercel-labs/agent-skills` · `skills/react-best-practices`              | `1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62` | Improve React and Next.js rendering, data fetching and bundle performance for the selected versions.              |
-| `vitest`                      | `antfu/skills` · `skills/vitest`                                        | `d524ed287eef22757297827ce42e3cad88abd20c` | Configure and use Vitest assertions, mocks, fixtures, filtering and coverage.                                     |
+| `vitest`                      | `antfu/skills` · `skills/vitest`                                        | `4a6bb39e7b45e26402eb215393c51ccf5df1ca4c` | Configure and use Vitest assertions, mocks, fixtures, filtering and coverage.                                     |
 | `web-design-guidelines`       | `vercel-labs/agent-skills` · `skills/web-design-guidelines`             | `1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62` | Review implemented web UI against applicable interface guidelines.                                                |
-| `web-perf`                    | `cloudflare/skills` · `skills/web-perf`                                 | `cbf893b954222276bf1af57e5f23379231e0efb9` | Measure and diagnose loading and interaction performance on a runnable web surface.                               |
+| `web-perf`                    | `cloudflare/skills` · `skills/web-perf`                                 | `5108325ecceabc899c761e07aa617b09c02445ee` | Measure and diagnose loading and interaction performance on a runnable web surface.                               |
 
 ### Agenix Capability Skills
 
@@ -191,6 +191,9 @@ agenix/
 ├── plugin.json                      portable manifest with extensions.com.openai
 ├── .claude-plugin/plugin.json
 ├── .antigravity-plugin/plugin.json
+├── mcp.json                         Chrome DevTools MCP for portable Codex
+├── .mcp.json                        Chrome DevTools MCP for Claude Code
+├── mcp_config.json                  Chrome DevTools MCP for Antigravity
 ├── .agents/plugins/marketplace.json distribution catalog for Codex discovery
 ├── skills/
 │   ├── README.md                    installed skill and provenance index
@@ -285,7 +288,7 @@ Installed resource lookup and pinned CI provisioning remain unverified until che
 
 ### Import Requirements
 
-Keep each import standalone under `skills/<name>/`. Preserve the pinned upstream revision, actual resource dependencies, source terms and notices. Place `LICENSE` beside `SKILL.md`. Set the frontmatter `license` to the verified terms and add or preserve `metadata.author` using verified upstream attribution. Preserve other valid upstream metadata and record local adaptations and provenance in `skills/README.md`.
+Keep each import standalone under `skills/<name>/`. Preserve the pinned upstream revision, required resources, source terms and notices. Place `LICENSE` beside `SKILL.md`. Preserve the upstream license text or use the applicable project license when the skill has no separate terms. Record verified attribution in `metadata.author` and the applicable license in the top-level `license` field. Preserve other valid upstream metadata and record local adaptations and provenance in `skills/README.md`.
 
 Resolve licensing inconsistencies before vendoring. The selected `ui-styling` revision has Apache-2.0 terms in its skill license file and a conflicting MIT frontmatter value. Preserve the actual terms and align the frontmatter. Verify license coverage for each Vercel import and for any separately sourced rule content. In particular, pin and verify the guideline source loaded by `web-design-guidelines` instead of fetching floating rules at runtime.
 
@@ -326,7 +329,8 @@ When implementing the workflow steps in later phases, verify that each step sele
 - [x] Create `test-strategy-design` with a standalone method and template for risks, verification boundaries, levels, tooling, environments and evidence. The project-specific binding belongs to `agx-architect tests`.
   - Verified skill and UI metadata, the local template route, the six template sections, the catalog entry and standalone scope.
   - Ran read-only exercises for a full-stack checkout and a cross-platform Python library. Tightened template fidelity and unverified prerequisite handling after the first pass. The checkout rerun preserved the matrix and identified missing browser fault controls as setup work. The library exercise kept missing Windows evidence as a release blocker.
-- [ ] Vendor the 12 pinned imports with their required resources and verified licenses. Preserve notices and authorship. Resolve the import requirements above before including the affected content. Keep the choices pinned and record provenance in the skill index.
+- [x] Vendor the 12 pinned imports with their required resources and verified licenses. Preserve notices and authorship. Resolve the import requirements above before including the affected content. Keep the choices pinned and record provenance in the skill index.
+  - Validated all 12 skill manifests, applicable licenses, local resources and catalog entries. Bundled the pinned Vercel guideline with its license. Verified local UI search and design-system output and both UI styling helper entry points.
 - [ ] Make the selected imports usable in their assigned roles. Keep design, styling, browser execution and specialist review separate. Adapt caller paths and output, document runner/browser prerequisites, and prevent imported defaults from expanding project scope or permissions.
 
 ### Phase 3 - Project and Architecture Foundations
@@ -359,6 +363,11 @@ When implementing the workflow steps in later phases, verify that each step sele
 ### Phase 6 - Guide and Bundle Assembly
 
 - [ ] Complete `agx-guide` from the stable routers and shared rules. Cover first use, step selection, approval, resume and common tracker or scope questions on demand.
+  - Explain how each host enables or reloads the plugin and shows the bundled Chrome DevTools MCP status. Distinguish an inactive plugin from an enabled plugin with a failed server or browser launch. Cover Node/npm, browser availability, first-run package access, host permissions, and the Edge executable override. Point to README recovery instructions for users who cannot invoke the guide yet.
 - [ ] Complete all three manifests, Codex discovery metadata and the marketplace entry. Include the shared resources, selected skills, helpers, templates and notices in the configured bundle. Keep development-only material outside it.
+  - Use root `plugin.json` with `extensions.com.openai` for Codex and `.antigravity-plugin/plugin.json` for Antigravity. Leave the Codex marketplace catalog under `.agents/plugins/`.
+  - Keep the three Chrome DevTools MCP entries on the same pinned version and launch options. For later installed-host validation, check discovery, audit tools and an authorized local browser target. Check plugin and skill availability when the server fails. Keep local distribution distinct from hosted directory requirements.
+  - Verified the portable manifest and MCP schemas, the Antigravity manifest schema, and the shared launcher through direct stdio on Windows. Edge headless opened an isolated local fixture and returned snapshot and Lighthouse accessibility evidence. Plugin installation and activation remain to be verified on the hosts.
 - [ ] Update the README and skill index for the delivered use, routes and prerequisites. Describe installed-host behavior as pending confirmation where it has not been exercised.
+  - Add the bundled MCP prerequisites and per-host recovery steps to the root README alongside the in-session guidance in `agx-guide`. Keep recovery accessible when the plugin is disabled and its guide cannot load.
 - [ ] Review the final source inventory against this plan. Resolve missing handlers, dangling resource routes, unused duplicates and any unfinished v1 implementation. Record the implementation checkpoint and end this plan here.
