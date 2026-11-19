@@ -6,7 +6,7 @@ Use this guide when producing project documents, defining instruction scopes or 
 
 - State what the reader needs to understand, decide, do or verify. Include scope and limitations when they affect use. Use ordered lists for sequences, tables for compact comparisons and prose for context. Follow the owning template or standard where it defines a structure.
 - Use stable identifiers and consistent language. Define unfamiliar project terms in context. Distinguish verified facts, decisions, assumptions and open questions. Check material external claims against authoritative sources.
-- Write explanatory content in the approved `docs-language`, with English as the default. Preserve defined keys, IDs, API/tool names and upstream notices. Product and UI language follow their own requirements.
+- Use the approved `conversation-language` for discussion and `docs-language` for generated documentation. Preserve defined keys, IDs, API/tool names and upstream notices. Product and UI language follow their own requirements.
 - Give each rule one owner. Place approved project documentation under `docs/` and use the owning artifact for design, requirements, contracts and evidence. Use document-relative repository links, explicit external URLs and contained repository-relative machine paths unless the interface requires an absolute path. Review affected readers, references and examples after a change.
 
 ## Project Artifact Layout
@@ -59,7 +59,7 @@ Setup creates `agenix-artifacts.yml` for bootstrap artifact validation. Scaffold
 
 ## Configure Instructions and Scope
 
-1. Keep root `AGENTS.md` as the shared instruction entry. Point it to root `config.agenix.json` and to `environment.agenix.json` when scaffold provides it. Keep the compatibility pin, tracker, repository settings, project scope, documentation language and any configured exposure operation in the non-secret configuration file. Preserve team-owned text outside managed blocks. Provide the usage-guide entry and baseline scope, authority and safety rules.
+1. Keep root `AGENTS.md` as the shared instruction entry. Point it to root `config.agenix.json` and to `environment.agenix.json` when scaffold provides it. Keep the compatibility pin, tracker, repository settings, project scope, language preferences and any configured exposure operation in the non-secret configuration file. Preserve team-owned text outside managed blocks. Provide the usage-guide entry and baseline scope, authority and safety rules.
 2. Select scoped entries at real module or release-unit boundaries that need distinct instructions. Record responsibilities, public surfaces, applicable commands, policy, etc. and routes to owning documents. Pair root and every generated scoped `AGENTS.md` with a local `CLAUDE.md` importing `@AGENTS.md`. Preserve unrelated Claude-specific content.
 3. Route from root to real scoped instruction entries. Before working within a subtree, read root and applicable ancestor/scoped entries. Load sibling context for work crossing a boundary. Keep host permissions and shared gates in effect. Keep installation cache paths out of project instructions.
 
@@ -75,7 +75,7 @@ Use the same verified arguments and working directories in the project README. M
 
 ## Validate Managed Records
 
-Run `validate-artifacts.py --project-root <absolute-root> --stage <stage>` before approval or in artifact CI for the applicable managed records. Use `config` during setup, `environment` after scaffold, `feature` for feature records and `feature-plan` for delivery plans in any tracker mode. Use `task-plan` for embedded local tasks. Supply `--item` with the owning feature or local ticket at a plan gate. Remote task definitions are verified through their native tracker.
+Run `validate-artifacts.py --project-root <absolute-root> --stage <stage>` before approval or in artifact CI for the applicable managed records. Use `config` in setup on the complete record, `environment` after scaffold, `feature` for feature records and `feature-plan` for delivery plans in any tracker mode. Use `task-plan` for embedded local tasks. Supply `--item` with the owning feature or local ticket at a plan gate. Remote task definitions are verified through their native tracker.
 
 The helper locates managed records at their declared paths under the Git worktree root. The stage selects the required records and the tracker selects the applicable mapping.
 

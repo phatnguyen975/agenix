@@ -25,6 +25,8 @@ after scaffold verifies and publishes it. Replace placeholders for project scope
 approved responsibilities and applicable boundaries.
 -->
 
+Use the project configuration's `conversation-language` for discussion and `docs-language` for generated documentation.
+
 - [Project Configuration](config.agenix.json) — shared settings for scope, tracker, repository and the Agenix version pin
 - [Verified Environment](environment.agenix.json) — verified commands, release units, test services and permissions by environment
 

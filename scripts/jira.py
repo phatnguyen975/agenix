@@ -80,8 +80,8 @@ def operate(args):
         timeout=args.timeout,
     )
     payload = {}
-    if args.input:
-        path = contained(root, args.input, private=True)
+    if input_path := getattr(args, "input", None):
+        path = contained(root, input_path, private=True)
         parts = tuple(part.casefold() for part in path.relative_to(root).parts)
         if (
             any(part in {".git", "credentials"} for part in parts)
@@ -109,6 +109,10 @@ def dispatch(args, client, payload, repo):
         return {"transitions": client.transitions(args.key)}
     if args.operation == "link-types":
         return client.request("GET", "issueLinkType")
+    if args.operation == "project-statuses":
+        return client.request(
+            "GET", f"project/{client.project}/statuses", list_key="values"
+        )
     if args.operation == "discover":
         return {"values": client.discover(args.issue_type)}
     if args.operation in {"create", "reconcile"}:
@@ -152,6 +156,7 @@ def main():
     operations = cli.add_subparsers(dest="operation", required=True)
     operations.add_parser("discover").add_argument("--issue-type")
     operations.add_parser("link-types")
+    operations.add_parser("project-statuses")
     for name in ("create", "reconcile"):
         operations.add_parser(name).add_argument("--input", required=True)
     for name in (

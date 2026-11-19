@@ -116,7 +116,9 @@ class Jira:
         self.opener = opener if opener is not None else build_opener(NoRedirect())
         self.timeout = timeout
 
-    def request(self, method, path, *, query=None, payload=None, search=False):
+    def request(
+        self, method, path, *, query=None, payload=None, search=False, list_key=None
+    ):
         url = self.base + path + ("?" + urlencode(query) if query else "")
         raw = (
             json.dumps(payload, ensure_ascii=False).encode("utf-8")
@@ -151,9 +153,11 @@ class Jira:
             if len(body) > 8 * 1024 * 1024:
                 raise Invalid("Jira response exceeds size limit")
             value = strict_json(body) if body else {}
-            if not isinstance(value, dict):
-                raise Invalid("Expected a Jira response object")
-            return value
+            if list_key is None and isinstance(value, dict):
+                return value
+            if list_key is not None and isinstance(value, list):
+                return {list_key: value}
+            raise Invalid("Unexpected Jira response shape")
         except Invalid:
             detail = "Jira returned an unusable response"
             if writing:
