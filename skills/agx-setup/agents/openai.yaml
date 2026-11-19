@@ -1,0 +1,6 @@
+interface:
+  display_name: "Agenix Setup"
+  short_description: "Configure or verify project setup"
+  default_prompt: "Use $agx-setup configure to prepare setup locally, or $agx-setup verify to complete setup or check a merged baseline."
+policy:
+  allow_implicit_invocation: false

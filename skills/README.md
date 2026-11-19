@@ -38,7 +38,9 @@ This catalog lists the skills available in this plugin. Start with a skill's `SK
 
 ## Workflow Skills
 
-Workflow skills will be listed here as they are added.
+| Skill                           | Purpose and Use                                                                                                                                                                                 |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [agx-setup](agx-setup/SKILL.md) | Prepare project configuration, root instructions and artifact CI on a setup branch. Verify and publish first-time setup or check a developer's readiness to join an already configured project. |
 
 ## Imported Skills
 

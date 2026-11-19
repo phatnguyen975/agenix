@@ -1,0 +1,302 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agenix.invalid/skills/agx-setup/assets/config.schema.json",
+  "title": "Agenix project configuration",
+  "description": "Validate the complete shared non-secret config.agenix.json in all tracker modes.",
+  "type": "object",
+  "properties": {
+    "schema-version": {
+      "type": "integer",
+      "const": 1
+    },
+    "kind": {
+      "const": "config"
+    },
+    "plugin": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^https://[A-Za-z0-9.-]+(?::[0-9]+)?/[^\\s?#]+$",
+          "format": "uri"
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+        }
+      },
+      "required": ["repository", "revision"],
+      "additionalProperties": false
+    },
+    "github-repo": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9-]+/[A-Za-z0-9_.-]+$"
+    },
+    "default-branch": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "The verified GitHub default branch. Verify the ref with Git at setup."
+    },
+    "tracker": {
+      "type": "string",
+      "enum": ["local", "github", "jira"]
+    },
+    "conversation-language": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Human-approved language for workflow questions, updates and reports."
+    },
+    "docs-language": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Human-approved language for generated project documentation."
+    },
+    "project-scope": {
+      "type": "string",
+      "enum": [
+        "frontend",
+        "backend",
+        "fullstack",
+        "library",
+        "cli",
+        "infrastructure"
+      ]
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      }
+    },
+    "exposure": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": ["release", "deploy", "apply", "enable"]
+          },
+          "operation-id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "target": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "input": {
+            "type": "string",
+            "enum": ["merged-revision", "verified-artifact"]
+          }
+        },
+        "required": ["action", "operation-id", "target", "input"],
+        "additionalProperties": false
+      }
+    },
+    "jira": {
+      "$ref": "#/$defs/jira"
+    }
+  },
+  "required": [
+    "schema-version",
+    "kind",
+    "plugin",
+    "github-repo",
+    "default-branch",
+    "tracker",
+    "conversation-language",
+    "docs-language",
+    "project-scope",
+    "targets"
+  ],
+  "additionalProperties": false,
+  "if": {
+    "properties": {
+      "tracker": {
+        "const": "jira"
+      }
+    },
+    "required": ["tracker"]
+  },
+  "then": {
+    "required": ["jira"]
+  },
+  "else": {
+    "not": {
+      "required": ["jira"]
+    }
+  },
+  "$defs": {
+    "jira": {
+      "type": "object",
+      "properties": {
+        "site-url": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^https://[A-Za-z0-9.-]+(?::[0-9]+)?/?$",
+          "format": "uri"
+        },
+        "cloud-id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+        },
+        "project-key": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Z][A-Z0-9_]+$"
+        },
+        "issue-types": {
+          "type": "object",
+          "properties": {
+            "ticket": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[1-9][0-9]*$"
+            },
+            "task": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[1-9][0-9]*$"
+            }
+          },
+          "required": ["ticket", "task"],
+          "additionalProperties": false
+        },
+        "dependency-link": {
+          "type": "object",
+          "properties": {
+            "type-id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[1-9][0-9]*$"
+            },
+            "direction": {
+              "type": "string",
+              "enum": ["inward", "outward"]
+            }
+          },
+          "required": ["type-id", "direction"],
+          "additionalProperties": false
+        },
+        "status-targets": {
+          "type": "object",
+          "properties": {
+            "ticket": {
+              "type": "object",
+              "properties": {
+                "todo": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[1-9][0-9]*$"
+                },
+                "in-progress": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[1-9][0-9]*$"
+                },
+                "done": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[1-9][0-9]*$"
+                },
+                "cancelled": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[1-9][0-9]*$"
+                }
+              },
+              "required": ["todo", "in-progress", "done", "cancelled"],
+              "additionalProperties": false
+            },
+            "task": {
+              "type": "object",
+              "properties": {
+                "todo": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[1-9][0-9]*$"
+                },
+                "in-progress": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[1-9][0-9]*$"
+                },
+                "done": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[1-9][0-9]*$"
+                },
+                "cancelled": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[1-9][0-9]*$"
+                }
+              },
+              "required": ["todo", "in-progress", "done", "cancelled"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["ticket", "task"],
+          "additionalProperties": false
+        },
+        "field-defaults": {
+          "type": "object",
+          "properties": {
+            "ticket": {
+              "type": "object",
+              "properties": {
+                "project": false,
+                "issuetype": false,
+                "parent": false,
+                "summary": false,
+                "description": false,
+                "labels": false
+              },
+              "required": [],
+              "additionalProperties": true
+            },
+            "task": {
+              "type": "object",
+              "properties": {
+                "project": false,
+                "issuetype": false,
+                "parent": false,
+                "summary": false,
+                "description": false,
+                "labels": false
+              },
+              "required": [],
+              "additionalProperties": true
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "site-url",
+        "cloud-id",
+        "project-key",
+        "issue-types",
+        "dependency-link",
+        "status-targets"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

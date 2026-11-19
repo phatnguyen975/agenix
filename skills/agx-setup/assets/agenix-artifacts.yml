@@ -1,0 +1,73 @@
+name: Agenix Artifacts
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  merge_group:
+    types: [checks_requested]
+  push:
+    branches: ["<default-branch-pattern>"]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Artifact validation (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    env:
+      AGENIX_SOURCE: "<plugin-repository>"
+      AGENIX_REVISION: "<plugin-revision>"
+      GIT_TERMINAL_PROMPT: "0"
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.11"
+      - name: Provision pinned helpers and validate
+        shell: python
+        run: |
+          import json
+          import os
+          import subprocess
+          import sys
+          from pathlib import Path
+          from tempfile import TemporaryDirectory
+
+          project = Path(os.environ["GITHUB_WORKSPACE"]).resolve()
+          source = os.environ["AGENIX_SOURCE"]
+          pin = os.environ["AGENIX_REVISION"]
+          with TemporaryDirectory(dir=os.environ["RUNNER_TEMP"]) as directory:
+              bundle = Path(directory)
+              subprocess.run(["git", "init", str(bundle)], check=True)
+              subprocess.run(
+                  ["git", "-C", str(bundle), "fetch", "--no-tags", "--depth=1", source, pin],
+                  check=True,
+              )
+              fetched = subprocess.check_output(
+                  ["git", "-C", str(bundle), "rev-parse", "FETCH_HEAD^{commit}"],
+                  text=True,
+              ).strip()
+              if fetched != pin:
+                  raise SystemExit("Fetched helper revision differs from the approved pin")
+              subprocess.run(
+                  ["git", "-C", str(bundle), "checkout", "--detach", pin], check=True
+              )
+              validator = bundle / "scripts" / "validate-artifacts.py"
+              validation = subprocess.run(
+                  [
+                      sys.executable, "-B", "-Es", str(validator),
+                      "--project-root", str(project), "--stage", "config",
+                  ],
+              )
+              if validation.returncode:
+                  raise SystemExit(validation.returncode)
+              config = json.loads((project / "config.agenix.json").read_text(encoding="utf-8"))
+              if config["plugin"] != {"repository": source, "revision": pin}:
+                  raise SystemExit("Project configuration and CI helper pins differ")

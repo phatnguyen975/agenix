@@ -60,6 +60,16 @@ Confirm the actual merge and required post-merge checks on the refreshed default
 
 A required post-merge ticket failure blocks closure. Keep the failed result on its original revision and create a new repair ticket. Link the original for provenance so the repair can proceed while the original remains open. Once the repair merges, verify the required checks covering the failed scope on the repaired merged revision. Record both PRs, revisions and results before closing the original ticket.
 
+## Clean Up Branches After Merge
+
+After confirming the merge and required post-merge checks, evaluate the local and remote topic branches separately.
+
+1. Check which branches still exist. If the host already removed the remote branch, report it as absent.
+2. Keep any branch required by retention policy or pending work. Also keep a local branch with unpushed or divergent changes, or one checked out in any worktree. Report the reason.
+3. For each eligible branch, give the human its exact name and remote, if applicable, and ask whether to keep or delete it. Reuse an explicit cleanup decision for the same refs and recheck eligibility before deletion. Merge approval alone does not authorize deletion.
+
+Report which branches were removed or retained. Keep branches while a decision is pending. Cleanup is optional and does not block verified delivery.
+
 ## Authorize Feature Exposure
 
 Apply the approved boundary that keeps unfinished behavior away from real users and resources. Use the mechanism suited to the product, such as selective activation, withholding a release or withholding infrastructure application. If a ticket merge would cross that boundary, correct it before merging. Exercise feature acceptance on the integrated baseline with isolation appropriate to the target.
