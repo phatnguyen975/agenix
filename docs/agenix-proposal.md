@@ -177,7 +177,9 @@ Use this order when a step creates or changes an artifact or publishes gated sta
 5. **Publish automatically after approval:** follow the [shared publication rule](#pre-publication-gate-and-automatic-actions). Commit and push approved Git changes and perform the selected step's approved PR or tracker actions in their required order. Record evidence and monitor applicable CI.
 6. **Report and checkpoint:** identify the published revision, PR/tracker links, local and CI outcomes, blockers and remaining work. Follow the session marker rules below. CI success grants neither merge authority nor permission to enter another step.
 
-Reuse decisions and evidence while their candidate, prerequisites and environment remain applicable. Recheck affected work when those conditions change. Group independent material decisions at a checkpoint before dependent work. The approved task plan authorizes the local build loop under the [publication boundary](#pre-publication-gate-and-automatic-actions).
+Within a step, review independent artifacts and material decisions together when their prerequisites are approved. Obtain approval of a prerequisite decision or artifact before producing dependent work. Each separately invoked step retains its own gates.
+
+Reuse decisions and evidence while their candidate, prerequisites and environment remain applicable. Recheck affected work when those conditions change. The approved task plan authorizes the local build loop under the [publication boundary](#pre-publication-gate-and-automatic-actions).
 
 ### AI and Human Responsibilities
 

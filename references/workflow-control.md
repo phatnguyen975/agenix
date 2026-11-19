@@ -12,6 +12,10 @@ A workflow invocation has the form `agx-<phase> [<item-id>] <step>`. Treat it as
 
 ## Artifact Gates
 
+Within the selected step, group independent artifacts or material decisions into one review when their prerequisites are already approved. Show the candidate and evidence for each output in that review.
+
+When later work relies on an unapproved decision or artifact, present the prerequisite for approval first. Resume the dependent work from that approved result. Continue any independent work within the selected step while it waits. Separately invoked steps keep their own gates.
+
 1. Complete the analysis, changes, self-review and applicable checks. Resolve routine choices within scope. Ask the human for material decisions, conflicting requirements, missing authority and judgments that require human confirmation.
 2. Present the exact candidate and base, what changed, decisions and acceptance coverage, actual results, outstanding checks and the intended writes. Acceptance requires passing checks or an applicable recorded exception. A review with findings, a repair plan or an incomplete handoff can record failures as blockers.
 3. Wait for a decision on that candidate and the stated actions. Address requested changes and rerun affected checks. Record the actual human decision. If the material content changes, obtain approval of the new candidate before publishing it.

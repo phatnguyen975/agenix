@@ -65,7 +65,7 @@ The GitHub repository, path and revision identify each selected source. Imported
 | `spec-writing`                     | Specify one feature's rules, states and verifiable acceptance scenarios.                        |
 | `systematic-debugging`             | Reproduce, isolate and diagnose failures, then verify authorized repairs.                       |
 | `tdd`                              | Derive behavior checks and implement with Red-Green-Refactor.                                   |
-| `test-strategy-design` _(planned)_ | Design risk-based verification across owned units, public boundaries and supported targets.     |
+| `test-strategy-design`             | Design risk-based verification across owned units, public boundaries and supported targets.     |
 | `work-breakdown-planning`          | Decompose scope into verifiable outcomes with hard dependencies and coverage.                   |
 
 ## 2. Workflow Composition
@@ -167,7 +167,7 @@ Reuse source templates in place when they cover the approved output. A step supp
 | System design and ADRs            | `evolutionary-architecture-design/assets/system-design-template.md` and `assets/adr-template.md` in the same skill | Write the system blueprint and significant decisions under `docs/blueprint/decisions/`. Include applicable views and drivers.                                                                                                                             |
 | Initial database design           | `database-design/assets/database-design-sql.md` or `database-design-nosql.md` in the same directory                | Use the asset compatible with the selected relational or document model and write `docs/blueprint/database-design.md`.                                                                                                                                    |
 | Codebase design                   | `codebase-design/assets/codebase-design-template.md`                                                               | Bind the approved layout, verification references and instruction scopes in `docs/blueprint/codebase-design.md`.                                                                                                                                          |
-| Test strategy                     | Planned generic template owned by `test-strategy-design`                                                           | Bind `docs/blueprint/test-strategy.md` to project units, modes and evidence. Scaffold supplies concrete commands.                                                                                                                                         |
+| Test strategy                     | `test-strategy-design/assets/test-strategy-template.md`                                                            | Bind `docs/blueprint/test-strategy.md` to owned units, run conditions, targets and evidence. The workflow adds the project task verification policy and exception criteria. Scaffold supplies verified commands.                                          |
 | Feature behavior                  | `spec-writing/references/spec-template.md`                                                                         | Bind the feature-ID path and stable acceptance anchors. Use the selected acceptance notation and reference separate owned contracts.                                                                                                                      |
 | API and data impact               | Protocol assets under `api-contract-design/assets/` and `data-impact-analysis/assets/data-impact-template.md`      | Use protocol assets as compatible examples or starting fragments. Write the canonical owned contract paths and feature `data-impact.md` with the baseline and verification obligations. Use the spec or short residual API prose for uncovered semantics. |
 | Feature, ticket and task records  | `templates/records/{feature,local-ticket}.schema.json` and `templates/records/{native-ticket,native-task}.md`      | Write `feature.agenix.json` in every mode. Render each local ticket with a `tasks` array. Render remote tickets and tasks as Markdown on GitHub and corresponding ADF on Jira.                                                                            |
@@ -295,7 +295,9 @@ Keep adaptations bounded to portable lookup, accurate version and scope, and cal
 
 Use the existing repository and tools. Follow the phases in order, and use the routes, template owners and resource layout above when implementing a step. Each phase ends when its listed implementation outputs are present and connected. Track unfinished work in the owning phase.
 
-The endpoint is **v1 implementation complete**, with the source, runtime resources and distribution configuration assembled. The consumer CI and verification flows specified in the proposal are part of the product to implement. Maintainer install checks, integration runs, new test suites, evals and release work are outside this sequence.
+The endpoint is **v1 implementation complete**, with the source, runtime resources and distribution configuration assembled. The consumer CI and verification flows specified in the proposal are part of the product to implement. Maintainer install checks, integrated validation, permanent eval suites and release work are outside this sequence.
+
+When authoring a workflow skill, check its step routing and output contract with a small, temporary behavioral exercise where the instructions depend on judgment. Choose cases that distinguish correct execution from plausible mistakes, including a missing prerequisite or authority boundary where relevant. Use isolated inputs and simulated external effects. Record the scenarios actually run and their outcomes. Remove temporary materials after the exercise.
 
 ### Phase 1 - Shared Workflow Contracts and Helpers
 
@@ -321,7 +323,9 @@ When implementing the workflow steps in later phases, verify that each step sele
 ### Phase 2 - Capability Preparation
 
 - [ ] Use the 20 existing capabilities where mapped. Preserve their standalone behavior and metadata. Limit any change to a concrete composition blocker in their actual route.
-- [ ] Create `test-strategy-design` with a standalone method and template for risks, verification boundaries, levels, tooling, environments and evidence. Bind it to the project-specific output only in `agx-architect tests`.
+- [x] Create `test-strategy-design` with a standalone method and template for risks, verification boundaries, levels, tooling, environments and evidence. The project-specific binding belongs to `agx-architect tests`.
+  - Verified skill and UI metadata, the local template route, the six template sections, the catalog entry and standalone scope.
+  - Ran read-only exercises for a full-stack checkout and a cross-platform Python library. Tightened template fidelity and unverified prerequisite handling after the first pass. The checkout rerun preserved the matrix and identified missing browser fault controls as setup work. The library exercise kept missing Windows evidence as a release blocker.
 - [ ] Vendor the 12 pinned imports with their required resources and verified licenses. Preserve notices and authorship. Resolve the import requirements above before including the affected content. Keep the choices pinned and record provenance in the skill index.
 - [ ] Make the selected imports usable in their assigned roles. Keep design, styling, browser execution and specialist review separate. Adapt caller paths and output, document runner/browser prerequisites, and prevent imported defaults from expanding project scope or permissions.
 

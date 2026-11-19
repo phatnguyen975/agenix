@@ -33,6 +33,7 @@ This catalog lists the skills available in this plugin. Start with a skill's `SK
 | [spec-writing](spec-writing/SKILL.md)                                         | Define what one feature must do from the user's or consumer's perspective. Specify rules, scenarios, state transitions, quality constraints, and verifiable acceptance criteria.                            |
 | [systematic-debugging](systematic-debugging/SKILL.md)                         | Investigate a reproducible, intermittent, or regressing failure. Isolate and confirm the cause, then verify an authorized fix and its regression coverage.                                                  |
 | [tdd](tdd/SKILL.md)                                                           | Derive tests from required behavior and drive implementation with Red-Green-Refactor. Observe an expected failure, make the smallest passing change, and refactor under the tests.                          |
+| [test-strategy-design](test-strategy-design/SKILL.md)                         | Design a risk-based verification strategy across the owned units and interfaces. Select checks, tooling, environments, run conditions, and evidence for implementation.                                     |
 | [work-breakdown-planning](work-breakdown-planning/SKILL.md)                   | Turn a scoped outcome into verifiable work. Define acceptance criteria, hard dependencies, and an execution order that supports independent work where possible.                                            |
 
 ## Workflow Skills

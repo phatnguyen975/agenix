@@ -1,0 +1,4 @@
+interface:
+  display_name: "Test Strategy Design"
+  short_description: "Design a risk-based test strategy"
+  default_prompt: "Use $test-strategy-design to design a risk-based test strategy that specifies what to verify, where and when checks should run, and what evidence is required."
