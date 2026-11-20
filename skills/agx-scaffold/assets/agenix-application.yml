@@ -1,0 +1,27 @@
+# Application CI Authoring Guide
+#
+# Replace this guide with valid GitHub Actions YAML for the approved project.
+# A release unit is an application, service, library or tool with an identifiable
+# release boundary. A CI job executes checks and is not a release unit.
+#
+# Workflow Structure
+#
+# - For one release unit, define its verified jobs directly when suitable.
+# - For multiple release units, define affected-unit and shared jobs here or
+#   call project-owned reusable workflows. Keep one stable application gate.
+# - Keep the setup artifact-validation workflow as a separate required check.
+#
+# Events and Selection
+#
+# - Configure pull_request, default-branch push and applicable merge_group events.
+# - Do not use workflow-level path filters for required checks.
+# - Select checks from verified changes and the approved dependency graph.
+# - Make the gate verify detection and every selected job result. An uncertain
+#   selection must run the necessary checks or fail rather than silently pass.
+#
+# Execution and Verification
+#
+# - Use approved commands, targets, dependencies and minimum permissions.
+# - Pin actions with the approved immutable mechanism.
+# - Verify selection and gate logic locally, then prove the intended failure
+#   and restored success on the draft PR before claiming CI readiness.

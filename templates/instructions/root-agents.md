@@ -13,7 +13,7 @@ Explain how to obtain help without starting work. Leave host-specific invocation
 prefixes to the installed host.
 -->
 
-Use `agx-guide` for usage and step selection. The human selects and ends each workflow step. Work within the selected step and stop after reporting its result and the next eligible action. Wait for the human to start another step.
+Use `agx-guide` for usage and step selection. The human selects and ends each workflow step. After the matching `END`, report the result and next eligible invocation, then wait for the human to invoke another step.
 
 Artifact approval covers the stated publication actions for the reviewed candidate. Merge and production exposure each require separate authority. Verify the applicable checks and actual remote results before claiming completion.
 
@@ -25,10 +25,12 @@ after scaffold verifies and publishes it. Replace placeholders for project scope
 approved responsibilities and applicable boundaries.
 -->
 
-Use the project configuration's `conversation-language` for discussion and `docs-language` for generated documentation.
+The following records define shared project settings and verified operations.
 
 - [Project Configuration](config.agenix.json) — shared settings for scope, tracker, repository and the Agenix version pin
 - [Verified Environment](environment.agenix.json) — verified commands, release units, test services and permissions by environment
+
+Use the project configuration's `conversation-language` for discussion and `docs-language` for generated documentation.
 
 <Approved scope and owned project boundaries>
 
@@ -42,6 +44,8 @@ the feature catalog rather than listing individual feature artifacts here. Omit 
 section until at least one approved artifact is available.
 -->
 
+The following documents define the approved shared product and technical foundations.
+
 - [<artifact>](relative-path-to-artifact) — <when to use the artifact>
 
 ## Instruction Scope Index
@@ -51,6 +55,8 @@ List real child instruction scopes only. For each child, give its repository-rel
 directory, responsibility and actual AGENTS.md link. Omit this section when the
 project has no child scopes.
 -->
+
+The following entries provide instructions for their respective project scopes.
 
 - <Actual scope path and responsibility> — [Scope Instructions](relative-path-to-AGENTS.md)
 
@@ -69,5 +75,12 @@ status. Do not copy the environment record wholesale.
 - Use approved operations and the minimum necessary access. Use disposable resources for applicable tests. Keep credentials out of model context, arguments, logs and tracked artifacts. Obtain required authority before destructive or irreversible actions.
 - Verify the actual candidate and report observed results, unrun checks and blockers accurately. Distinguish test failures from harness failures. Keep required assertions and test modes intact.
 - If a write may have succeeded, verify the current state before retrying. Recheck evidence after material changes. Pause the affected action when a required check or control is unavailable.
+
+## Common Tools and Boundaries
+
+- Use available read-only tools such as `git status`, `git diff` and `git log` to inspect repository state. Use `rg` for content and file searches, or `fd` for file discovery when available. Use `fzf` for interactive selection when useful. Choose an available equivalent when a tool is missing.
+- Use approved project commands from the verified environment for installation, build, checks and service operations. Inspect command arguments, working directory and target before execution. Read-only commands and searches remain subject to the applicable path and secret boundaries.
+- For Git writes, follow the selected workflow's branch and approval rules. Never force-push, rewrite published history, commit directly to the default branch or bypass repository protections. Merge requires separate authority.
+- Before destructive operations such as recursive removal, `git reset --hard`, `git clean`, database reset or volume deletion, confirm the exact target and obtain the required authority. Preserve unrelated work and use isolated resources for test cleanup. Never run commands that expose credentials or disable required controls.
 
 <!-- agenix:end -->

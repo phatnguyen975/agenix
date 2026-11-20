@@ -1,0 +1,326 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agenix.invalid/skills/agx-scaffold/assets/environment.schema.json",
+  "title": "Agenix verified environment",
+  "type": "object",
+  "properties": {
+    "schema-version": {
+      "type": "integer",
+      "const": 1
+    },
+    "kind": {
+      "const": "environment"
+    },
+    "instruction-entry": {
+      "const": "AGENTS.md"
+    },
+    "units": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "root": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "public-boundary": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "owned-modules": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "uniqueItems": true
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "id",
+          "root",
+          "role",
+          "public-boundary",
+          "owned-modules",
+          "targets"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "operation": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "unit-id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "argv": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          },
+          "cwd": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "target": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "mode": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "check-level": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "service-ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "uniqueItems": true
+          },
+          "permission-ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "id",
+          "operation",
+          "unit-id",
+          "argv",
+          "cwd",
+          "target",
+          "mode"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "services": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "identity": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "isolation": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "operations": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "readiness": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "seed": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "reset": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "cleanup": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "migration": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "fixtures": {
+            "type": "array",
+            "items": {
+              "$ref": "../../../templates/evidence/checkpoint.schema.json#/$defs/artifactRef"
+            }
+          }
+        },
+        "required": ["id", "identity", "isolation", "operations"],
+        "additionalProperties": false
+      }
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "environment": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "operation-ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "uniqueItems": true
+          },
+          "boundary": {
+            "type": "object",
+            "properties": {
+              "roots": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "uniqueItems": true
+              },
+              "networks": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "uniqueItems": true
+              },
+              "services": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "uniqueItems": true
+              },
+              "resources": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "uniqueItems": true
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "disposition": {
+            "enum": ["allowed", "approval-required", "prohibited"]
+          },
+          "enforcement": {
+            "enum": ["verified", "instruction-only"]
+          },
+          "evidence-ref": {
+            "$ref": "../../../templates/evidence/checkpoint.schema.json#/$defs/evidenceRef"
+          }
+        },
+        "required": [
+          "id",
+          "environment",
+          "operation-ids",
+          "boundary",
+          "disposition",
+          "enforcement"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "../../../templates/evidence/checkpoint.schema.json#/$defs/evidenceRef"
+      }
+    }
+  },
+  "required": [
+    "schema-version",
+    "kind",
+    "instruction-entry",
+    "units",
+    "commands",
+    "services",
+    "permissions",
+    "evidence"
+  ],
+  "additionalProperties": false
+}

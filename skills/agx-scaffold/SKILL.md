@@ -15,12 +15,14 @@ Turn approved product and architecture foundations into a project structure and 
 
 ## Invocation and Steps
 
-| Invocation               | When to Use It                                                        | Procedure                            |
-| ------------------------ | --------------------------------------------------------------------- | ------------------------------------ |
-| `agx-scaffold structure` | Design the owned codebase layout and instruction scopes.              | [Structure](references/structure.md) |
-| `agx-scaffold runtime`   | Build and verify the service-independent runtime foundation.          | [Runtime](references/runtime.md)     |
-| `agx-scaffold services`  | Prepare and verify applicable development and test services.          | [Services](references/services.md)   |
-| `agx-scaffold tests`     | Prepare and verify the approved testing harnesses across owned units. | [Tests](references/tests.md)         |
+| Invocation                  | When to Use It                                                             | Procedure                                  |
+| --------------------------- | -------------------------------------------------------------------------- | ------------------------------------------ |
+| `agx-scaffold structure`    | Design the owned codebase layout and instruction scopes.                   | [Structure](references/structure.md)       |
+| `agx-scaffold runtime`      | Build and verify the service-independent runtime foundation.               | [Runtime](references/runtime.md)           |
+| `agx-scaffold services`     | Prepare and verify applicable development and test services.               | [Services](references/services.md)         |
+| `agx-scaffold tests`        | Prepare and verify the approved testing harnesses across owned units.      | [Tests](references/tests.md)               |
+| `agx-scaffold ci`           | Configure and verify project CI and an optional pre-commit hook.           | [CI](references/ci.md)                     |
+| `agx-scaffold instructions` | Finalize project instructions, verified environment and scaffold delivery. | [Instructions](references/instructions.md) |
 
 ## Operating Rules
 
