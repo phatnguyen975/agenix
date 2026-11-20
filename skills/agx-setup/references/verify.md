@@ -15,7 +15,7 @@ If the initial candidate is missing, report that `configure` must prepare it. If
 
 Verify Git, Python 3.11 or later, authenticated `gh`, the repository and default branch, and the compatible installed helper and pin. Check effective ignores, tracked paths, root instruction links, the Claude import (optional) and the rendered CI settings.
 
-Verify the actual PR and Actions path, including repository permissions, required checks and native reviews, squash support and any required merge queue. Check that the review path is feasible for a solo maintainer when applicable. Access to read metadata establishes only read access. If required permission cannot be established, report the gap or use authoritative administrator evidence.
+Verify the actual PR and Actions path, including repository permissions, required checks and native reviews, squash support and any required merge queue. Identify `Agenix Artifacts Gate` as the stable artifact check and verify that it requires successful validation on every configured operating system. Check the actual ruleset and resolve any missing or obsolete required check with the human. Check that the review path is feasible for a solo maintainer when applicable. Access to read metadata establishes only read access. If required permission cannot be established, report the gap or use authoritative administrator evidence.
 
 ## 2. Verify the Selected Tracker
 

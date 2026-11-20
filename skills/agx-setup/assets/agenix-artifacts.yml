@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   validate:
-    name: Artifact validation (${{ matrix.os }})
+    name: Artifact Validation (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -71,3 +71,14 @@ jobs:
               config = json.loads((project / "config.agenix.json").read_text(encoding="utf-8"))
               if config["plugin"] != {"repository": source, "revision": pin}:
                   raise SystemExit("Project configuration and CI helper pins differ")
+
+  gate:
+    name: Agenix Artifacts Gate
+    if: ${{ always() }}
+    needs: [validate]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require all artifact validations
+        env:
+          VALIDATION_RESULT: ${{ needs.validate.result }}
+        run: test "$VALIDATION_RESULT" = success
