@@ -1,0 +1,6 @@
+interface:
+  display_name: "Agenix Architect"
+  short_description: "Design the owned product blueprint"
+  default_prompt: "Use $agx-architect to design the owned product blueprint. Ask which supported step to run if none is specified."
+policy:
+  allow_implicit_invocation: false

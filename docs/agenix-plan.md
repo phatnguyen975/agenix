@@ -388,6 +388,7 @@ When implementing the workflow steps in later phases, verify that each step sele
   - `agx-prd define` implemented with the shared PRD template and a conditional exploration contribution. Verified skill metadata, local links and the define paths for settled direction, open choice and resumed publication.
   - `agx-feature define` implements feature boundaries, pinned PRD coverage, dependency readiness and staged record ownership. An isolated project passed feature validation and rejected a dependency cycle and a missing pinned PRD anchor.
 - [ ] Implement `agx-architect domain`, `system` and `stack`. Select applicable system or client design, retain significant decisions, and bind chosen tools and targets.
+  - `domain` implemented. Checked invocation metadata and resource links, and walked through a new model, an unresolved external responsibility and continuation from the approved branch revision. `system` and `stack` remain pending.
 - [ ] Implement `agx-architect data` and `ui` where applicable. Bind owned persistence decisions and the global UI design and demonstration. Route design, browser and accessibility methods according to Section 2.
 - [ ] Implement `agx-architect conventions` and `tests`. Deliver approved conventions and a test strategy across owned units. Leave concrete harness commands and runtime evidence to scaffold.
 
