@@ -15,9 +15,12 @@ Turn approved product and architecture foundations into a project structure and 
 
 ## Invocation and Steps
 
-| Invocation               | When to Use It                                           | Procedure                            |
-| ------------------------ | -------------------------------------------------------- | ------------------------------------ |
-| `agx-scaffold structure` | Design the owned codebase layout and instruction scopes. | [Structure](references/structure.md) |
+| Invocation               | When to Use It                                                        | Procedure                            |
+| ------------------------ | --------------------------------------------------------------------- | ------------------------------------ |
+| `agx-scaffold structure` | Design the owned codebase layout and instruction scopes.              | [Structure](references/structure.md) |
+| `agx-scaffold runtime`   | Build and verify the service-independent runtime foundation.          | [Runtime](references/runtime.md)     |
+| `agx-scaffold services`  | Prepare and verify applicable development and test services.          | [Services](references/services.md)   |
+| `agx-scaffold tests`     | Prepare and verify the approved testing harnesses across owned units. | [Tests](references/tests.md)         |
 
 ## Operating Rules
 
