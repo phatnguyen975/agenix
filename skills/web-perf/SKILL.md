@@ -8,8 +8,6 @@ metadata:
 
 # Web Performance Audit
 
-> Modified by Agenix. See the plugin skill catalog for the scope of changes.
-
 Your knowledge of web performance metrics, thresholds, and tooling APIs may be outdated. **Prefer retrieval over pre-training** when citing specific numbers or recommendations.
 
 ## Retrieval Sources
@@ -22,7 +20,16 @@ Your knowledge of web performance metrics, thresholds, and tooling APIs may be o
 
 ## Verify Available Tools
 
-Use the authorized browser and performance tools available for the target. Chrome DevTools MCP is one option for the commands below. If trace tooling is unavailable, complete supported analysis and report the unavailable measurements.
+Discover available browser and performance tools before starting. Use the capabilities available for the requested audit. If trace tools are unavailable, continue any useful source or network analysis and state which measurements could not be collected.
+
+If the user wants Chrome DevTools MCP setup, consult its [installation guide](https://github.com/ChromeDevTools/chrome-devtools-mcp#quick-start) and use the latest package version. Only change MCP configuration when setup is within the user's authorized scope; otherwise ask first. For clients using `command` and `args`, an example server entry is:
+
+```json
+"chrome-devtools": {
+  "command": "npx",
+  "args": ["-y", "chrome-devtools-mcp@latest"]
+}
+```
 
 ## Key Guidelines
 

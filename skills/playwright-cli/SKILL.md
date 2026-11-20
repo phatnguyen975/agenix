@@ -8,8 +8,6 @@ metadata:
 
 # Browser Automation with playwright-cli
 
-> Modified by Agenix. See the plugin skill catalog for the scope of changes.
-
 ## Quick start
 
 ```bash
@@ -409,9 +407,21 @@ playwright-cli close-all
 playwright-cli kill-all
 ```
 
-## CLI Prerequisites
+## Installation
 
-Use an authorized installed playwright-cli, or use the local command npx --no-install playwright cli if Playwright 1.59 or newer is already installed. Confirm the executable and its options before use. Package or browser installation requires separate authorization.
+Package installation and custom `npm` scripts may require separate approval.
+
+If global `playwright-cli` command is not available, try a local version via `npx playwright cli`. It needs Playwright 1.59 or newer:
+
+```bash
+npx --no-install playwright --version
+```
+
+When local version is available, use `npx playwright cli` in all commands. Otherwise, install `playwright-cli` as a global command:
+
+```bash
+npm install -g @playwright/cli@latest
+```
 
 ## Example: Form submission
 

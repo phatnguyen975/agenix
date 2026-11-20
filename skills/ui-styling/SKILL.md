@@ -10,8 +10,6 @@ metadata:
 
 # UI Styling Skill
 
-> Modified by Agenix. See the plugin skill catalog for the scope of changes.
-
 Comprehensive skill for creating beautiful, accessible user interfaces combining shadcn/ui components, Tailwind CSS utility styling, and canvas-based visual design systems.
 
 ## Reference
@@ -61,7 +59,7 @@ Use when:
 
 ## Script Paths
 
-Resolve scripts/<file> from the directory containing this skill. Run project operations from the target project root. Confirm the project tooling and obtain authorization before installing dependencies, writing files, or fetching assets.
+Resolve `scripts/<file>` from the directory containing this skill. Run project operations from the target project root. Confirm the project tooling and obtain authorization before installing dependencies, writing files, or fetching assets.
 
 ## Quick Start
 

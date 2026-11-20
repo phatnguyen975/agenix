@@ -1,7 +1,5 @@
 # Canvas Design System
 
-> Modified by Agenix. See the plugin skill catalog for the scope of changes.
-
 Visual design philosophy, systematic composition, and sophisticated visual communication.
 
 ## Design Philosophy Approach

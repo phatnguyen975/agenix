@@ -4,7 +4,7 @@
 
 Read the root project instructions and `config.agenix.json` for approved scope, targets and documentation language. Use the merged `docs/PRD.md`, feature catalog and relevant feature records for product outcomes and quality targets. On the architecture branch, verify approval of `docs/blueprint/domain-model.md` and, where system design applies, `docs/blueprint/system-design.md` and its ADRs. Extract owned boundaries, workflows, data semantics, quality drivers and technology constraints. On amendments, also inspect the approved stack, manifests, lockfiles and relevant operating evidence.
 
-Write `docs/blueprint/tech-stack.md` using the [Tech Stack Template](../assets/tech-stack.md). Capture approved choices by release unit or shared component and record where each runs. Use the existing architecture amendment route if a choice requires changing an approved boundary, constraint or quality target.
+Write `docs/blueprint/tech-stack.md` using the [Tech Stack Template](../assets/tech-stack-template.md). Capture approved choices by release unit or shared component and record where each runs. Use the existing architecture amendment route if a choice requires changing an approved boundary, constraint or quality target.
 
 ## 1. Derive Technology Needs
 
