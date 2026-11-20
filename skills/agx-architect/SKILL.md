@@ -18,6 +18,8 @@ Design the applicable domain and technical foundations for the owned product. Us
 | Invocation             | When to Use It                                                                                        | Procedure                      |
 | ---------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------ |
 | `agx-architect domain` | Model owned business language, behavior and responsibilities from the merged PRD and feature catalog. | [Domain](references/domain.md) |
+| `agx-architect system` | Design the owned system where applicable, using the approved domain model.                            | [System](references/system.md) |
+| `agx-architect stack`  | Select and confirm the technology stack for the approved scope and release units.                     | [Stack](references/stack.md)   |
 
 ## Operating Rules
 
