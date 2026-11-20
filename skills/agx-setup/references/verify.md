@@ -43,8 +43,6 @@ Use the installed [artifact validator](../../../scripts/validate-artifacts.py) w
 2. Apply [Publish the Approved Candidate](../../../references/git-publication.md#publish-the-approved-candidate). Perform the approved writes and verify their results. Create the ready setup PR or update the existing matching PR. On resume, reconcile publication before retrying any write. Apply [Bind Review and CI to the Candidate](../../../references/git-publication.md#bind-review-and-ci-to-the-candidate) to verify bootstrap CI for the final head or its proven test-merge revision.
 3. Apply [Merge the Approved Head](../../../references/git-publication.md#merge-the-approved-head) and [Verify Delivery](../../../references/git-publication.md#verify-delivery-and-recover-from-a-failed-check). Wait for human merge or separate exact-head authority. Report completion only after actual merge and required post-merge checks. If pending, report the exact blocker and resume the same PR on the next `verify` invocation.
 
-After verified merge and required post-merge checks, apply [Clean Up Branches After Merge](../../../references/git-publication.md#clean-up-branches-after-merge). For authorized deletion, use [Branch Lifecycle](../../autonomous-git-workflow/references/branching-and-pr.md#3-branch-lifecycle). Report retained or removed refs in the setup summary.
-
 ### Joining
 
 Report the merged revision, pin, tool and permission checks, tracker readiness and blockers. Give the path and outcome of any private initialization. Joining requires no shared artifact approval or publication.

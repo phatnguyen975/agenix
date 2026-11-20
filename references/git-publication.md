@@ -6,13 +6,16 @@ Use this guide to publish the approved candidate, verify its remote state and co
 
 Fetch the configured `origin` and verify the repository matches `github-repo`. Use `origin/<default-branch>` for merged-baseline decisions. A failed fetch, remote mismatch or unclear worktree ownership blocks dependent actions. Preserve unrelated edits and index state. Never commit directly to the default branch, force-push, rewrite published history or bypass protections.
 
-| Work                                                      | Branch                     | Pull Request                                                             |
-| --------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------ |
-| Initial setup or scaffold                                 | `chore/<phase>`            | One per phase.                                                           |
-| PRD, catalog, architecture, feature specification or plan | `docs/<phase>[-<item-id>]` | One per owning phase or item.                                            |
-| Ticket planning, build, review and fixes                  | `feat/<ticket-id>-<slug>`  | The first implementation PR opens during ticket ship. Reuse it on retry. |
-| Feature finalization                                      | `docs/status-<feature-id>` | Separate finalization PR.                                                |
-| Joining verification or native task planning              | Existing scope             | No Git PR for this operation.                                            |
+| Work                                         | Branch                      | Pull Request                                                                         |
+| -------------------------------------------- | --------------------------- | ------------------------------------------------------------------------------------ |
+| Initial setup or scaffold                    | `chore/<phase>`             | One branch and PR for each phase.                                                    |
+| PRD, catalog or architecture                 | `docs/<phase>`              | One branch and PR for each phase.                                                    |
+| Feature specification or feature plan        | `docs/<phase>-<feature-id>` | One branch and PR for each phase and feature.                                        |
+| Ticket build, review, fixes and ticket ship  | `feat/<ticket-id>-<slug>`   | One branch across these phases and one implementation PR, opened during ticket ship. |
+| Feature finalization                         | `docs/status-<feature-id>`  | One branch and separate finalization PR per feature.                                 |
+| Joining verification or native task planning | Existing scope              | No Git PR for this operation.                                                        |
+
+Select the row for the current work. For rows that specify one branch per phase, use a different branch for each phase or feature as indicated. All steps within that phase share its branch. For the ticket row, use the same owned branch and worktree across build planning, build, review, fixes and ticket ship. Reuse a matching owned branch and PR when resuming. Create a branch only if the selected work needs one and no matching owned branch exists. Stop on conflicting ownership or ambiguous state.
 
 ## Name Commits and Pull Requests
 
