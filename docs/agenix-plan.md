@@ -401,6 +401,7 @@ When implementing the workflow steps in later phases, verify that each step sele
 ### Phase 4 - Runnable Scaffold and Feature Contracts
 
 - [ ] Implement `agx-scaffold structure` and `runtime`. Resolve concrete release units, source and test paths, instruction scopes, application configuration and the runnable skeleton.
+  - `structure` implemented with codebase-design routing, approved foundation inputs and documentation map update. Resource links and metadata checked. `runtime` remains pending.
 - [ ] Implement `agx-scaffold services` and `tests`. Wire only applicable disposable services and migration prerequisites. Implement procedures for harness setup, test discovery, meaningful failure and restored success.
 - [ ] Implement `agx-scaffold ci` and `instructions`. Generate consumer CI from verified commands, support the controlled failure/restoration sequence, and finalize README, scoped instructions and per-environment permissions. Keep final scaffold publication and its separate merge decision at `instructions`.
   - Exercise the shipped environment schema with `validate-artifacts.py --stage environment` on valid and invalid rendered records in isolated worktrees. Recheck task and receipt validation with the rendered command IDs, levels and modes.
