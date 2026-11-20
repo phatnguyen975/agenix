@@ -34,6 +34,8 @@ Apply [Model Validation](../../domain-modeling/references/model-validation.md). 
 
 Read back the artifact and inspect the scoped diff. Check source references, terminology, applicable sections, approved documentation language and removal of template instructions. Pause affected work for unresolved material decisions and present only a checked candidate for approval.
 
+Prepare the root documentation map update for the candidate using [Configure Instructions and Scope](../../../references/project-content.md#configure-instructions-and-scope). Include it in the same approval and publication.
+
 Apply [Artifact Gates](../../../references/workflow-control.md#artifact-gates). Present the candidate and base, material decisions, scenario results, affected downstream designs and intended commit and push. After approval, [publish the candidate](../../../references/git-publication.md#publish-the-approved-candidate) and bind the approval and scenario results to the published revision in the phase PR or a durable checkpoint. Apply the architecture phase publication rules in the skill entry point.
 
 At the matching human `END`, report the model path, approved revision, scenario results and remaining blockers. Use the invocation table to suggest the next applicable supported step when eligible. A dependent step reads the approved domain model and evidence from the same architecture branch.

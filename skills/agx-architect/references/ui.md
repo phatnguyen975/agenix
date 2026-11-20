@@ -43,4 +43,6 @@ Replay every selected scenario in a real browser before the design gate. Check l
 
 ## Approve and Publish
 
+Prepare the root documentation map update for the candidate using [Configure Instructions and Scope](../../../references/project-content.md#configure-instructions-and-scope). Include it in the same approval and publication.
+
 Apply [Artifact Gates](../../../references/workflow-control.md#artifact-gates) to the README and demonstration together. Present the shared direction, representative scenarios, supported targets, browser evidence, outstanding limitations and intended publication. Obtain human review of the rendered UI and material design decisions. After approval, [publish the candidate](../../../references/git-publication.md#publish-the-approved-candidate) on the architecture branch and bind approval and verification evidence to the published revision in the phase PR or a durable checkpoint. Follow the shared phase and session rules.

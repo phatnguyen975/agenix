@@ -36,4 +36,6 @@ Use [Evolutionary Architecture Design](../../evolutionary-architecture-design/SK
 
 Check driver coverage, alignment with the approved domain model, consistency across views and ADRs, quality criteria and residual risks. Read back the artifacts, resolve their references and inspect the scoped diff. Record which scenarios were reasoned through and which checks actually ran.
 
+Prepare the root documentation map update for the candidate using [Configure Instructions and Scope](../../../references/project-content.md#configure-instructions-and-scope). Include it in the same approval and publication.
+
 Apply [Artifact Gates](../../../references/workflow-control.md#artifact-gates) to the system design and applicable ADRs. Present the candidate and base, material trade-offs, evidence, remaining risks and intended publication. After approval, [publish the candidate](../../../references/git-publication.md#publish-the-approved-candidate) on the architecture branch and bind approval and verification evidence to its revision in the phase PR or a durable checkpoint. Follow the phase publication and session closure rules in the skill entry point.

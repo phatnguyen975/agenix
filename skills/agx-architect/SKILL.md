@@ -15,13 +15,15 @@ Design the applicable domain and technical foundations for the owned product. Us
 
 ## Invocation and Steps
 
-| Invocation             | When to Use It                                                                                        | Procedure                      |
-| ---------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------ |
-| `agx-architect domain` | Model owned business language, behavior and responsibilities from the merged PRD and feature catalog. | [Domain](references/domain.md) |
-| `agx-architect system` | Design the owned system where applicable, using the approved domain model.                            | [System](references/system.md) |
-| `agx-architect stack`  | Select and confirm the technology stack for the approved scope and release units.                     | [Stack](references/stack.md)   |
-| `agx-architect data`   | Design owned persistence using the approved domain, system and stack decisions.                       | [Data](references/data.md)     |
-| `agx-architect ui`     | Define and demonstrate shared web UI design foundations.                                              | [UI](references/ui.md)         |
+| Invocation                  | When to Use It                                                                                        | Procedure                                |
+| --------------------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| `agx-architect domain`      | Model owned business language, behavior and responsibilities from the merged PRD and feature catalog. | [Domain](references/domain.md)           |
+| `agx-architect system`      | Design the owned system where applicable, using the approved domain model.                            | [System](references/system.md)           |
+| `agx-architect stack`       | Select and confirm the technology stack for the approved scope and release units.                     | [Stack](references/stack.md)             |
+| `agx-architect data`        | Design owned persistence using the approved domain, system and stack decisions.                       | [Data](references/data.md)               |
+| `agx-architect ui`          | Define and demonstrate shared web UI design foundations.                                              | [UI](references/ui.md)                   |
+| `agx-architect conventions` | Establish applicable shared engineering rules and their intended checks.                              | [Conventions](references/conventions.md) |
+| `agx-architect tests`       | Design the test strategy and verify the complete applicable blueprint.                                | [Tests](references/tests.md)             |
 
 ## Operating Rules
 
