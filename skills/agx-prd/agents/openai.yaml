@@ -1,0 +1,6 @@
+interface:
+  display_name: "Agenix PRD"
+  short_description: "Define the product requirements baseline"
+  default_prompt: "Use $agx-prd define to establish the product requirements baseline."
+policy:
+  allow_implicit_invocation: false
