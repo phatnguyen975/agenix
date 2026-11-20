@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agenix.invalid/skills/agx-feature/assets/feature-catalog.schema.json",
+  "title": "Agenix feature catalog",
+  "type": "object",
+  "properties": {
+    "schema-version": { "const": 1 },
+    "kind": { "const": "catalog" },
+    "features": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^FEAT-(?=[0-9]*[1-9])[0-9]{3,}$"
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^docs/features/FEAT-(?=[0-9]*[1-9])[0-9]{3,}/feature\\.agenix\\.json$"
+          }
+        },
+        "required": ["id", "path"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["schema-version", "kind", "features"],
+  "additionalProperties": false
+}

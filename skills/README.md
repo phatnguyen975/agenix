@@ -38,10 +38,11 @@ This catalog lists the skills available in this plugin. Start with a skill's `SK
 
 ## Workflow Skills
 
-| Skill                           | Purpose and Use                                                                                                                                                                                 |
-| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [agx-setup](agx-setup/SKILL.md) | Prepare project configuration, root instructions and artifact CI on a setup branch. Verify and publish first-time setup or check a developer's readiness to join an already configured project. |
-| [agx-prd](agx-prd/SKILL.md)     | Define or amend the approved product requirements baseline, including user journeys, measurable outcomes and stable requirement IDs.                                                            |
+| Skill                               | Purpose and Use                                                                                                                                                                                 |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [agx-setup](agx-setup/SKILL.md)     | Prepare project configuration, root instructions and artifact CI on a setup branch. Verify and publish first-time setup or check a developer's readiness to join an already configured project. |
+| [agx-prd](agx-prd/SKILL.md)         | Define or amend the approved product requirements baseline, including user journeys, measurable outcomes and stable requirement IDs.                                                            |
+| [agx-feature](agx-feature/SKILL.md) | Define demonstrable features from the approved PRD, map requirement and journey coverage, and record delivery dependencies.                                                                     |
 
 ## Imported Skills
 
