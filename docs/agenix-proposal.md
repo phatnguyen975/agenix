@@ -572,7 +572,7 @@ Before artifact approval, invocation permits truthful nonterminal progress updat
 
 Planning commits use `docs(<phase>): <summary>`; setup/scaffold use `chore(<phase>): <summary>`. An approved build batch uses `<type>(<component>): <summary> [<ticket-id>]` and lists implemented task IDs in the body; task completion references that batch commit. Spec amendments use `docs(spec): <summary> [<ticket-id>]`. Component follows project conventions, independently of ticket scope.
 
-Ticket PR titles are `<ticket-id>: <ticket title>`; bodies link specs, tasks, local/CI evidence, UI reports and manual checks. Reuse the recorded PR instead of creating duplicates. Squash merge titles use the ticket's type/component/title/ID; phase tokens omit `agx-`.
+Ticket PR titles are `<ticket-id>: <ticket title>`; bodies link specs, tasks, local/CI evidence, UI reports and manual checks. Reuse the recorded PR instead of creating duplicates. Phase tokens omit `agx-`. Use the Git workflow capability and its commit convention for commit messages, including meaningful bodies and applicable footers; retain the ticket-specific requirements.
 
 ### Local Verification and Remote CI
 
@@ -594,10 +594,10 @@ Substantive changes invalidate affected review/acceptance. Only the explicitly a
 
 **The human owns merge.** Artifact approval, a step invocation, a green CI result and `END` do not authorize AI merge or enabling auto-merge. The human may merge directly or explicitly authorize AI to merge the identified PR/head. Before doing so, verify final-head checks/reviews, current dependencies, branch/base freshness and absence of blockers. If integration changes are needed, rerun checks and obtain approval of the changed snapshot before publishing.
 
-For authorized AI merge:
+Use merge commits for managed PRs to preserve their individual commits on the target branch. The human uses the same method when merging directly. For authorized AI merge:
 
-- On a branch without a required merge queue, use `gh pr merge <PR> --squash --match-head-commit <SHA>` against the configured repository. A repository without squash support is a setup blocker.
-- On a branch with a required merge queue, verify the queue is configured for squash. Use `--match-head-commit <SHA>` to submit the approved head only after the required pre-queue checks pass. With pending checks, the CLI can enable auto-merge instead of enqueueing. If policy or checks prevent safe submission, report the blocker and leave merge to the human once repository requirements are met.
+- On a branch without a required merge queue, use `gh pr merge <PR> --merge --match-head-commit <SHA>` against the configured repository. Missing merge-commit support or incompatible branch protection is a setup blocker.
+- On a branch with a required merge queue, verify the queue is configured for merge commits. Use `--match-head-commit <SHA>` to submit the approved head only after the required pre-queue checks pass. With pending checks, the CLI can enable auto-merge instead of enqueueing. If policy or checks prevent safe submission, report the blocker and leave merge to the human once repository requirements are met.
 - Honor protections without admin bypass. Confirm the actual merge before relying on it. [Ticket closure](#agx-ship-item-id-run--ticket-delivery-and-feature-acceptance) and [feature exposure](#feature-exposure) have their own prerequisites.
 
 ### Ticket Checkpoints
@@ -1009,7 +1009,7 @@ Resume the original ticket's ship step once the repair is confirmed merged and t
 
 After an interruption, verify the existing PR, head, base, approvals, CI and merge state. Resume the remaining actions. If the human chooses to merge directly, report where the workflow is waiting. The human may end the step and explicitly invoke `ship run` again after merge. Reuse valid approval and never repeat a confirmed merge or exposure action.
 
-Record the reviewed head and verified merge SHA in the PR checkpoint. Resolve squash merges against refreshed default-branch history even if the pre-squash commit is unavailable. Required post-merge failures block completion and exposure. Report acceptance, actual merge, verified completion and exposure outcomes separately.
+Record the reviewed head and verified merge SHA in the PR checkpoint. Resolve historical squash merges against refreshed default-branch history even if the pre-squash commit is unavailable. Required post-merge failures block completion and exposure. Report acceptance, actual merge, verified completion and exposure outcomes separately.
 
 ### `agx-guide` — Usage Guide
 

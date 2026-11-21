@@ -19,14 +19,15 @@ Select the row for the current work. For rows that specify one branch per phase,
 
 ## Name Commits and Pull Requests
 
-| Purpose                  | Format                                              | Example                                                    |
-| ------------------------ | --------------------------------------------------- | ---------------------------------------------------------- |
-| Planning commit          | `docs(<phase>): <summary>`                          | `docs(plan): define checkout tickets`                      |
-| Setup or scaffold commit | `chore(<phase>): <summary>`                         | `chore(scaffold): wire contract checks`                    |
-| Ticket build commit      | `<type>(<component>): <summary> [<ticket-id>]`      | `feat(checkout): validate delivery address [FEAT-003-T01]` |
-| Spec amendment commit    | `docs(spec): <summary> [<ticket-id>]`               | `docs(spec): clarify address validation [FEAT-003-T01]`    |
-| Ticket PR title          | `<ticket-id>: <ticket title>`                       | `FEAT-003-T01: Validate delivery address`                  |
-| Ticket squash title      | `<type>(<component>): <ticket title> [<ticket-id>]` | `feat(checkout): validate delivery address [FEAT-003-T01]` |
+| Purpose                  | Format                                         | Example                                                    |
+| ------------------------ | ---------------------------------------------- | ---------------------------------------------------------- |
+| Planning commit          | `docs(<phase>): <summary>`                     | `docs(plan): define checkout tickets`                      |
+| Setup or scaffold commit | `chore(<phase>): <summary>`                    | `chore(scaffold): wire contract checks`                    |
+| Ticket build commit      | `<type>(<component>): <summary> [<ticket-id>]` | `feat(checkout): validate delivery address [FEAT-003-T01]` |
+| Spec amendment commit    | `docs(spec): <summary> [<ticket-id>]`          | `docs(spec): clarify address validation [FEAT-003-T01]`    |
+| Ticket PR title          | `<ticket-id>: <ticket title>`                  | `FEAT-003-T01: Validate delivery address`                  |
+
+For each commit, apply the Git workflow capability and its commit convention: use a meaningful body when context or rationale is needed, and applicable footers for breaking changes or references. The formats above and the ticket task-ID requirement take precedence over capability defaults.
 
 Omit `agx-` from phase tokens. Choose the type by the nature of the change and the component by the project's codebase conventions. The ticket's delivery scope is recorded separately. List the implemented task IDs in the build commit body. In the ticket PR body, link the applicable requirements, tasks and verification evidence, including UI and manual results where relevant. Keep ticket references non-closing until delivery is verified.
 
@@ -52,14 +53,14 @@ If the candidate changes after review, compare the full diff. Carry review evide
 
 ## Merge the Approved Head
 
-The human may merge directly or authorize AI to merge the exact PR and head. Refresh the base, head, required native reviews, checks and dependencies before an authorized merge. If the candidate needs integration changes, verify and obtain approval for that changed snapshot first. Never use an administrative bypass or enable auto-merge.
+Use a merge commit to preserve the individual commits on the target branch. The human may merge directly with the same method or authorize AI to merge the exact PR and head. Refresh the base, head, required native reviews, checks and dependencies before an authorized merge. If the candidate needs integration changes, verify and obtain approval for that changed snapshot first. Never use an administrative bypass or enable auto-merge.
 
-- **No required merge queue.** Use `gh pr merge <PR> --repo <owner/repo> --squash --match-head-commit <SHA>`. Setup verifies squash support.
-- **Required merge queue.** Verify that the queue uses squash and its pre-queue requirements have passed. Submit the approved head with `--match-head-commit <SHA>` against the configured repository. Pending checks can cause the CLI to enable auto-merge instead of enqueueing. If safe submission is unavailable, report the blocker for the human. Treat queue submission as pending merge.
+- **No required merge queue.** Use `gh pr merge <PR> --repo <owner/repo> --merge --match-head-commit <SHA>`. Setup verifies merge-commit support and compatible branch protection.
+- **Required merge queue.** Verify that the queue uses the merge-commit method and its pre-queue requirements have passed. Submit the approved head with `--match-head-commit <SHA>` against the configured repository. Pending checks can cause the CLI to enable auto-merge instead of enqueueing. If safe submission is unavailable, report the blocker for the human. Treat queue submission as pending merge.
 
 ## Verify Delivery and Recover from a Failed Check
 
-Confirm the actual merge and required post-merge checks on the refreshed default branch. Record reviewed head, verified merge SHA and durable receipts. Resolve squash history with PR mappings when the original commit is no longer available. On interruption, read the existing PR and finish only outstanding actions after revalidation. Reuse the same PR when a human merges later.
+Confirm the actual merge and required post-merge checks on the refreshed default branch. Record reviewed head, verified merge SHA and durable receipts. For historical squash merges, resolve the original history through PR mappings when the original commit is no longer available. On interruption, read the existing PR and finish only outstanding actions after revalidation. Reuse the same PR when a human merges later.
 
 A required post-merge ticket failure blocks closure. Keep the failed result on its original revision and create a new repair ticket. Link the original for provenance so the repair can proceed while the original remains open. Once the repair merges, verify the required checks covering the failed scope on the repaired merged revision. Record both PRs, revisions and results before closing the original ticket.
 
