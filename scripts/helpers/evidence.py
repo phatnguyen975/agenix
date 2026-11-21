@@ -5,7 +5,7 @@ from datetime import datetime
 from functools import cache
 
 from .core import Invalid, Unavailable, contained, run, strict_json
-from .records import indexed
+from .records import feature_path, indexed
 from .schema import equal
 
 MUTABLE_FIELDS = {"status", "checkpoints", "checkpoint-refs", "approval-ref"}
@@ -597,7 +597,7 @@ class Completion:
             if (
                 feature
                 or not allow_repair
-                or not self.has_repair(path, ref, merge, timeline, exc.names)
+                or not self.has_repair(record, path, ref, merge, exc.names)
             ):
                 raise
         if feature:
@@ -755,23 +755,22 @@ class Completion:
                 failures.add(f"{record['id']}/{receipt['check-id']}")
         return failures
 
-    def has_repair(self, path, pr, merge, timeline, failed_names):
-        recorded = {
-            receipt["check-id"]
-            for cp in timeline
-            for receipt in cp.get("verification", [])
-            if receipt["result"] == "failed" and receipt.get("revision") == merge
-        }
-        if not failed_names <= recorded:
-            return False
-        paths = {
-            ref["target"].partition("#")[0]
-            for cp in timeline
-            for ref in cp["references"]
-            if ref["target"].startswith(path.rpartition("/")[0] + "/")
-            and ref["target"].endswith(".agenix.json")
-        }
-        for repair_path in sorted(paths - {path}):
+    def has_repair(self, original, path, pr, merge, failed_names):
+        parent = original["feature-id"]
+        feature = self.store.feature(
+            {"id": parent, "path": feature_path(parent)},
+            "local",
+            self.commands,
+            self.store.config(),
+            set(),
+        )
+        mappings = indexed(feature.get("tickets", []))
+        if mappings.get(original["id"], {}).get("path") != path:
+            raise Invalid("Original ticket is missing from the integrated feature plan")
+        for mapping in mappings.values():
+            repair_path = mapping["path"]
+            if repair_path == path:
+                continue
             repair = self.store.record("ticket", repair_path)
             if repair.get("origin-ref", {}).get("target") not in {path, pr["url"]}:
                 continue

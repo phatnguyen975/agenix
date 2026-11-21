@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "agenix",
   "version": "1.0.0",
-  "description": "Universal SDLC workflow framework for AI coding agents, providing structured lifecycle management, zero-trust quality gating, seamless issue tracking, and architectural context synchronization.",
+  "description": "Structured software development workflows for AI coding agents, connecting requirements, architecture, implementation, verification, and delivery.",
   "author": {
     "name": "Phat Nguyen",
     "url": "https://github.com/phatnguyen975"
@@ -15,7 +15,7 @@
       "interface": {
         "displayName": "Agenix",
         "shortDescription": "SDLC workflows for AI agents",
-        "longDescription": "Universal SDLC workflow framework for AI coding agents, providing structured lifecycle management, zero-trust quality gating, seamless issue tracking, and architectural context synchronization.",
+        "longDescription": "Structured software development workflows for AI coding agents, connecting requirements, architecture, implementation, verification, and delivery.",
         "developerName": "Phat Nguyen",
         "category": "Engineering",
         "capabilities": ["Interactive", "Read", "Write"],

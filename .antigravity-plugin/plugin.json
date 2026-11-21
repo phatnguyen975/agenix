@@ -3,7 +3,7 @@
   "name": "agenix",
   "displayName": "Agenix",
   "version": "1.0.0",
-  "description": "Universal SDLC workflow framework for AI coding agents, providing structured lifecycle management, zero-trust quality gating, seamless issue tracking, and architectural context synchronization.",
+  "description": "Structured software development workflows for AI coding agents, connecting requirements, architecture, implementation, verification, and delivery.",
   "author": {
     "name": "Phat Nguyen",
     "url": "https://github.com/phatnguyen975"
