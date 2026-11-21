@@ -75,7 +75,7 @@ Omit inapplicable fields. If blocked, name the action not performed, observed st
 
 - Actions match the requested scope, ownership and command policy; existing authority is reused without expansion.
 - Actual diff/index/refs are checked before and after writes; unrelated work survives unchanged.
-- Commits follow the project convention (Conventional Commits by default), have meaningful headers/bodies and applicable passing verification; publication cadence follows the caller.
+- Agent-created commits use the human's intended author identity and identify the agent as co-author, follow the Conventional Commits, and have meaningful headers/bodies and applicable passing verification; publication cadence follows the caller.
 - Remote/base/candidate identity, required checks and native reviews are current for the action. Material drift is reverified and reapproved when needed.
 - Merge has exact target/head authority and supported expected-head enforcement; queued is not merged.
 - Recovery, destructive cleanup and releases retain their required evidence, permission and data-preservation checks.

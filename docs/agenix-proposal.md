@@ -572,7 +572,7 @@ Before artifact approval, invocation permits truthful nonterminal progress updat
 
 Planning commits use `docs(<phase>): <summary>`; setup/scaffold use `chore(<phase>): <summary>`. An approved build batch uses `<type>(<component>): <summary> [<ticket-id>]` and lists implemented task IDs in the body; task completion references that batch commit. Spec amendments use `docs(spec): <summary> [<ticket-id>]`. Component follows project conventions, independently of ticket scope.
 
-Ticket PR titles are `<ticket-id>: <ticket title>`; bodies link specs, tasks, local/CI evidence, UI reports and manual checks. Reuse the recorded PR instead of creating duplicates. Phase tokens omit `agx-`. Use the Git workflow capability and its commit convention for commit messages, including meaningful bodies and applicable footers; retain the ticket-specific requirements.
+Ticket PR titles are `<ticket-id>: <ticket title>`; bodies link specs, tasks, local/CI evidence, UI reports and manual checks. Reuse the recorded PR instead of creating duplicates. Phase tokens omit `agx-`. Use the Git workflow capability and its commit convention to verify commit identity and attribution and write meaningful bodies and applicable footers; retain the ticket-specific requirements.
 
 ### Local Verification and Remote CI
 

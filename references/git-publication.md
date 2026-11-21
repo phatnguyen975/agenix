@@ -27,7 +27,7 @@ Select the row for the current work. For rows that specify one branch per phase,
 | Spec amendment commit    | `docs(spec): <summary> [<ticket-id>]`          | `docs(spec): clarify address validation [FEAT-003-T01]`    |
 | Ticket PR title          | `<ticket-id>: <ticket title>`                  | `FEAT-003-T01: Validate delivery address`                  |
 
-For each commit, apply the Git workflow capability and its commit convention: use a meaningful body when context or rationale is needed, and applicable footers for breaking changes or references. The formats above and the ticket task-ID requirement take precedence over capability defaults.
+For each commit, apply the Git workflow capability and its commit convention: verify identity and attribution before committing, use a meaningful body when context or rationale is needed, and include applicable footers for breaking changes or references. The formats above and the ticket task-ID requirement take precedence over capability defaults.
 
 Omit `agx-` from phase tokens. Choose the type by the nature of the change and the component by the project's codebase conventions. The ticket's delivery scope is recorded separately. List the implemented task IDs in the build commit body. In the ticket PR body, link the applicable requirements, tasks and verification evidence, including UI and manual results where relevant. Keep ticket references non-closing until delivery is verified.
 

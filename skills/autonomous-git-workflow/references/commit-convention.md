@@ -104,7 +104,7 @@ Refs: <sha>[, <sha>]
 3. Read `git diff --staged` and confirm the intended commit includes exactly the authorized change. Explicit add paths do not exclude unrelated entries already staged. If every change in selected paths is in scope, `git commit --only -m "<header>" -m "<body>" -- <paths>` can commit their working contents while preserving other staged entries; inspect the selected working diff, not just the index. For mixed hunks in the same file, use a reviewed selective patch/index operation that preserves excluded content, or resolve the specific ownership gap before committing. See Git's [commit options](https://git-scm.com/docs/git-commit#_options) for path-only semantics.
 4. Confirm the diff contains no secrets, credentials, private environment values, build output, or unintended large files. Placeholder-only templates such as `.env.example` may be committed when the project expects them and the diff contains no secrets.
 5. Run the project's verify commands (test, lint, typecheck, build) appropriate to the change. Verification must represent the proposed commit: unstaged or excluded changes can hide a missing dependency or fix. For a partial commit, inspect that distinction and use an isolated candidate checkout when necessary rather than treating tests on the combined dirty tree as proof. If no verify command can be found, do not invent one: state that verification was not possible.
-6. Commit with hooks enabled. If a hook fails, inspect its effects, fix the cause, re-stage only intended content and reverify affected behavior before retrying. If a successful hook changes the candidate, inspect and verify the resulting change before publication; do not assume the earlier test result still applies.
+6. Verify the effective identity as described in [Identity and Attribution](#9-identity-and-attribution), then commit with hooks enabled. If a hook fails, inspect its effects, fix the cause, re-stage only intended content and reverify affected behavior before retrying. If a successful hook changes the candidate, inspect and verify the resulting change before publication; do not assume the earlier test result still applies.
 7. Read `git show --stat HEAD`, inspect the resulting commit and run `git status` to confirm exactly what was committed and that excluded staged/unstaged contents remain intact.
 
 ## 8. Amend and Fixup
@@ -117,9 +117,11 @@ Only within commit/rewrite authority, after checking [Command Policy](command-po
 
 If ownership, publication status, the index or the rewrite range is uncertain, use an additive correction within authority rather than guessing.
 
-## 9. Attribution
+## 9. Identity and Attribution
 
-Follow the project's convention for marking AI-assisted commits. If the project defines none, add no attribution trailer. Never add `Signed-off-by`: only a human can certify it.
+When the human authorizes the agent to commit, use the human's intended Git identity as the commit author and add `Co-authored-by: <agent name> <agent email>` for the agent performing the commit. Use the attribution identity provided by the host or project; if it is unavailable or ambiguous, ask the human for it rather than inventing one. Add separate trailers for other contributors when applicable.
+
+Before committing, inspect the effective author and committer with `git var GIT_AUTHOR_IDENT` and `git var GIT_COMMITTER_IDENT` in the target worktree. If the intended human author is unclear or the effective author does not match, stop and ask the human to correct the configuration or environment. Do not set or override Git identity yourself. After committing, inspect the author, committer and trailers before publication; stop and report a mismatch. Do not rewrite published history. Never add `Signed-off-by` on the human's behalf.
 
 ## 10. Repository Hygiene
 
