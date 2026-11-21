@@ -1,0 +1,6 @@
+interface:
+  display_name: "Agenix Review"
+  short_description: "Assess a ticket candidate"
+  default_prompt: "Use $agx-review with a ticket ID and supported step to assess the candidate."
+policy:
+  allow_implicit_invocation: false

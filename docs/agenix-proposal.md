@@ -971,7 +971,7 @@ Re-enter `plan` for new obligations, including approved review findings requirin
 1. Validate the specification before assessing dependent conformance. Approve the impact of a contract correction before using it as the basis for fixes.
 2. Assess applicable correctness, maintainability, tests, security and performance. Verify relevant UI and contract evidence. Consolidate findings on the same candidate and obtain declared human judgments. A partial candidate or unresolved required evidence prevents ticket approval, except for declared PR-dependent checks that are verified during ship.
 3. Record the decision and evidence under [Ticket Checkpoints](#ticket-checkpoints). Commit and push approved ticket-local amendments or evidence changes. A substantive change requires review of the changed candidate.
-4. State the next eligible invocation. Existing approved tasks covering the fix return to `build run`. New obligations return to `build plan`. An approved candidate can proceed to `ship run`. In each case the human ends review and invokes the next step.
+4. State the next eligible invocation. Fixes covered by an approved unfinished task return to `build run`. New obligations and fixes covered only by completed or cancelled tasks return to `build plan` for a new sibling task. An approved candidate can proceed to `ship run`. In each case the human ends review and invokes the next step.
 
 ### `agx-ship <item-id> run` — Ticket Delivery and Feature Acceptance
 
