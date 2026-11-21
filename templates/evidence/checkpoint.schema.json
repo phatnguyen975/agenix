@@ -6,25 +6,31 @@
   "type": "object",
   "properties": {
     "checkpoint-id": {
+      "description": "Stable checkpoint identifier within its owning record.",
       "type": "string",
       "minLength": 1
     },
     "phase": {
+      "description": "Workflow phase associated with the checkpoint.",
       "type": "string",
       "minLength": 1
     },
     "step": {
+      "description": "Workflow step associated with the checkpoint.",
       "type": "string",
       "minLength": 1
     },
     "recorded-at": {
+      "description": "UTC timestamp when the checkpoint was recorded.",
       "$ref": "#/$defs/utcTime"
     },
     "outcome": {
+      "description": "Bounded outcome of the work item or recorded step.",
       "type": "string",
       "minLength": 1
     },
     "references": {
+      "description": "References to the applicable authoritative artifacts or evidence.",
       "type": "array",
       "items": {
         "$ref": "#/$defs/evidenceRef"
@@ -32,25 +38,32 @@
       "uniqueItems": true
     },
     "item-id": {
+      "description": "Agenix identifier of the work item.",
       "$ref": "#/$defs/itemID"
     },
     "next-action": {
+      "description": "Next action when work remains.",
       "type": "string",
       "minLength": 1
     },
     "candidate": {
+      "description": "Reviewed Git candidate and applicable approved definitions.",
       "type": "object",
       "properties": {
         "base-commit": {
+          "description": "Intended parent commit of the candidate.",
           "$ref": "#/$defs/gitOID"
         },
         "tree": {
+          "description": "Git tree identifying the reviewed or checked candidate.",
           "$ref": "#/$defs/gitOID"
         },
         "target-base-commit": {
+          "description": "Target base commit when review depends on it.",
           "$ref": "#/$defs/gitOID"
         },
         "approved-definitions": {
+          "description": "Exact approved remote work-item definitions for reconciliation.",
           "type": "array",
           "items": {
             "$ref": "#/$defs/approvedDefinition"
@@ -58,6 +71,7 @@
           "minItems": 1
         },
         "baseline-commit": {
+          "description": "Git baseline associated with the approved definitions.",
           "$ref": "#/$defs/gitOID"
         }
       },
@@ -80,9 +94,11 @@
       }
     },
     "decision": {
+      "description": "Recorded human decision and its scope.",
       "type": "object",
       "properties": {
         "kind": {
+          "description": "Kind of human decision, such as artifact approval, merge or override.",
           "type": "string",
           "enum": [
             "artifact",
@@ -96,30 +112,37 @@
           ]
         },
         "result": {
+          "description": "Actual result of the decision or check.",
           "type": "string",
           "enum": ["approved", "changes-requested", "passed", "failed"]
         },
         "actor": {
+          "description": "Identity of the person making the decision.",
           "type": "string",
           "minLength": 1
         },
         "at": {
+          "description": "UTC time of the decision or check.",
           "$ref": "#/$defs/utcTime"
         },
         "confirmation": {
+          "description": "Actual human confirmation for the decision.",
           "type": "string",
           "minLength": 1
         },
         "authorized-actions": {
+          "description": "Actions and targets explicitly authorized by the decision.",
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
               "action": {
+                "description": "Action being authorized or recorded.",
                 "type": "string",
                 "minLength": 1
               },
               "target": {
+                "description": "Artifact, environment or resource targeted by the containing record.",
                 "type": "string",
                 "minLength": 1
               }
@@ -130,26 +153,33 @@
           "minItems": 1
         },
         "pr": {
+          "description": "Reference to the relevant pull request.",
           "$ref": "#/$defs/prRef"
         },
         "head-commit": {
+          "description": "Approved or published pull request head commit.",
           "$ref": "#/$defs/gitOID"
         },
         "operation-id": {
+          "description": "Stable ID of the approved operation or command.",
           "type": "string",
           "minLength": 1
         },
         "target": {
+          "description": "Artifact, environment or resource targeted by the containing record.",
           "type": "string",
           "minLength": 1
         },
         "revision": {
+          "description": "Immutable revision associated with the reference or evidence.",
           "$ref": "#/$defs/gitOID"
         },
         "artifact-ref": {
+          "description": "Reference to the artifact covered by the decision.",
           "$ref": "#/$defs/evidenceRef"
         },
         "acceptance-ids": {
+          "description": "Acceptance IDs covered by this reference or decision.",
           "type": "array",
           "items": {
             "type": "string",
@@ -159,6 +189,7 @@
           "uniqueItems": true
         },
         "check-ids": {
+          "description": "IDs of applicable checks.",
           "type": "array",
           "items": {
             "type": "string",
@@ -231,6 +262,7 @@
       ]
     },
     "verification": {
+      "description": "Applicable verification plan or actual check receipts.",
       "type": "array",
       "items": {
         "$ref": "#/$defs/verificationReceipt"
@@ -238,15 +270,19 @@
       "minItems": 1
     },
     "publication": {
+      "description": "Actual Git, pull request and tracker publication results.",
       "type": "object",
       "properties": {
         "head-commit": {
+          "description": "Approved or published pull request head commit.",
           "$ref": "#/$defs/gitOID"
         },
         "pr": {
+          "description": "Reference to the relevant pull request.",
           "$ref": "#/$defs/prRef"
         },
         "native-mappings": {
+          "description": "Verified work-item and native tracker mappings.",
           "type": "array",
           "items": {
             "$ref": "#/$defs/nativeMapping"
@@ -255,6 +291,7 @@
           "uniqueItems": true
         },
         "merge-commit": {
+          "description": "Verified merge commit.",
           "$ref": "#/$defs/gitOID"
         }
       },
@@ -279,18 +316,22 @@
       }
     },
     "disposition": {
+      "description": "Cancellation, override or permission disposition as applicable.",
       "oneOf": [
         {
           "type": "object",
           "properties": {
             "item-id": {
+              "description": "Agenix identifier of the work item.",
               "$ref": "#/$defs/itemID"
             },
             "reason": {
+              "description": "Reason for the recorded disposition.",
               "type": "string",
               "minLength": 1
             },
             "replacement-refs": {
+              "description": "References to approved replacement items.",
               "type": "array",
               "items": {
                 "$ref": "#/$defs/artifactRef"
@@ -306,20 +347,25 @@
           "type": "object",
           "properties": {
             "item-id": {
+              "description": "Agenix identifier of the work item.",
               "$ref": "#/$defs/itemID"
             },
             "reason": {
+              "description": "Reason for the recorded disposition.",
               "type": "string",
               "minLength": 1
             },
             "action": {
+              "description": "Action being authorized or recorded.",
               "type": "string",
               "enum": ["allow-work", "accept-incomplete"]
             },
             "revision": {
+              "description": "Immutable revision associated with the reference or evidence.",
               "$ref": "#/$defs/gitOID"
             },
             "waived-conditions": {
+              "description": "Conditions waived by the approved override.",
               "type": "array",
               "items": {
                 "type": "string",
@@ -329,10 +375,12 @@
               "uniqueItems": true
             },
             "permitted-work": {
+              "description": "Work permitted by the approved override.",
               "type": "string",
               "minLength": 1
             },
             "consumer-scope": {
+              "description": "Consumers affected by the accepted incomplete outcome.",
               "type": "string",
               "minLength": 1
             }
@@ -415,6 +463,7 @@
       "type": "object",
       "properties": {
         "target": {
+          "description": "Artifact, environment or resource targeted by the containing record.",
           "anyOf": [
             {
               "type": "string",
@@ -427,6 +476,7 @@
           ]
         },
         "revision": {
+          "description": "Immutable revision associated with the reference or evidence.",
           "type": "string",
           "minLength": 1
         }
@@ -459,6 +509,7 @@
       "type": "object",
       "properties": {
         "target": {
+          "description": "Artifact, environment or resource targeted by the containing record.",
           "anyOf": [
             {
               "type": "string",
@@ -471,6 +522,7 @@
           ]
         },
         "revision": {
+          "description": "Immutable revision associated with the reference or evidence.",
           "type": "string",
           "minLength": 1
         }
@@ -503,6 +555,7 @@
       "type": "object",
       "properties": {
         "target": {
+          "description": "Artifact, environment or resource targeted by the containing record.",
           "anyOf": [
             {
               "type": "string",
@@ -515,10 +568,12 @@
           ]
         },
         "revision": {
+          "description": "Immutable revision associated with the reference or evidence.",
           "type": "string",
           "minLength": 1
         },
         "acceptance-ids": {
+          "description": "Acceptance IDs covered by this reference or decision.",
           "type": "array",
           "items": {
             "type": "string",
@@ -556,6 +611,7 @@
       "type": "object",
       "properties": {
         "target": {
+          "description": "Artifact, environment or resource targeted by the containing record.",
           "anyOf": [
             {
               "type": "string",
@@ -568,9 +624,11 @@
           ]
         },
         "revision": {
+          "description": "Immutable revision associated with the reference or evidence.",
           "$ref": "#/$defs/gitOID"
         },
         "checkpoint-id": {
+          "description": "Stable checkpoint identifier within its owning record.",
           "type": "string",
           "minLength": 1
         }
@@ -582,10 +640,12 @@
       "type": "object",
       "properties": {
         "number": {
+          "description": "Native GitHub issue or pull request number.",
           "type": "integer",
           "minimum": 1
         },
         "url": {
+          "description": "HTTPS URL of the native record.",
           "type": "string",
           "pattern": "^https://[^/\\s?#]+(?:[/?#][^\\s]*)?$"
         }
@@ -599,10 +659,12 @@
           "type": "object",
           "properties": {
             "number": {
+              "description": "Native GitHub issue or pull request number.",
               "type": "integer",
               "minimum": 1
             },
             "url": {
+              "description": "HTTPS URL of the native record.",
               "type": "string",
               "pattern": "^https://[^/\\s?#]+(?:[/?#][^\\s]*)?$"
             }
@@ -614,14 +676,17 @@
           "type": "object",
           "properties": {
             "key": {
+              "description": "Jira issue key.",
               "type": "string",
               "minLength": 1
             },
             "native-id": {
+              "description": "Native Jira issue ID.",
               "type": "string",
               "minLength": 1
             },
             "url": {
+              "description": "HTTPS URL of the native record.",
               "type": "string",
               "pattern": "^https://[^/\\s?#]+(?:[/?#][^\\s]*)?$"
             }
@@ -635,6 +700,7 @@
       "type": "object",
       "properties": {
         "id": {
+          "description": "Stable identifier within the owning scope.",
           "oneOf": [
             {
               "$ref": "#/$defs/ticketID"
@@ -645,6 +711,7 @@
           ]
         },
         "native-ref": {
+          "description": "Verified native tracker reference.",
           "$ref": "#/$defs/nativeRef"
         }
       },
@@ -655,14 +722,17 @@
       "type": "object",
       "properties": {
         "id": {
+          "description": "Stable identifier within the owning scope.",
           "type": "string",
           "minLength": 1
         },
         "criterion": {
+          "description": "Observable acceptance condition.",
           "type": "string",
           "minLength": 1
         },
         "covers": {
+          "description": "Parent ticket acceptance IDs covered by this criterion.",
           "type": "array",
           "items": {
             "type": "string",
@@ -679,10 +749,12 @@
       "type": "object",
       "properties": {
         "method": {
+          "description": "Approved verification method for the task.",
           "type": "string",
           "enum": ["test-first", "test-after", "manual"]
         },
         "checks": {
+          "description": "IDs of approved checks applicable to the task.",
           "type": "array",
           "items": {
             "type": "string",
@@ -691,18 +763,22 @@
           "uniqueItems": true
         },
         "exception-reason": {
+          "description": "Approved reason for a non-default verification method.",
           "type": "string",
           "minLength": 1
         },
         "manual-procedure": {
+          "description": "Procedure for the manual check.",
           "type": "string",
           "minLength": 1
         },
         "expected-result": {
+          "description": "Expected result of the manual check.",
           "type": "string",
           "minLength": 1
         },
         "responsible-verifier": {
+          "description": "Human responsible for the manual judgment.",
           "type": "string",
           "minLength": 1
         }
@@ -799,13 +875,16 @@
       "type": "object",
       "properties": {
         "check-id": {
+          "description": "Stable ID of a check in the approved environment.",
           "type": "string",
           "minLength": 1
         },
         "item-id": {
+          "description": "Agenix identifier of the work item.",
           "$ref": "#/$defs/itemID"
         },
         "acceptance-ids": {
+          "description": "Acceptance IDs covered by this reference or decision.",
           "type": "array",
           "items": {
             "type": "string",
@@ -814,34 +893,43 @@
           "uniqueItems": true
         },
         "result": {
+          "description": "Actual result of the decision or check.",
           "type": "string",
           "enum": ["passed", "failed", "pending", "skipped", "unavailable"]
         },
         "at": {
+          "description": "UTC time of the decision or check.",
           "$ref": "#/$defs/utcTime"
         },
         "environment": {
+          "description": "Environment in which the operation or check applies.",
           "type": "string",
           "minLength": 1
         },
         "revision": {
+          "description": "Immutable revision associated with the reference or evidence.",
           "$ref": "#/$defs/gitOID"
         },
         "tree": {
+          "description": "Git tree identifying the reviewed or checked candidate.",
           "$ref": "#/$defs/gitOID"
         },
         "check-level": {
+          "description": "Level or type of the check.",
           "type": "string",
           "minLength": 1
         },
         "mode": {
+          "description": "Execution mode for the operation or check.",
           "type": "string",
           "minLength": 1
         },
         "evidence-ref": {
+          "description": "Reference to durable supporting evidence.",
           "$ref": "#/$defs/evidenceRef"
         },
         "detail": {
+          "description": "Additional context for the actual result.",
           "type": "string",
           "minLength": 1
         }
@@ -895,41 +983,51 @@
       "type": "object",
       "properties": {
         "id": {
+          "description": "Stable identifier within the owning scope.",
           "$ref": "#/$defs/ticketID"
         },
         "title": {
+          "description": "Concise title of the work item.",
           "type": "string",
           "minLength": 1
         },
         "outcome": {
+          "description": "Bounded outcome of the work item or recorded step.",
           "type": "string",
           "minLength": 1
         },
         "feature-id": {
+          "description": "ID of the owning feature.",
           "$ref": "#/$defs/featureID"
         },
         "feature-ref": {
+          "description": "Pinned reference to the owning feature record.",
           "$ref": "#/$defs/pinnedArtifactRef"
         },
         "type": {
+          "description": "Approved work type.",
           "type": "string",
           "minLength": 1
         },
         "scope": {
+          "description": "Approved lowercase scope.",
           "type": "string",
           "minLength": 1,
           "pattern": "^[^A-Z]+$"
         },
         "priority": {
+          "description": "Approved priority label.",
           "type": "string",
           "minLength": 1,
           "pattern": "^[^A-Z]+$"
         },
         "owner": {
+          "description": "Approved owner or responsibility.",
           "type": "string",
           "minLength": 1
         },
         "depends-on": {
+          "description": "IDs of hard prerequisites within the owning scope; use an empty array when none apply.",
           "type": "array",
           "items": {
             "$ref": "#/$defs/ticketID"
@@ -937,6 +1035,7 @@
           "uniqueItems": true
         },
         "references": {
+          "description": "References to the applicable authoritative artifacts or evidence.",
           "type": "array",
           "items": {
             "$ref": "#/$defs/ticketArtifactRef"
@@ -948,6 +1047,7 @@
           }
         },
         "origin-ref": {
+          "description": "Source of additive work, such as a finding or amendment.",
           "anyOf": [
             {
               "$ref": "#/$defs/artifactRef"
@@ -977,17 +1077,21 @@
       "type": "object",
       "properties": {
         "id": {
+          "description": "Stable identifier within the owning scope.",
           "$ref": "#/$defs/taskID"
         },
         "title": {
+          "description": "Concise title of the work item.",
           "type": "string",
           "minLength": 1
         },
         "outcome": {
+          "description": "Bounded outcome of the work item or recorded step.",
           "type": "string",
           "minLength": 1
         },
         "depends-on": {
+          "description": "IDs of hard prerequisites within the owning scope; use an empty array when none apply.",
           "type": "array",
           "items": {
             "$ref": "#/$defs/taskID"
@@ -995,6 +1099,7 @@
           "uniqueItems": true
         },
         "acceptance": {
+          "description": "Observable task acceptance criteria and their parent coverage.",
           "type": "array",
           "items": {
             "$ref": "#/$defs/acceptanceCriterion"
@@ -1003,9 +1108,11 @@
           "uniqueItems": true
         },
         "verification": {
+          "description": "Applicable verification plan or actual check receipts.",
           "$ref": "#/$defs/taskVerification"
         },
         "references": {
+          "description": "References to the applicable authoritative artifacts or evidence.",
           "type": "array",
           "items": {
             "$ref": "#/$defs/pinnedArtifactRef"
@@ -1014,9 +1121,11 @@
           "uniqueItems": true
         },
         "ticket-id": {
+          "description": "ID of the owning ticket.",
           "$ref": "#/$defs/ticketID"
         },
         "origin-ref": {
+          "description": "Source of additive work, such as a finding or amendment.",
           "anyOf": [
             {
               "$ref": "#/$defs/artifactRef"

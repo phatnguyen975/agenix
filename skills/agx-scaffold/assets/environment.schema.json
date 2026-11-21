@@ -5,41 +5,50 @@
   "type": "object",
   "properties": {
     "schema-version": {
+      "description": "Version of the record format; use 1.",
       "type": "integer",
       "const": 1
     },
     "kind": {
+      "description": "Record kind identifying the document.",
       "const": "environment"
     },
     "instruction-entry": {
+      "description": "Project root instruction entry point.",
       "const": "AGENTS.md"
     },
     "units": {
+      "description": "Release units and their ownership and targets.",
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
           "id": {
+            "description": "Stable identifier within the owning scope.",
             "type": "string",
             "minLength": 1,
             "pattern": "\\S"
           },
           "root": {
+            "description": "Project-relative release unit root.",
             "type": "string",
             "minLength": 1,
             "pattern": "\\S"
           },
           "role": {
+            "description": "Role of the release unit.",
             "type": "string",
             "minLength": 1,
             "pattern": "\\S"
           },
           "public-boundary": {
+            "description": "Public boundary through which the release unit is exercised.",
             "type": "string",
             "minLength": 1,
             "pattern": "\\S"
           },
           "owned-modules": {
+            "description": "Project-relative module paths owned by the release unit.",
             "type": "array",
             "items": {
               "type": "string",
@@ -49,6 +58,7 @@
             "uniqueItems": true
           },
           "targets": {
+            "description": "Approved platform or runtime targets.",
             "type": "array",
             "items": {
               "type": "string",
@@ -72,26 +82,31 @@
       "minItems": 1
     },
     "commands": {
+      "description": "Verified project commands and their execution context.",
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
           "id": {
+            "description": "Stable identifier within the owning scope.",
             "type": "string",
             "minLength": 1,
             "pattern": "\\S"
           },
           "operation": {
+            "description": "Purpose of the verified command.",
             "type": "string",
             "minLength": 1,
             "pattern": "\\S"
           },
           "unit-id": {
+            "description": "ID of the command?s owning release unit.",
             "type": "string",
             "minLength": 1,
             "pattern": "\\S"
           },
           "argv": {
+            "description": "Exact ordered command argument vector, including intentionally empty arguments.",
             "type": "array",
             "items": {
               "type": "string"
@@ -99,26 +114,31 @@
             "minItems": 1
           },
           "cwd": {
+            "description": "Project-relative working directory.",
             "type": "string",
             "minLength": 1,
             "pattern": "\\S"
           },
           "target": {
+            "description": "Approved execution target for this command.",
             "type": "string",
             "minLength": 1,
             "pattern": "\\S"
           },
           "mode": {
+            "description": "Execution mode for the operation or check.",
             "type": "string",
             "minLength": 1,
             "pattern": "\\S"
           },
           "check-level": {
+            "description": "Level or type of the check.",
             "type": "string",
             "minLength": 1,
             "pattern": "\\S"
           },
           "service-ids": {
+            "description": "IDs of services required by this command.",
             "type": "array",
             "items": {
               "type": "string",
@@ -128,6 +148,7 @@
             "uniqueItems": true
           },
           "permission-ids": {
+            "description": "IDs of applicable permission entries.",
             "type": "array",
             "items": {
               "type": "string",
@@ -150,54 +171,65 @@
       }
     },
     "services": {
+      "description": "Isolated services used by the project.",
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
           "id": {
+            "description": "Stable identifier within the owning scope.",
             "type": "string",
             "minLength": 1,
             "pattern": "\\S"
           },
           "identity": {
+            "description": "Identity of the service.",
             "type": "string",
             "minLength": 1,
             "pattern": "\\S"
           },
           "isolation": {
+            "description": "Service isolation for its operations.",
             "type": "string",
             "minLength": 1,
             "pattern": "\\S"
           },
           "operations": {
+            "description": "Applicable service operations mapped to verified command IDs.",
             "type": "object",
             "properties": {
               "start": {
+                "description": "Command ID for starting the service.",
                 "type": "string",
                 "minLength": 1,
                 "pattern": "\\S"
               },
               "readiness": {
+                "description": "Command ID for checking service readiness.",
                 "type": "string",
                 "minLength": 1,
                 "pattern": "\\S"
               },
               "seed": {
+                "description": "Command ID for seeding data.",
                 "type": "string",
                 "minLength": 1,
                 "pattern": "\\S"
               },
               "reset": {
+                "description": "Command ID for resetting state.",
                 "type": "string",
                 "minLength": 1,
                 "pattern": "\\S"
               },
               "cleanup": {
+                "description": "Command ID for cleanup.",
                 "type": "string",
                 "minLength": 1,
                 "pattern": "\\S"
               },
               "migration": {
+                "description": "Command ID for applying migrations.",
                 "type": "string",
                 "minLength": 1,
                 "pattern": "\\S"
@@ -207,6 +239,7 @@
             "additionalProperties": false
           },
           "fixtures": {
+            "description": "References to applicable fixtures.",
             "type": "array",
             "items": {
               "$ref": "../../../templates/evidence/checkpoint.schema.json#/$defs/artifactRef"
@@ -218,21 +251,25 @@
       }
     },
     "permissions": {
+      "description": "Permission entries for operations and their boundaries.",
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
           "id": {
+            "description": "Stable identifier within the owning scope.",
             "type": "string",
             "minLength": 1,
             "pattern": "\\S"
           },
           "environment": {
+            "description": "Environment in which the operation or check applies.",
             "type": "string",
             "minLength": 1,
             "pattern": "\\S"
           },
           "operation-ids": {
+            "description": "IDs of operations covered by this permission.",
             "type": "array",
             "items": {
               "type": "string",
@@ -242,9 +279,11 @@
             "uniqueItems": true
           },
           "boundary": {
+            "description": "Paths, networks, services or resources covered by this permission.",
             "type": "object",
             "properties": {
               "roots": {
+                "description": "Project-relative roots covered by this permission.",
                 "type": "array",
                 "items": {
                   "type": "string",
@@ -254,6 +293,7 @@
                 "uniqueItems": true
               },
               "networks": {
+                "description": "Networks covered by this permission.",
                 "type": "array",
                 "items": {
                   "type": "string",
@@ -263,6 +303,7 @@
                 "uniqueItems": true
               },
               "services": {
+                "description": "Isolated services used by the project.",
                 "type": "array",
                 "items": {
                   "type": "string",
@@ -272,6 +313,7 @@
                 "uniqueItems": true
               },
               "resources": {
+                "description": "Resources covered by this permission.",
                 "type": "array",
                 "items": {
                   "type": "string",
@@ -285,12 +327,15 @@
             "additionalProperties": false
           },
           "disposition": {
+            "description": "Cancellation, override or permission disposition as applicable.",
             "enum": ["allowed", "approval-required", "prohibited"]
           },
           "enforcement": {
+            "description": "Whether enforcement is verified or instruction-only.",
             "enum": ["verified", "instruction-only"]
           },
           "evidence-ref": {
+            "description": "Reference to durable supporting evidence.",
             "$ref": "../../../templates/evidence/checkpoint.schema.json#/$defs/evidenceRef"
           }
         },
@@ -306,6 +351,7 @@
       }
     },
     "evidence": {
+      "description": "Durable evidence of verified commands, tool versions and applicable checks.",
       "type": "array",
       "items": {
         "$ref": "../../../templates/evidence/checkpoint.schema.json#/$defs/evidenceRef"

@@ -6,47 +6,59 @@
   "type": "object",
   "properties": {
     "schema-version": {
+      "description": "Version of the record format; use 1.",
       "const": 1
     },
     "kind": {
+      "description": "Record kind identifying the document.",
       "const": "ticket"
     },
     "id": {
+      "description": "Stable identifier within the owning scope.",
       "$ref": "../evidence/checkpoint.schema.json#/$defs/ticketID"
     },
     "title": {
+      "description": "Concise title of the work item.",
       "type": "string",
       "minLength": 1
     },
     "outcome": {
+      "description": "Bounded outcome of the work item or recorded step.",
       "type": "string",
       "minLength": 1
     },
     "feature-id": {
+      "description": "ID of the owning feature.",
       "$ref": "../evidence/checkpoint.schema.json#/$defs/featureID"
     },
     "feature-ref": {
+      "description": "Pinned reference to the owning feature record.",
       "$ref": "../evidence/checkpoint.schema.json#/$defs/pinnedArtifactRef"
     },
     "type": {
+      "description": "Approved work type.",
       "type": "string",
       "minLength": 1
     },
     "scope": {
+      "description": "Approved lowercase scope.",
       "type": "string",
       "minLength": 1,
       "pattern": "^[^A-Z]+$"
     },
     "priority": {
+      "description": "Approved priority label.",
       "type": "string",
       "minLength": 1,
       "pattern": "^[^A-Z]+$"
     },
     "owner": {
+      "description": "Approved owner or responsibility.",
       "type": "string",
       "minLength": 1
     },
     "depends-on": {
+      "description": "IDs of hard prerequisites within the owning scope; use an empty array when none apply.",
       "type": "array",
       "items": {
         "$ref": "../evidence/checkpoint.schema.json#/$defs/ticketID"
@@ -54,6 +66,7 @@
       "uniqueItems": true
     },
     "references": {
+      "description": "Pinned feature scope and contract references, including selected acceptance IDs.",
       "type": "array",
       "items": {
         "$ref": "../evidence/checkpoint.schema.json#/$defs/ticketArtifactRef"
@@ -65,24 +78,29 @@
       }
     },
     "status": {
+      "description": "Declared lifecycle status; verify readiness and completion separately.",
       "$ref": "../evidence/checkpoint.schema.json#/$defs/status"
     },
     "approval-ref": {
+      "description": "Separately stored approval evidence when needed.",
       "$ref": "../evidence/checkpoint.schema.json#/$defs/evidenceRef"
     },
     "checkpoint-refs": {
+      "description": "References to separately stored checkpoints.",
       "type": "array",
       "items": {
         "$ref": "../evidence/checkpoint.schema.json#/$defs/evidenceRef"
       }
     },
     "checkpoints": {
+      "description": "Durable records of decisions, checks and publication evidence.",
       "type": "array",
       "items": {
         "$ref": "../evidence/checkpoint.schema.json"
       }
     },
     "origin-ref": {
+      "description": "Source of additive work, such as a finding or amendment.",
       "anyOf": [
         {
           "$ref": "../evidence/checkpoint.schema.json#/$defs/artifactRef"
@@ -93,6 +111,7 @@
       ]
     },
     "tasks": {
+      "description": "Approved task definitions, added after task planning.",
       "type": "array",
       "items": {
         "$ref": "#/$defs/task"
@@ -123,13 +142,16 @@
       "type": "object",
       "properties": {
         "id": {
+          "description": "Stable identifier within the owning scope.",
           "$ref": "../evidence/checkpoint.schema.json#/$defs/taskID"
         },
         "title": {
+          "description": "Concise title of the work item.",
           "type": "string",
           "minLength": 1
         },
         "outcome": {
+          "description": "Bounded outcome of the work item or recorded step.",
           "type": "string",
           "minLength": 1
         },
@@ -142,6 +164,7 @@
           "uniqueItems": true
         },
         "acceptance": {
+          "description": "Observable task acceptance criteria and their parent coverage.",
           "type": "array",
           "items": {
             "$ref": "../evidence/checkpoint.schema.json#/$defs/acceptanceCriterion"
@@ -150,9 +173,11 @@
           "uniqueItems": true
         },
         "verification": {
+          "description": "Applicable verification plan or actual check receipts.",
           "$ref": "../evidence/checkpoint.schema.json#/$defs/taskVerification"
         },
         "references": {
+          "description": "Pinned feature scope and contract references, including selected acceptance IDs.",
           "type": "array",
           "items": {
             "$ref": "../evidence/checkpoint.schema.json#/$defs/pinnedArtifactRef"
@@ -161,24 +186,29 @@
           "uniqueItems": true
         },
         "status": {
+          "description": "Declared lifecycle status; verify readiness and completion separately.",
           "$ref": "../evidence/checkpoint.schema.json#/$defs/status"
         },
         "approval-ref": {
+          "description": "Separately stored approval evidence when needed.",
           "$ref": "../evidence/checkpoint.schema.json#/$defs/evidenceRef"
         },
         "checkpoint-refs": {
+          "description": "References to separately stored checkpoints.",
           "type": "array",
           "items": {
             "$ref": "../evidence/checkpoint.schema.json#/$defs/evidenceRef"
           }
         },
         "checkpoints": {
+          "description": "Durable records of decisions, checks and publication evidence.",
           "type": "array",
           "items": {
             "$ref": "../evidence/checkpoint.schema.json"
           }
         },
         "origin-ref": {
+          "description": "Source of additive work, such as a finding or amendment.",
           "anyOf": [
             {
               "$ref": "../evidence/checkpoint.schema.json#/$defs/artifactRef"

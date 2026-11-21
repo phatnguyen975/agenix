@@ -4,9 +4,16 @@
   "title": "Agenix feature catalog",
   "type": "object",
   "properties": {
-    "schema-version": { "const": 1 },
-    "kind": { "const": "catalog" },
+    "schema-version": {
+      "description": "Version of the record format; use 1.",
+      "const": 1
+    },
+    "kind": {
+      "description": "Record kind identifying the document.",
+      "const": "catalog"
+    },
     "features": {
+      "description": "Ordered index of feature IDs and record paths.",
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
@@ -14,10 +21,12 @@
         "type": "object",
         "properties": {
           "id": {
+            "description": "Stable identifier within the owning scope.",
             "type": "string",
             "pattern": "^FEAT-(?=[0-9]*[1-9])[0-9]{3,}$"
           },
           "path": {
+            "description": "Project-relative path to the referenced record.",
             "type": "string",
             "pattern": "^docs/features/FEAT-(?=[0-9]*[1-9])[0-9]{3,}/feature\\.agenix\\.json$"
           }

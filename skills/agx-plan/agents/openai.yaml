@@ -1,0 +1,6 @@
+interface:
+  display_name: "Agenix Plan"
+  short_description: "Plan feature strategy and tickets"
+  default_prompt: "Use $agx-plan with a feature ID and supported step to plan its delivery strategy or tickets."
+policy:
+  allow_implicit_invocation: false

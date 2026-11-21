@@ -6,22 +6,27 @@
   "type": "object",
   "properties": {
     "schema-version": {
+      "description": "Version of the record format; use 1.",
       "type": "integer",
       "const": 1
     },
     "kind": {
+      "description": "Record kind identifying the document.",
       "const": "config"
     },
     "plugin": {
+      "description": "Repository and immutable revision of the Agenix plugin used by this project.",
       "type": "object",
       "properties": {
         "repository": {
+          "description": "HTTPS source repository of the plugin.",
           "type": "string",
           "minLength": 1,
           "pattern": "^https://[A-Za-z0-9.-]+(?::[0-9]+)?/[^\\s?#]+$",
           "format": "uri"
         },
         "revision": {
+          "description": "Full immutable Git commit of the compatible Agenix plugin.",
           "type": "string",
           "minLength": 1,
           "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
@@ -31,6 +36,7 @@
       "additionalProperties": false
     },
     "github-repo": {
+      "description": "GitHub owner and repository of the consuming project.",
       "type": "string",
       "minLength": 1,
       "pattern": "^[A-Za-z0-9-]+/[A-Za-z0-9_.-]+$"
@@ -42,6 +48,7 @@
       "description": "The verified GitHub default branch. Verify the ref with Git at setup."
     },
     "tracker": {
+      "description": "Storage mode for tickets and tasks.",
       "type": "string",
       "enum": ["local", "github", "jira"]
     },
@@ -58,6 +65,7 @@
       "description": "Human-approved language for generated project documentation."
     },
     "project-scope": {
+      "description": "Approved scope of the project.",
       "type": "string",
       "enum": [
         "frontend",
@@ -69,6 +77,7 @@
       ]
     },
     "targets": {
+      "description": "Approved platform or runtime targets.",
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
@@ -79,26 +88,31 @@
       }
     },
     "exposure": {
+      "description": "Approved exposure operations, when applicable.",
       "type": "array",
       "uniqueItems": true,
       "items": {
         "type": "object",
         "properties": {
           "action": {
+            "description": "Action being authorized or recorded.",
             "type": "string",
             "enum": ["release", "deploy", "apply", "enable"]
           },
           "operation-id": {
+            "description": "Stable ID of the approved operation or command.",
             "type": "string",
             "minLength": 1,
             "pattern": "\\S"
           },
           "target": {
+            "description": "Target environment or resource for exposure.",
             "type": "string",
             "minLength": 1,
             "pattern": "\\S"
           },
           "input": {
+            "description": "Whether exposure uses a merged revision or verified artifact.",
             "type": "string",
             "enum": ["merged-revision", "verified-artifact"]
           }
@@ -108,6 +122,7 @@
       }
     },
     "jira": {
+      "description": "Non-secret Jira Cloud project identity and mappings.",
       "$ref": "#/$defs/jira"
     }
   },
@@ -145,30 +160,36 @@
       "type": "object",
       "properties": {
         "site-url": {
+          "description": "Jira Cloud site URL used for browser links.",
           "type": "string",
           "minLength": 1,
           "pattern": "^https://[A-Za-z0-9.-]+(?::[0-9]+)?/?$",
           "format": "uri"
         },
         "cloud-id": {
+          "description": "Jira Cloud site identifier for the API gateway.",
           "type": "string",
           "minLength": 1,
           "pattern": "^[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
         },
         "project-key": {
+          "description": "Jira project key.",
           "type": "string",
           "minLength": 1,
           "pattern": "^[A-Z][A-Z0-9_]+$"
         },
         "issue-types": {
+          "description": "Jira issue type IDs for the ticket and task roles.",
           "type": "object",
           "properties": {
             "ticket": {
+              "description": "Jira configuration for the ticket role.",
               "type": "string",
               "minLength": 1,
               "pattern": "^[1-9][0-9]*$"
             },
             "task": {
+              "description": "Jira configuration for the task role.",
               "type": "string",
               "minLength": 1,
               "pattern": "^[1-9][0-9]*$"
@@ -178,14 +199,17 @@
           "additionalProperties": false
         },
         "dependency-link": {
+          "description": "Jira dependency link type and direction from the dependent issue.",
           "type": "object",
           "properties": {
             "type-id": {
+              "description": "Native Jira issue-link type ID.",
               "type": "string",
               "minLength": 1,
               "pattern": "^[1-9][0-9]*$"
             },
             "direction": {
+              "description": "Dependency link direction as seen from the dependent issue.",
               "type": "string",
               "enum": ["inward", "outward"]
             }
@@ -194,27 +218,33 @@
           "additionalProperties": false
         },
         "status-targets": {
+          "description": "Native Jira status IDs for each lifecycle role and item type.",
           "type": "object",
           "properties": {
             "ticket": {
+              "description": "Jira configuration for the ticket role.",
               "type": "object",
               "properties": {
                 "todo": {
+                  "description": "Native Jira status ID for unstarted work.",
                   "type": "string",
                   "minLength": 1,
                   "pattern": "^[1-9][0-9]*$"
                 },
                 "in-progress": {
+                  "description": "Native Jira status ID for active work.",
                   "type": "string",
                   "minLength": 1,
                   "pattern": "^[1-9][0-9]*$"
                 },
                 "done": {
+                  "description": "Native Jira status ID for successful completion.",
                   "type": "string",
                   "minLength": 1,
                   "pattern": "^[1-9][0-9]*$"
                 },
                 "cancelled": {
+                  "description": "Native Jira status ID for cancellation.",
                   "type": "string",
                   "minLength": 1,
                   "pattern": "^[1-9][0-9]*$"
@@ -224,24 +254,29 @@
               "additionalProperties": false
             },
             "task": {
+              "description": "Jira configuration for the task role.",
               "type": "object",
               "properties": {
                 "todo": {
+                  "description": "Native Jira status ID for unstarted work.",
                   "type": "string",
                   "minLength": 1,
                   "pattern": "^[1-9][0-9]*$"
                 },
                 "in-progress": {
+                  "description": "Native Jira status ID for active work.",
                   "type": "string",
                   "minLength": 1,
                   "pattern": "^[1-9][0-9]*$"
                 },
                 "done": {
+                  "description": "Native Jira status ID for successful completion.",
                   "type": "string",
                   "minLength": 1,
                   "pattern": "^[1-9][0-9]*$"
                 },
                 "cancelled": {
+                  "description": "Native Jira status ID for cancellation.",
                   "type": "string",
                   "minLength": 1,
                   "pattern": "^[1-9][0-9]*$"
@@ -255,9 +290,11 @@
           "additionalProperties": false
         },
         "field-defaults": {
+          "description": "Approved non-secret Jira create-field defaults by item role.",
           "type": "object",
           "properties": {
             "ticket": {
+              "description": "Jira configuration for the ticket role.",
               "type": "object",
               "properties": {
                 "project": false,
@@ -271,6 +308,7 @@
               "additionalProperties": true
             },
             "task": {
+              "description": "Jira configuration for the task role.",
               "type": "object",
               "properties": {
                 "project": false,

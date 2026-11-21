@@ -6,27 +6,34 @@
   "type": "object",
   "properties": {
     "schema-version": {
+      "description": "Version of the record format; use 1.",
       "const": 1
     },
     "kind": {
+      "description": "Record kind identifying the document.",
       "const": "feature"
     },
     "id": {
+      "description": "Stable identifier within the owning scope.",
       "$ref": "../evidence/checkpoint.schema.json#/$defs/featureID"
     },
     "title": {
+      "description": "Concise title of the work item.",
       "type": "string",
       "minLength": 1
     },
     "outcome": {
+      "description": "Bounded outcome of the work item or recorded step.",
       "type": "string",
       "minLength": 1
     },
     "priority": {
+      "description": "Approved priority label.",
       "type": "string",
       "minLength": 1
     },
     "depends-on": {
+      "description": "IDs of hard prerequisites within the owning scope; use an empty array when none apply.",
       "type": "array",
       "items": {
         "$ref": "../evidence/checkpoint.schema.json#/$defs/featureID"
@@ -34,6 +41,7 @@
       "uniqueItems": true
     },
     "requirements": {
+      "description": "Pinned PRD requirement references fulfilled by this feature.",
       "type": "array",
       "items": {
         "$ref": "../evidence/checkpoint.schema.json#/$defs/pinnedArtifactRef"
@@ -42,6 +50,7 @@
       "uniqueItems": true
     },
     "journeys": {
+      "description": "Pinned relevant PRD journeys; use an empty array when none apply.",
       "type": "array",
       "items": {
         "$ref": "../evidence/checkpoint.schema.json#/$defs/pinnedArtifactRef"
@@ -49,14 +58,17 @@
       "uniqueItems": true
     },
     "quality-allocations": {
+      "description": "Provisional feature responsibilities for quality requirements.",
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
           "requirement-ref": {
+            "description": "Pinned reference to the quality requirement.",
             "$ref": "../evidence/checkpoint.schema.json#/$defs/pinnedArtifactRef"
           },
           "responsibility": {
+            "description": "Feature contribution to the requirement.",
             "type": "string",
             "minLength": 1
           }
@@ -68,6 +80,7 @@
       "uniqueItems": true
     },
     "references": {
+      "description": "Pinned approved specification and applicable contract, data and UI artifacts; add as outputs are approved.",
       "type": "array",
       "items": {
         "$ref": "../evidence/checkpoint.schema.json#/$defs/pinnedArtifactRef"
@@ -76,17 +89,21 @@
       "uniqueItems": true
     },
     "delivery-strategy": {
+      "description": "Approved delivery approach, coverage and exposure constraints.",
       "type": "object",
       "properties": {
         "approach": {
+          "description": "Delivery approach: single-scope, vertical-slices or contract-first.",
           "type": "string",
           "enum": ["single-scope", "vertical-slices", "contract-first"]
         },
         "summary": {
+          "description": "Delivery ownership, boundaries, slices and independent checks.",
           "type": "string",
           "minLength": 1
         },
         "integration-coverage": {
+          "description": "Pinned acceptance references requiring real-boundary integration.",
           "type": "array",
           "items": {
             "$ref": "../evidence/checkpoint.schema.json#/$defs/pinnedArtifactRef"
@@ -95,6 +112,7 @@
           "uniqueItems": true
         },
         "exposure-boundary": {
+          "description": "Applicable constraint on making the feature available.",
           "type": "string",
           "minLength": 1
         }
@@ -103,6 +121,7 @@
       "additionalProperties": false
     },
     "tickets": {
+      "description": "Approved ticket mappings in the feature delivery plan.",
       "type": "array",
       "items": {
         "$ref": "#/$defs/ticketMapping"
@@ -111,24 +130,29 @@
       "uniqueItems": true
     },
     "status": {
+      "description": "Declared lifecycle status; verify readiness and completion separately.",
       "$ref": "../evidence/checkpoint.schema.json#/$defs/status"
     },
     "approval-ref": {
+      "description": "Separately stored approval evidence when needed.",
       "$ref": "../evidence/checkpoint.schema.json#/$defs/evidenceRef"
     },
     "checkpoint-refs": {
+      "description": "References to separately stored checkpoints.",
       "type": "array",
       "items": {
         "$ref": "../evidence/checkpoint.schema.json#/$defs/evidenceRef"
       }
     },
     "checkpoints": {
+      "description": "Durable records of decisions, checks and publication evidence.",
       "type": "array",
       "items": {
         "$ref": "../evidence/checkpoint.schema.json"
       }
     },
     "origin-ref": {
+      "description": "Source of additive work, such as a finding or amendment.",
       "anyOf": [
         {
           "$ref": "../evidence/checkpoint.schema.json#/$defs/artifactRef"
@@ -159,9 +183,11 @@
           "type": "object",
           "properties": {
             "id": {
+              "description": "Stable identifier within the owning scope.",
               "$ref": "../evidence/checkpoint.schema.json#/$defs/ticketID"
             },
             "path": {
+              "description": "Project-relative path to the referenced record.",
               "type": "string",
               "pattern": "^docs/features/FEAT-(?=[0-9]*[1-9])[0-9]{3,}/tickets/FEAT-(?=[0-9]*[1-9])[0-9]{3,}-T(?=[0-9]*[1-9])[0-9]{2,}\\.agenix\\.json$"
             }
@@ -173,9 +199,11 @@
           "type": "object",
           "properties": {
             "id": {
+              "description": "Stable identifier within the owning scope.",
               "$ref": "../evidence/checkpoint.schema.json#/$defs/ticketID"
             },
             "native-ref": {
+              "description": "Verified native tracker reference.",
               "$ref": "../evidence/checkpoint.schema.json#/$defs/nativeRef"
             }
           },
