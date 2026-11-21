@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agenix Guide"
+  short_description: "Learn and navigate Agenix workflows"
+  default_prompt: "Use $agx-guide to explain how to use Agenix and choose a workflow step."

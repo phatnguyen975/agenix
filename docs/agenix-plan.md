@@ -436,7 +436,8 @@ When implementing the workflow steps in later phases, verify that each step sele
 
 ### Phase 6 - Guide and Bundle Assembly
 
-- [ ] Complete `agx-guide` from the stable routers and shared rules. Cover first use, step selection, approval, resume and common tracker or scope questions on demand.
+- [x] Complete `agx-guide` from the stable routers and shared rules. Cover first use, step selection, approval, resume and common tracker or scope questions on demand.
+  - Implemented read-only workflow orientation and host/MCP troubleshooting. Skill validation, metadata, links and UTF-8 checked; behavioral verification and README recovery instructions remain pending.
   - Explain how each host enables or reloads the plugin and shows the bundled Chrome DevTools MCP status. Distinguish an inactive plugin from an enabled plugin with a failed server or browser launch. Cover Node/npm, browser availability, first-run package access, host permissions, and the Edge executable override. Point to README recovery instructions for users who cannot invoke the guide yet.
 - [ ] Complete all three manifests, Codex discovery metadata and the marketplace entry. Include the shared resources, selected skills, helpers, templates and notices in the configured bundle. Keep development-only material outside it.
   - Use root `plugin.json` with `extensions.com.openai` for Codex and `.antigravity-plugin/plugin.json` for Antigravity. Leave the Codex marketplace catalog under `.agents/plugins/`.

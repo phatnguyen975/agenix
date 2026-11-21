@@ -1,0 +1,21 @@
+# Plugin and Browser Tool Troubleshooting
+
+## First Identify the Failure
+
+Check whether the host sees and enables Agenix for the current project or session. A missing or disabled plugin, an unavailable MCP server and a browser launch failure are different problems. Do not assume that a failed server disables the plugin or that an enabled plugin proves its server works. Host versions and policy can differ; report what is observed. If the guide itself cannot load, use the distribution README or the host's plugin manager for recovery.
+
+| Host        | Plugin Access                                                                                                                                                                                               | MCP Status                                                                                                                                                         |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Codex       | Check the installed plugin and its enabled state in the Plugins interface. For a local marketplace, project settings apply only to trusted projects; reload or start a new session as required by the host. | Inspect the host's MCP/tool status and diagnostics. `codex mcp list` lists configured servers, but does not by itself prove a plugin-provided server is connected. |
+| Claude Code | Use `/plugin` to inspect and enable the installed plugin, then `/reload-plugins` or a new session when needed.                                                                                              | Use `/mcp` in the session to inspect server status and errors.                                                                                                     |
+| Antigravity | Check the plugin in the host's plugin manager or `/plugin`; enable it and satisfy any host-requested configuration.                                                                                         | In the CLI use `/mcp`; in the app or IDE use its MCP management interface to inspect status and logs.                                                              |
+
+Official host references: [Codex plugins](https://developers.openai.com/plugins/build/plugins), [Claude Code plugins](https://code.claude.com/docs/en/plugins), [Claude Code MCP](https://code.claude.com/docs/en/mcp), [Antigravity plugins](https://antigravity.google/docs/build-plugins/) and [Antigravity MCP](https://antigravity.google/docs/mcp).
+
+## Chrome DevTools MCP
+
+The packaged server uses `npx` to launch the pinned `chrome-devtools-mcp` version with headless and isolated browser options. Check that Node.js and npm/npx are available to the host process, that the pinned package can be resolved on first use, and that host permissions allow the server and browser to start. Check the reported error or logs before changing settings. A connected MCP server may still fail when it first launches a browser.
+
+If Chrome is unavailable or another compatible browser is required, use the host-supported way to configure a custom server launch with `--executablePath=<absolute-browser-path>`. Microsoft Edge can be used this way. Apply the override to the user's host configuration as supported by that host; do not edit the installed plugin bundle or assume every host allows overriding a bundled server in place. Avoid defining a duplicate server unintentionally. Restart or reload according to the host, then verify an authorized local target and report actual tool availability. Keep the isolated profile and avoid personal browser data unless separately authorized.
+
+See [Chrome DevTools MCP configuration](https://github.com/ChromeDevTools/chrome-devtools-mcp/blob/main/docs/configuration.md) and [Microsoft Edge MCP guidance](https://github.com/MicrosoftDocs/edge-developer/blob/main/microsoft-edge/web-platform/devtools-mcp-server.md). Do not claim a host installation or connection has been verified without observing it.
