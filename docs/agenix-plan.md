@@ -431,7 +431,8 @@ When implementing the workflow steps in later phases, verify that each step sele
   - Drafted ticket delivery, prospective local status, exact-head merge authority and post-merge repair. Metadata, links and UTF-8 checked; behavioral and integration verification remain pending.
 - [x] Implement feature `agx-ship run`. Verify the merged ticket set, run the applicable ticket and whole-feature checks against the integrated baseline, publish the Git-owned completion record and verify its merge. Bind optional exposure to its own authorization.
   - Drafted integrated acceptance, feature finalization and separately authorized exposure. Links and UTF-8 checked; behavioral and integration verification remain pending.
-- [ ] Connect additive work, amendments, cancellation, overrides and interrupted publication to the affected routes. Preserve prior definitions and evidence. Keep the three trackers on the same lifecycle and completion contract.
+- [x] Connect additive work, amendments, cancellation, overrides and interrupted publication to the affected routes. Preserve prior definitions and evidence. Keep the three trackers on the same lifecycle and completion contract.
+  - Added a shared exception route to the affected workflow entries, retaining existing ownership and tracker rules. Link and consistency checks recorded; behavioral and integration verification remain pending.
 
 ### Phase 6 - Guide and Bundle Assembly
 

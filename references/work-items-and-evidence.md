@@ -20,6 +20,14 @@ Allow dependencies between features, between tickets of the same feature and bet
 - Use a new feature for a new outcome or follow-up to a completed feature. Add tickets within an open feature and tasks within an open, unmerged ticket. Record their origin. Fixing an active task to meet its existing acceptance stays within that task. An amendment preserves original definitions and references and assigns new implementation obligations new IDs.
 - Obtain human approval to cancel unfinished work. Keep its definition, cancellation reason and any replacement link. Check affected children, dependents, acceptance coverage and already-merged effects. Cancelled dependencies remain unsatisfied. Replace affected definitions or obtain an applicable waiver. Use the owning plan publication for shared dispositions and the owning ticket record for tasks.
 
+## Handle Changes and Exceptions
+
+1. Resolve the affected item, its approved definition, current state, owner and durable evidence. Identify dependent work and pause only actions that rely on an unresolved decision. Reconcile any prior partial write before retrying.
+2. For additional work, use the owning feature, ticket or task planning step. Preserve existing definitions and evidence; assign new IDs and record the origin. For a material change to an approved baseline, follow the workflow's amendment route before relying on the change. Do not silently alter dependencies or reopen completed work.
+3. For cancellation, assess affected children, dependents, coverage and delivered effects. Present the exact disposition, reason, replacements and intended writes for human approval. Record it in the affected item's owning record and reconcile tracker state using the selected adapter. Keep cancelled dependencies unsatisfied and recheck the affected graph and coverage.
+4. For an override, apply [Human Overrides](#human-overrides) to the exact item, conditions, permitted work and consumer scope. Record the actual human decision and remaining checks in the owning record. An override does not change child obligations or grant merge or exposure authority.
+5. Verify approved writes and read back native states and mappings where applicable. Record incomplete publication and retain needed drafts when a result is uncertain. Resume existing records, PRs and authorized actions; never repeat a confirmed write or infer approval from elapsed time. Revalidate evidence invalidated by material changes.
+
 ## Decide Readiness and Record Progress
 
 | Status        | Meaning                                                                                                              |
