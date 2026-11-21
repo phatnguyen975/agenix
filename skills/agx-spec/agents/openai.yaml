@@ -1,0 +1,6 @@
+interface:
+  display_name: "Agenix Spec"
+  short_description: "Define the feature specification"
+  default_prompt: "Use $agx-spec with a feature ID and supported step to define its specification."
+policy:
+  allow_implicit_invocation: false

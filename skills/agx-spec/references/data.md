@@ -1,0 +1,27 @@
+# Assess Feature Data Impact
+
+## Applicability and Inputs
+
+Use this step when the feature affects owned persistent data, including client-local persistence. Changes to reads, writes, derived data, invariants or retention can require analysis even if the schema does not change. For an externally owned store, assess local persistence effects and record relevant provider dependencies without proposing changes to the provider's storage. If there is no in-scope persistence impact, report the basis for omission without creating an artifact.
+
+Read the approved feature record and behavior specification on the feature specification branch, including applicable requirements, acceptance and data-related rules. Read applicable approved API contracts, domain model, system or client design, database design, tech stack and test strategy for ownership, interactions, invariants, store capabilities and verification constraints. Inspect relevant ADRs, scoped instructions and existing implementation only where they affect the analysis.
+
+Verify scaffold merge and required checks on the refreshed default branch. Apply [Decide Readiness and Record Progress](../../../references/work-items-and-evidence.md#decide-readiness-and-record-progress) to feature dependencies and applicable overrides; use [Local Tracker](../../../references/trackers/local.md#read-verify-and-update) for local status verification and the applicable shared rules for Git-owned feature evidence in remote modes. A blocked feature requires an explicitly scoped human override before permitted work can proceed.
+
+## Analyze and Verify Impact
+
+Write `docs/features/<feature-id>/data-impact.md` using the [Data Impact Template](../../data-impact-analysis/assets/data-impact-template.md). Use [Data Impact Analysis](../../data-impact-analysis/SKILL.md) as the main workflow and load its references selectively for the affected stores and decisions.
+
+1. Pin the refreshed integrated repository revision. Inspect the toolchain's maintained schema declarations and relevant migration history for affected structures, and use the approved database design and decisions for ownership and intent. Distinguish repository state, proposed changes and evidence of actual state in a particular environment. If structure cannot be established reliably, use an available verified snapshot or approved disposable replay; report unresolved gaps rather than assuming a migration was applied.
+2. Trace feature requirements to affected reads, writes, derivations and retention. Assess access patterns, existing data, integrity and enforcement, concurrency, consistency, lifecycle and privacy where applicable. Identify consumers and explain whether existing structures suffice or a change is needed.
+3. Compare known relevant parallel work with the pinned baseline. Identify overlapping structures, competing creation, incompatible assumptions and migration ordering. Assign each shared prerequisite one owner and record dependencies and evidence needed before reliance; do not treat an unmerged proposal as integrated. Reassess affected assumptions when the integration baseline changes.
+4. For material changes, describe before and after, compatibility of supported readers and writers, existing-data treatment, rollout order, recovery and any irreversible point. State migration intent and prerequisites without inventing migration files or results. Route a material change to approved shared design intent through [Amend an Approved Baseline](../../../references/workflow-control.md#amend-an-approved-baseline); apply [Keep Design and Implementation Sources Aligned](../../../references/project-content.md#keep-design-and-implementation-sources-aligned).
+5. Specify applicable implementation checks and expected results, including clean initialization on a disposable store and an upgrade from a representative prior state with data when migrations are planned. Cover affected integrity, concurrency, compatibility and combined changes where relevant. Distinguish planned checks from evidence actually obtained. Migration scripts, execution and their evidence belong to implementation.
+
+Apply the capability's output verification checklist. Check source references, baseline and evidence limits, coverage, owners, dependencies, compatibility and open decisions. Ask the human when a material decision cannot be resolved from approved evidence; do not present an unresolved proposal as implementation-ready.
+
+## Approve and Publish
+
+Apply [Artifact Gates](../../../references/workflow-control.md#artifact-gates). Present the impact, pinned baseline, material decisions, parallel-work dependencies, verification obligations, actual evidence and limitations, remaining applicable specification work and intended publication. Bind `data-impact.md` in the feature record as described in the skill entry point.
+
+[Publish the Approved Candidate](../../../references/git-publication.md#publish-the-approved-candidate) on the feature specification branch and bind approval and verification evidence to its revision in the phase PR or a durable checkpoint. Reconcile existing work on resume. If this is the final applicable specification step, verify the complete specification set and its applicable evidence, then obtain separate merge authority and verify the merge and required checks. Otherwise leave the phase open for the remaining applicable steps. Follow the shared session closure rules.

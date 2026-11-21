@@ -411,7 +411,11 @@ When implementing the workflow steps in later phases, verify that each step sele
   - `ci` implemented with approved optional hooks, unit-aware selection, a stable gate and hosted failure/restoration verification. `instructions` remains pending.
   - `instructions` implemented with scoped instruction routing, verified environment and human-directed README. Isolated environment validation passed a valid record and six negative cases. Task and receipt integration remains to be checked.
   - Exercise the shipped environment schema with `validate-artifacts.py --stage environment` on valid and invalid rendered records in isolated worktrees. Recheck task and receipt validation with the rendered command IDs, levels and modes.
-- [ ] Implement `agx-spec behavior`, `api`, `data` and `ui`. Preserve one behavior baseline and select the applicable owned interfaces, persistence impact and UI contract. Bind feature prototypes to approved interactions and keep historical prototype code separate from production maintenance.
+- [x] Implement `agx-spec behavior`, `api`, `data` and `ui`. Preserve one behavior baseline and select the applicable owned interfaces, persistence impact and UI contract. Bind feature prototypes to approved interactions and keep historical prototype code separate from production maintenance.
+  - `behavior` implemented with specification template, dependency readiness and real-boundary acceptance. Later specification steps remain pending.
+  - `api` implemented with owned and external interface routes, a shared contract README, human-confirmed organization when needed, compatibility and contract validation.
+  - `data` implemented with integrated-baseline analysis, parallel-change reconciliation, migration intent and verification obligations.
+  - `ui` implemented with a feature-specific written contract, inherited foundations, deterministic prototype scenarios and browser review. Complete-set integration remains to be checked.
 - [ ] Implement `agx-plan strategy` and `tickets` for a feature. Record delivery boundaries, exposure constraints and real integration coverage. Publish local records or verify remote mappings under the approved feature plan.
 
 ### Phase 5 - Ticket Execution and Delivery

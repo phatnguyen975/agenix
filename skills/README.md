@@ -45,6 +45,7 @@ This catalog lists the skills available in this plugin. Start with a skill's `SK
 | [agx-feature](agx-feature/SKILL.md)     | Define demonstrable features from the approved PRD, map requirement and journey coverage, and record delivery dependencies.                                                                     |
 | [agx-architect](agx-architect/SKILL.md) | Design the owned product blueprint from approved requirements and feature definitions.                                                                                                          |
 | [agx-scaffold](agx-scaffold/SKILL.md)   | Prepare the approved product foundation and a runnable, verifiable project environment.                                                                                                         |
+| [agx-spec](agx-spec/SKILL.md)           | Define the behavior and applicable contracts of an owned feature.                                                                                                                               |
 
 ## Imported Skills
 
