@@ -1,0 +1,6 @@
+interface:
+  display_name: "Agenix Build"
+  short_description: "Prepare and carry out ticket work"
+  default_prompt: "Use $agx-build with a ticket ID and supported step to carry out the ticket work."
+policy:
+  allow_implicit_invocation: false
