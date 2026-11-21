@@ -49,6 +49,7 @@ This catalog lists the skills available in this plugin. Start with a skill's `SK
 | [agx-plan](agx-plan/SKILL.md)           | Choose a feature delivery strategy and plan verifiable tickets with dependencies and integration coverage.                                                                                      |
 | [agx-build](agx-build/SKILL.md)         | Prepare and carry out approved ticket work with scoped verification and evidence.                                                                                                               |
 | [agx-review](agx-review/SKILL.md)       | Assess ticket changes and evidence against approved obligations before delivery.                                                                                                                |
+| [agx-ship](agx-ship/SKILL.md)           | Verify and publish ticket or feature delivery with evidence and appropriate authority.                                                                                                          |
 
 ## Imported Skills
 

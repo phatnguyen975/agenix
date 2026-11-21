@@ -1,0 +1,6 @@
+interface:
+  display_name: "Agenix Ship"
+  short_description: "Verify and publish delivery"
+  default_prompt: "Use $agx-ship with an item ID and supported step to verify its delivery."
+policy:
+  allow_implicit_invocation: false

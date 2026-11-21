@@ -427,8 +427,10 @@ When implementing the workflow steps in later phases, verify that each step sele
   - Implemented incremental execution, conditional simplification and applicable UI, React, browser and test routes. Links and UTF-8 checked; behavioral and integration verification remain pending.
 - [x] Implement `agx-review assess`. Bind findings, manual judgments and review evidence to the candidate before shipping. Route fixes to the current approved tasks or to additive planning. Persist evidence on the branch or tracker as applicable.
   - Implemented risk-selected sequential review, specialist routes, private report and durable decision evidence. Metadata, links and UTF-8 checked; behavioral and integration verification remain pending.
-- [ ] Implement ticket `agx-ship run`. Verify publication readiness, open or update the implementation PR, reconcile final-head checks, obtain separate merge authority and verify actual closure. Support resuming a human merge and preserve original and repair evidence for linked post-merge work.
-- [ ] Implement feature `agx-ship run`. Verify the merged ticket set, run the applicable ticket and whole-feature checks against the integrated baseline, publish the Git-owned completion record and verify its merge. Bind optional exposure to its own authorization.
+- [x] Implement ticket `agx-ship run`. Verify publication readiness, open or update the implementation PR, reconcile final-head checks, obtain separate merge authority and verify actual closure. Support resuming a human merge and preserve original and repair evidence for linked post-merge work.
+  - Drafted ticket delivery, prospective local status, exact-head merge authority and post-merge repair. Metadata, links and UTF-8 checked; behavioral and integration verification remain pending.
+- [x] Implement feature `agx-ship run`. Verify the merged ticket set, run the applicable ticket and whole-feature checks against the integrated baseline, publish the Git-owned completion record and verify its merge. Bind optional exposure to its own authorization.
+  - Drafted integrated acceptance, feature finalization and separately authorized exposure. Links and UTF-8 checked; behavioral and integration verification remain pending.
 - [ ] Connect additive work, amendments, cancellation, overrides and interrupted publication to the affected routes. Preserve prior definitions and evidence. Keep the three trackers on the same lifecycle and completion contract.
 
 ### Phase 6 - Guide and Bundle Assembly
