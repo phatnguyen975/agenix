@@ -1,8 +1,8 @@
 <!--
 Place this managed region in AGENTS.md at an approved module or release-unit root.
-Preserve team-owned sections and keep the accompanying CLAUDE.md as a thin adapter. Use
-the project's approved documentation language. Remove authoring comments, placeholders
-and inapplicable sections.
+Preserve team-owned sections and keep the accompanying CLAUDE.md as a thin adapter.
+Use the project's approved documentation language. Remove authoring comments,
+placeholders and inapplicable sections.
 -->
 <!-- agenix:begin -->
 
