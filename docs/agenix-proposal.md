@@ -1083,11 +1083,11 @@ Shared contract definitions and wire schemas live under `docs/contracts/` with p
 
 ### Platform Contract
 
-| Platform    | Manifest                                              | Explicit workflow invocation                                                                             | Project instructions                                             |
-| ----------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| Claude Code | `.claude-plugin/plugin.json`                          | `/agenix:agx-build FEAT-003-T01 run`; `disable-model-invocation: true`                                   | Local `CLAUDE.md` importing `@AGENTS.md` at each generated scope |
-| Codex       | Root `plugin.json`, including `extensions.com.openai` | `$agx-build FEAT-003-T01 run`; skill `agents/openai.yaml` sets `policy.allow_implicit_invocation: false` | `AGENTS.md`                                                      |
-| Antigravity | `.antigravity-plugin/plugin.json`                     | `/agx-build FEAT-003-T01 run`; `disable-model-invocation: true`                                          | `AGENTS.md`                                                      |
+| Platform    | Manifest                                              | Explicit workflow invocation                                                                                    | Project instructions                                             |
+| ----------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Claude Code | `.claude-plugin/plugin.json`                          | `/agenix:agx-build FEAT-003-T01 run`; `disable-model-invocation: true`                                          | Local `CLAUDE.md` importing `@AGENTS.md` at each generated scope |
+| Codex       | Root `plugin.json`, including `extensions.com.openai` | `$agenix:agx-build FEAT-003-T01 run`; skill `agents/openai.yaml` sets `policy.allow_implicit_invocation: false` | `AGENTS.md`                                                      |
+| Antigravity | `.antigravity-plugin/plugin.json`                     | `/agenix:agx-build FEAT-003-T01 run`; `disable-model-invocation: true`                                          | `AGENTS.md`                                                      |
 
 The v1 package uses the three manifest locations above with consistent identity and version metadata and shared `skills/` content. Codex reads the portable root manifest and its inline OpenAI extension. Antigravity gives its dedicated manifest precedence over the root manifest. Validate each manifest against its vendor schema.
 

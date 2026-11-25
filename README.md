@@ -78,9 +78,9 @@ Open the target project in your host and invoke setup:
 
 | Host        | First invocation              |
 | ----------- | ----------------------------- |
-| Codex       | `$agx-setup configure`        |
+| Codex       | `$agenix:agx-setup configure` |
 | Claude Code | `/agenix:agx-setup configure` |
-| Antigravity | `/agx-setup configure`        |
+| Antigravity | `/agenix:agx-setup configure` |
 
 The agent prepares a setup candidate and asks about the tracker, project scope, targets and preferred conversation and documentation languages. Review the candidate and close the step with `END AGX-SETUP configure`. If using Jira, enter credentials privately at the path reported by the agent. Then invoke `agx-setup verify` in the same worktree. Verification completes the configuration, presents it for approval and publishes the setup PR. Merge requires a separate decision.
 
